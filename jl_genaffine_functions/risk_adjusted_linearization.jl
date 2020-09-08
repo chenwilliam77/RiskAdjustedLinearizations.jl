@@ -9,18 +9,20 @@ Creates a first-order perturbation around the stochastic steady state ``(z, y)``
 The affine approximation of the model is
 ``math
 \\begin{aligned}
-    \\mathbb{E}[z_{t + 1}] & = \\mu(z, y) + \\Gamma_1(z_t - z) + \\Gamma_2(y_t - y)\\
+    \\mathbb{E}[z_{t + 1}] & = \\mu(z, y) + \\Gamma_1(z_t - z) + \\Gamma_2(y_t - y)\\\\
     0                      & = \\xi(z, y) + \\Gamma_3(z_t - z) + \\Gamma_4(y_t - y) + \\Gamma_5 \\mathbb{E}_t z_{t + 1} + \\Gamma_6 \\mathbb{E}_t y_{t + 1} + \\mathscr{V}(z) + J\\mathscr{V}(z)(z_t  - z),
 \\end{aligned}
 ``
-where ``\\Gamma_1, \Gamma_2`` are the Jacobians of ``\\mu`` with respect to ``z_t`` and ``y_t``, respectively;
-``\\Gamma_3, \Gamma_4`` are the Jacobians of ``\\xi`` with respect to ``z_t`` and ``y_t``, respectively;
+
+where ``\\Gamma_1, \\Gamma_2`` are the Jacobians of ``\\mu`` with respect to ``z_t`` and ``y_t``, respectively;
+``\\Gamma_3, \\Gamma_4`` are the Jacobians of ``\\xi`` with respect to ``z_t`` and ``y_t``, respectively;
 ``\\Gamma_5, \\Gamma_6`` are constant matrices; ``\\mathscr{V}(z)`` is the model's entropy;
 ``J\\mathscr{V}(z)`` is the Jacobian of the entropy;
+
 and the state variables ``z_t`` and jump variables ``y_t`` follow
 ``math
 \\begin{aligned}
-    z_{t + 1} & = z + \\Gamma_1(z_t - z) + \\Gamma_2(y_t - y) + (I_{n_z} - \\Lambda(z_t) \\Psi)^{-1}\\Sigma(z_t)\\varepsilon_{t + 1},\\
+    z_{t + 1} & = z + \\Gamma_1(z_t - z) + \\Gamma_2(y_t - y) + (I_{n_z} - \\Lambda(z_t) \\Psi)^{-1}\\Sigma(z_t)\\varepsilon_{t + 1},\\\\
     y_t       & = y + \\Psi(z_t - z)
 \\end{aligned}
 ``
@@ -28,19 +30,18 @@ and the state variables ``z_t`` and jump variables ``y_t`` follow
 The unknowns ``(z, y, \\Psi)`` solve the system of equations
 ``math
 \\begin{aligned}
-0 & = \\mu(z, y) - z\\
-0 & = \\xi(z, y) + \\Gamma_5 z + \\Gamma_6 y + \\mathscr{V}(z)\\
-0 & = \\Gamma_3 + \\Gamma_4 \\Psi + (\\Gamma_5 + \\Gamma_6 \\Psi)(\\Gamma_1 + \\Gamma_2 \\Psi) + J\\mathscr{V}(z),
+0 & = \\mu(z, y) - z,\\\\
+0 & = \\xi(z, y) + \\Gamma_5 z + \\Gamma_6 y + \\mathscr{V}(z),\\\\
+0 & = \\Gamma_3 + \\Gamma_4 \\Psi + (\\Gamma_5 + \\Gamma_6 \\Psi)(\\Gamma_1 + \\Gamma_2 \\Psi) + J\\mathscr{V}(z).
 \\end{aligned}
 ``
-
 (TODO: Move the nonlinear model statement to documentation)
 The true nonlinear equations defining model are assumed to take the form
 
 ``math
 \\begin{aligned}
-    z_{t + 1} & = \\mu(z_t, y_t) + \\Lambda(z_t)(y_{t + 1} - \\mathbb{E}_t y_{t + 1}) + \\Sigma(z_t) \\varepsilon_{t + 1}.
-    0 & = \\log\\mathbb{E}_t[\\exp(\\xi(z_t, y_t) + \\Gamma_5 z_{t + 1} + \\Gamma_6 y_{t + 1})], \\\\
+    z_{t + 1} & = \\mu(z_t, y_t) + \\Lambda(z_t)(y_{t + 1} - \\mathbb{E}_t y_{t + 1}) + \\Sigma(z_t) \\varepsilon_{t + 1},\\\\
+    0 & = \\log\\mathbb{E}_t[\\exp(\\xi(z_t, y_t) + \\Gamma_5 z_{t + 1} + \\Gamma_6 y_{t + 1})].
 \\end{aligned}
 ``
 
@@ -60,24 +61,23 @@ is described by the differentiable, conditional cumulant generating function (cc
 The functions
 ``math
 \\begin{aligned}
-\\xi:\\mathbb{R}^{2n_y + 2n_z}\\rightarrow \\mathbb{R}^{n_y},& \\quad \\mu:\\mathbb{R}^{n_y + n_z}\\rightarrow \\mathbb{R}^{n_z},\\
-\\Lambda::\\mathbb{R}^{n_z} \\rightarrow \\mathbb{R}^{n_z \\times n_y}, & \quad \\Sigma::\\mathbb{R}^{n_z}\\rightarrow \\mathbb{R}^{n_z\times n_\\varepsilon}
+\\xi:\\mathbb{R}^{2n_y + 2n_z}\\rightarrow \\mathbb{R}^{n_y},& \\quad \\mu:\\mathbb{R}^{n_y + n_z}\\rightarrow \\mathbb{R}^{n_z},\\\\
+\\Lambda::\\mathbb{R}^{n_z} \\rightarrow \\mathbb{R}^{n_z \\times n_y}, & \\quad \\Sigma::\\mathbb{R}^{n_z}\\rightarrow \\mathbb{R}^{n_z\\times n_\\varepsilon}
 \\end{aligned}
 are differentiable. The first two functions characterize the effects of time ``t`` variables on the expectational and
 state transition equations. The function ``\\Lambda`` characterizes heteroskedastic endogenous risk that depends on
-innovaitons in jump variables while the function ``\\Sigma`` characterizes exogenous risk.
+innovations in jump variables while the function ``\\Sigma`` characterizes exogenous risk.
 
 Refer to Lopz et al. (2018) "Risk-Adjusted Linearizations of Dynamic Equilibrium Models" for details.
 """
-
-mutable struct RiskAdjustedLinearization{M <: Function, L <: Function, S <: Function,
+mutable struct RiskAdjustedLinearization{M <: Function, L, S,
                                          X <: Function, V <: Function,
                                          Mz <: Function, My <: Function, Xz <: Function, Xy <: Function, J <: Function,
-                                         VC <: AbstractVector{<: Number}, JC <: Abstractmatrix{<: Number},
+                                         VC <: AbstractVector{<: Number}, JC <: AbstractMatrix{<: Number},
                                          C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
-    μ::M                     # Functions
-    Λ::L
-    Σ::S
+    μ::M         # Functions
+    Λ::L         # no type assertion for L b/c it can be Function or Matrix of zeros
+    Σ::S         # no type assertion for S b/c it can be Function or constant Matrix
     ξ::X
     𝒱::V
     μz::Mz
@@ -95,10 +95,10 @@ mutable struct RiskAdjustedLinearization{M <: Function, L <: Function, S <: Func
     Γ₅::JC
     Γ₆::JC
     JV::JC
-    z::C1                    # Coefficients
+    z::C1        # Coefficients
     y::C1
     Ψ::C2
-    Nz::Int                  # Dimensions
+    Nz::Int      # Dimensions
     Ny::Int
     Nε::Int
 end
@@ -111,8 +111,8 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μz::Mz,
                                    Γ₁::AbstractMatrix{T}, Γ₂::AbstractMatrix{T}, Γ₃::AbstractMatrix{T}
                                    Γ₄::AbstractMatrix{T}, Γ₅::AbstractMatrix{T}, Γ₆::AbstractMatrix{T},
                                    JV::AbstractMatrix{T}, z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int = -1) where {T <: Number, M <: Function, L <: Function,
-                                                        S <: Function, X <: Function, V <: Function,
+                                   Nε::Int = -1) where {T <: Number, M <: Function, L,
+                                                        S, X <: Function, V <: Function,
                                                         Mz <: Function, My <: Function, Xz <: Function,
                                                         Xy <: Function, J <: Function}
 
@@ -132,8 +132,8 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μz::Mz,
                                    Γ₁::AbstractMatrix{T}, Γ₂::AbstractMatrix{T}, Γ₃::AbstractMatrix{T}
                                    Γ₄::AbstractMatrix{T}, Γ₅::AbstractMatrix{T}, Γ₆::AbstractMatrix{T},
                                    JV::AbstractMatrix{T}, z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int = -1) where {T <: Number, M <: Function, L <: Function,
-                                                        S <: Function, X <: Function, V <: Function,
+                                   Nε::Int = -1) where {T <: Number, M <: Function, L,
+                                                        S, X <: Function, V <: Function,
                                                         Mz <: Function, My <: Function, Xz <: Function,
                                                         Xy <: Function, J <: Function}
     Nz = length(z)
@@ -152,8 +152,8 @@ end
 
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μz::Mz, μy::My, ξz::Xz, ξy::Xy, J𝒱::J,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int = -1) where {T <: Number, M <: Function, L <: Function,
-                                                        S <: Function, X <: Function, V <: Function,
+                                   Nε::Int = -1) where {T <: Number, M <: Function, L,
+                                                        S, X <: Function, V <: Function,
                                                         Mz <: Function, My <: Function, Xz <: Function,
                                                         Xy <: Function, J <: Function}
     # Get dimensions
@@ -179,8 +179,8 @@ end
 # NOTE THAT here we pass in the ccgf, rather than 𝒱
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int = -1) where {T <: Number, M <: Function, L <: Function,
-                                                        S <: Function, X <: Function, CF <: Function}
+                                   Nε::Int = -1) where {T <: Number, M <: Function, L,
+                                                        S, X <: Function, CF <: Function}
     # Get dimensions
     Nz = length(z)
     Ny = length(y)
@@ -214,10 +214,10 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, ccgf::CF,
     # Create 𝒱 and its Jacobian J𝒱
     if applicable(ccgf, z) # Check if ccgf is in place or not
         𝒱 = function _𝒱(F, z, Ψ, Γ₅, Γ₆)
-            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)))
+            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
         end
     else # in place
-        𝒱 = (F, z, Ψ, Γ₅, Γ₆) -> ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)))
+        𝒱 = (F, z, Ψ, Γ₅, Γ₆) -> ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
     end
     J𝒱 = function _J𝒱(F, z, Ψ, Γ₅, Γ₆, 𝒱_sss)
         ForwardDiff.jacobian!(F, (G, x) -> 𝒱(G, x, Ψ, Γ₅, Γ₆), 𝒱_sss, z)
@@ -256,12 +256,12 @@ function _cache_sss_vectors(z::AbstractVector{T}, y::AbstractVector{T}) where {T
    return μ_sss, ξ_sss, 𝒱_sss
 end
 
-function _check_inputs(z::C1, y::C1, Ψ::C2, Γ₅::JC, Γ₆::Jc,
+function _check_inputs(z::C1, y::C1, Ψ::C2, Γ₅::JC, Γ₆::JC,
                        μ_sss::VC, ξ_sss::VC, 𝒱_sss::VC,
-                       μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μz::Mz
+                       μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μz::Mz,
                        μy::My, ξz::Xz, ξy::Xy, J𝒱::J)  where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number},
                                                               VC <: AbstractVector{<: Number}, JC <: AbstractMatrix{<: Number},
-                                                              M <: Function, L <: Function, S <: Function,
+                                                              M <: Function, L, S,
                                                               X <: Function, V <: Function, Mz <: Function, My <: Function,
                                                               Xz <: Function, Xy <: Function, J <: Function}
 
