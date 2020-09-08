@@ -50,20 +50,21 @@ function inplace_wachter_disaster_risk(m::WachterDisasterRisk{T}) where {T <: Re
 
     function ξ(F, z, y) # the equation labeling could be wrong
         F[J[:vc]] = log(β) - γ * μₐ + γ * ν * z[S[:p]] - (ρ - γ) * y[J[:xc]] + y[J[:rf]]
-        F[J[:xc]] = log(1. - β + β * exp((1. - ρ) * J[:xc])) - (1. - ρ) * J[:vc]
+        F[J[:xc]] = log(1. - β + β * exp((1. - ρ) * y[J[:xc]])) - (1. - ρ) * y[J[:vc]]
         F[J[:rf]] = (1. - γ) * (μₐ - ν * z[S[:p]] - y[J[:xc]])
     end
 
-    Λ = zeros(T, Nz, Nz)
+    Λ = zeros(T, Nz, Ny)
 
     function Σ(F, z)
+        F_type = eltype(F)
         F[SH[:εₚ], SH[:εₚ]] = sqrt(z[S[:p]]) * ϕₚ * σₐ
-        F[SH[:εc], SH[:εc]] = 1.
-        F[SH[:εξ], SH[:εξ]] = 1.
+        F[SH[:εc], SH[:εc]] = one(F_type)
+        F[SH[:εξ], SH[:εξ]] = one(F_type)
     end
 
     function ccgf(F, α, z)
-        F .= .5 * α[:, 1].^2 + .5 * α[:, 2].^2 + (eαp(α[:, 3] + α[:, 3].^2 * δ^2 / 2.) - 1. - α[:, 3]) * z[S[:p]]
+        F .= .5 .* α[:, 1].^2 + .5 * α[:, 2].^2 + (exp.(α[:, 3] + α[:, 3].^2 .* δ^2 ./ 2.) .- 1. - α[:, 3]) * z[S[:p]]
     end
 
     Γ₅ = zeros(T, Ny, Nz)
@@ -84,7 +85,7 @@ function inplace_wachter_disaster_risk(m::WachterDisasterRisk{T}) where {T <: Re
     return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nε)
 end
 
-function outofplace_wachter_disaster_risk(m::WachterDisasterRisk)
+function outofplace_wachter_disaster_risk(m::WachterDisasterRisk{T}) where {T}
     @unpack μₐ, σₐ, ν, δ, ρₚ, pp, ϕₚ, ρ, γ, β = m
 
     @assert ρ != 1. # Forcing ρ to be non-unit for this example

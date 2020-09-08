@@ -1,58 +1,62 @@
-using ForwardDiff, UnPack
+using ForwardDiff, UnPack, LinearAlgebra
+using DiffEqBase: DiffCache, get_tmp, dualcache
 
-mutable struct RALΛ{L <: Function, LC <: AbstractMatrix{<: Number}}
+mutable struct RALΛ{L <: Function, LC}
     Λ::L
     cache::LC
 end
 
 function RALΛ(Λ::Function, cache::LC, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
-    Λnew = if applicable(Λ, cache, z)
-        function _Λ_ip(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}}
-            Λ(cache, z)
-            return cache
+    if applicable(Λ, cache, z)
+        Λnew = function _Λ_ip(cache::LCN, z::C1N) where {LCN <: DiffCache, C1N <: AbstractVector{<: Number}}
+            Λ(get_tmp(cache, z), z)
+            return get_tmp(cache, z)
         end
+        return RALΛ(Λnew, dualcache(cache, Val{length(z)}))
     else
-        function _Λ_oop(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}}
-            cache .= Λ(z)
-            return cache
+        Λnew = function _Λ_oop(cache::LCN, z::C1N) where {LCN <: DiffCache, C1N <: AbstractVector{<: Number}}
+            du = get_tmp(cache, z)
+            du .= Λ(z)
+            return du
         end
+        return RALΛ(Λnew, cache)
     end
-    return RALΛ(Λnew, cache)
 end
 
-function RALΛ(Λin::AbstractMatrix{<: Number}, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
+function RALΛ(Λin::LC, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
     Λ(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}} = cache
-    return RALΛ(Λ, Λin)
+    return RALΛ{Function, LC}(Λ, Λin)
 end
 
 function (ralλ::RALΛ)(z::C1) where {C1 <: AbstractVector{<: Number}}
     return ralλ.Λ(ralλ.cache, z)
 end
 
-mutable struct RALΣ{S <: Function, SC <: AbstractMatrix{<: Number}}
+mutable struct RALΣ{S <: Function, SC}
     Σ::S
     cache::SC
 end
-function RALΣ(Σ::Function, cache::LC, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
-    Σnew = if applicable(Σ, cache, z)
-        function _Σ_ip(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}}
-            Σ(cache, z)
-            return cache
+function RALΣ(Σ::Function, cache::SC, z::C1) where {SC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
+    if applicable(Σ, cache, z)
+        Σnew = function _Σ_ip(cache::SCN, z::C1N) where {SCN <: DiffCache, C1N <: AbstractVector{<: Number}}
+            du = get_tmp(cache, z)
+            Σ(du, z)
+            return du
         end
+        return RALΣ(Σnew, dualcache(cache, Val{length(z)}))
     else
-        function _Σ_oop(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}}
-            cache .= Σ(z)
-            return cache
+        Σnew = function _Σ_oop(cache::SCN, z::C1N) where {SCN <: DiffCache, C1N <: AbstractVector{<: Number}}
+            du = get_tmp(cache, z)
+            du .= Σ(z)
+            return du
         end
+        return RALΣ(Σnew, cache)
     end
-    return RALΣ(Σnew, cache)
 end
 
-function RALΣ(Σin::AbstractMatrix{<: Number}, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
-    Σ = function _Σ(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}}
-        cache
-    end
-    return RALΣ(Σ, Σin)
+function RALΣ(Σin::SC, z::C1) where {SC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
+    Σ(cache::SCN, z::C1N) where {SCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}} = cache
+    return RALΣ{Function, SC}(Σ, Σin)
 end
 
 function (ralσ::RALΣ)(z::C1) where {C1 <: AbstractVector{<: Number}}
@@ -60,8 +64,7 @@ function (ralσ::RALΣ)(z::C1) where {C1 <: AbstractVector{<: Number}}
 end
 
 mutable struct RALNonlinearSystem{M <: Function, L <: RALΛ, S <: RALΣ, X <: Function, V <: Function,
-                                  VC1 <: AbstractVector{<: Number}, VC2 <: AbstractVector{<: Number}, VC3 <: AbstractVector{<: Number},
-                                  MC1 <: AbstractMatrix{<: Number}, MC2 <: AbstractMatrix{<: Number}}
+                                  VC1 <: AbstractVector{<: Number}, VC2 <: AbstractVector{<: Number}, VC3 <: AbstractVector{<: Number}}
     μ::M         # Functions
     Λ::L         # no type assertion for L b/c it can be Function or Matrix of zeros
     Σ::S         # no type assertion for S b/c it can be Function or constant Matrix
@@ -82,7 +85,7 @@ function RALNonlinearSystem(μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μ_sss::VC1, ξ
 
     inplace = (μ = applicable(μ, μ_sss, z, y), ξ = applicable(ξ, ξ_sss, z, y), 𝒱 = applicable(𝒱, 𝒱_sss, z, Ψ, Γ₅, Γ₆))
 
-    return RALNonlinearSystem(μ, Λ, Σ, ξ, 𝒱, μ_sss, Λ_sss, Σ_sss, ξ_sss, 𝒱_sss, inplace)
+    return RALNonlinearSystem{M, L, S, X, V, VC1, VC2, VC3}(μ, Λ, Σ, ξ, 𝒱, μ_sss, ξ_sss, 𝒱_sss, inplace)
 end
 
 function update!(m::RALNonlinearSystem, z::C1, y::C1, Ψ::C2,
@@ -179,9 +182,9 @@ function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2,
     end
 
     if m.inplace[:J𝒱]
-        m.J𝒱(m.JV, z, Ψ, Γ₅, Γ₆, 𝒱_sss)
+        m.J𝒱(m.JV, z, Ψ, m.Γ₅, m.Γ₆, 𝒱_sss)
     else
-        m.JV .= m.J𝒱(z, Ψ, Γ₅, Γ₆, 𝒱_sss)
+        m.JV .= m.J𝒱(z, Ψ, m.Γ₅, m.Γ₆, 𝒱_sss)
     end
 
     m
@@ -400,10 +403,6 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
             F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
         end
     else # in place
-        𝒱 = function _𝒱(F, z, Ψ, Γ₅, Γ₆)
-            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
-        end
-
         𝒱 = (F, z, Ψ, Γ₅, Γ₆) -> ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
     end
     J𝒱 = function _J𝒱(F, z, Ψ, Γ₅, Γ₆, 𝒱_sss)
