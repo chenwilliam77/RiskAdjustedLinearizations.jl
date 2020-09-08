@@ -1,4 +1,193 @@
-using ForwardDiff
+using ForwardDiff, UnPack
+
+mutable struct RALΛ{L <: Function, LC <: AbstractMatrix{<: Number}}
+    Λ::L
+    cache::LC
+end
+
+function RALΛ(Λ::Function, cache::LC, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
+    Λnew = if applicable(Λ, cache, z)
+        function _Λ_ip(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}}
+            Λ(cache, z)
+            return cache
+        end
+    else
+        function _Λ_oop(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}}
+            cache .= Λ(z)
+            return cache
+        end
+    end
+    return RALΛ(Λnew, cache)
+end
+
+function RALΛ(Λin::AbstractMatrix{<: Number}, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
+    Λ(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}} = cache
+    return RALΛ(Λ, Λin)
+end
+
+function (ralλ::RALΛ)(z::C1) where {C1 <: AbstractVector{<: Number}}
+    return ralλ.Λ(ralλ.cache, z)
+end
+
+mutable struct RALΣ{S <: Function, SC <: AbstractMatrix{<: Number}}
+    Σ::S
+    cache::SC
+end
+function RALΣ(Σ::Function, cache::LC, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
+    Σnew = if applicable(Σ, cache, z)
+        function _Σ_ip(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}}
+            Σ(cache, z)
+            return cache
+        end
+    else
+        function _Σ_oop(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}}
+            cache .= Σ(z)
+            return cache
+        end
+    end
+    return RALΣ(Σnew, cache)
+end
+
+function RALΣ(Σin::AbstractMatrix{<: Number}, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
+    Σ = function _Σ(cache::LCN, z::C1N) where {LCN <: AbstractMatrix{<: Number}, C1N <: AbstractVector{<: Number}}
+        cache
+    end
+    return RALΣ(Σ, Σin)
+end
+
+function (ralσ::RALΣ)(z::C1) where {C1 <: AbstractVector{<: Number}}
+    return ralσ.Σ(ralσ.cache, z)
+end
+
+mutable struct RALNonlinearSystem{M <: Function, L <: RALΛ, S <: RALΣ, X <: Function, V <: Function,
+                                  VC1 <: AbstractVector{<: Number}, VC2 <: AbstractVector{<: Number}, VC3 <: AbstractVector{<: Number},
+                                  MC1 <: AbstractMatrix{<: Number}, MC2 <: AbstractMatrix{<: Number}}
+    μ::M         # Functions
+    Λ::L         # no type assertion for L b/c it can be Function or Matrix of zeros
+    Σ::S         # no type assertion for S b/c it can be Function or constant Matrix
+    ξ::X
+    𝒱::V
+    μ_sss::VC1    # Stochastic steady state values, for caching
+    ξ_sss::VC2
+    𝒱_sss::VC3
+    inplace::NamedTuple{(:μ, :ξ, :𝒱), NTuple{3, Bool}}
+end
+
+function RALNonlinearSystem(μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μ_sss::VC1, ξ_sss::VC2, 𝒱_sss::VC3,
+                            z::C1, y::C1, Ψ::C2, Γ₅::JC5, Γ₆::JC6) where {M <: Function, L <: RALΛ, S <: RALΣ, X <: Function, V <: Function,
+                                                                          VC1 <: AbstractVector{<: Number}, VC2 <: AbstractVector{<: Number},
+                                                                          VC3 <: AbstractVector{<: Number},
+                                                                          C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number},
+                                                                          JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number}}
+
+    inplace = (μ = applicable(μ, μ_sss, z, y), ξ = applicable(ξ, ξ_sss, z, y), 𝒱 = applicable(𝒱, 𝒱_sss, z, Ψ, Γ₅, Γ₆))
+
+    return RALNonlinearSystem(μ, Λ, Σ, ξ, 𝒱, μ_sss, Λ_sss, Σ_sss, ξ_sss, 𝒱_sss, inplace)
+end
+
+function update!(m::RALNonlinearSystem, z::C1, y::C1, Ψ::C2,
+                 Γ₅::JC5, Γ₆::JC6) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number},
+                                          JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number}}
+
+    if m.inplace[:μ]
+        m.μ(m.μ_sss, z, y)
+    else
+        m.μ_sss .= m.μ(z, y)
+    end
+
+    if m.inplace[:ξ]
+        m.ξ(m.ξ_sss, z, y)
+    else
+        m.ξ_sss .= m.ξ(z, y)
+    end
+
+    if m.inplace[:𝒱]
+        m.𝒱(m.𝒱_sss, z, Ψ, Γ₅, Γ₆)
+    else
+        m.𝒱_sss .= m.𝒱(z, Ψ, Γ₅, Γ₆)
+    end
+
+    m
+end
+
+mutable struct RALLinearizedSystem{Mz <: Function, My <: Function, Xz <: Function, Xy <: Function, J <: Function,
+                                   JC1 <: AbstractMatrix{<: Number}, JC2 <: AbstractMatrix{<: Number},
+                                   JC3 <: AbstractMatrix{<: Number}, JC4 <: AbstractMatrix{<: Number},
+                                   JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number},
+                                   JC7 <: AbstractMatrix{<: Number}}
+    μz::Mz     # Functions
+    μy::My
+    ξz::Xz
+    ξy::Xy
+    J𝒱::J
+    Γ₁::JC1    # Jacobians, for caching
+    Γ₂::JC2
+    Γ₃::JC3
+    Γ₄::JC4
+    Γ₅::JC5
+    Γ₆::JC6
+    JV::JC7
+    inplace::NamedTuple{(:μz, :μy, :ξz, :ξy, :J𝒱), NTuple{5, Bool}}
+end
+
+function RALLinearizedSystem(μz::Mz, μy::My, ξz::Xz, ξy::Xy, J𝒱::J,
+                             Γ₁::JC1, Γ₂::JC2, Γ₃::JC3, Γ₄::JC4, Γ₅::JC5, Γ₆::JC6,
+                             JV::JC7, z::C1, y::C1, Ψ::C2,
+                             μ_sss::VC1, ξ_sss::VC2, 𝒱_sss::VC3) where {Mz <: Function, My <: Function, Xz <: Function,
+                                                                        Xy <: Function, J <: Function,
+                                                                        JC1 <: AbstractMatrix{<: Number}, JC2 <: AbstractMatrix{<: Number},
+                                                                        JC3 <: AbstractMatrix{<: Number}, JC4 <: AbstractMatrix{<: Number},
+                                                                        JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number},
+                                                                        JC7 <: AbstractMatrix{<: Number},
+                                                                        C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number},
+                                                                        VC1 <: AbstractVector{<: Number}, VC2 <: AbstractVector{<: Number},
+                                                                        VC3 <: AbstractVector{<: Number},}
+
+    inplace = (μz = applicable(μz, Γ₁, z, y, μ_sss), μy = applicable(μy, Γ₂, z, y, μ_sss), ξz = applicable(ξz, Γ₃, z, y, ξ_sss),
+               ξy = applicable(ξy, Γ₄, z, y, ξ_sss), J𝒱 = applicable(J𝒱, JV, z, Ψ, Γ₅, Γ₆, 𝒱_sss))
+
+    return RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV, inplace)
+end
+
+function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2,
+                 μ_sss::VC1, ξ_sss::VC2, 𝒱_sss::VC3) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number},
+                                                            VC1 <: AbstractVector{<: Number}, VC2 <: AbstractVector{<: Number},
+                                                            VC3 <: AbstractVector{<: Number}}
+
+    if m.inplace[:μz]
+        m.μz(m.Γ₁, z, y, μ_sss)
+    else
+        m.Γ₁ .= m.μz(z, y, μ_sss)
+    end
+
+    if m.inplace[:μy]
+        m.μy(m.Γ₂, z, y, μ_sss)
+    else
+        m.Γ₂ .= m.μy(z, y, μ_sss)
+    end
+
+    if m.inplace[:ξz]
+        m.ξz(m.Γ₃, z, y, ξ_sss)
+    else
+        m.Γ₃ .= m.ξz(z, y, ξ_sss)
+    end
+
+    if m.inplace[:ξy]
+        m.ξy(m.Γ₄, z, y, ξ_sss)
+    else
+        m.Γ₄ .= m.ξy(z, y, ξ_sss)
+    end
+
+    if m.inplace[:J𝒱]
+        m.J𝒱(m.JV, z, Ψ, Γ₅, Γ₆, 𝒱_sss)
+    else
+        m.JV .= m.J𝒱(z, Ψ, Γ₅, Γ₆, 𝒱_sss)
+    end
+
+    m
+end
+
+abstract type AbstractRiskAdjustedLinearization end
 
 """
     RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, 𝒱, Nz, Ny, Nε)
@@ -70,31 +259,10 @@ innovations in jump variables while the function ``\\Sigma`` characterizes exoge
 
 Refer to Lopz et al. (2018) "Risk-Adjusted Linearizations of Dynamic Equilibrium Models" for details.
 """
-mutable struct RiskAdjustedLinearization{M <: Function, L, S,
-                                         X <: Function, V <: Function,
-                                         Mz <: Function, My <: Function, Xz <: Function, Xy <: Function, J <: Function,
-                                         VC <: AbstractVector{<: Number}, JC <: AbstractMatrix{<: Number},
-                                         C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
-    μ::M         # Functions
-    Λ::L         # no type assertion for L b/c it can be Function or Matrix of zeros
-    Σ::S         # no type assertion for S b/c it can be Function or constant Matrix
-    ξ::X
-    𝒱::V
-    μz::Mz
-    μy::My
-    ξz::Xz
-    ξy::Xy
-    J𝒱::J
-    μ_sss::VC    # Stochastic steady state values, for caching
-    ξ_sss::VC
-    𝒱_sss::VC
-    Γ₁::JC       # Jacobians, for caching
-    Γ₂::JC
-    Γ₃::JC
-    Γ₄::JC
-    Γ₅::JC
-    Γ₆::JC
-    JV::JC
+mutable struct RiskAdjustedLinearization{A <: RALNonlinearSystem, B <: RALLinearizedSystem,
+                                         C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}} <: AbstractRiskAdjustedLinearization
+    nonlinear::A
+    linearization::B
     z::C1        # Coefficients
     y::C1
     Ψ::C2
@@ -102,7 +270,12 @@ mutable struct RiskAdjustedLinearization{M <: Function, L, S,
     Ny::Int
     Nε::Int
 end
-
+# TODO
+# 1.UPDATE THE PRINTING, maybe just write out "risk-adjusted linearization with dimensions ()"
+#
+# 2. Test update! functions for the various blocks as well as access functions for RiskAdjustedLinearization
+#
+# 3. Check inplace inference is correct, check construction of each block plus main block
 #=
 TODO: Finish this once the final struct is completed
 # A series of lower level constructors
@@ -174,25 +347,35 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μz::Mz,
                                                           JV, z, y, Ψ, Nz, Ny, Nε)
 end
 =#
+function RiskAdjustedLinearization(nonlinear::A, linearization::B, z::C1, y::C1, Ψ::C2,
+                                   Nz::Int, Ny::Int, Nε::Int;
+                                   check_inputs::Bool = true) where {A <: RALNonlinearSystem, B <: RALLinearizedSystem,
+                                                                     C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+
+    # Make sure inputs are well-formed
+    if check_inputs
+        _check_inputs(nonlinear, linearization, z, y, Ψ)
+    end
+
+    return RiskAdjustedLinearization{A, B, C1, C2}(nonlinear, linearization, z, y, Ψ, Nz, Ny, Nε)
+end
 
 # Constructor that uses ForwardDiff to calculate Jacobian functions
 # NOTE THAT here we pass in the ccgf, rather than 𝒱
-function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, ccgf::CF,
+function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int = -1) where {T <: Number, M <: Function, L,
-                                                        S, X <: Function, CF <: Function}
-    # Get dimensions
-    Nz = length(z)
-    Ny = length(y)
-    if Nε < 0
-        Nε = size(Σ(z), 2)
-    end
+                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
+                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: Function, L <: RALΛ, S <: RALΣ,
+                                                                               X <: Function,
+                                                                               JC5 <: AbstractMatrix{<: Number},
+                                                                               JC6 <: AbstractMatrix{<: Number},
+                                                                               CF <: Function}
 
     # Cache stochastic steady state vectors
     μ_sss, ξ_sss, 𝒱_sss = _cache_sss_vectors(z, y)
 
     # Cache stochastic steady state Jacobians
-    Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = _cache_jacobians(Ψ, Nz, Ny)
+    Γ₁, Γ₂, Γ₃, Γ₄, JV = _cache_jacobians(Ψ, Nz, Ny, jacobian_type)
 
     # Use cached Jacobians to create Jacobian functions for μ, ξ
     if applicable(μ, z, y) # Check if μ is in place or not
@@ -217,37 +400,132 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, ccgf::CF,
             F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
         end
     else # in place
+        𝒱 = function _𝒱(F, z, Ψ, Γ₅, Γ₆)
+            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
+        end
+
         𝒱 = (F, z, Ψ, Γ₅, Γ₆) -> ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
     end
     J𝒱 = function _J𝒱(F, z, Ψ, Γ₅, Γ₆, 𝒱_sss)
         ForwardDiff.jacobian!(F, (G, x) -> 𝒱(G, x, Ψ, Γ₅, Γ₆), 𝒱_sss, z)
     end
 
-    _check_inputs(z, y, Ψ, Γ₅, Γ₆, μ_sss, ξ_sss, 𝒱_sss, μ, Λ, Σ, ξ, 𝒱, μz, μy, ξz, ξy, J𝒱)
+    # Form underlying RAL blocks
+    nonlinear_system  = RALNonlinearSystem(μ, Λ, Σ, ξ, 𝒱, μ_sss, ξ_sss, 𝒱_sss, z, y, Ψ, Γ₅, Γ₆)
+    linearized_system = RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV, z, y, Ψ, μ_sss, ξ_sss, 𝒱_sss)
 
-    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, 𝒱, μz, μy, ξz, ξy, J𝒱, μ_sss, ξ_sss, 𝒱_sss,
-                                     Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV, z, y, Ψ, Nz, Ny, Nε)
+    return RiskAdjustedLinearization(nonlinear_system, linearized_system, z, y, Ψ, Nz, Ny, Nε)
 end
 
-# Create a function that takes in a ccgf and creates the associated entropy function, given the right inputs
+function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
+                                   z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
+                                   Nε::Int; sss_vector_type::DataType = Vector{T}, sss_matrix_type::DataType = Matrix{T},
+                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: Function, L <: Function, S <: Function,
+                                                                               X <: Function,
+                                                                               JC5 <: AbstractMatrix{<: Number},
+                                                                               JC6 <: AbstractMatrix{<: Number},
+                                                                               CF <: Function}
+    # Get dimensions
+    Nz = length(z)
+    Ny = length(y)
+    if Nε < 0
+        error("Nε cannot be negative")
+    end
 
-# Rewrite the solution code to operate on jacobians, etc.
+    # Create wrappers enabling caching for Λ and Σ
+    Λ_sss = sss_matrix_type(undef, Nz, Ny)
+    Λ = RALΛ(Λ, Λ_sss, z)
+    Σ_sss = sss_matrix_type(undef, Nz, Nε)
+    Σ = RALΣ(Σ, Σ_sss, z)
 
-function _cache_jacobians(Ψ::AbstractMatrix{T}, Nz::Int, Ny::Int) where {T <: Number}
+    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
+                                     jacobian_type = jacobian_type)
+end
 
-    Ψtype = typeof(Ψ)
-    Γ₁ = convert(Ψtype, Matrix{T}(undef, Nz, Nz))
-    Γ₂ = convert(Ψtype, Matrix{T}(undef, Nz, Ny))
+function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
+                                   z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
+                                   Nε::Int = -1; sss_vector_type::DataType = Vector{T}, sss_matrix_type::DataType = Matrix{T},
+                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: Function, L <: AbstractMatrix{<: Number}, S <: Function,
+                                                                               X <: Function,
+                                                                               JC5 <: AbstractMatrix{<: Number},
+                                                                               JC6 <: AbstractMatrix{<: Number},
+                                                                               CF <: Function}
+    # Get dimensions
+    Nz = length(z)
+    Ny = length(y)
+    if Nε < 0
+        error("Nε cannot be negative")
+    end
+
+    # Create wrappers enabling caching for Λ and Σ
+    Λ = RALΛ(Λ, z)
+    Σ_sss = sss_matrix_type(undef, Nz, Nε)
+    Σ = RALΣ(Σ, Σ_sss, z)
+
+    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
+                                     jacobian_type = jacobian_type)
+end
+
+function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
+                                   z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
+                                   Nε::Int = -1; sss_vector_type::DataType = Vector{T}, sss_matrix_type::DataType = Matrix{T},
+                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: Function, L <: Function, S <: AbstractMatrix{<: Number},
+                                                                               X <: Function,
+                                                                               JC5 <: AbstractMatrix{<: Number},
+                                                                               JC6 <: AbstractMatrix{<: Number},
+                                                                               CF <: Function}
+    # Get dimensions
+    Nz = length(z)
+    Ny = length(y)
+    if Nε < 0
+        error("Nε cannot be negative")
+    end
+
+    # Create wrappers enabling caching for Λ and Σ
+    Λ_sss = sss_matrix_type(undef, Nz, Ny)
+    Λ = RALΛ(Λ, Λ_sss, z)
+    Σ = RALΣ(Σ, z)
+
+    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
+                                     jacobian_type = jacobian_type)
+end
+
+function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
+                                   z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
+                                   Nε::Int = -1; sss_vector_type::DataType = Vector{T}, sss_matrix_type::DataType = Matrix{T},
+                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: Function,
+                                                                               L <: AbstractMatrix{<: Number}, S <: AbstractMatrix{<: Number},
+                                                                               X <: Function,
+                                                                               JC5 <: AbstractMatrix{<: Number},
+                                                                               JC6 <: AbstractMatrix{<: Number},
+                                                                               CF <: Function}
+    # Get dimensions
+    Nz = length(z)
+    Ny = length(y)
+    if Nε < 0
+        error("Nε cannot be negative")
+    end
+
+    # Create wrappers enabling caching for Λ and Σ
+    Λ = RALΛ(Λ, z)
+    Σ = RALΣ(Σ, z)
+
+    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
+                                     jacobian_type = jacobian_type)
+end
+
+function _cache_jacobians(Ψ::AbstractMatrix{T}, Nz::Int, Ny::Int, mat_type::DataType) where {T <: Number}
+
+    Γ₁ = mat_type(undef, Nz, Nz)
+    Γ₂ = mat_type(undef, Nz, Ny)
     Γ₃ = similar(Ψ)
-    Γ₄ = convert(Ψtype, Matrix{T}(undef, Ny, Ny))
-    Γ₅ = similar(Ψ)
-    Γ₆ = similar(Γ₄)
+    Γ₄ = mat_type(undef, Ny, Ny)
     JV = similar(Ψ)
 
-    return Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV
+    return Γ₁, Γ₂, Γ₃, Γ₄, JV
 end
 
-function _cache_sss_vectors(z::AbstractVector{T}, y::AbstractVector{T}) where {T <: Number}
+function _cache_sss_vectors(z::AbstractVector{T}, y::AbstractVector{T}) where {T <: Number, L, S}
 
     μ_sss = similar(z)
     ξ_sss = similar(y)
@@ -256,50 +534,72 @@ function _cache_sss_vectors(z::AbstractVector{T}, y::AbstractVector{T}) where {T
    return μ_sss, ξ_sss, 𝒱_sss
 end
 
-function _check_inputs(z::C1, y::C1, Ψ::C2, Γ₅::JC, Γ₆::JC,
-                       μ_sss::VC, ξ_sss::VC, 𝒱_sss::VC,
-                       μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μz::Mz,
-                       μy::My, ξz::Xz, ξy::Xy, J𝒱::J)  where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number},
-                                                              VC <: AbstractVector{<: Number}, JC <: AbstractMatrix{<: Number},
-                                                              M <: Function, L, S,
-                                                              X <: Function, V <: Function, Mz <: Function, My <: Function,
-                                                              Xz <: Function, Xy <: Function, J <: Function}
+function _check_inputs(nonlinear::A, linearization::B, z::C1, y::C1, Ψ::C2) where {A <: RALNonlinearSystem, B <: RALLinearizedSystem,
+                                                                                   C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+
+    # Get contents of nonlinear and linearization blocks
+    @unpack μ, ξ, 𝒱, μ_sss, ξ_sss, 𝒱_sss = nonlinear
+    @unpack μz, μy, ξz, ξy, J𝒱, Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = linearization
 
     @assert applicable(μ, z, y) ||
-        applicable(μ, z, z, y) "The function μ must take either the form " *
+        applicable(μ, μ_sss, z, y) "The function μ must take either the form " *
         "μ(z, y) or the in-place equivalent μ(F, z, y)"
 
     @assert applicable(ξ, z, y) ||
-        applicable(ξ, z, z, y) "The function μ must take either the form " *
+        applicable(ξ, ξ_sss, z, y) "The function μ must take either the form " *
         "ξ(z, y) or the in-place equivalent ξ(F, z, y)"
-
-     @assert applicable(Λ, z) ||
-         applicable(Λ, Ψ, z) "The function Λ must take either the form Λ(z) or the in-place equivalent Λ(F, z)"
-
-     @assert applicable(Σ, z) ||
-         applicable(Σ, Ψ, z) "The function Λ must take either the form Σ(z) or the in-place equivalent Σ(F, z)"
 
     @assert applicable(𝒱, z, Ψ, Γ₅, Γ₆) ||
         applicable(𝒱, y, z, Ψ, Γ₅, Γ₆) "The function 𝒱 must take either the form " *
         "𝒱(z, Ψ, Γ₅, Γ₆) or the in-place equivalent 𝒱(F, z, Ψ, Γ₅, Γ₆)"
 
     @assert applicable(μz, z, y) ||
-        applicable(μz, Ψ, z, y, μ_sss) "The function μz must take either the form " *
+        applicable(μz, Γ₁, z, y, μ_sss) "The function μz must take either the form " *
         "μz(z, y) or the in-place equivalent μz(F, z, y, μ_sss)"
 
     @assert applicable(μy, z, y) ||
-        applicable(μy, Ψ, z, y, μ_sss) "The function μy must take either the form " *
+        applicable(μy, Γ₂, z, y, μ_sss) "The function μy must take either the form " *
         "μy(z, y) or the in-place equivalent μy(F, z, y, μ_sss)"
 
     @assert applicable(ξz, z, y) ||
-        applicable(ξz, Ψ, z, y, ξ_sss) "The function ξz must take either the form " *
+        applicable(ξz, Γ₃, z, y, ξ_sss) "The function ξz must take either the form " *
         "ξz(z, y) or the in-place equivalent ξz(F, z, y, ξ_sss)"
 
     @assert applicable(ξy, z, y) ||
-        applicable(ξy, Ψ, z, y, ξ_sss) "The function ξy must take either the form " *
+        applicable(ξy, Γ₄, z, y, ξ_sss) "The function ξy must take either the form " *
         "ξy(z, y) or the in-place equivalent ξy(F, z, y, ξ_sss)"
 
     @assert applicable(J𝒱, z, Ψ, Γ₅, Γ₆) ||
-        applicable(J𝒱, Ψ, z, Ψ, Γ₅, Γ₆, 𝒱_sss) "The function J𝒱 must take either the form " *
+        applicable(J𝒱, JV, z, Ψ, Γ₅, Γ₆, 𝒱_sss) "The function J𝒱 must take either the form " *
         "J𝒱(z, Ψ, Γ₅, Γ₆) or the in-place equivalent J𝒱(F, z, Ψ, Γ₅, Γ₆, 𝒱_sss)"
+end
+
+## Methods for using RiskAdjustedLinearization
+@inline Γ₁(m::RiskAdjustedLinearization) = m.linearization.Γ₁
+@inline Γ₂(m::RiskAdjustedLinearization) = m.linearization.Γ₂
+@inline Γ₃(m::RiskAdjustedLinearization) = m.linearization.Γ₃
+@inline Γ₄(m::RiskAdjustedLinearization) = m.linearization.Γ₄
+@inline Γ₅(m::RiskAdjustedLinearization) = m.linearization.Γ₅
+@inline Γ₆(m::RiskAdjustedLinearization) = m.linearization.Γ₆
+@inline getvalues(m::RiskAdjustedLinearization) = (m.z, m.y, m.Ψ)
+@inline getvecvalues(m::RiskAdjustedLinearization) = vcat(m.z, m.y, vec(m.Ψ))
+@inline nonlinear_system(m::RiskAdjustedLinearization) = m.nonlinear
+@inline linearized_system(m::RiskAdjustedLinearization) = m.linearization
+
+function update!(m::RiskAdjustedLinearization, z::C1, y::C1, Ψ::C2;
+                 update_cache::Bool = true) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+
+    # Update values of the affine approximation
+    m.z .= z
+    m.y .= y
+    m.Ψ .= Ψ
+
+    # Update the cached vectors and Jacobians
+    if update_cache
+        update!(nonlinear_system(m), m.z, m.y, m.Ψ, Γ₅(m), Γ₆(m))
+
+        update!(linearized_system(m), m.z, m.y, m.Ψ, m.nonlinear.μ_sss, m.nonlinear.ξ_sss, m.nonlinear.𝒱_sss)
+    end
+
+    m
 end

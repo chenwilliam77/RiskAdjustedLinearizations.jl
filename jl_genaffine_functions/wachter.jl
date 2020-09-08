@@ -1,5 +1,4 @@
-include("risk_adjusted_linearization.jl")
-using UnPack
+using UnPack, OrderedCollections
 
 # TODO
 # 1. Create model object
@@ -24,7 +23,13 @@ mutable struct WachterDisasterRisk{T <: Real}
     β::T
 end
 
-function inplace_wachter_disaster_risk(m::WachterDisasterRisk)
+function WachterDisasterRisk(; μₐ::T = .0252 / 4., σₐ::T = .02 / sqrt(4.), ν::T = .3, δ::T = 0., ρₚ::T = .08^(1. / 4.), pp::T = .0355 / 4.,
+                             ϕₚ::T = .0114 / 4. / (.02 / sqrt(4.)) / sqrt(.0355 / 4.), ρ::T = 2.0, γ::T = 3.0,
+                             β::T = exp(-.012 / 4.)) where {T <: Real}
+    return WachterDisasterRisk{T}(μₐ, σₐ, ν, δ, ρₚ, pp, ϕₚ, ρ, γ, β)
+end
+
+function inplace_wachter_disaster_risk(m::WachterDisasterRisk{T}) where {T <: Real}
     @unpack μₐ, σₐ, ν, δ, ρₚ, pp, ϕₚ, ρ, γ, β = m
 
     @assert ρ != 1. # Forcing ρ to be non-unit for this example
@@ -39,8 +44,8 @@ function inplace_wachter_disaster_risk(m::WachterDisasterRisk)
     function μ(F, z, y) # the equation labeling could be wrong
         F_type    = eltype(F)
         F[S[:p]]  = (1 - ρₚ) * pp + ρₚ * z[S[:p]]
-        F[S[:εc]] = zero(μ_type)
-        F[S[:εξ]] = zero(μ_type)
+        F[S[:εc]] = zero(F_type)
+        F[S[:εξ]] = zero(F_type)
     end
 
     function ξ(F, z, y) # the equation labeling could be wrong
@@ -52,7 +57,7 @@ function inplace_wachter_disaster_risk(m::WachterDisasterRisk)
     Λ = zeros(T, Nz, Nz)
 
     function Σ(F, z)
-        F[SH[:εₚ], SH[:εₚ]] = sqrt(z[S[:p]] * ϕₚ * σₐ)
+        F[SH[:εₚ], SH[:εₚ]] = sqrt(z[S[:p]]) * ϕₚ * σₐ
         F[SH[:εc], SH[:εc]] = 1.
         F[SH[:εξ], SH[:εξ]] = 1.
     end
@@ -72,11 +77,11 @@ function inplace_wachter_disaster_risk(m::WachterDisasterRisk)
     Γ₆[J[:rf], J[:vc]] = (1. - γ)
 
     z = [pp, 0., 0.]
-    xc_sss = log((1. - β) / (exp((1. - ρ) * (ν * pp - μ)) - β)) / (1. - ρ)
-    vc_sss = xc_sss + ν * pp - μ
-    y = [vc_sss, xc_sss, -log(β) + γ * (μ - ν * pp) - (ρ - γ) * (vc_sss - xc_sss)]
+    xc_sss = log((1. - β) / (exp((1. - ρ) * (ν * pp - μₐ)) - β)) / (1. - ρ)
+    vc_sss = xc_sss + ν * pp - μₐ
+    y = [vc_sss, xc_sss, -log(β) + γ * (μₐ - ν * pp) - (ρ - γ) * (vc_sss - xc_sss)]
     Ψ = zeros(T, Ny, Nz)
-    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, ccgf, z, y, Ψ, Nε)
+    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nε)
 end
 
 function outofplace_wachter_disaster_risk(m::WachterDisasterRisk)
@@ -134,5 +139,5 @@ function outofplace_wachter_disaster_risk(m::WachterDisasterRisk)
     vc_sss = xc_sss + ν * pp - μ
     y = [vc_sss, xc_sss, -log(β) + γ * (μ - ν * pp) - (ρ - γ) * (vc_sss - xc_sss)]
     Ψ = zeros(T, Ny, Nz)
-    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, ccgf, z, y, Ψ, Nε)
+    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nε)
 end
