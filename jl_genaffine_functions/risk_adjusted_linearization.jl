@@ -7,20 +7,19 @@ mutable struct RALΛ{L <: Function, LC}
 end
 
 function RALΛ(Λ::Function, cache::LC, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
-    if applicable(Λ, cache, z)
-        Λnew = function _Λ_ip(cache::LCN, z::C1N) where {LCN <: DiffCache, C1N <: AbstractVector{<: Number}}
+    Λnew = if applicable(Λ, cache, z)
+        function _Λ_ip(cache::LCN, z::C1N) where {LCN <: DiffCache, C1N <: AbstractVector{<: Number}}
             Λ(get_tmp(cache, z), z)
             return get_tmp(cache, z)
         end
-        return RALΛ(Λnew, dualcache(cache, Val{length(z)}))
     else
-        Λnew = function _Λ_oop(cache::LCN, z::C1N) where {LCN <: DiffCache, C1N <: AbstractVector{<: Number}}
+        function _Λ_oop(cache::LCN, z::C1N) where {LCN <: DiffCache, C1N <: AbstractVector{<: Number}}
             du = get_tmp(cache, z)
             du .= Λ(z)
             return du
         end
-        return RALΛ(Λnew, cache)
     end
+    return RALΛ(Λnew, dualcache(cache, Val{length(z)}))
 end
 
 function RALΛ(Λin::LC, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
@@ -37,21 +36,20 @@ mutable struct RALΣ{S <: Function, SC}
     cache::SC
 end
 function RALΣ(Σ::Function, cache::SC, z::C1) where {SC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
-    if applicable(Σ, cache, z)
-        Σnew = function _Σ_ip(cache::SCN, z::C1N) where {SCN <: DiffCache, C1N <: AbstractVector{<: Number}}
+    Σnew = if applicable(Σ, cache, z)
+        function _Σ_ip(cache::SCN, z::C1N) where {SCN <: DiffCache, C1N <: AbstractVector{<: Number}}
             du = get_tmp(cache, z)
             Σ(du, z)
             return du
         end
-        return RALΣ(Σnew, dualcache(cache, Val{length(z)}))
     else
-        Σnew = function _Σ_oop(cache::SCN, z::C1N) where {SCN <: DiffCache, C1N <: AbstractVector{<: Number}}
+        function _Σ_oop(cache::SCN, z::C1N) where {SCN <: DiffCache, C1N <: AbstractVector{<: Number}}
             du = get_tmp(cache, z)
             du .= Σ(z)
             return du
         end
-        return RALΣ(Σnew, cache)
     end
+    return RALΣ(Σnew, dualcache(cache, Val{length(z)})
 end
 
 function RALΣ(Σin::SC, z::C1) where {SC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
@@ -552,25 +550,25 @@ function _check_inputs(nonlinear::A, linearization::B, z::C1, y::C1, Ψ::C2) whe
         applicable(𝒱, y, z, Ψ, Γ₅, Γ₆) "The function 𝒱 must take either the form " *
         "𝒱(z, Ψ, Γ₅, Γ₆) or the in-place equivalent 𝒱(F, z, Ψ, Γ₅, Γ₆)"
 
-    @assert applicable(μz, z, y) ||
+    @assert applicable(μz, z, y, μ_sss) ||
         applicable(μz, Γ₁, z, y, μ_sss) "The function μz must take either the form " *
-        "μz(z, y) or the in-place equivalent μz(F, z, y, μ_sss)"
+        "μz(z, y, μ_sss) or the in-place equivalent μz(F, z, y, μ_sss)"
 
-    @assert applicable(μy, z, y) ||
+    @assert applicable(μy, z, y, μ_sss) ||
         applicable(μy, Γ₂, z, y, μ_sss) "The function μy must take either the form " *
-        "μy(z, y) or the in-place equivalent μy(F, z, y, μ_sss)"
+        "μy(z, y, μ_sss) or the in-place equivalent μy(F, z, y, μ_sss)"
 
-    @assert applicable(ξz, z, y) ||
+    @assert applicable(ξz, z, y, ξ_sss) ||
         applicable(ξz, Γ₃, z, y, ξ_sss) "The function ξz must take either the form " *
-        "ξz(z, y) or the in-place equivalent ξz(F, z, y, ξ_sss)"
+        "ξz(z, y, ξ_sss) or the in-place equivalent ξz(F, z, y, ξ_sss)"
 
-    @assert applicable(ξy, z, y) ||
+    @assert applicable(ξy, z, y, ξ_sss) ||
         applicable(ξy, Γ₄, z, y, ξ_sss) "The function ξy must take either the form " *
-        "ξy(z, y) or the in-place equivalent ξy(F, z, y, ξ_sss)"
+        "ξy(z, y, ξ_sss) or the in-place equivalent ξy(F, z, y, ξ_sss)"
 
-    @assert applicable(J𝒱, z, Ψ, Γ₅, Γ₆) ||
+    @assert applicable(J𝒱, z, Ψ, Γ₅, Γ₆, 𝒱_sss) ||
         applicable(J𝒱, JV, z, Ψ, Γ₅, Γ₆, 𝒱_sss) "The function J𝒱 must take either the form " *
-        "J𝒱(z, Ψ, Γ₅, Γ₆) or the in-place equivalent J𝒱(F, z, Ψ, Γ₅, Γ₆, 𝒱_sss)"
+        "J𝒱(z, Ψ, Γ₅, Γ₆, 𝒱_sss) or the in-place equivalent J𝒱(F, z, Ψ, Γ₅, Γ₆, 𝒱_sss)"
 end
 
 ## Methods for using RiskAdjustedLinearization
@@ -580,6 +578,7 @@ end
 @inline Γ₄(m::RiskAdjustedLinearization) = m.linearization.Γ₄
 @inline Γ₅(m::RiskAdjustedLinearization) = m.linearization.Γ₅
 @inline Γ₆(m::RiskAdjustedLinearization) = m.linearization.Γ₆
+@inline JV(m::RiskAdjustedLinearization) = m.linearization.JV
 @inline getvalues(m::RiskAdjustedLinearization) = (m.z, m.y, m.Ψ)
 @inline getvecvalues(m::RiskAdjustedLinearization) = vcat(m.z, m.y, vec(m.Ψ))
 @inline nonlinear_system(m::RiskAdjustedLinearization) = m.nonlinear

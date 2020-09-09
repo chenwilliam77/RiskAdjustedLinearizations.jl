@@ -136,9 +136,9 @@ function outofplace_wachter_disaster_risk(m::WachterDisasterRisk{T}) where {T}
     Γ₆[J[:rf], J[:vc]] = (1. - γ)
 
     z = [pp, 0., 0.]
-    xc_sss = log((1. - β) / (exp((1. - ρ) * (ν * pp - μ)) - β)) / (1. - ρ)
-    vc_sss = xc_sss + ν * pp - μ
-    y = [vc_sss, xc_sss, -log(β) + γ * (μ - ν * pp) - (ρ - γ) * (vc_sss - xc_sss)]
+    xc_sss = log((1. - β) / (exp((1. - ρ) * (ν * pp - μₐ)) - β)) / (1. - ρ)
+    vc_sss = xc_sss + ν * pp - μₐ
+    y = [vc_sss, xc_sss, -log(β) + γ * (μₐ - ν * pp) - (ρ - γ) * (vc_sss - xc_sss)]
     Ψ = zeros(T, Ny, Nz)
     return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nε)
 end
