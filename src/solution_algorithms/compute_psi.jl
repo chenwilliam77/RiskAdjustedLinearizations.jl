@@ -1,6 +1,8 @@
 """
 ```
-function compute_Ψ(Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = []; schur_fnct::Function = schur!) where {S <: Real}
+function compute_Ψ(Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = []; schur_fnct = schur!)
+function compute_Ψ(m::RALLinearizedSystem; zero_entropy_jacobian = false, schur_fnct = schur!)
+function compute_Ψ(m::RiskAdjustedLinearization; zero_entropy_jacobian = false, schur_fnct = schur!)
 ```
 
 solves via QZ decomposition for ``\\Psi_n`` in the quadratic matrix equation
@@ -14,14 +16,17 @@ solves via QZ decomposition for ``\\Psi_n`` in the quadratic matrix equation
 See the documentation of `RiskAdjustedLinearizations.jl` for details about what these matrices are.
 
 ### Inputs
-All the required inputs must have type `AbstractMatrix{<: Number}`. The `JV` term is empty by default,
+For the first method, all the required inputs must have type `AbstractMatrix{<: Number}`. The `JV` term is empty by default,
 in which case `qzdecomp` assumes that `JV` is the zero matrix, which corresponds to the
 case of the deterministic steady state.
+
+The second method is a wrapper for the first when the user wants to simply provide an `RALLinearizedSystem` instance.
 
 ### Keywords
 - `schur_fnct::Function`: specifies which Generalized Schur algorithm is desired. By default,
     the implementation from BLAS is called, but the user may want to use the Generalized Schur algorithm
     from packages like `GenericLinearAlgebra.jl` and `GenericSchur.jl`.
+- `zero_entropy_jacobian::Bool`: if true, then we assume the Jacobian of the entropy is all zeros (i.e. in the deterministic steady state).
 """
 function compute_Ψ(Γ₁::AbstractMatrix{S}, Γ₂::AbstractMatrix{S}, Γ₃::AbstractMatrix{S}, Γ₄::AbstractMatrix{S},
                    Γ₅::AbstractMatrix{S}, Γ₆::AbstractMatrix{S}, JV::AbstractMatrix{S} = Matrix{S}(undef, 0, 0);
@@ -53,4 +58,16 @@ function compute_Ψ(Γ₁::AbstractMatrix{S}, Γ₂::AbstractMatrix{S}, Γ₃::A
     schurfact = schur_fnct(AA, BB)
 	ordschur!(schurfact, [abs(αᵢ) >= abs(βᵢ) for (αᵢ, βᵢ) in zip(schurfact.α, schurfact.β)]) # eigenvalues = schurfact.β / schurfact.α
     return real(schurfact.Z[Nz + 1:end, 1:Nz] / schurfact.Z[1:Nz, 1:Nz])
+end
+
+function compute_Ψ(m::RALLinearizedSystem; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
+    if zero_entropy_jacobian
+        return compute_Ψ(m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆; schur_fnct = schur_fnct)
+    else
+        return compute_Ψ(m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆, m.JV; schur_fnct = schur_fnct)
+    end
+end
+
+@inline function compute_Ψ(m::RiskAdjustedLinearization; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
+    return compute_Ψ(m.linearization; zero_entropy_jacobian = zero_entropy_jacobian, schur_fnct = schur_fnct) where {S <: Number}
 end
