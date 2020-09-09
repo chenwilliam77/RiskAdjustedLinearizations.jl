@@ -74,7 +74,8 @@ li = linearized_system(ral)
 @testset "Evaluate WachterDisasterRisk out-of-place RiskAdjustedLinearization at deterministic steady state" begin
     @test nl.μ_sss ≈ detout["MU"]
     @test nl.Λ.cache ==  detout["LAM"]
-    @test nl.Σ.cache.du ≈ detout["SIG"]
+    @test isnothing(nl.Σ.cache)
+    @test nl.Σ(z) ≈ detout["SIG"]
     @test nl.ξ_sss ≈ detout["XI"]
     @test nl.𝒱_sss ≈ detout["V"]
     @test li.Γ₁ ≈ detout["GAM1"]
@@ -99,7 +100,8 @@ li = linearized_system(ral)
 @testset "Evaluate WachterDisasterRisk out-of-place RiskAdjustedLinearization at stochastic steady state" begin
     @test nl.μ_sss ≈ sssout["MU"]
     @test nl.Λ.cache ==  sssout["LAM"]
-    @test nl.Σ.cache.du ≈ sssout["SIG"]
+    @test isnothing(nl.Σ.cache)
+    @test nl.Σ(z) ≈ detout["SIG"]
     @test nl.ξ_sss ≈ sssout["XI"]
     @test nl.𝒱_sss ≈ sssout["V"]
     @test li.Γ₁ ≈ sssout["GAM1"]

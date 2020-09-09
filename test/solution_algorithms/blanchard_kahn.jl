@@ -11,7 +11,7 @@ y = vec(sssout["y"])
 m = WachterDisasterRisk()
 ral = inplace_wachter_disaster_risk(m)
 RiskAdjustedLinearizations.update!(ral, z, y, Ψ)
-@info "The following message about Blanchard-Kahn conditions is expected"
+@info "The following message about Blanchard-Kahn conditions is expected."
 @test RiskAdjustedLinearizations.blanchard_kahn(ral)
 @test RiskAdjustedLinearizations.blanchard_kahn(ral; verbose = :none)
 

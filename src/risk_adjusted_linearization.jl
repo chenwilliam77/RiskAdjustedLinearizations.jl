@@ -6,20 +6,21 @@ mutable struct RALΛ{L <: Function, LC}
     cache::LC
 end
 
-function RALΛ(Λ::Function, cache::LC, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
-    Λnew = if applicable(Λ, cache, z)
-        function _Λ_ip(cache::LCN, z::C1N) where {LCN <: DiffCache, C1N <: AbstractVector{<: Number}}
+function RALΛ(Λ::Function, z::C1, matrix_type::DataType, dims::Tuple{Int, Int}) where {C1 <: AbstractVector{<: Number}}
+    cache = matrix_type(undef, 0, 0) # Create empty matrix first, just to check if Λ is in place or not
+    if applicable(Λ, cache, z)
+        cache = matrix_type(undef, dims)
+        Λnew = function _Λ_ip(cache::LCN, z::C1N) where {LCN <: DiffCache, C1N <: AbstractVector{<: Number}}
             Λ(get_tmp(cache, z), z)
             return get_tmp(cache, z)
         end
+        return RALΛ(Λnew, dualcache(cache, Val{length(z)}))
     else
-        function _Λ_oop(cache::LCN, z::C1N) where {LCN <: DiffCache, C1N <: AbstractVector{<: Number}}
-            du = get_tmp(cache, z)
-            du .= Λ(z)
-            return du
+        function _Λ_oop(cache::LCN, z::C1N) where {LCN <: Nothing, C1N <: AbstractVector{<: Number}}
+            return Λ(z)
         end
+        return RALΛ(Λnew, nothing)
     end
-    return RALΛ(Λnew, dualcache(cache, Val{length(z)}))
 end
 
 function RALΛ(Λin::LC, z::C1) where {LC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
@@ -35,21 +36,23 @@ mutable struct RALΣ{S <: Function, SC}
     Σ::S
     cache::SC
 end
-function RALΣ(Σ::Function, cache::SC, z::C1) where {SC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
-    Σnew = if applicable(Σ, cache, z)
-        function _Σ_ip(cache::SCN, z::C1N) where {SCN <: DiffCache, C1N <: AbstractVector{<: Number}}
+
+function RALΣ(Σ::Function, z::C1, matrix_type::DataType, dims::Tuple{Int, Int}) where {C1 <: AbstractVector{<: Number}}
+    cache = matrix_type(undef, 0, 0)
+    if applicable(Σ, cache, z)
+        cache = matrix_type(undef, dims)
+        Σnew = function _Σ_ip(cache::SCN, z::C1N) where {SCN <: DiffCache, C1N <: AbstractVector{<: Number}}
             du = get_tmp(cache, z)
             Σ(du, z)
             return du
         end
+        return RALΣ(Σnew, dualcache(cache, Val{length(z)}))
     else
-        function _Σ_oop(cache::SCN, z::C1N) where {SCN <: DiffCache, C1N <: AbstractVector{<: Number}}
-            du = get_tmp(cache, z)
-            du .= Σ(z)
-            return du
+        Σnew = function _Σ_oop(cache::SCN, z::C1N) where {SCN <: Nothing, C1N <: AbstractVector{<: Number}}
+            return Σ(z)
         end
+        return RALΣ(Σnew, nothing)
     end
-    return RALΣ(Σnew, dualcache(cache, Val{length(z)}))
 end
 
 function RALΣ(Σin::SC, z::C1) where {SC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
@@ -430,10 +433,8 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
 
     # Create wrappers enabling caching for Λ and Σ
-    Λ_sss = sss_matrix_type(undef, Nz, Ny)
-    Λ = RALΛ(Λ, Λ_sss, z)
-    Σ_sss = sss_matrix_type(undef, Nz, Nε)
-    Σ = RALΣ(Σ, Σ_sss, z)
+    Λ = RALΛ(Λ, z, sss_matrix_type, (Nz, Ny))
+    Σ = RALΣ(Σ, z, sss_matrix_type, (Nz, Nε))
 
     return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
                                      jacobian_type = jacobian_type)
@@ -456,8 +457,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
 
     # Create wrappers enabling caching for Λ and Σ
     Λ = RALΛ(Λ, z)
-    Σ_sss = sss_matrix_type(undef, Nz, Nε)
-    Σ = RALΣ(Σ, Σ_sss, z)
+    Σ = RALΣ(Σ, z, sss_matrix_type, (Nz, Nε))
 
     return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
                                      jacobian_type = jacobian_type)
@@ -479,8 +479,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
 
     # Create wrappers enabling caching for Λ and Σ
-    Λ_sss = sss_matrix_type(undef, Nz, Ny)
-    Λ = RALΛ(Λ, Λ_sss, z)
+    Λ = RALΛ(Λ, z, sss_matrix_type, (Nz, Ny))
     Σ = RALΣ(Σ, z)
 
     return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
