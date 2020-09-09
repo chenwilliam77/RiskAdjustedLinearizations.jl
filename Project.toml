@@ -1,0 +1,12 @@
+name = "RiskAdjustedLinearizations"
+uuid = "7bb39b10-f246-11ea-2456-25a63198e074"
+authors = ["William Chen <chenwilliamy77@gmail.com>"]
+version = "0.0.0"
+
+[deps]
+DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
