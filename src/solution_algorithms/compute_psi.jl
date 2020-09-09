@@ -1,10 +1,9 @@
-# TODO: save Matlab output from qzdecomp using WachterDisasterRisk
 """
 ```
-function qzdecomp(Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = []; schur_fnct::Function = schur!) where {S <: Real}
+function compute_Ψ(Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = []; schur_fnct::Function = schur!) where {S <: Real}
 ```
 
-solves for ``\\Psi_n`` in the quadratic matrix equation
+solves via QZ decomposition for ``\\Psi_n`` in the quadratic matrix equation
 
 ``math
 \\begin{aligned}
@@ -24,9 +23,9 @@ case of the deterministic steady state.
     the implementation from BLAS is called, but the user may want to use the Generalized Schur algorithm
     from packages like `GenericLinearAlgebra.jl` and `GenericSchur.jl`.
 """
-function qzdecomp(Γ₁::AbstractMatrix{S}, Γ₂::AbstractMatrix{S}, Γ₃::AbstractMatrix{S}, Γ₄::AbstractMatrix{S},
-                  Γ₅::AbstractMatrix{S}, Γ₆::AbstractMatrix{S}, JV::AbstractMatrix{S} = Matrix{S}(undef, 0, 0);
-                  schur_fnct::Function = schur!) where {S <: Number}
+function compute_Ψ(Γ₁::AbstractMatrix{S}, Γ₂::AbstractMatrix{S}, Γ₃::AbstractMatrix{S}, Γ₄::AbstractMatrix{S},
+                   Γ₅::AbstractMatrix{S}, Γ₆::AbstractMatrix{S}, JV::AbstractMatrix{S} = Matrix{S}(undef, 0, 0);
+                   schur_fnct::Function = schur!) where {S <: Number}
 
     if !isempty(JV)
         Γ₃ += JV
