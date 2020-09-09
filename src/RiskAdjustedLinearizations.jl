@@ -5,7 +5,9 @@ module RiskAdjustedLinearizations
 import Base.show
 using ForwardDiff, LinearAlgebra, OrderedCollections, Printf, SparseArrays# , SparseDiffTools, SparsityDetection, UnPack
 using UnPack
+using BandedMatrices: Ones, Zeros
 using DiffEqBase: DiffCache, get_tmp, dualcache
+using NLsolve: nlsolve
 
 # Utilities
 include("util.jl")
@@ -14,10 +16,9 @@ include("util.jl")
 include("risk_adjusted_linearization.jl")
 
 # Solution Algorithms
-# include("solve.jl")
-# include("qzdecomp.jl")
+include("solution_algorithms/compute_psi.jl")
 include("solution_algorithms/blanchard_kahn.jl")
-
+# include("solution_algorithms/solve.jl")
 
 export RiskAdjustedLinearization, update!, nonlinear_system, linearized_system
 end # module
