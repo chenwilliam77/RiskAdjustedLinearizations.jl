@@ -3,7 +3,7 @@ isdefined(Base, :__precompile__) && __precompile__(false)
 module RiskAdjustedLinearizations
 
 import Base.show
-using ForwardDiff, LinearAlgebra, OrderedCollections, Printf, SparseArrays# , SparseDiffTools, SparsityDetection, UnPack
+using ForwardDiff, LinearAlgebra, Printf, SparseArrays# , SparseDiffTools, SparsityDetection
 using UnPack
 using BandedMatrices: Ones, Zeros
 using DiffEqBase: DiffCache, get_tmp, dualcache
