@@ -89,26 +89,32 @@ function RALNonlinearSystem(μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μ_sss::VC1, ξ
     return RALNonlinearSystem{M, L, S, X, V, VC1, VC2, VC3}(μ, Λ, Σ, ξ, 𝒱, μ_sss, ξ_sss, 𝒱_sss, inplace)
 end
 
-function update!(m::RALNonlinearSystem, z::C1, y::C1, Ψ::C2,
-                 Γ₅::JC5, Γ₆::JC6) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number},
-                                          JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number}}
+function update!(m::RALNonlinearSystem, z::C1, y::C1, Ψ::C2, Γ₅::JC5, Γ₆::JC6;
+                 select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number},
+                                                                           JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number}}
 
-    if m.inplace[:μ]
-        m.μ(m.μ_sss, z, y)
-    else
-        m.μ_sss .= m.μ(z, y)
+    if :μ in select
+        if m.inplace[:μ]
+            m.μ(m.μ_sss, z, y)
+        else
+            m.μ_sss .= m.μ(z, y)
+        end
     end
 
-    if m.inplace[:ξ]
-        m.ξ(m.ξ_sss, z, y)
-    else
-        m.ξ_sss .= m.ξ(z, y)
+    if :ξ in select
+        if m.inplace[:ξ]
+            m.ξ(m.ξ_sss, z, y)
+        else
+            m.ξ_sss .= m.ξ(z, y)
+        end
     end
 
-    if m.inplace[:𝒱]
-        m.𝒱(m.𝒱_sss, z, Ψ, Γ₅, Γ₆)
-    else
-        m.𝒱_sss .= m.𝒱(z, Ψ, Γ₅, Γ₆)
+    if :𝒱 in select
+        if m.inplace[:𝒱]
+            m.𝒱(m.𝒱_sss, z, Ψ, Γ₅, Γ₆)
+        else
+            m.𝒱_sss .= m.𝒱(z, Ψ, Γ₅, Γ₆)
+        end
     end
 
     m
@@ -154,38 +160,49 @@ function RALLinearizedSystem(μz::Mz, μy::My, ξz::Xz, ξy::Xy, J𝒱::J,
 end
 
 function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2,
-                 μ_sss::VC1, ξ_sss::VC2, 𝒱_sss::VC3) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number},
-                                                            VC1 <: AbstractVector{<: Number}, VC2 <: AbstractVector{<: Number},
-                                                            VC3 <: AbstractVector{<: Number}}
+                 μ_sss::VC1, ξ_sss::VC2, 𝒱_sss::VC3; select::Vector{Symbol} =
+                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number},
+                                                         VC1 <: AbstractVector{<: Number}, VC2 <: AbstractVector{<: Number},
+                                                         VC3 <: AbstractVector{<: Number}}
 
-    if m.inplace[:μz]
-        m.μz(m.Γ₁, z, y, μ_sss)
-    else
-        m.μz(m.Γ₁, z, y)
+    if :Γ₁ in select
+        if m.inplace[:μz]
+            m.μz(m.Γ₁, z, y, μ_sss)
+        else
+            m.μz(m.Γ₁, z, y)
+        end
     end
 
-    if m.inplace[:μy]
-        m.μy(m.Γ₂, z, y, μ_sss)
-    else
-        m.μy(m.Γ₂, z, y)
+    if :Γ₂ in select
+        if m.inplace[:μy]
+            m.μy(m.Γ₂, z, y, μ_sss)
+        else
+            m.μy(m.Γ₂, z, y)
+        end
     end
 
-    if m.inplace[:ξz]
-        m.ξz(m.Γ₃, z, y, ξ_sss)
-    else
-        m.ξz(m.Γ₃, z, y)
+    if :Γ₃ in select
+        if m.inplace[:ξz]
+            m.ξz(m.Γ₃, z, y, ξ_sss)
+        else
+            m.ξz(m.Γ₃, z, y)
+        end
     end
 
-    if m.inplace[:ξy]
-        m.ξy(m.Γ₄, z, y, ξ_sss)
-    else
-        m.ξy(m.Γ₄, z, y)
+    if :Γ₄ in select
+        if m.inplace[:ξy]
+            m.ξy(m.Γ₄, z, y, ξ_sss)
+        else
+            m.ξy(m.Γ₄, z, y)
+        end
     end
 
-    if m.inplace[:J𝒱]
-        m.J𝒱(m.JV, z, Ψ, m.Γ₅, m.Γ₆, 𝒱_sss)
-    else
-        m.J𝒱(m.JV, z, Ψ, m.Γ₅, m.Γ₆)
+    if :JV in select
+        if m.inplace[:J𝒱]
+            m.J𝒱(m.JV, z, Ψ, m.Γ₅, m.Γ₆, 𝒱_sss)
+        else
+            m.J𝒱(m.JV, z, Ψ, m.Γ₅, m.Γ₆)
+        end
     end
 
     m
@@ -583,6 +600,12 @@ end
 @inline nonlinear_system(m::RiskAdjustedLinearization) = m.nonlinear
 @inline linearized_system(m::RiskAdjustedLinearization) = m.linearization
 
+function update!(m::RiskAdjustedLinearization)
+    update!(nonlinear_system(m), m.z, m.y, m.Ψ, Γ₅(m), Γ₆(m))
+    update!(linearized_system(m), m.z, m.y, m.Ψ, m.nonlinear.μ_sss, m.nonlinear.ξ_sss, m.nonlinear.𝒱_sss)
+end
+
+
 function update!(m::RiskAdjustedLinearization, z::C1, y::C1, Ψ::C2;
                  update_cache::Bool = true) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
 
@@ -593,17 +616,23 @@ function update!(m::RiskAdjustedLinearization, z::C1, y::C1, Ψ::C2;
 
     # Update the cached vectors and Jacobians
     if update_cache
-        update!(nonlinear_system(m), m.z, m.y, m.Ψ, Γ₅(m), Γ₆(m))
-
-        update!(linearized_system(m), m.z, m.y, m.Ψ, m.nonlinear.μ_sss, m.nonlinear.ξ_sss, m.nonlinear.𝒱_sss)
+        update!(m)
     end
 
     m
 end
 
 function Base.show(io::IO, m::RiskAdjustedLinearization)
-    @printf io "Risk-Adjusted Linearization of a Dynamic Economic Model\n"
-    @printf io "No. of state variables:              %i\n" m.Nz
-    @printf io "No. of jump variables:               %i\n" m.Ny
-    @printf io "No. of exogenous shocks:             %i\n" m.Nε
+    @printf io "Risk-Adjusted Linearization of an Economic Model\n"
+    @printf io "No. of state variables:      %i\n" m.Nz
+    @printf io "No. of jump variables:       %i\n" m.Ny
+    @printf io "No. of exogenous shocks:     %i\n" m.Nε
+end
+
+function Base.show(io::IO, m::RALNonlinearSystem)
+    @printf io "RALNonlinearSystem"
+end
+
+function Base.show(io::IO, m::RALLinearizedSystem)
+    @printf io "RALLinearizedSystem"
 end
