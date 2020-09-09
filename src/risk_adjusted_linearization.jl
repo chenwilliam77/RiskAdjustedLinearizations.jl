@@ -49,7 +49,7 @@ function RALΣ(Σ::Function, cache::SC, z::C1) where {SC <: AbstractMatrix{<: Nu
             return du
         end
     end
-    return RALΣ(Σnew, dualcache(cache, Val{length(z)})
+    return RALΣ(Σnew, dualcache(cache, Val{length(z)}))
 end
 
 function RALΣ(Σin::SC, z::C1) where {SC <: AbstractMatrix{<: Number}, C1 <: AbstractVector{<: Number}}
@@ -396,7 +396,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
 
     # Create 𝒱 and its Jacobian J𝒱
-    if applicable(ccgf, z) # Check if ccgf is in place or not
+    if applicable(ccgf, Γ₅, z) # Check if ccgf is in place or not
         𝒱 = function _𝒱(F, z, Ψ, Γ₅, Γ₆)
             F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
         end
@@ -550,25 +550,25 @@ function _check_inputs(nonlinear::A, linearization::B, z::C1, y::C1, Ψ::C2) whe
         applicable(𝒱, y, z, Ψ, Γ₅, Γ₆) "The function 𝒱 must take either the form " *
         "𝒱(z, Ψ, Γ₅, Γ₆) or the in-place equivalent 𝒱(F, z, Ψ, Γ₅, Γ₆)"
 
-    @assert applicable(μz, z, y, μ_sss) ||
+    @assert applicable(μz, Γ₁, z, y) ||
         applicable(μz, Γ₁, z, y, μ_sss) "The function μz must take either the form " *
-        "μz(z, y, μ_sss) or the in-place equivalent μz(F, z, y, μ_sss)"
+        "μz(F, z, y) or μz(F, z, y, μ_sss)"
 
-    @assert applicable(μy, z, y, μ_sss) ||
+    @assert applicable(μy, Γ₂, z, y) ||
         applicable(μy, Γ₂, z, y, μ_sss) "The function μy must take either the form " *
-        "μy(z, y, μ_sss) or the in-place equivalent μy(F, z, y, μ_sss)"
+        "μy(F, z, y) or μy(F, z, y, μ_sss)"
 
-    @assert applicable(ξz, z, y, ξ_sss) ||
+    @assert applicable(ξz, Γ₃, z, y) ||
         applicable(ξz, Γ₃, z, y, ξ_sss) "The function ξz must take either the form " *
-        "ξz(z, y, ξ_sss) or the in-place equivalent ξz(F, z, y, ξ_sss)"
+        "ξz(F, z, y) or ξz(F, z, y, ξ_sss)"
 
-    @assert applicable(ξy, z, y, ξ_sss) ||
+    @assert applicable(ξy, Γ₄, z, y) ||
         applicable(ξy, Γ₄, z, y, ξ_sss) "The function ξy must take either the form " *
-        "ξy(z, y, ξ_sss) or the in-place equivalent ξy(F, z, y, ξ_sss)"
+        "ξy(F, z, y) or ξy(F, z, y, ξ_sss)"
 
-    @assert applicable(J𝒱, z, Ψ, Γ₅, Γ₆, 𝒱_sss) ||
+    @assert applicable(J𝒱, z, Ψ, Γ₅, Γ₆) ||
         applicable(J𝒱, JV, z, Ψ, Γ₅, Γ₆, 𝒱_sss) "The function J𝒱 must take either the form " *
-        "J𝒱(z, Ψ, Γ₅, Γ₆, 𝒱_sss) or the in-place equivalent J𝒱(F, z, Ψ, Γ₅, Γ₆, 𝒱_sss)"
+        "J𝒱(F, z, Ψ, Γ₅, Γ₆) or J𝒱(F, z, Ψ, Γ₅, Γ₆, 𝒱_sss)"
 end
 
 ## Methods for using RiskAdjustedLinearization
