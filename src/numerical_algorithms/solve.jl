@@ -1,5 +1,14 @@
 # Wrapper for calculating the RAL
 # List the keywords for each method
+function solve!(m::RiskAdjustedLinearization; method::Symbol = :relaxation, ftol::S2 = 1e-8, autodiff::Symbol = :forward,
+                verbose::Symbol = :high, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
+    if method == :deterministic
+        solve!(m, m.z, m.y; method = method, ftol = ftol, autodiff = autodiff, verbose = verbose, kwargs...)
+    else
+        solve!(m, m.z, m.y, m.Ψ; method = method, ftol = ftol, autodiff = autodiff, verbose = verbose, kwargs...)
+    end
+end
+
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1};
                 method::Symbol = :relaxation, ftol::S2 = 1e-8, autodiff::Symbol = :forward,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
@@ -9,19 +18,19 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     # Deterministic steady state
     deterministic_steadystate!(m, vcat(z0, y0); ftol = ftol, autodiff = autodiff, kwargs...)
 
+    # Zero the entropy and Jacobian terms
+    m.nonlinear.𝒱_sss  .= 0.
+    m.linearization.JV .= 0.
+
+    # Calculate linearization
+    update!(m)
+
+    # Back out Ψ
+    compute_Ψ(m; zero_entropy_jacobian = true)
+
     # Use deterministic steady state as guess for stochastic steady state?
-    if method == :deterministic # If not, . . .
-        # Zero the entropy and Jacobian terms
-        m.nonlinear.𝒱_sss  .= 0.
-        m.linearization.JV .= 0.
-
-        # Calculate linearization
-        update!(m)
-
-        # Back out Ψ
-        compute_Ψ(m; zero_entropy_jacobian = true)
-    else
-        solve!(m, m.z, m.y, zeros(m.Ny, m.Nz); method = method, ftol = ftol, autodiff = autodiff,
+    if method != :deterministic
+        solve!(m, m.z, m.y, m.Ψ; method = method, ftol = ftol, autodiff = autodiff,
                verbose = verbose, kwargs...)
     end
 
