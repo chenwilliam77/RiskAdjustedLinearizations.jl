@@ -98,17 +98,12 @@ function outofplace_wachter_disaster_risk(m::WachterDisasterRisk{T}) where {T}
     Nε = length(SH)
 
     function μ(z, y) # the equation labeling could be wrong
-        F_type = (eltype(z) <: ForwardDiff.Dual || eltype(y) <: ForwardDiff.Dual) ? ForwardDiff.Dual : eltype(z)
-        F = Vector{F_type}(undef, Nz)
-        F[S[:p]]  = (1 - ρₚ) * pp + ρₚ * z[S[:p]]
-        F[S[:εc]] = zero(F_type)
-        F[S[:εξ]] = zero(F_type)
-        return F
+        return [(1 - ρₚ) * pp + ρₚ * z[S[:p]], 0., 0.]
     end
 
     function ξ(z, y) # the equation labeling could be wrong
-        F_type = (eltype(z) <: ForwardDiff.Dual || eltype(y) <: ForwardDiff.Dual) ? ForwardDiff.Dual : eltype(z)
-        F = Vector{F_type}(undef, Nz)
+        F = RiskAdjustedLinearizations.dualvector(y, z)
+
         F[J[:vc]] = log(β) - γ * μₐ + γ * ν * z[S[:p]] - (ρ - γ) * y[J[:xc]] + y[J[:rf]]
         F[J[:xc]] = log(1. - β + β * exp((1. - ρ) * y[J[:xc]])) - (1. - ρ) * y[J[:vc]]
         F[J[:rf]] = (1. - γ) * (μₐ - ν * z[S[:p]] - y[J[:xc]])

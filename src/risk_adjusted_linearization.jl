@@ -158,31 +158,31 @@ function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2,
     if m.inplace[:μz]
         m.μz(m.Γ₁, z, y, μ_sss)
     else
-        m.Γ₁ .= m.μz(z, y, μ_sss)
+        m.μz(m.Γ₁, z, y)
     end
 
     if m.inplace[:μy]
         m.μy(m.Γ₂, z, y, μ_sss)
     else
-        m.Γ₂ .= m.μy(z, y, μ_sss)
+        m.μy(m.Γ₂, z, y)
     end
 
     if m.inplace[:ξz]
         m.ξz(m.Γ₃, z, y, ξ_sss)
     else
-        m.Γ₃ .= m.ξz(z, y, ξ_sss)
+        m.ξz(m.Γ₃, z, y)
     end
 
     if m.inplace[:ξy]
         m.ξy(m.Γ₄, z, y, ξ_sss)
     else
-        m.Γ₄ .= m.ξy(z, y, ξ_sss)
+        m.ξy(m.Γ₄, z, y)
     end
 
     if m.inplace[:J𝒱]
         m.J𝒱(m.JV, z, Ψ, m.Γ₅, m.Γ₆, 𝒱_sss)
     else
-        m.JV .= m.J𝒱(z, Ψ, m.Γ₅, m.Γ₆, 𝒱_sss)
+        m.J𝒱(m.JV, z, Ψ, m.Γ₅, m.Γ₆)
     end
 
     m
@@ -600,4 +600,11 @@ function update!(m::RiskAdjustedLinearization, z::C1, y::C1, Ψ::C2;
     end
 
     m
+end
+
+function Base.show(io::IO, m::RiskAdjustedLinearization)
+    @printf io "Risk-Adjusted Linearization of a Dynamic Economic Model\n"
+    @printf io "No. of state variables:              %i\n" m.Nz
+    @printf io "No. of jump variables:               %i\n" m.Ny
+    @printf io "No. of exogenous shocks:             %i\n" m.Nε
 end
