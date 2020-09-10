@@ -16,14 +16,14 @@ update!(ral, z, y, Ψ)
 # Solve!
 @info "The following series of print statements are expected."
 @test RiskAdjustedLinearizations.relaxation!(ral, vcat(m.z, m.y), m.Ψ; verbose = :low, autodiff = :central,
-                                             tol = 1e-10, maxit = 1000, damping = .5, pnorm = Inf, ftol = 1e-8) # first with finite diff NLsolve Jacobian
+                                             tol = 1e-10, max_iters = 1000, damping = .5, pnorm = Inf, ftol = 1e-8) # first with finite diff NLsolve Jacobian
 @test ral.z ≈ sssout["z"]
 @test ral.y ≈ sssout["y"] atol=5e-7
 @test ral.Ψ ≈ sssout["Psi"]
 
 update!(ral, z, y, Ψ) # now autodiff Jacobian
 @test_broken RiskAdjustedLinearizations.relaxation!(ral, vcat(m.z, m.y), m.Ψ; verbose = :low, autodiff = :forward,
-                                                    tol = 1e-10, maxit = 1000, damping = .5, pnorm = Inf, ftol = 1e-8) # currently can't autodiff b/c caching problem
+                                                    tol = 1e-10, max_iters = 1000, damping = .5, pnorm = Inf, ftol = 1e-8) # currently can't autodiff b/c caching problem
 #=@test ral.z ≈ sssout["z"]
 @test ral.y ≈ sssout["y"] atol=5e-7
 @test ral.Ψ ≈ sssout["Psi"]=#

@@ -1,4 +1,12 @@
-# Functions for checking blanchard_kahn conditions
+"""
+```
+blanchard_kahn(m::RiskAdjustedLinearization; verbose::Symbol = :high)
+```
+
+checks the Blanchard-Kahn conditions for whether a first-order perturbation is saddle-path stable or not.
+
+If `verbose` is `:low` or `:high`, a print statement will be shown if the Blanchard-Kahn conditions are satisfied.
+"""
 function blanchard_kahn(m::RiskAdjustedLinearization; verbose::Symbol = :high)
 
     A = [Γ₅(m) Γ₆(m); Matrix{eltype(Γ₅(m))}(I, m.Nz, m.Nz) Zeros{eltype(Γ₅(m))}(m.Ny, m.Nz)]

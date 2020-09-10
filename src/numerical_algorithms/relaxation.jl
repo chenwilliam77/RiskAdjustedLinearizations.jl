@@ -1,9 +1,8 @@
 """
 ```
-function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1}, Ψₙ₋₁::AbstractMatrix{S1};
-                    tol::S2 = 1e-10, maxit::Int = 1000, damping::S2 = .5, pnorm::S3 = Inf,
-                    ftol::S2 = 1e-8, autodiff::Symbol = :central, schur_fnct::Function = schur!,
-                    verbose::Symbol = :none, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
+function relaxation!(m, xₙ₋₁, Ψₙ₋₁; tol = 1e-10, max_iters = 1000, damping = .5, pnorm = Inf,
+                    ftol = 1e-8, autodiff::Symbol = :central, schur_fnct::Function = schur!,
+                    verbose = :none, kwargs...)
 ```
 
 solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization by the following relaxation algorithm:
@@ -12,9 +11,33 @@ solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization b
 2. Do until convergence
     a) Solve for ``(z, y)`` using the expectational and state transition equations and fixing ``\\Psi``.
     b) Use a QZ decomposition to solve for ``\\Psi`` while fixing ``(z, y)``.
+
+### Types:
+- `S1 <: Number`
+- `S2 <: Real`
+- `S3 <: Real`
+
+### Inputs
+- `m::RiskAdjustedLinearization`: object holding functions needed to calculate
+    the risk-adjusted linearization
+- `xₙ₋₁::AbstractVector{S1}`: initial guess for ``(z, y)``
+- `Ψₙ₋₁::AbstractVector{S1}`: initial guess for ``\\Psi``
+
+### Keywords
+- `tol::S2`: convergence tolerance of residual norm for relaxation algorithm
+- `max_iters::Int`: maximumm number of iterations
+- `damping::S2`: guesses are updated as the weighted average
+    `xₙ = damping * proposal + (1 - damping) * xₙ₋₁`.
+- `pnorm::S3`: norm for residual tolerance
+- `ftol::S2`: convergence tolerance of residual norm for `nlsolve`
+- `autodiff::Symbol`: either `:forward` or `:central`
+- `schur_fnct::Function`: function for calculating the Schur factorization during QZ decomposition
+- `verbose::Symbol`: verbosity of information printed out during solution.
+    a) `:low` -> statement when homotopy continuation succeeds
+    b) `:high` -> statement when homotopy continuation succeeds and for each successful iteration
 """
 function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1}, Ψₙ₋₁::AbstractMatrix{S1};
-                    tol::S2 = 1e-10, maxit::Int = 1000, damping::S2 = .5, pnorm::S3 = Inf,
+                    tol::S2 = 1e-10, max_iters::Int = 1000, damping::S2 = .5, pnorm::S3 = Inf,
                     ftol::S2 = 1e-8, autodiff::Symbol = :central, schur_fnct::Function = schur!,
                     verbose::Symbol = :none, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
     # Set up
@@ -32,7 +55,7 @@ function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1
     𝒱ₙ₋₁  = nl.𝒱_sss
     J𝒱ₙ₋₁ = li.JV
 
-    while (err > tol) && (count < maxit)
+    while (err > tol) && (count < max_iters)
 
         # Calculate entropy terms 𝒱ₙ₋₁, J𝒱ₙ₋₁
         update!(nl, zₙ₋₁, yₙ₋₁, Ψₙ₋₁, li.Γ₅, li.Γ₆; select = Symbol[:𝒱]) # updates nl.𝒱_sss
@@ -65,7 +88,7 @@ function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1
         count += 1
     end
 
-    if count == maxit
+    if count == max_iters
         throw(RALRelaxationError("Relaxation method to find the risk-adjusted linearization did not converge."))
     else
         if verbose == :low

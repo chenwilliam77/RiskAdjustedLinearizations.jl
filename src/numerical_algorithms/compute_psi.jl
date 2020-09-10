@@ -20,13 +20,14 @@ For the first method, all the required inputs must have type `AbstractMatrix{<: 
 in which case `qzdecomp` assumes that `JV` is the zero matrix, which corresponds to the
 case of the deterministic steady state.
 
-The second method is a wrapper for the first when the user wants to simply provide an `RALLinearizedSystem` instance.
+The second and third methods are wrappers for the first method.
 
 ### Keywords
 - `schur_fnct::Function`: specifies which Generalized Schur algorithm is desired. By default,
     the implementation from BLAS is called, but the user may want to use the Generalized Schur algorithm
     from packages like `GenericLinearAlgebra.jl` and `GenericSchur.jl`.
 - `zero_entropy_jacobian::Bool`: if true, then we assume the Jacobian of the entropy is all zeros (i.e. in the deterministic steady state).
+    This keyword allows the user to avoid adding zeros unnecessarily and/or let the cached entropy Jacobian remain undefined.
 """
 function compute_Ψ(Γ₁::AbstractMatrix{S}, Γ₂::AbstractMatrix{S}, Γ₃::AbstractMatrix{S}, Γ₄::AbstractMatrix{S},
                    Γ₅::AbstractMatrix{S}, Γ₆::AbstractMatrix{S}, JV::AbstractMatrix{S} = Matrix{S}(undef, 0, 0);
