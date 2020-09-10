@@ -1,47 +1,71 @@
 # Homotopy or Continuation algorithm
 # Implement an SEIR criterion for choosing q
-function solve_steadystate(m::AbstractDSGEModel, x0::AbstractVector{S1} = Vector{Float64}(undef, 0), q::Float64;
-                           ftol::S2 = 1e-8, autodiff::Symbol = :autodiff, kwargs...) where {S1 <: Real, S2 <: Real}
+function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
+                   step::Float64 = .1, ftol::S2 = 1e-8, autodiff::Symbol = :forward,
+                   verbose::Symbol = :none, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
+    # Set up
+    nl = nonlinear_system(m)
+    li = linearized_system(m)
+
+    qguesses = step:step:1.
+    if qguesses[end] != 1.
+        qguesses = vcat(qguesses, 1.)
+    end
+    for (i, q) in enumerate(qguesses)
+        solve_steadystate!(m, vcat(m.z, m.y, vec(m.Ψ)), q;
+                           ftol = ftol, autodiff = autodiff, kwargs...)
+
+        if verbose == :high
+            println("Success at iteration $(i) of $(length(qguesses))")
+        end
+    end
+
+    if verbose in [:low, :high]
+        println("Homotopy succeeded!")
+    end
+
+    update!(m)
+
+    return m
+end
+
+function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, q::Float64;
+                            ftol::S2 = 1e-8, autodiff::Symbol = :forward, kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
-    f3 = expectational_jump_coefs(m)
-    f4 = expectational_state_coefs(m)
-    h  = (z, y) -> expectational_nonlinearities(m, z, y)
-    g  = (z, y) -> expected_state_transition(m, z, y)
-
-    Ny, Nz = size(f4)
-
-    N_zy   = Nz + Ny
-    𝒱 = Vector{eltype(x0)}(undef, Nz)
-    J𝒱 = Vector{eltype(x0)}(undef, Nz)
-    𝒱_fnct! = (z, Ψ) -> entropy!(m, 𝒱, z, Ψ, f3, f4)
-    J𝒱_fnct! = (z, Ψ) -> entropy_jacobian!(m, J𝒱, z, Ψ, f3, f4)
-
+    N_zy = m.Nz + m.Ny
+    nl = nonlinear_system(m)
+    li = linearized_system(m)
     _my_eqn = function _my_stochastic_equations(F, x)
         # Unpack
-        z = @view x[1:Nz]
-        y = @view x[(Nz + 1):N_zy]
-        Ψ = reshape(@view x[(N_zy + 1):end], Nz, Nz)
+        z = @view x[1:m.Nz]
+        y = @view x[(m.Nz + 1):N_zy]
+        Ψ = @view x[(N_zy + 1):end]
+        Ψ = reshape(Ψ, m.Ny, m.Nz)
 
-        # Calculate entropy terms
-        𝒱_fnct!(z,  Ψ)
-        J𝒱_fnct!(z, Ψ)
-
-        # Calculate Jacobian of nonlinear terms
-        f1, f2 = expectational_jacobian(m, @view x[1:N_zy])
-        g1, g2 = expected_state_transition_jacobian(m, @view x[1:N_zy])
+        # Given coefficients, update the model
+        update!(m, z, y, Ψ)
 
         # Calculate residuals
-        F[1:Nz] = g(z, y) - z
-        F[(Nz + 1):N_zy] = h(z, y) + f3 * y + f4 * z + q * 𝒱
-        F[(N_zy + 1):end] = f1 * Ψ + f2 + (f3 * Ψ + f4) * (g1 * Ψ + g2) + q * J𝒱
+        F[1:m.Nz] = nl.μ_sss - z
+        F[(m.Nz + 1):N_zy] = nl.ξ_sss + li.Γ₅ * z + li.Γ₆ * y + q * nl.𝒱_sss
+        F[(N_zy + 1):end] = li.Γ₃ + li.Γ₄ * Ψ + (li.Γ₅ + li.Γ₆ * Ψ) * (li.Γ₁ + li.Γ₂ * Ψ) + q * li.JV
     end
 
-    out = nlsolve(_my_eqn, x0, autodiff = autodiff, kwargs...)
+    out = nlsolve(_my_eqn, x0, autodiff = autodiff, ftol = ftol, kwargs...)
 
     if out.f_converged
-        return out.zero
+        m.z .= out.zero[1:m.Nz]
+        m.y .= out.zero[(m.Nz + 1):N_zy]
+        m.Ψ .= reshape(out.zero[(N_zy + 1):end], m.Ny, m.Nz)
     else
-        error("A deterministic steady state could not be found.")
+        throw(RALHomotopyError("A solution for (z, y, Ψ) to the state transition, expectational, " *
+                               "and linearization equations could not be found when the convergence-control " *
+                               "parameter q equals $(q)"))
     end
 end
+
+mutable struct RALHomotopyError <: Exception
+    msg::String
+end
+Base.showerror(io::IO, ex::RALHomotopyError) = print(io, ex.msg)

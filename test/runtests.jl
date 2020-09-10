@@ -16,6 +16,7 @@ using SafeTestsets
         include("numerical_algorithms/compute_psi.jl")
         include("numerical_algorithms/deterministic.jl")
         include("numerical_algorithms/relaxation.jl")
+        include("numerical_algorithms/homotopy.jl")
         include("numerical_algorithms/solve.jl")
     end
 end
