@@ -2,7 +2,7 @@
 ```
 function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1}, Ψₙ₋₁::AbstractMatrix{S1};
                     tol::S2 = 1e-10, maxit::Int = 1000, damping::S2 = .5, pnorm::S3 = Inf,
-                    ftol::S2 = 1e-8, autodiff::Symbol = :forward, schur_fnct::Function = schur!,
+                    ftol::S2 = 1e-8, autodiff::Symbol = :central, schur_fnct::Function = schur!,
                     verbose::Symbol = :none, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
 ```
 
@@ -15,7 +15,7 @@ solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization b
 """
 function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1}, Ψₙ₋₁::AbstractMatrix{S1};
                     tol::S2 = 1e-10, maxit::Int = 1000, damping::S2 = .5, pnorm::S3 = Inf,
-                    ftol::S2 = 1e-8, autodiff::Symbol = :forward, schur_fnct::Function = schur!,
+                    ftol::S2 = 1e-8, autodiff::Symbol = :central, schur_fnct::Function = schur!,
                     verbose::Symbol = :none, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
     # Set up
     err   = 1.
@@ -82,7 +82,7 @@ end
 
 function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1},
                             Ψ::AbstractMatrix{<: Number}, 𝒱::AbstractVector{<: Number};
-                            ftol::S2 = 1e-8, autodiff::Symbol = :forward, kwargs...) where {S1 <: Real, S2 <: Real}
+                            ftol::S2 = 1e-8, autodiff::Symbol = :central, kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
     _my_eqn = function _my_stochastic_equations(F, x)

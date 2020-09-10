@@ -211,9 +211,26 @@ end
 abstract type AbstractRiskAdjustedLinearization end
 
 """
-    RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, 𝒱, Nz, Ny, Nε)
+    RiskAdjustedLinearization(nonlinear_system, linearized_system, z, y, Ψ, Nz, Ny, Nε)
+    RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nε)
 
-Creates a first-order perturbation around the stochastic steady state ``(z, y)`` of a discrete-time dynamic model.
+Creates a first-order perturbation around the stochastic steady state of a discrete-time dynamic economic model.
+
+While the first method is the default constructor, the second method is the main constructor most users will want,
+so this docstring explains how to use the second method.
+
+### Inputs
+- `μ::Function`: expected state transition function
+- `ξ::Function`: nonlinear terms of the expectational equations
+- `ccgf::Function`: conditional cumulant generating function of the exogenous shocks
+- `Λ::Function` or `Λ::AbstractMatrix`: function or matrix mapping endogenous risk into state transition equations
+- `Σ::Function` or `Σ::AbstractMatrix`: function or matrix mapping exogenous risk into state transition equations
+- `Γ₅::AbstractMatrix{<: Number}`: coefficient matrix on one-period ahead expectation of state variables
+- `Γ₆::AbstractMatrix{<: Number}`: coefficient matrix on one-period ahead expectation of jump variables
+- `z::AbstractVector{<: Number}`: state variables in stochastic steady state
+- `y::AbstractVector{<: Number}`: jump variables in stochastic steady state
+- `Ψ::AbstractMatrix{<: Number}`: matrix linking deviations in states to deviations in jumps, i.e. ``y_t - y = \\Psi(z_t - z)``.
+- `Nε::Int`: number of exogenous shocks
 
 (TODO: Move more of the formality to documentation, and make this shorter and concise, w/out explanation of matrix equations)
 The affine approximation of the model is
@@ -291,83 +308,6 @@ mutable struct RiskAdjustedLinearization{A <: RALNonlinearSystem, B <: RALLinear
     Ny::Int
     Nε::Int
 end
-# TODO
-# 1.UPDATE THE PRINTING, maybe just write out "risk-adjusted linearization with dimensions ()"
-#
-# 2. Test update! functions for the various blocks as well as access functions for RiskAdjustedLinearization
-#
-# 3. Check inplace inference is correct, check construction of each block plus main block
-#=
-TODO: Finish this once the final struct is completed
-# A series of lower level constructors
-function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μz::Mz, μy::My, ξz::Xz, ξy::Xy, J𝒱::J,
-                                   μ_sss::AbstractVector{T}, ξ_sss::AbstractVector{T}, 𝒱_sss::AbstractVector{T},
-                                   Γ₁::AbstractMatrix{T}, Γ₂::AbstractMatrix{T}, Γ₃::AbstractMatrix{T}
-                                   Γ₄::AbstractMatrix{T}, Γ₅::AbstractMatrix{T}, Γ₆::AbstractMatrix{T},
-                                   JV::AbstractMatrix{T}, z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int = -1) where {T <: Number, M <: Function, L,
-                                                        S, X <: Function, V <: Function,
-                                                        Mz <: Function, My <: Function, Xz <: Function,
-                                                        Xy <: Function, J <: Function}
-
-    Nz = length(z)
-    Ny = length(y)
-    if Nε < 0
-        Nε = size(Σ(z), 2)
-    end
-
-    return RiskAdjustedLinearization{T, M, L, S, X, V, J}(μ, Λ, Σ, ξ, 𝒱, J𝒱, μ_sss, ξ_sss, 𝒱_sss,
-                                                          Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆,
-                                                          JV, z, y, Ψ, Nz, Ny, Nε)
-end
-
-
-function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μz::Mz, μy::My, ξz::Xz, ξy::Xy, J𝒱::J,
-                                   Γ₁::AbstractMatrix{T}, Γ₂::AbstractMatrix{T}, Γ₃::AbstractMatrix{T}
-                                   Γ₄::AbstractMatrix{T}, Γ₅::AbstractMatrix{T}, Γ₆::AbstractMatrix{T},
-                                   JV::AbstractMatrix{T}, z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int = -1) where {T <: Number, M <: Function, L,
-                                                        S, X <: Function, V <: Function,
-                                                        Mz <: Function, My <: Function, Xz <: Function,
-                                                        Xy <: Function, J <: Function}
-    Nz = length(z)
-    Ny = length(y)
-    if Nε < 0
-        Nε = size(Σ(z), 2)
-    end
-
-    # Cache stochastic steady state vectors
-    μ_sss, ξ_sss, 𝒱_sss = _cache_sss_vectors(z, y)
-
-    return RiskAdjustedLinearization{T, M, L, S, X, V, J}(μ, Λ, Σ, ξ, 𝒱, J𝒱, μ_sss, ξ_sss, 𝒱_sss,
-                                                          Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆,
-                                                          JV, z, y, Ψ, Nz, Ny, Nε)
-end
-
-function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, 𝒱::V, μz::Mz, μy::My, ξz::Xz, ξy::Xy, J𝒱::J,
-                                   z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int = -1) where {T <: Number, M <: Function, L,
-                                                        S, X <: Function, V <: Function,
-                                                        Mz <: Function, My <: Function, Xz <: Function,
-                                                        Xy <: Function, J <: Function}
-    # Get dimensions
-    Nz = length(z)
-    Ny = length(y)
-    if Nε < 0
-        Nε = size(Σ(z), 2)
-    end
-
-    # Cache stochastic steady state vectors
-    μ_sss, ξ_sss, 𝒱_sss = _cache_sss_vectors(z, y)
-
-    # Cache stochastic steady state Jacobians
-    Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = _cache_jacobians(Ψ, Nz, Ny)
-
-    return RiskAdjustedLinearization{T, M, L, S, X, V, J}(μ, Λ, Σ, ξ, 𝒱, J𝒱, μ_sss, ξ_sss, 𝒱_sss,
-                                                          Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆,
-                                                          JV, z, y, Ψ, Nz, Ny, Nε)
-end
-=#
 function RiskAdjustedLinearization(nonlinear::A, linearization::B, z::C1, y::C1, Ψ::C2,
                                    Nz::Int, Ny::Int, Nε::Int;
                                    check_inputs::Bool = true) where {A <: RALNonlinearSystem, B <: RALLinearizedSystem,
@@ -382,7 +322,8 @@ function RiskAdjustedLinearization(nonlinear::A, linearization::B, z::C1, y::C1,
 end
 
 # Constructor that uses ForwardDiff to calculate Jacobian functions
-# NOTE THAT here we pass in the ccgf, rather than 𝒱
+# This is typically the main constructor for most users.
+# Note that here we pass in the ccgf, rather than 𝒱
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},

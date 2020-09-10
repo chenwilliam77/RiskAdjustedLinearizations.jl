@@ -1,6 +1,6 @@
 # Wrapper for calculating the RAL
 # List the keywords for each method
-function solve!(m::RiskAdjustedLinearization; method::Symbol = :relaxation, ftol::S2 = 1e-8, autodiff::Symbol = :forward,
+function solve!(m::RiskAdjustedLinearization; method::Symbol = :relaxation, ftol::S2 = 1e-8, autodiff::Symbol = :central,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
     if method == :deterministic
         solve!(m, m.z, m.y; method = method, ftol = ftol, autodiff = autodiff, verbose = verbose, kwargs...)
@@ -10,7 +10,7 @@ function solve!(m::RiskAdjustedLinearization; method::Symbol = :relaxation, ftol
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1};
-                method::Symbol = :relaxation, ftol::S2 = 1e-8, autodiff::Symbol = :forward,
+                method::Symbol = :relaxation, ftol::S2 = 1e-8, autodiff::Symbol = :central,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
 
     @assert method in [:deterministic, :relaxation, :homotopy, :continuation]
@@ -46,7 +46,7 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1}, Ψ0::AbstractMatrix{S1};
-                method::Symbol = :relaxation, ftol::S2 = 1e-8, autodiff::Symbol = :forward,
+                method::Symbol = :relaxation, ftol::S2 = 1e-8, autodiff::Symbol = :central,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
 
     @assert method in [:relaxation, :homotopy, :continuation]
@@ -71,7 +71,7 @@ end
 """
 ```
 function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1};
-                                    ftol::S2 = 1e-8, autodiff::Symbol = :forward, kwargs...) where {S1 <: Real, S2 <: Real}
+                                    ftol::S2 = 1e-8, autodiff::Symbol = :central, kwargs...) where {S1 <: Real, S2 <: Real}
 ```
 
 calculates the deterministic steady state.
@@ -80,7 +80,7 @@ calculates the deterministic steady state.
 - `x0`: initial guess, whose first `m.Nz` elements are `z` and whose remaining elements are `y`.
 """
 function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1};
-                                    ftol::S2 = 1e-8, autodiff::Symbol = :forward, kwargs...) where {S1 <: Real, S2 <: Real}
+                                    ftol::S2 = 1e-8, autodiff::Symbol = :central, kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
     _my_eqn = function _my_deterministic_equations(F, x)
