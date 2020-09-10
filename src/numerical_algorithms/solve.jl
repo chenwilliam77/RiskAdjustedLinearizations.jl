@@ -18,24 +18,31 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     # Deterministic steady state
     deterministic_steadystate!(m, vcat(z0, y0); ftol = ftol, autodiff = autodiff, kwargs...)
 
-    # Zero the entropy and Jacobian terms
-    m.nonlinear.𝒱_sss  .= 0.
-    m.linearization.JV .= 0.
-
     # Calculate linearization
-    update!(m)
+    nl = nonlinear_system(m)
+    li = linearized_system(m)
+    update!(nl, m.z, m.y, m.Ψ, li.Γ₅, li.Γ₆;
+            select = Symbol[:μ, :ξ])
+    update!(li, m.z, m.y, m.Ψ, nl.μ_sss, nl.ξ_sss, nl.𝒱_sss;
+            select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄])
 
     # Back out Ψ
     compute_Ψ(m; zero_entropy_jacobian = true)
 
     # Use deterministic steady state as guess for stochastic steady state?
-    if method != :deterministic
+    if method == :deterministic
+        # Zero the entropy and Jacobian terms so they are not undefined or something else
+        m.nonlinear.𝒱_sss  .= 0.
+        m.linearization.JV .= 0.
+    else
         solve!(m, m.z, m.y, m.Ψ; method = method, ftol = ftol, autodiff = autodiff,
                verbose = verbose, kwargs...)
     end
 
     # Check Blanchard-Kahn
     blanchard_kahn(m; verbose = verbose)
+
+    m
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1}, Ψ0::AbstractMatrix{S1};
@@ -56,6 +63,8 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
 
     # Check Blanchard-Kahn
     blanchard_kahn(m; verbose = verbose)
+
+    m
 end
 
 

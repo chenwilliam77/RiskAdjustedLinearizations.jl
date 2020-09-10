@@ -69,5 +69,5 @@ function compute_Ψ(m::RALLinearizedSystem; zero_entropy_jacobian::Bool = false,
 end
 
 @inline function compute_Ψ(m::RiskAdjustedLinearization; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
-    return compute_Ψ(m.linearization; zero_entropy_jacobian = zero_entropy_jacobian, schur_fnct = schur_fnct) where {S <: Number}
+    return compute_Ψ(m.linearization; zero_entropy_jacobian = zero_entropy_jacobian, schur_fnct = schur_fnct)
 end
