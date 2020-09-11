@@ -1,7 +1,7 @@
+
 """
 ```
-homotopy!(m, xₙ₋₁; step = .1, ftol = 1e-8, autodiff = :central,
-          verbose = :none, kwargs...)
+homotopy!(m, xₙ₋₁; step = .1, verbose = :none, kwargs...)
 ```
 
 solves the system of equations characterizing a risk-adjusted linearization by a homotopy method with
@@ -13,7 +13,6 @@ until ``q`` reaches 1 or passes 1 (in which case, we force ``q = 1``).
 
 ### Types:
 - `S1 <: Number`
-- `S2 <: Real`
 
 ### Inputs
 - `m::RiskAdjustedLinearization`: object holding functions needed to calculate
@@ -22,15 +21,12 @@ until ``q`` reaches 1 or passes 1 (in which case, we force ``q = 1``).
 
 ### Keywords
 - `step::Float64`: size of the uniform step from `step` to 1.
-- `ftol::S2`: convergence tolerance of residual norm for `nlsolve`
-- `autodiff::Symbol`: either `:forward` or `:central`
 - `verbose::Symbol`: verbosity of information printed out during solution.
     a) `:low` -> statement when homotopy continuation succeeds
     b) `:high` -> statement when homotopy continuation succeeds and for each successful iteration
 """
 function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
-                   step::Float64 = .1, ftol::S2 = 1e-8, autodiff::Symbol = :central,
-                   verbose::Symbol = :none, kwargs...) where {S1 <: Number, S2 <: Real}
+                   step::Float64 = .1, verbose::Symbol = :none, kwargs...) where {S1 <: Number}
     # Set up
     nl = nonlinear_system(m)
     li = linearized_system(m)
@@ -40,8 +36,7 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
         qguesses = vcat(qguesses, 1.)
     end
     for (i, q) in enumerate(qguesses)
-        solve_steadystate!(m, vcat(m.z, m.y, vec(m.Ψ)), q;
-                           ftol = ftol, autodiff = autodiff, kwargs...)
+        solve_steadystate!(m, vcat(m.z, m.y, vec(m.Ψ)), q; kwargs...)
 
         if verbose == :high
             println("Success at iteration $(i) of $(length(qguesses))")
@@ -57,8 +52,8 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
     return m
 end
 
-function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, q::Float64;
-                            ftol::S2 = 1e-8, autodiff::Symbol = :central, kwargs...) where {S1 <: Real, S2 <: Real}
+function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1},
+                            q::Float64; kwargs...) where {S1 <: Real}
 
     # Set up system of equations
     N_zy = m.Nz + m.Ny
@@ -80,7 +75,7 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         F[(N_zy + 1):end] = li.Γ₃ + li.Γ₄ * Ψ + (li.Γ₅ + li.Γ₆ * Ψ) * (li.Γ₁ + li.Γ₂ * Ψ) + q * li.JV
     end
 
-    out = nlsolve(_my_eqn, x0, autodiff = autodiff, ftol = ftol, kwargs...)
+    out = nlsolve(_my_eqn, x0, kwargs...)
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]

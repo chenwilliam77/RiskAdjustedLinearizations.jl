@@ -1,8 +1,7 @@
 """
 ```
 function relaxation!(m, xₙ₋₁, Ψₙ₋₁; tol = 1e-10, max_iters = 1000, damping = .5, pnorm = Inf,
-                    ftol = 1e-8, autodiff::Symbol = :central, schur_fnct::Function = schur!,
-                    verbose = :none, kwargs...)
+                    schur_fnct::Function = schur!, verbose = :none, kwargs...)
 ```
 
 solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization by the following relaxation algorithm:
@@ -29,8 +28,6 @@ solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization b
 - `damping::S2`: guesses are updated as the weighted average
     `xₙ = damping * proposal + (1 - damping) * xₙ₋₁`.
 - `pnorm::S3`: norm for residual tolerance
-- `ftol::S2`: convergence tolerance of residual norm for `nlsolve`
-- `autodiff::Symbol`: either `:forward` or `:central`
 - `schur_fnct::Function`: function for calculating the Schur factorization during QZ decomposition
 - `verbose::Symbol`: verbosity of information printed out during solution.
     a) `:low` -> statement when homotopy continuation succeeds
@@ -38,8 +35,8 @@ solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization b
 """
 function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1}, Ψₙ₋₁::AbstractMatrix{S1};
                     tol::S2 = 1e-10, max_iters::Int = 1000, damping::S2 = .5, pnorm::S3 = Inf,
-                    ftol::S2 = 1e-8, autodiff::Symbol = :central, schur_fnct::Function = schur!,
-                    verbose::Symbol = :none, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
+                    schur_fnct::Function = schur!, verbose::Symbol = :none,
+                     kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
     # Set up
     err   = 1.
     count = 0
@@ -62,7 +59,7 @@ function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1
         update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁, nl.μ_sss, nl.ξ_sss, nl.𝒱_sss; select = Symbol[:JV]) # updates li.JV
 
         # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
-        solve_steadystate!(m, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁, ftol = ftol, autodiff = autodiff, kwargs...) # updates m.z and m.y
+        solve_steadystate!(m, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁, kwargs...) # updates m.z and m.y
 
         # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
         update!(li, zₙ, yₙ, Ψₙ₋₁, nl.μ_sss, nl.ξ_sss, nl.𝒱_sss; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ
@@ -105,7 +102,7 @@ end
 
 function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1},
                             Ψ::AbstractMatrix{<: Number}, 𝒱::AbstractVector{<: Number};
-                            ftol::S2 = 1e-8, autodiff::Symbol = :central, kwargs...) where {S1 <: Real, S2 <: Real}
+                            kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
     _my_eqn = function _my_stochastic_equations(F, x)
@@ -121,7 +118,7 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         F[(m.Nz + 1):end] = m.nonlinear.ξ_sss + m.linearization.Γ₅ * z + m.linearization.Γ₆ * y + 𝒱
     end
 
-    out = nlsolve(_my_eqn, x0, ftol = ftol, autodiff = autodiff, kwargs...)
+    out = nlsolve(_my_eqn, x0, kwargs...)
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]

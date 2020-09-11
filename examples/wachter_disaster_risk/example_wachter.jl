@@ -17,27 +17,27 @@ y0 = copy(m.y)
 Ψ0 = copy(m.Ψ)
 
 # Solve!
-solve!(m; method = numerical_algorithm, autodiff = autodiff_method)
+solve!(m; algorithm = numerical_algorithm, autodiff = autodiff_method)
 
 if time_methods
     println("Deterministic steady state")
     @btime begin
-        solve!(m, z0, y0; method = :deterministic, autodiff = autodiff_method, verbose = :none)
+        solve!(m, z0, y0; algorithm = :deterministic, autodiff = autodiff_method, verbose = :none)
     end
 
     # Use deterministic steady state as guesses
-    solve!(m, z0, y0; method = :deterministic, autodiff = autodiff_method, verbose = :none)
+    solve!(m, z0, y0; algorithm = :deterministic, autodiff = autodiff_method, verbose = :none)
     zdet = copy(m.z)
     ydet = copy(m.y)
     Ψdet = copy(m.Ψ)
 
     println("Relaxation method")
     @btime begin # called the "iterative" method in the original paper
-        solve!(m, zdet, ydet, Ψdet; method = :relaxation, autodiff = autodiff_method, verbose = :none)
+        solve!(m, zdet, ydet, Ψdet; algorithm = :relaxation, autodiff = autodiff_method, verbose = :none)
     end
 
     println("Homotopy method")
     @btime begin # called the "continuation" method in the original paper, but is called homotopy in the original code
-        # solve!(m, zdet, ydet, Ψdet; method = :homotopy, autodiff = autodiff_method, verbose = :none)
+        solve!(m, zdet, ydet, Ψdet; algorithm = :homotopy, autodiff = autodiff_method, verbose = :none)
     end
 end

@@ -26,9 +26,9 @@ solve!(ral, z, y, Ψ; verbose = :none, autodiff = :central, ftol = 1e-8) # Now j
 @test ral.y ≈ sssout["y"] atol=5e-7
 @test ral.Ψ ≈ sssout["Psi"]
 
-solve!(ral, zguess, yguess; verbose = :high, method = :homotopy, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
+solve!(ral, zguess, yguess; verbose = :high, algorithm = :homotopy, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
 update!(ral, z, y, Ψ)                                             # and then proceeding to stochastic steady state
-solve!(ral, z, y, Ψ; verbose = :none, method = :homotopy, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
+solve!(ral, z, y, Ψ; verbose = :none, algorithm = :homotopy, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
 @test ral.z ≈ sssout["z"]
 @test ral.y ≈ sssout["y"] atol=5e-7
 @test ral.Ψ ≈ sssout["Psi"]
@@ -38,9 +38,9 @@ solve!(ral, z, y, Ψ; verbose = :none, method = :homotopy, autodiff = :central, 
 update!(ral, z, y, Ψ)
 @test_broken solve!(ral, z, y, Ψ; verbose = :none, autodiff = :forward, ftol = 1e-8) # currently can't autodiff b/c caching problem
 
-@test_broken solve!(ral, zguess, yguess; verbose = :high, autodiff = :forward, ftol = 1e-8, method = :homotopy)
+@test_broken solve!(ral, zguess, yguess; verbose = :high, autodiff = :forward, ftol = 1e-8, algorithm = :homotopy)
 update!(ral, z, y, Ψ)
-@test_broken solve!(ral, z, y, Ψ; verbose = :none, autodiff = :forward, ftol = 1e-8, method = :homotopy) # currently can't autodiff b/c caching problem
+@test_broken solve!(ral, z, y, Ψ; verbose = :none, autodiff = :forward, ftol = 1e-8, algorithm = :homotopy) # currently can't autodiff b/c caching problem
 
 #=@test ral.z ≈ sssout["z"]
 @test ral.y ≈ sssout["y"] atol=5e-7

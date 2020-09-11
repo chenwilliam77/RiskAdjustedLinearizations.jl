@@ -13,20 +13,20 @@ y = copy(ral.y)
 Ψ = copy(ral.Ψ)
 
 # Solve!
-@test_throws AssertionError solve!(ral, ral.z, ral.y, ral.Ψ; method = :deterministic, verbose = :high, autodiff = :central) # first w/finite diff nlsolve Jacobian
+@test_throws AssertionError solve!(ral, ral.z, ral.y, ral.Ψ; algorithm = :deterministic, verbose = :high, autodiff = :central) # first w/finite diff nlsolve Jacobian
 @info "The following series of print statements are expected."
-solve!(ral, ral.z, ral.y; method = :deterministic, verbose = :high, autodiff = :central) # first w/finite diff nlsolve Jacobian
+solve!(ral, ral.z, ral.y; algorithm = :deterministic, verbose = :high, autodiff = :central) # first w/finite diff nlsolve Jacobian
 @test ral.z ≈ detout["z"]
 @test ral.y ≈ detout["y"]
-RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y); method = :deterministic,
+RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y); algorithm = :deterministic,
                                                       verbose = :none, autodiff = :central) # first w/finite diff nlsolve Jacobian
 @test ral.z ≈ detout["z"]
 @test ral.y ≈ detout["y"]
 
 
 update!(ral, z, y, Ψ) # now autodiff Jacobian
-@test_broken solve!(ral, ral.z, ral.y; method = :deterministic, verbose = :high, autodiff = :forward) # now autodiff nlsolve Jacobian
-@test_broken RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y); method = :deterministic,
+@test_broken solve!(ral, ral.z, ral.y; algorithm = :deterministic, verbose = :high, autodiff = :forward) # now autodiff nlsolve Jacobian
+@test_broken RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y); algorithm = :deterministic,
                                                                    verbose = :none, autodiff = :forward)
 #=@test ral.z ≈ sssout["z"]
 @test ral.y ≈ sssout["y"] atol=5e-7

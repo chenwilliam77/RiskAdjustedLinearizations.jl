@@ -1,26 +1,26 @@
 """
 ```
-solve!(m; method = :relaxation, kwargs...)
-solve!(m, z0, y0; method = :relaxation, verbose = :high, kwargs...)
-solve!(m, z0, y0, Ψ0; method = :relaxation, verbose = :high, kwargs...)
+solve!(m; algorithm = :relaxation, kwargs...)
+solve!(m, z0, y0; algorithm = :relaxation, verbose = :high, kwargs...)
+solve!(m, z0, y0, Ψ0; algorithm = :relaxation, verbose = :high, kwargs...)
 ```
 
 computes the risk-adjusted linearization of the dynamic economic model
 described by `m` and updates `m` with the solution,
 e.g. the coefficients ``(z, y, \\Psi)``.
 
-The three available `solve!` methods are slight variations on each other.
+The three available `solve!` algorithms are slight variations on each other.
 
 - Method 1: uses the `z`, `y`, and `Ψ` fields of `m` as initial guesses
     for ``(z, y, \\Psi)`` and proceeds with the numerical algorithm
-    specified by `method`
+    specified by `algorithm`
 
 - Method 2: uses `z0` and `y0` as initial guesses for the deterministic
     steady state, which is then used as the initial guess for ``(z, Y, \\Psi)``
-    for the numerical algorithm specified by `method`.
+    for the numerical algorithm specified by `algorithm`.
 
 - Method 3: uses `z0`, `y0`, and `Ψ0` as initial guesses for ``(z, Y, \\Psi)``
-    and proceeds with the numerical algorithm specified by `method`.
+    and proceeds with the numerical algorithm specified by `algorithm`.
 
 ### Inputs
 - `m::RiskAdjustedLinearization`: object holding functions needed to calculate
@@ -31,7 +31,11 @@ The three available `solve!` methods are slight variations on each other.
 - `S1 <: Real`
 
 ### Keywords
-The `method::Symbol` keyword can be one of `[:deterministic, :relaxation, :homotopy]`.
+The `algorithm::Symbol` keyword can be one of `[:deterministic, :relaxation, :homotopy]`.
+
+The underlying algorithms all use `nlsolve` to calculate the solution to systems of nonlinear
+equations. The user can pass in any of the keyword arguments for `nlsolve` to adjust
+the settings of the nonlinear solver.
 
 For the keywords relevant to specific methods, see the docstring for the underlying method being called.
 Note these methods are not exported.
@@ -40,21 +44,21 @@ Note these methods are not exported.
 - `:homotopy` -> `homotopy!`
 - `:deterministic` -> `deterministic_steadystate!`
 """
-function solve!(m::RiskAdjustedLinearization; method::Symbol = :relaxation, kwargs...)
-    if method == :deterministic
-        solve!(m, m.z, m.y; method = method, verbose = verbose, kwargs...)
+function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation, kwargs...)
+    if algorithm == :deterministic
+        solve!(m, m.z, m.y; algorithm = algorithm, verbose = verbose, kwargs...)
     else
-        solve!(m, m.z, m.y, m.Ψ; method = method, verbose = verbose, kwargs...)
+        solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm, verbose = verbose, kwargs...)
     end
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1};
-                method::Symbol = :relaxation, kwargs...) where {S1 <: Real}
+                algorithm::Symbol = :relaxation, kwargs...) where {S1 <: Real}
 
-    @assert method in [:deterministic, :relaxation, :homotopy]
+    @assert algorithm in [:deterministic, :relaxation, :homotopy]
 
     # Deterministic steady state
-    deterministic_steadystate!(m, vcat(z0, y0); ftol = ftol, autodiff = autodiff, kwargs...)
+    deterministic_steadystate!(m, vcat(z0, y0); kwargs...)
 
     # Calculate linearization
     nl = nonlinear_system(m)
@@ -68,12 +72,12 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     compute_Ψ(m; zero_entropy_jacobian = true)
 
     # Use deterministic steady state as guess for stochastic steady state?
-    if method == :deterministic
+    if algorithm == :deterministic
         # Zero the entropy and Jacobian terms so they are not undefined or something else
         m.nonlinear.𝒱_sss  .= 0.
         m.linearization.JV .= 0.
     else
-        solve!(m, m.z, m.y, m.Ψ; method = method, ftol = ftol, autodiff = autodiff,
+        solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm,
                verbose = verbose, kwargs...)
     end
 
@@ -84,18 +88,17 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1}, Ψ0::AbstractMatrix{S1};
-                method::Symbol = :relaxation, kwargs...) where {S1 <: Number}
+                algorithm::Symbol = :relaxation, kwargs...) where {S1 <: Number}
 
-    @assert method in [:relaxation, :homotopy]
+    @assert algorithm in [:relaxation, :homotopy]
 
     # Stochastic steady state
-    if method == :relaxation
+    if algorithm == :relaxation
         N_zy = m.Nz + m.Ny
-        relaxation!(m, vcat(z0, y0), Ψ0; ftol = ftol, autodiff = autodiff,
+        relaxation!(m, vcat(z0, y0), Ψ0;
                     verbose = verbose, kwargs...)
-    elseif method == :homotopy
-        homotopy!(m, vcat(z0, y0, vec(Ψ0)); ftol = ftol, autodiff = autodiff,
-                  verbose = verbose, kwargs...)
+    elseif algorithm == :homotopy
+        homotopy!(m, vcat(z0, y0, vec(Ψ0)); verbose = verbose, kwargs...)
     end
 
     # Check Blanchard-Kahn
@@ -106,8 +109,7 @@ end
 
 """
 ```
-function deterministic_steadystate!(m, x0; ftol = 1e-8, autodiff = :central,
-                                    verbose = :none, kwargs...)
+function deterministic_steadystate!(m, x0; verbose = :none, kwargs...)
 ```
 
 calculates the deterministic steady state.
@@ -122,13 +124,10 @@ calculates the deterministic steady state.
 - `x0::AbstractVector{S1}`: initial guess for ``(z, y)``
 
 ### Keywords
-- `ftol::S2`: convergence tolerance of residual norm for `nlsolve`
-- `autodiff::Symbol`: either `:forward` or `:central`
 - `verbose::Symbol`: verbosity of information printed out during solution.
     If `:low` or `:high`, a print statement occurs when a steady state is solved.
 """
 function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1};
-                                    ftol::S2 = 1e-8, autodiff::Symbol = :central,
                                     verbose::Symbol = :none, kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
@@ -145,7 +144,7 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
         F[(m.Nz + 1):end] = m.nonlinear.ξ_sss + m.linearization.Γ₅ * z + m.linearization.Γ₆ * y
     end
 
-    out = nlsolve(_my_eqn, x0, ftol = ftol, autodiff = autodiff, kwargs...)
+    out = nlsolve(_my_eqn, x0, kwargs...)
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]
