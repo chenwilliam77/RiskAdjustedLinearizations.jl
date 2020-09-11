@@ -118,7 +118,7 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         F[(m.Nz + 1):end] = m.nonlinear.ξ_sss + m.linearization.Γ₅ * z + m.linearization.Γ₆ * y + 𝒱
     end
 
-    out = nlsolve(_my_eqn, x0, kwargs...)
+    out = nlsolve(_my_eqn, x0; kwargs...)
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]
