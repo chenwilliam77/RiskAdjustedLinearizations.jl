@@ -59,7 +59,7 @@ function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1
         update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁, nl.μ_sss, nl.ξ_sss, nl.𝒱_sss; select = Symbol[:JV]) # updates li.JV
 
         # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
-        solve_steadystate!(m, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁, kwargs...) # updates m.z and m.y
+        solve_steadystate!(m, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁; kwargs...) # updates m.z and m.y
 
         # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
         update!(li, zₙ, yₙ, Ψₙ₋₁, nl.μ_sss, nl.ξ_sss, nl.𝒱_sss; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ

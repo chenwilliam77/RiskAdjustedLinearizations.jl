@@ -51,8 +51,7 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
     return m
 end
 
-function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1},
-                            q::Float64; kwargs...) where {S1 <: Real}
+function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, q::Float64; kwargs...) where {S1 <: Real}
 
     # Set up system of equations
     N_zy = m.Nz + m.Ny
@@ -74,7 +73,7 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         F[(N_zy + 1):end] = li.Γ₃ + li.Γ₄ * Ψ + (li.Γ₅ + li.Γ₆ * Ψ) * (li.Γ₁ + li.Γ₂ * Ψ) + q * li.JV
     end
 
-    out = nlsolve(_my_eqn, x0, kwargs...)
+    out = nlsolve(_my_eqn, x0; kwargs...)
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]
