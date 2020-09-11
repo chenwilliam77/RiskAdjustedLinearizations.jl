@@ -18,7 +18,7 @@ y = copy(ral.y)
 solve!(ral, ral.z, ral.y; algorithm = :deterministic, verbose = :high, autodiff = :central) # first w/finite diff nlsolve Jacobian
 @test ral.z ≈ detout["z"]
 @test ral.y ≈ detout["y"]
-RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y); algorithm = :deterministic,
+RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y);
                                                       verbose = :none, autodiff = :central) # first w/finite diff nlsolve Jacobian
 @test ral.z ≈ detout["z"]
 @test ral.y ≈ detout["y"]
@@ -26,7 +26,7 @@ RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y); a
 
 update!(ral, z, y, Ψ) # now autodiff Jacobian
 @test_broken solve!(ral, ral.z, ral.y; algorithm = :deterministic, verbose = :high, autodiff = :forward) # now autodiff nlsolve Jacobian
-@test_broken RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y); algorithm = :deterministic,
+@test_broken RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y);
                                                                    verbose = :none, autodiff = :forward)
 #=@test ral.z ≈ sssout["z"]
 @test ral.y ≈ sssout["y"] atol=5e-7
