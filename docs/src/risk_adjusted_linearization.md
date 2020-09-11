@@ -113,8 +113,3 @@ RiskAdjustedLinearizations.RiskAdjustedLinearization
 
 ## Helper Types
 TBD
-
-```
-@docs
-RiskAdjustedLinearizations.RiskAdjustedLinearization
-```

@@ -17,7 +17,7 @@ for `nlsolve` can be passed as keyword arguments to `solve!`, e.g.
 `autodiff` and `ftol`.
 
 ```@doc
-solve!
+RiskAdjustedLinearizations.solve!
 ```
 
 ## [Relaxation](@id relaxation)

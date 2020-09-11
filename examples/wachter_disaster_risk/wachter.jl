@@ -1,15 +1,5 @@
 using UnPack, OrderedCollections, ForwardDiff
 
-# TODO
-# 1. Create model object
-# 2. Run code in MATLAB and generate comparison test output for all functions, say at the deterministic steady state
-# 3. Test ForwardDiff works properly for all cases, for both in place and non in place models
-# 4. Label equations for μ, ξ so creating Γ₅ and Γ₆ makes more sense
-#=function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, ccgf::CF,
-                                   z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int = -1) where {T <: Number, M <: Function, L <: Function,
-                                                        S <: Function, X <: Function, CF <: Function}
-end=#
 mutable struct WachterDisasterRisk{T <: Real}
     μₐ::T
     σₐ::T
@@ -41,14 +31,14 @@ function inplace_wachter_disaster_risk(m::WachterDisasterRisk{T}) where {T <: Re
     Ny = length(J)
     Nε = length(SH)
 
-    function μ(F, z, y) # the equation labeling could be wrong
+    function μ(F, z, y)
         F_type    = eltype(F)
         F[S[:p]]  = (1 - ρₚ) * pp + ρₚ * z[S[:p]]
         F[S[:εc]] = zero(F_type)
         F[S[:εξ]] = zero(F_type)
     end
 
-    function ξ(F, z, y) # the equation labeling could be wrong
+    function ξ(F, z, y)
         F[J[:vc]] = log(β) - γ * μₐ + γ * ν * z[S[:p]] - (ρ - γ) * y[J[:xc]] + y[J[:rf]]
         F[J[:xc]] = log(1. - β + β * exp((1. - ρ) * y[J[:xc]])) - (1. - ρ) * y[J[:vc]]
         F[J[:rf]] = (1. - γ) * (μₐ - ν * z[S[:p]] - y[J[:xc]])
@@ -97,11 +87,11 @@ function outofplace_wachter_disaster_risk(m::WachterDisasterRisk{T}) where {T}
     Ny = length(J)
     Nε = length(SH)
 
-    function μ(z, y) # the equation labeling could be wrong
+    function μ(z, y)
         return [(1 - ρₚ) * pp + ρₚ * z[S[:p]], 0., 0.]
     end
 
-    function ξ(z, y) # the equation labeling could be wrong
+    function ξ(z, y)
         F = RiskAdjustedLinearizations.dualvector(y, z)
 
         F[J[:vc]] = log(β) - γ * μₐ + γ * ν * z[S[:p]] - (ρ - γ) * y[J[:xc]] + y[J[:rf]]
