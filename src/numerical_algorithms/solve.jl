@@ -1,6 +1,6 @@
 """
 ```
-solve!(m; algorithm = :relaxation, kwargs...)
+solve!(m; algorithm = :relaxation, verbose = :high, kwargs...)
 solve!(m, z0, y0; algorithm = :relaxation, verbose = :high, kwargs...)
 solve!(m, z0, y0, Ψ0; algorithm = :relaxation, verbose = :high, kwargs...)
 ```
@@ -44,7 +44,7 @@ Note these methods are not exported.
 - `:homotopy` -> `homotopy!`
 - `:deterministic` -> `deterministic_steadystate!`
 """
-function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation, kwargs...)
+function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation, verbose::Symbol = :high, kwargs...)
     if algorithm == :deterministic
         solve!(m, m.z, m.y; algorithm = algorithm, verbose = verbose, kwargs...)
     else
@@ -53,7 +53,7 @@ function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation, k
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1};
-                algorithm::Symbol = :relaxation, kwargs...) where {S1 <: Real}
+                algorithm::Symbol = :relaxation, verbose::Symbol = :high, kwargs...) where {S1 <: Real}
 
     @assert algorithm in [:deterministic, :relaxation, :homotopy]
 
@@ -88,7 +88,7 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1}, Ψ0::AbstractMatrix{S1};
-                algorithm::Symbol = :relaxation, kwargs...) where {S1 <: Number}
+                algorithm::Symbol = :relaxation, verbose::Symbol = :high, kwargs...) where {S1 <: Number}
 
     @assert algorithm in [:relaxation, :homotopy]
 
