@@ -1,4 +1,3 @@
-
 """
 ```
 homotopy!(m, xₙ₋₁; step = .1, verbose = :none, kwargs...)

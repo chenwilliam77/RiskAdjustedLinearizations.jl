@@ -1,6 +1,4 @@
-using ForwardDiff, UnPack, LinearAlgebra
-using DiffEqBase: DiffCache, get_tmp, dualcache
-
+# Subtypes used for the main RiskAdjustedLinearizaiton type
 mutable struct RALΛ{L <: Function, LC}
     Λ::L
     cache::LC
