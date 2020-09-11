@@ -104,7 +104,8 @@ rather than symbolic differentiation.
 4. (Coming in the future) Calculation of Jacobians with automatic differentiation is accelereated
 by exploiting sparsity with SparseDiffTools.jl
 
-See [Example](@example)
+See the [Example](@ref example) for how to use the type.
+
 ```
 @docs
 RiskAdjustedLinearizations.RiskAdjustedLinearization

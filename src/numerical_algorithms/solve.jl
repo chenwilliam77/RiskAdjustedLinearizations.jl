@@ -82,7 +82,7 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     end
 
     # Check Blanchard-Kahn
-    blanchard_kahn(m; verbose = verbose)
+    blanchard_kahn(m; deterministic = algorithm == :deterministic, verbose = verbose)
 
     m
 end
@@ -102,8 +102,7 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     end
 
     # Check Blanchard-Kahn
-    blanchard_kahn(m; verbose = verbose)
-
+    blanchard_kahn(m; deterministic = algorithm == :deterministic, verbose = verbose)
     m
 end
 

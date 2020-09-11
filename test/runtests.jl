@@ -3,7 +3,7 @@ using SafeTestsets
 # Start Test Script
 
 @time begin
-    @time @safetestset "Utilities" begin
+#=    @time @safetestset "Utilities" begin
         include("util.jl")
     end
 
@@ -18,5 +18,5 @@ using SafeTestsets
         include("numerical_algorithms/relaxation.jl")
         include("numerical_algorithms/homotopy.jl")
         include("numerical_algorithms/solve.jl")
-    end
+    end=#
 end

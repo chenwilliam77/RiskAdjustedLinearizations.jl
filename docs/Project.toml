@@ -1,5 +1,7 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+RiskAdjustedLinearizations = "7bb39b10-f246-11ea-2456-25a63198e074"
 
 [compat]
 Documenter = "~0.24"
+RiskAdjustedLinearizations = "0, 1"

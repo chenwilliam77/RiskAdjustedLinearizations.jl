@@ -28,14 +28,25 @@ julia> F = if eltype(b) <: ForwardDiff.Dual
 
 the user can use `dualvector` to write
 
+```@meta
+DocTestSetup = quote
+    import ForwardDiff
+    using RiskAdjustedLinearizations, ForwardDiff
+end
+```
+
 ```jldoctest
 julia> a = rand(3)
 julia> b = ones(ForwardDiff.Dual, 5)
-julia> F = dualvector(a, b)
+julia> F = RiskAdjustedLinearizations.dualvector(a, b)
 3-element Array{ForwardDiff.Dual,1}:
  #undef
  #undef
  #undef
+```
+
+```@meta
+DocTestSetup = nothing
 ```
 
 Note that the element types of `a` and `b` must be subtypes of `Real` (or else `ForwardDiff` will not work).

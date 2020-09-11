@@ -2,8 +2,7 @@
 n
 To calculate the risk-adjusted linearization, we need to solve a system of nonlinear equations.
 These equations are generally solvable using Newton-type methods. The package currently has two
-available algorithms, [relaxation](@ref relaxation) and [homotopy continuation](@id homotopy continuation)
-
+available algorithms, [relaxation](@ref relaxation) and [homotopy continuation](@ref homotopy)
 
 ## `solve!`
 The primary interface for calculating a risk-adjusted linearization once
@@ -58,7 +57,7 @@ a new round of ``(z_n, y_n, \\Psi_n)`` do we update the entropy-related terms.
 Convergence is achieved once ``(z_n, y_n, \\Psi_n)`` are sufficiently close under some norm. By default,
 we use the ``L^\\infty`` norm (maximum absolute error).
 
-## [Homotopy Continuation](@id homotopy continuation)
+## [Homotopy Continuation](@id homotopy)
 When the deterministic steady state exists, it is typically an easy problem to solve numerically. We can therefore
 use the equations characterizing the deterministic steady state for a
 [homotopy continuation method](https://en.wikipedia.org/wiki/Numerical_algebraic_geometry).
