@@ -1,4 +1,3 @@
- TODO: add unit test for solve_steadystate! specifically
 using RiskAdjustedLinearizations, Test, JLD2
 include(joinpath(dirname(@__FILE__), "../../examples/wachter_disaster_risk/wachter.jl"))
 
