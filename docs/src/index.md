@@ -1,4 +1,4 @@
-# [RiskAdjustedLinearizations.jl Documentation](@id Home)
+# [RiskAdjustedLinearizations.jl](@id Home)
 
 This package provides a user-friendly API for efficiently calculating risk-adjusted linearizations
 of dynamic economic models. These linearizations are equivalent

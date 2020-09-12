@@ -2,7 +2,7 @@
 
 This example shows how to calculate the risk-adjusted linearization of the
 discrete-time version of the [Wachter (2013)](http://finance.wharton.upenn.edu/~jwachter/research/Wachter2013jf.pdf)
-model with disaster-risk. You can run this example using the script [examples/wachter_disaster_risk/example_wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/wachter_disaster_risk/example_wachter.jl).
+model with disaster-risk. You can run this example using the script [examples/wachter\_disaster\_risk/example_wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/wachter_disaster_risk/example_wachter.jl).
 For the equivalent code in MATLAB provided by Lopez et al., see [here](https://github.com/fvazquezgrande/gen_affine/blob/master/examples/wac_disaster/genaffine_ezdis.m).
 
 ## Create a `RiskAdjustedLinearization`
@@ -11,19 +11,19 @@ For the equivalent code in MATLAB provided by Lopez et al., see [here](https://g
 ### Define Nonlinear System
 
 The user generally needs to define
-- ``\\mu``: expected state transition function
-- ``\\xi`` nonlinear terms of the expectational equations
+- ``\mu``: expected state transition function
+- ``\xi`` nonlinear terms of the expectational equations
 - ccgf: conditional cumulant generating function of the exogenous shocks
-- ``\\Lambda``: function or matrix mapping endogenous risk into state transition equations
-- ``\\Sigma``: function or matrix mapping exogenous risk into state transition equations
-- ``\\Gamma_5```: coefficient matrix on one-period ahead expectation of state variables
-- ``\\Gamma_6``: coefficient matrix on one-period ahead expectation of jump variables
+- ``\Lambda``: function or matrix mapping endogenous risk into state transition equations
+- ``\Sigma``: function or matrix mapping exogenous risk into state transition equations
+- ``\Gamma_5```: coefficient matrix on one-period ahead expectation of state variables
+- ``\Gamma_6``: coefficient matrix on one-period ahead expectation of jump variables
 -
 
-The quantities ``\\mu``, ``\\xi``, and ccgf are always functions. The quantities ``\\Lambda`` and ``\\Sigma`` can
-either be functions or matrices. For example, in endowment economies like Wachter (2013), ``\\Lambda`` is
-the zero matrix since there is no endogenous risk. In other applications, ``\\Sigma`` may not be state-dependent
-and thus a constant matrix. The last two quantities ``\\Gamma_5`` and ``\\Gamma_6`` are always matrices.
+The quantities ``\mu``, ``\xi``, and ccgf are always functions. The quantities ``\Lambda`` and ``\Sigma`` can
+either be functions or matrices. For example, in endowment economies like Wachter (2013), ``\Lambda`` is
+the zero matrix since there is no endogenous risk. In other applications, ``\Sigma`` may not be state-dependent
+and thus a constant matrix. The last two quantities ``\Gamma_5`` and ``\Gamma_6`` are always matrices.
 
 In addition, you need to define initial guesses for the coefficients `z, y, Ψ` and specify the number of exogenous shocks `Nε`.
 The initial guesses can be undefined if you don't want to use actual numbers yet, but
@@ -41,7 +41,7 @@ ral = RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, N�
 ### Example
 The following code presents a function that defines the desired functions and matrices, given
 the parameters for the model in Wachter (2013), and returns a `RiskAdjustedLinearization` object.
-The code is from this script [examples/wachter_disaster_risk/wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/wachter_disaster_risk/wachter.jl), which has examples for both in-place and out-of-place functions.
+The code is from this script [examples/wachter\_disaster\_risk/wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/wachter_disaster_risk/wachter.jl), which has examples for both in-place and out-of-place functions.
 
 
 ```
@@ -116,12 +116,12 @@ other initial guesses, call
 solve!(ral, z0, y0, Ψ0; algorithm = :relaxation)
 ```
 
-If you don't have a guess for ``\\Psi``, then you can just provide guesses for ``z`` and ``y``:
+If you don't have a guess for ``\Psi``, then you can just provide guesses for ``z`` and ``y``:
 
 ```
 solve!(ral, z0, y0; algorithm = :relaxation)
 ```
 
 In this case, we calculate the deterministic steady state first using ``z`` and ``y``;
-back out the implied ``\\Psi``; and then proceed with the relaxation algorithm using
+back out the implied ``\Psi``; and then proceed with the relaxation algorithm using
 the deterministic steady state as the initial guess.
