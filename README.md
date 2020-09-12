@@ -14,7 +14,7 @@ This package implements [Lopez et al. (2018) "Risk-Adjusted Linearizations of Dy
 pkg> add RiskAdjustedLinearizations
 ```
 
-The package is compatiable with Julia 1.x and is tested in Linux, macOS, and Windows.
+The package is compatiable with Julia `1.x` and is tested in Linux, macOS, and Windows.
 
 
 ## Future Development
