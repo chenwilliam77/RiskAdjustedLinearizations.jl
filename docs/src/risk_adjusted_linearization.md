@@ -31,6 +31,7 @@ The functions
 \xi:\mathbb{R}^{2n_y + 2n_z}\rightarrow \mathbb{R}^{n_y},& \quad \mu:\mathbb{R}^{n_y + n_z}\rightarrow \mathbb{R}^{n_z},\\
 \Lambda::\mathbb{R}^{n_z} \rightarrow \mathbb{R}^{n_z \times n_y}, & \quad \Sigma::\mathbb{R}^{n_z}\ \rightarrow \mathbb{R}^{n_z\times n_\varepsilon}
 \end{aligned}
+```
 are differentiable. The first two functions characterize the effects of time ``t`` variables on the expectational and
 state transition equations. The function ``\Lambda`` characterizes heteroskedastic endogenous risk that depends on
 innovations in jump variables while the function ``\Sigma`` characterizes exogenous risk.

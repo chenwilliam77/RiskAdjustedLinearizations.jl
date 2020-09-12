@@ -1,5 +1,5 @@
 # [Numerical Algorithms](@id numerical algorithms)
-n
+
 To calculate the risk-adjusted linearization, we need to solve a system of nonlinear equations.
 These equations are generally solvable using Newton-type methods. The package currently has two
 available algorithms, [relaxation](@ref relaxation) and [homotopy continuation](@ref homotopy)
