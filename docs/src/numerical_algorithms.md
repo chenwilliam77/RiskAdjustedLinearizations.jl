@@ -32,23 +32,23 @@ characterizing the coefficients ``(z, y, \Psi)`` are solved iteratively in two s
 Given previous guesses ``(z_{n - 1}, y_{n - 1}, \Psi_{n - 1})``, we calculate ``(z_n, y_n)``
 such that
 
-``math
+```math
 \begin{aligned}
 0 & = \mu(z_n, y_n) - z_n,\\
 0 & = \xi(z_n, y_n) + \Gamma_5 z_n + \Gamma_6 y_n + \mathscr{V}(z_{n - 1}),\\
 \end{aligned}
-``
+```
 
 is satisfied. In other words, we hold the entropy term constant and update ``(z_n, y_n)`` in the remaining terms.
 The coefficients are solved efficiently through `nlsolve` with ``(z_{n - 1}, y_{n - 1})`` as initial guesses.
 
 Then we compute ``\Psi_n`` by solving
 
-``math
+```math
 \begin{aligned}
 0 & = \Gamma_3 + \Gamma_4 \Psi_n + (\Gamma_5 + \Gamma_6 \Psi_n)(\Gamma_1 + \Gamma_2 \Psi_n) + J\mathscr{V}(z_{n - 1}).
 \end{aligned}
-``
+```
 
 with a [Generalized Schur decomposition](https://en.wikipedia.org/wiki/Schur_decomposition#Generalized_Schur_decomposition)
 (also known as QZ decomposition). Notice that we also hold the Jacobian of the entropy constant. Only after we have
@@ -63,13 +63,13 @@ use the equations characterizing the deterministic steady state for a
 [homotopy continuation method](https://en.wikipedia.org/wiki/Numerical_algebraic_geometry).
 Let ``q`` be the embedding parameter. Then the homotopy continuation method iteratively solves
 
-``math
+```math
 \begin{aligned}
 0 & = \mu(z, y) - z,\\
 0 & = \xi(z, y) + \Gamma_5 z + \Gamma_6 y + q \mathscr{V}(z),\\
 0 & = \Gamma_3 + \Gamma_4 \Psi + (\Gamma_5 + \Gamma_6 \Psi)(\Gamma_1 + \Gamma_2 \Psi) + q J\mathscr{V}(z)
 \end{aligned}
-``
+```
 
 for the coefficients ``(z_q, y_q, \Psi_q)`` by increasing ``q`` from 0 to 1.
 
