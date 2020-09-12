@@ -14,6 +14,8 @@ This page of the documentation holds miscellaneous tips for using the package.
   guarantee these numbers can be converted to `Dual` types if needed without always
   declaring them as `Dual` types.
 
+
+
 - **Use `dualvector` or `dualarray`.**
 
   The package provides these two helper functions
@@ -25,6 +27,8 @@ This page of the documentation holds miscellaneous tips for using the package.
   or not so you can repeatedly avoid writing if-else conditional blocks. The `dualarray` function
   generalizes this to arbitrary `AbstractMatrix` inputs.
   See the out-of-place function for `ξ` in [examples/wachter\_disaster\_risk/wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/wachter_disaster_risk/wachter.jl).
+
+
 
 - **Don't pre-allocate the return vector.**
 

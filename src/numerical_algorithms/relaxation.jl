@@ -8,7 +8,9 @@ solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization b
 
 1. Initialize guesses for ``(z, y, \\Psi)``
 2. Do until convergence
+
     a) Solve for ``(z, y)`` using the expectational and state transition equations and fixing ``\\Psi``.
+
     b) Use a QZ decomposition to solve for ``\\Psi`` while fixing ``(z, y)``.
 
 ### Types:

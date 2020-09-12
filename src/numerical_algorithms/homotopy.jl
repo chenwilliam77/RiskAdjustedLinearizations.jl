@@ -7,7 +7,7 @@ solves the system of equations characterizing a risk-adjusted linearization by a
 embedding parameter ``q``, which steps from 0 to 1, with ``q = 1`` obtaining the true solution.
 
 Currently, the only algorithm for choosing ``q`` is a simple uniform step search. Given a step size
-``\\Delta```, we solve the homotopy starting from ``q = \\Delta`` and increase ``q`` by ``\\Delta``
+``\\Delta``, we solve the homotopy starting from ``q = \\Delta`` and increase ``q`` by ``\\Delta``
 until ``q`` reaches 1 or passes 1 (in which case, we force ``q = 1``).
 
 ### Types:

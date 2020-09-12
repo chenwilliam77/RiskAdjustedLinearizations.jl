@@ -94,15 +94,13 @@ create the Jacobian functions needed to compute the affine approximation.
 To ensure efficiency in speed and memory, this package takes advantage of a number of features that are easily
 accessible through Julia.
 
-1. The Jacobians are calculated using forward-mode automatic differentiation
-rather than symbolic differentiation.
+1. The Jacobians are calculated using forward-mode automatic differentiation rather than symbolic differentiation.
 
 2. The Jacobian functions are constructed to be in-place with pre-allocated caches.
 
 3. Functions provided by the user will be converted into in-place functions with pre-allocated caches.
 
-4. (Coming in the future) Calculation of Jacobians with automatic differentiation is accelereated
-by exploiting sparsity with SparseDiffTools.jl
+4. (Coming in the future) Calculation of Jacobians with automatic differentiation is accelereated by exploiting sparsity with SparseDiffTools.jl
 
 See the [Example](@ref example) for how to use the type.
 
