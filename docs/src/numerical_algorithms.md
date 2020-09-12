@@ -35,7 +35,7 @@ such that
 ```math
 \begin{aligned}
 0 & = \mu(z_n, y_n) - z_n,\\
-0 & = \xi(z_n, y_n) + \Gamma_5 z_n + \Gamma_6 y_n + \mathscr{V}(z_{n - 1}),\\
+0 & = \xi(z_n, y_n) + \Gamma_5 z_n + \Gamma_6 y_n + \mathcal{V}(z_{n - 1}),\\
 \end{aligned}
 ```
 
@@ -46,7 +46,7 @@ Then we compute ``\Psi_n`` by solving
 
 ```math
 \begin{aligned}
-0 & = \Gamma_3 + \Gamma_4 \Psi_n + (\Gamma_5 + \Gamma_6 \Psi_n)(\Gamma_1 + \Gamma_2 \Psi_n) + J\mathscr{V}(z_{n - 1}).
+0 & = \Gamma_3 + \Gamma_4 \Psi_n + (\Gamma_5 + \Gamma_6 \Psi_n)(\Gamma_1 + \Gamma_2 \Psi_n) + J\mathcal{V}(z_{n - 1}).
 \end{aligned}
 ```
 
@@ -66,8 +66,8 @@ Let ``q`` be the embedding parameter. Then the homotopy continuation method iter
 ```math
 \begin{aligned}
 0 & = \mu(z, y) - z,\\
-0 & = \xi(z, y) + \Gamma_5 z + \Gamma_6 y + q \mathscr{V}(z),\\
-0 & = \Gamma_3 + \Gamma_4 \Psi + (\Gamma_5 + \Gamma_6 \Psi)(\Gamma_1 + \Gamma_2 \Psi) + q J\mathscr{V}(z)
+0 & = \xi(z, y) + \Gamma_5 z + \Gamma_6 y + q \mathcal{V}(z),\\
+0 & = \Gamma_3 + \Gamma_4 \Psi + (\Gamma_5 + \Gamma_6 \Psi)(\Gamma_1 + \Gamma_2 \Psi) + q J\mathcal{V}(z)
 \end{aligned}
 ```
 
