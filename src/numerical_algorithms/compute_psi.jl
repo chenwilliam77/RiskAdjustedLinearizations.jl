@@ -1,8 +1,8 @@
 """
 ```
-function compute_Ψ(Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = []; schur_fnct = schur!)
-function compute_Ψ(m::RALLinearizedSystem; zero_entropy_jacobian = false, schur_fnct = schur!)
-function compute_Ψ(m::RiskAdjustedLinearization; zero_entropy_jacobian = false, schur_fnct = schur!)
+compute_Ψ(Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = []; schur_fnct = schur!)
+compute_Ψ(m::RALLinearizedSystem; zero_entropy_jacobian = false, schur_fnct = schur!)
+compute_Ψ(m::RiskAdjustedLinearization; zero_entropy_jacobian = false, schur_fnct = schur!)
 ```
 
 solves via QZ decomposition for ``\\Psi_n`` in the quadratic matrix equation
@@ -22,6 +22,9 @@ case of the deterministic steady state.
 
 The second and third methods are wrappers for the first method.
 
+Internally, there are in-place versions (`compute_Ψ!`) to avoid allocations when
+`compute_Ψ!` is called repeatedly by one of the numerical algorithms (e.g. `relaxation!`).
+
 ### Keywords
 - `schur_fnct::Function`: specifies which Generalized Schur algorithm is desired. By default,
     the implementation from BLAS is called, but the user may want to use the Generalized Schur algorithm
@@ -33,15 +36,34 @@ function compute_Ψ(Γ₁::AbstractMatrix{S}, Γ₂::AbstractMatrix{S}, Γ₃::A
                    Γ₅::AbstractMatrix{S}, Γ₆::AbstractMatrix{S}, JV::AbstractMatrix{S} = Matrix{S}(undef, 0, 0);
                    schur_fnct::Function = schur!) where {S <: Number}
 
+    Nzy = sum(size(Γ₅))
+    AA  = Matrix{Complex{S}}(undef, Nzy, Nzy)
+    BB  = similar(AA)
+
+    return compute_Ψ!(AA, BB, Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV; schur_fnct = schur_fnct)
+end
+
+function compute_Ψ(m::RALLinearizedSystem; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
+    if zero_entropy_jacobian
+        return compute_Ψ(m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆; schur_fnct = schur_fnct)
+    else
+        return compute_Ψ(m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆, m.JV; schur_fnct = schur_fnct)
+    end
+end
+
+@inline function compute_Ψ(m::RiskAdjustedLinearization; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
+    return compute_Ψ(m.linearization; zero_entropy_jacobian = zero_entropy_jacobian, schur_fnct = schur_fnct)
+end
+
+function compute_Ψ!(AA::AbstractMatrix{Complex{S}}, BB::AbstractMatrix{Complex{S}},
+                    Γ₁::AbstractMatrix{S}, Γ₂::AbstractMatrix{S}, Γ₃::AbstractMatrix{S}, Γ₄::AbstractMatrix{S},
+                    Γ₅::AbstractMatrix{S}, Γ₆::AbstractMatrix{S}, JV::AbstractMatrix{S} = Matrix{S}(undef, 0, 0);
+                    schur_fnct::Function = schur!) where {S <: Number}
+
     if !isempty(JV)
         Γ₃ += JV
     end
-
-    # Initialize left and right matrices for QZ decomposition (faster to initialize and then populate)
-    Ny, Nz = size(Γ₆)
-    Nzy    = Nz + Ny
-    AA     = Matrix{Complex{S}}(undef, Nzy, Nzy)
-    BB     = similar(AA)
+    Ny, Nz = size(Γ₅)
 
     # Populate AA
     AA[1:Ny, 1:Nz]                 = Γ₅
@@ -61,14 +83,16 @@ function compute_Ψ(Γ₁::AbstractMatrix{S}, Γ₂::AbstractMatrix{S}, Γ₃::A
     return real(schurfact.Z[Nz + 1:end, 1:Nz] / schurfact.Z[1:Nz, 1:Nz])
 end
 
-function compute_Ψ(m::RALLinearizedSystem; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
+function compute_Ψ!(AA::AbstractMatrix{Complex{S}}, BB::AbstractMatrix{Complex{S}},
+                    m::RALLinearizedSystem; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
     if zero_entropy_jacobian
-        return compute_Ψ(m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆; schur_fnct = schur_fnct)
+        return compute_Ψ!(AA, BB, m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆; schur_fnct = schur_fnct)
     else
-        return compute_Ψ(m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆, m.JV; schur_fnct = schur_fnct)
+        return compute_Ψ!(AA, BB, m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆, m.JV; schur_fnct = schur_fnct)
     end
 end
 
-@inline function compute_Ψ(m::RiskAdjustedLinearization; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
-    return compute_Ψ(m.linearization; zero_entropy_jacobian = zero_entropy_jacobian, schur_fnct = schur_fnct)
+@inline function compute_Ψ!(AA::AbstractMatrix{Complex{S}}, BB::AbstractMatrix{Complex{S}},
+                            m::RiskAdjustedLinearization; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
+    return compute_Ψ!(AA, BB, m.linearization; zero_entropy_jacobian = zero_entropy_jacobian, schur_fnct = schur_fnct)
 end

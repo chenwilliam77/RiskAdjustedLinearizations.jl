@@ -1,7 +1,7 @@
 """
 ```
-function relaxation!(m, xₙ₋₁, Ψₙ₋₁; tol = 1e-10, max_iters = 1000, damping = .5, pnorm = Inf,
-                    schur_fnct::Function = schur!, verbose = :none, kwargs...)
+relaxation!(m, xₙ₋₁, Ψₙ₋₁; tol = 1e-10, max_iters = 1000, damping = .5, pnorm = Inf,
+            schur_fnct::Function = schur!, verbose = :none, kwargs...)
 ```
 
 solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization by the following relaxation algorithm:
@@ -42,8 +42,11 @@ function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1
     # Set up
     err   = 1.
     count = 0
-    nl = nonlinear_system(m)
-    li = linearized_system(m)
+    nl  = nonlinear_system(m)
+    li  = linearized_system(m)
+    Nzy = m.Nz + m.Ny
+    AA  = Matrix{Complex{S1}}(undef, Nzy, Nzy)
+    BB  = similar(AA)
 
     # Some aliases/views will be useful
     zₙ₋₁  = @view xₙ₋₁[1:m.Nz]
@@ -67,7 +70,7 @@ function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1
         update!(li, zₙ, yₙ, Ψₙ₋₁, nl.μ_sss, nl.ξ_sss, nl.𝒱_sss; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ
 
         # QZ decomposition to get Ψₙ, taking Γ₁, Γ₂, Γ₃, Γ₄, and J𝒱ₙ₋₁ as given
-        Ψₙ .= compute_Ψ(li; schur_fnct = schur_fnct)
+        Ψₙ .= compute_Ψ!(AA, BB, li; schur_fnct = schur_fnct)
 
         # Update zₙ, yₙ, and Ψₙ; then calculate error for convergence check
         zₙ .= damping .* zₙ + (1 - damping) .* zₙ₋₁
