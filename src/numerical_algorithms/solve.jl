@@ -58,7 +58,7 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     @assert algorithm in [:deterministic, :relaxation, :homotopy]
 
     # Deterministic steady state
-    deterministic_steadystate!(m, vcat(z0, y0); kwargs...)
+    deterministic_steadystate!(m, vcat(z0, y0); verbose = verbose, kwargs...)
 
     # Calculate linearization
     nl = nonlinear_system(m)
@@ -76,13 +76,13 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
         # Zero the entropy and Jacobian terms so they are not undefined or something else
         m.nonlinear.𝒱_sss  .= 0.
         m.linearization.JV .= 0.
+
+        # Check Blanchard-Kahn
+        blanchard_kahn(m; deterministic = true, verbose = verbose)
     else
         solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm,
                verbose = verbose, kwargs...)
     end
-
-    # Check Blanchard-Kahn
-    blanchard_kahn(m; deterministic = algorithm == :deterministic, verbose = verbose)
 
     m
 end
