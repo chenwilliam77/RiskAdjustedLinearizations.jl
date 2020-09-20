@@ -18,7 +18,6 @@ The user generally needs to define
 - ``\Sigma``: function or matrix mapping exogenous risk into state transition equations
 - ``\Gamma_5``: coefficient matrix on one-period ahead expectation of state variables
 - ``\Gamma_6``: coefficient matrix on one-period ahead expectation of jump variables
--
 
 The quantities ``\mu``, ``\xi``, and ccgf are always functions. The quantities ``\Lambda`` and ``\Sigma`` can
 either be functions or matrices. For example, in endowment economies like Wachter (2013), ``\Lambda`` is
