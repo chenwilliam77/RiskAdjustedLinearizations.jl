@@ -14,7 +14,7 @@ function RALΛ(Λ::Function, z::C1, matrix_type::DataType, dims::Tuple{Int, Int}
         end
         return RALΛ(Λnew, dualcache(cache, Val{length(z)}))
     else
-        function _Λ_oop(cache::LCN, z::C1N) where {LCN <: Nothing, C1N <: AbstractVector{<: Number}}
+        Λnew = function _Λ_oop(cache::LCN, z::C1N) where {LCN <: Nothing, C1N <: AbstractVector{<: Number}}
             return Λ(z)
         end
         return RALΛ(Λnew, nothing)
