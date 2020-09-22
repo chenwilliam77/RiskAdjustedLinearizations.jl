@@ -15,7 +15,7 @@ equations. We use `nlsolve` for this purpose, and all keyword arguments
 for `nlsolve` can be passed as keyword arguments to `solve!`, e.g.
 `autodiff` and `ftol`.
 
-```@doc
+```@docs
 RiskAdjustedLinearizations.solve!
 ```
 
