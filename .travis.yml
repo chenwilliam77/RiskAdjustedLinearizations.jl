@@ -13,14 +13,14 @@ branches:
     - master
 notifications:
   email: false
-script:
-  - julia --color=yes -e 'using Pkg; Pkg.build()'
-  - julia --check-bounds=yes --color=yes -e 'using Pkg; Pkg.test(coverage=true)'
+# script:
+#   - julia --color=yes -e 'using Pkg; Pkg.build()'
+#   - julia --check-bounds=yes --color=yes -e 'using Pkg; Pkg.test(coverage=true)'
 after_success:
   # push coverage results to Coveralls
   - julia -e 'using Pkg; cd(Pkg.dir("RiskAdjustedLinearizations")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
   # push coverage results to Codecov
-  - julia -e 'using Pkg; cd(Pkg.dir("RiskAdjustedLinearizations")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  # - julia -e 'using Pkg; cd(Pkg.dir("RiskAdjustedLinearizations")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
 jobs:
   include:
     - stage: "Documentation"
