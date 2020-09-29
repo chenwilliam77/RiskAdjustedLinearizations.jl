@@ -7,11 +7,11 @@ makedocs(
     clean = false,
     format = Documenter.HTML(;
                              prettyurls = get(ENV, "CI", "false") == "true",
-                             canonical = "https://invenia.github.io/PkgTemplates.jl",
+                             canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
                              assets=String[],
                              ),
     sitename = "RiskAdjustedLinearizations.jl",
-    authors = "chenwilliam77",
+    authors = "William Chen",
     linkcheck = false,
     pages = ["Home" => "index.md",
              "Risk-Adjusted Linearizations" => "risk_adjusted_linearization.md",
