@@ -48,8 +48,8 @@ Instead of perturbing the model's nonlinear equations around the deterministic s
 stochastic or "risky" steady state. This point is better for a perturbation because the economy will spend a
 large amount of time near the stochastic steady state. [Lopez et al. (2018)](https://ideas.repec.org/p/bfr/banfra/702.html)
 show that an affine approximation of the model's nonlinear equation is equivalent to a linearization around the
-stochastic steady state. Further, they confirm that in practice this "risk-adjusted" linearization well approximate
-global solutions of canonical economic models and outperforms perturbations around the deterministic steady state.
+stochastic steady state. Further, they confirm that in practice this "risk-adjusted" linearization approximates
+global solutions of canonical economic models very well and outperforms perturbations around the deterministic steady state.
 
 The affine approximation of an dynamic economic model is
 ```math
@@ -61,8 +61,7 @@ The affine approximation of an dynamic economic model is
 
 where ``\Gamma_1, \Gamma_2`` are the Jacobians of ``\mu`` with respect to ``z_t`` and ``y_t``, respectively;
 ``\Gamma_3, \Gamma_4`` are the Jacobians of ``\xi`` with respect to ``z_t`` and ``y_t``, respectively;
-``\Gamma_5, \Gamma_6`` are constant matrices; ``\mathcal{V}(z)`` is the model's entropy;
-``J\mathcal{V}(z)`` is the Jacobian of the entropy;
+``\Gamma_5, \Gamma_6`` are constant matrices; ``\mathcal{V}(z)`` is the model's entropy; and
 ``J\mathcal{V}(z)`` is the Jacobian of the entropy;
 
 and the state variables ``z_t`` and jump variables ``y_t`` follow
