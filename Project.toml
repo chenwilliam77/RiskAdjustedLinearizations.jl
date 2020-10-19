@@ -4,6 +4,7 @@ authors = ["William Chen <chenwilliamy77@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
 BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
 DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
