@@ -68,9 +68,9 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         update!(m, z, y, Ψ)
 
         # Calculate residuals
-        F[1:m.Nz] = nl.μ_sss - z
-        F[(m.Nz + 1):N_zy] = nl.ξ_sss + li.Γ₅ * z + li.Γ₆ * y + q * nl.𝒱_sss
-        F[(N_zy + 1):end] = li.Γ₃ + li.Γ₄ * Ψ + (li.Γ₅ + li.Γ₆ * Ψ) * (li.Γ₁ + li.Γ₂ * Ψ) + q * li.JV
+        F[1:m.Nz] = nl[:μ_sss] - z
+        F[(m.Nz + 1):N_zy] = nl[:ξ_sss] + li[:Γ₅] * z + li[:Γ₆] * y + q * nl[:𝒱_sss]
+        F[(N_zy + 1):end] = li[:Γ₃] + li[:Γ₄] * Ψ + (li[:Γ₅] + li[:Γ₆] * Ψ) * (li[:Γ₁] + li[:Γ₂] * Ψ) + q * li[:JV]
     end
 
     out = nlsolve(_my_eqn, x0; kwargs...)

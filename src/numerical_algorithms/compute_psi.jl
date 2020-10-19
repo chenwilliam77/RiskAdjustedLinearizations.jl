@@ -45,9 +45,9 @@ end
 
 function compute_Ψ(m::RALLinearizedSystem; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
     if zero_entropy_jacobian
-        return compute_Ψ(m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆; schur_fnct = schur_fnct)
+        return compute_Ψ(m[:Γ₁], m[:Γ₂], m[:Γ₃], m[:Γ₄], m[:Γ₅], m[:Γ₆]; schur_fnct = schur_fnct)
     else
-        return compute_Ψ(m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆, m.JV; schur_fnct = schur_fnct)
+        return compute_Ψ(m[:Γ₁], m[:Γ₂], m[:Γ₃], m[:Γ₄], m[:Γ₅], m[:Γ₆], m[:JV]; schur_fnct = schur_fnct)
     end
 end
 
@@ -86,9 +86,9 @@ end
 function compute_Ψ!(AA::AbstractMatrix{Complex{S}}, BB::AbstractMatrix{Complex{S}},
                     m::RALLinearizedSystem; zero_entropy_jacobian::Bool = false, schur_fnct::Function = schur!) where {S <: Number}
     if zero_entropy_jacobian
-        return compute_Ψ!(AA, BB, m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆; schur_fnct = schur_fnct)
+        return compute_Ψ!(AA, BB, m[:Γ₁], m[:Γ₂], m[:Γ₃], m[:Γ₄], m[:Γ₅], m[:Γ₆]; schur_fnct = schur_fnct)
     else
-        return compute_Ψ!(AA, BB, m.Γ₁, m.Γ₂, m.Γ₃, m.Γ₄, m.Γ₅, m.Γ₆, m.JV; schur_fnct = schur_fnct)
+        return compute_Ψ!(AA, BB, m[:Γ₁], m[:Γ₂], m[:Γ₃], m[:Γ₄], m[:Γ₅], m[:Γ₆], m[:JV]; schur_fnct = schur_fnct)
     end
 end
 

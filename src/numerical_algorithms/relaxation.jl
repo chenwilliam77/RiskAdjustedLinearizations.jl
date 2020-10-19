@@ -54,20 +54,20 @@ function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1
     zₙ    = m.z
     yₙ    = m.y
     Ψₙ    = m.Ψ
-    𝒱ₙ₋₁  = nl.𝒱_sss
-    J𝒱ₙ₋₁ = li.JV
+    𝒱ₙ₋₁  = nl[:𝒱_sss]
+    J𝒱ₙ₋₁ = li[:JV]
 
     while (err > tol) && (count < max_iters)
 
         # Calculate entropy terms 𝒱ₙ₋₁, J𝒱ₙ₋₁
-        update!(nl, zₙ₋₁, yₙ₋₁, Ψₙ₋₁, li.Γ₅, li.Γ₆; select = Symbol[:𝒱]) # updates nl.𝒱_sss
-        update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁, nl.μ_sss, nl.ξ_sss, nl.𝒱_sss; select = Symbol[:JV]) # updates li.JV
+        update!(nl, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:𝒱]) # updates nl.𝒱_sss
+        update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:JV]) # updates li.JV
 
         # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
         solve_steadystate!(m, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁; kwargs...) # updates m.z and m.y
 
         # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
-        update!(li, zₙ, yₙ, Ψₙ₋₁, nl.μ_sss, nl.ξ_sss, nl.𝒱_sss; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ
+        update!(li, zₙ, yₙ, Ψₙ₋₁; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ
 
         # QZ decomposition to get Ψₙ, taking Γ₁, Γ₂, Γ₃, Γ₄, and J𝒱ₙ₋₁ as given
         Ψₙ .= compute_Ψ!(AA, BB, li; schur_fnct = schur_fnct)
@@ -116,11 +116,11 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         y = @view x[(m.Nz + 1):end]
 
         # Update μ(z, y) and ξ(z, y)
-        update!(m.nonlinear, z, y, Ψ, m.linearization.Γ₅, m.linearization.Γ₆; select = Symbol[:μ, :ξ])
+        update!(m.nonlinear, z, y, Ψ, m.linearization[:Γ₅], m.linearization[:Γ₆]; select = Symbol[:μ, :ξ])
 
         # Calculate residuals
         F[1:m.Nz] = m.nonlinear.μ_sss - z
-        F[(m.Nz + 1):end] = m.nonlinear.ξ_sss + m.linearization.Γ₅ * z + m.linearization.Γ₆ * y + 𝒱
+        F[(m.Nz + 1):end] = m.nonlinear[:ξ_sss] + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y + 𝒱
     end
 
     out = nlsolve(_my_eqn, x0; kwargs...)
