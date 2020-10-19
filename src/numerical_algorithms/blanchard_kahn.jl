@@ -9,8 +9,8 @@ If `verbose` is `:low` or `:high`, a print statement will be shown if the Blanch
 """
 function blanchard_kahn(m::RiskAdjustedLinearization; deterministic::Bool = false, verbose::Symbol = :high)
 
-    A = [Γ₅(m) Γ₆(m); Matrix{eltype(Γ₅(m))}(I, m.Nz, m.Nz) Zeros{eltype(Γ₅(m))}(m.Ny, m.Nz)]
-    B = [(-Γ₃(m) - JV(m)) (-Γ₄(m)); Γ₁(m) Γ₂(m)]
+    A = [m[:Γ₅] m[:Γ₆]; Matrix{eltype(m[:Γ₅])}(I, m.Nz, m.Nz) Zeros{eltype(m[:Γ₅])}(m.Ny, m.Nz)]
+    B = [(-m[:Γ₃] - m[:JV]) (-m[:Γ₄]); m[:Γ₁] m[:Γ₂]]
 
     if count(abs.(eigen(A, B).values) .> 1) != m.Nz
         if deterministic

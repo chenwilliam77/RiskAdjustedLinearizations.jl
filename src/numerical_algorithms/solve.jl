@@ -63,10 +63,8 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     # Calculate linearization
     nl = nonlinear_system(m)
     li = linearized_system(m)
-    update!(nl, m.z, m.y, m.Ψ, li.Γ₅, li.Γ₆;
-            select = Symbol[:μ, :ξ])
-    update!(li, m.z, m.y, m.Ψ, nl.μ_sss, nl.ξ_sss, nl.𝒱_sss;
-            select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄])
+    update!(nl, m.z, m.y, m.Ψ; select = Symbol[:μ, :ξ])
+    update!(li, m.z, m.y, m.Ψ; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄])
 
     # Back out Ψ
     compute_Ψ(m; zero_entropy_jacobian = true)
@@ -74,8 +72,8 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     # Use deterministic steady state as guess for stochastic steady state?
     if algorithm == :deterministic
         # Zero the entropy and Jacobian terms so they are not undefined or something else
-        m.nonlinear.𝒱_sss  .= 0.
-        m.linearization.JV .= 0.
+        m.nonlinear[:𝒱_sss]  .= 0.
+        m.linearization[:JV] .= 0.
 
         # Check Blanchard-Kahn
         blanchard_kahn(m; deterministic = true, verbose = verbose)
@@ -136,11 +134,11 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
         y = @view x[(m.Nz + 1):end]
 
         # Update μ(z, y) and ξ(z, y)
-        update!(m.nonlinear, z, y, m.Ψ, m.linearization.Γ₅, m.linearization.Γ₆; select = Symbol[:μ, :ξ])
+        update!(m.nonlinear, z, y, m.Ψ, m.linearization[:Γ₅], m.linearization[:Γ₆]; select = Symbol[:μ, :ξ])
 
         # Calculate residuals
-        F[1:m.Nz] = m.nonlinear.μ_sss  - z
-        F[(m.Nz + 1):end] = m.nonlinear.ξ_sss + m.linearization.Γ₅ * z + m.linearization.Γ₆ * y
+        F[1:m.Nz] = m.nonlinear[:μ_sss]  - z
+        F[(m.Nz + 1):end] = m.nonlinear[:ξ_sss] + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y
     end
 
     out = nlsolve(_my_eqn, x0; kwargs...)

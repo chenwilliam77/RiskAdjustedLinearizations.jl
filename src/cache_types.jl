@@ -47,8 +47,8 @@ mutable struct RALF2{F <: Function, LC}
 end
 
 function RALF2(f::Function, x1::C1, x2::C2, array_type::DataType,
-               dims::NTuple{N, Int}, chunksizes::Tuple{Int, Int} =
-               (length(x1) + length(x2), 0)) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number}, N}
+               dims::NTuple{N, Int}, chunksizes::Ntuple{Nc, Int} =
+               (length(x1) + length(x2), )) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number}, N, Nc}
     cache = array_type(undef, ntuple(x -> 0, length(dims))) # Create empty array first, just to check if f is in place or not
     if applicable(f, cache, x1, x2)
         cache = array_type(undef, dims)
@@ -58,10 +58,14 @@ function RALF2(f::Function, x1::C1, x2::C2, array_type::DataType,
                 f(get_tmp(cache, x1, x2, select), x1, x2)
                 return get_tmp(cache, x1, x2, select)
             end
-        if chunksizes[2] == 0
+        if length(chunksizes) == 1
             return RALF2(fnew, dualcache(cache, Val{chunksizes[1]}))
-        else
+        elseif length(chunksizes) == 2
             return RALF2(fnew, twodualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]}))
+        elseif length(chunksizes) == 3
+            return RALF2(fnew, threedualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]}, Val{chunksizes[3]}))
+        else
+            throw(MethodError("The length of the sixth input argument, chunksizes, must be 1, 2, or 3."))
         end
     else
         fnew = function _f_oop(cache::LCN, x1::C1N, x2::C2N, select::Tuple{Int,Int}) where {LCN <: Nothing,
@@ -78,6 +82,9 @@ function RALF2(fin::LC) where {LC <: AbstractArray{<: Number}}
     return RALF2{Function, LC}(f, fin)
 end
 
+# Using the default of (1, 1) for `select` is important. This way, we can use autodiff
+# during the homotopy algorithm without requiring additional arguments when calling `update!`
+# to ensure the correct cache is used.
 function (ralf::RALF2)(x1::C1, x2::C2, select::Tuple{Int, Int} = (1, 1)) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number}}
     return ralf.f(ralf.cache, x1, x2, select)
 end
