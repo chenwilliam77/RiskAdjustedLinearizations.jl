@@ -1,211 +1,5 @@
 """
 ```
-TwoDiffCache
-```
-
-The TwoDiffCache type extends DiffCache from DiffEqBase to permit two Dual Array caches
-to permit the case where you need to autodiff w.r.t 2 different lengths of arguments.
-For example, suppose we have
-
-```
-function f(out, x, y) # in-place function
-    out .= x .* y
-end
-
-function F(cache::DiffCache, x, y) # wrapper function for f
-    f(get_tmp(cache, x), x, y)
-    return get_tmp(cache, x)
-end
-
-# Instantiate inputs and caches
-x = rand(3)
-y = rand(3)
-cache3 = dualcache(zeros(3), Val{3})
-cache6 = dualcache(zeros(3), Val{6})
-```
-
-Then the following block of code will work
-
-```
-JF3 = (G, x1, y1) -> ForwardDiff.jacobian!(G, z -> F(cache3, z, y1), x1)
-JF3(rand(3, 3), x, y)
-```
-
-but it may be the case that we also sometimes need to calculate
-
-```
-JF6 = (G, x1, y1) -> ForwardDiff.jacobian!(G, z -> F(cache3, z[1:3], z[4:6]), vcat(x1, y1))
-JF6(rand(3, 3), x, y)
-```
-
-This block of code will error because the chunk size needs to be 6, not 3 here.
-Therefore, the correct definition of `JF6` is
-
-```
-JF6 = (G, x1, y1) -> ForwardDiff.jacobian!(G, z -> F(cache6, z[1:3], z[4:6]), vcat(x1, y1))
-```
-
-Rather than carry around two `DiffCache` objects, it is better to simply add another dual cache
-to a single `DiffCache` object. In principle, this code could be generalized to `n` dual caches,
-but for our purposes, two dual caches is enough.
-"""
-struct TwoDiffCache{T <: AbstractArray, C1 <: AbstractArray, C2 <: AbstractArray}
-    du::T
-    dual_du1::C1
-    dual_du2::C2
-end
-
-function TwoDiffCache(u::AbstractArray{T}, siz, ::Type{Val{chunk_size1}}, ::Type{Val{chunk_size2}}) where {T, chunk_size1, chunk_size2}
-    x1 = ArrayInterface.restructure(u, zeros(ForwardDiff.Dual{nothing, T, chunk_size1}, siz...))
-    x2 = ArrayInterface.restructure(u, zeros(ForwardDiff.Dual{nothing, T, chunk_size2}, siz...))
-    TwoDiffCache(u, x1, x2)
-end
-
-twodualcache(u::AbstractArray, N1, N2) = TwoDiffCache(u, size(u), N1, N2)
-
-# get_tmp for both single values
-function get_tmp(tdc::TwoDiffCache, u1::T1, u2::T2, select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-function get_tmp(tdc::TwoDiffCache, u1::T1, u2::T2, select::Tuple{Int, Int}) where {T1 <: Number, T2 <: ForwardDiff.Dual}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-function get_tmp(tdc::TwoDiffCache, u1::T1, u2::T2, select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: Number}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-
-# get_tmp for both AbstractArray
-function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
-                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
-                 select::Tuple{Int, Int}) where {T1 <: Number, T2 <: ForwardDiff.Dual}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
-                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: Number}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-
-# get_tmp for mix AbstractArray and single values
-function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::T2,
-                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::T2,
-                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: Number}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::T2,
-                 select::Tuple{Int, Int}) where {T1 <: Number, T2 <: ForwardDiff.Dual}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-function get_tmp(tdc::TwoDiffCache, u1::T1, u2::AbstractArray{T2},
-                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-function get_tmp(tdc::TwoDiffCache, u1::T1, u2::AbstractArray{T2},
-                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: Number}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-function get_tmp(tdc::TwoDiffCache, u1::T1, u2::AbstractArray{T2},
-                 select::Tuple{Int, Int}) where {T1 <: Number, T2 <: ForwardDiff.Dual}
-    if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
-    elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
-    else
-        error("The fourth input argument must be either 1 or 2 to specify which Dual cache to return.")
-    end
-    return x
-end
-
-# get_tmp for no Dual cases
-get_tmp(tdc::TwoDiffCache, u1::Number, u2::Number, select::Tuple{Int, Int}) = dc.du
-get_tmp(tdc::TwoDiffCache, u1::AbstractArray, u2::AbstractArray, select::Tuple{Int, Int}) = dc.du
-get_tmp(tdc::TwoDiffCache, u1::Number, u2::AbstractArray, select::Tuple{Int, Int}) = dc.du
-get_tmp(tdc::TwoDiffCache, u1::AbstractArray, u2::Number, select::Tuple{Int, Int}) = dc.du
-
-"""
-```
 dualarray(a::AbstractArray, b::AbstractArray)
 
 ```
@@ -274,3 +68,198 @@ is primarily for user convenience.
 @inline dualvector(a::AbstractVector{<: ForwardDiff.Dual}, b::AbstractVector{<: Real})             = similar(a)
 @inline dualvector(a::AbstractVector{<: Real}, b::AbstractVector{<: Real})                         = similar(a)
 @inline dualvector(a::AbstractVector{<: Real}, b::AbstractVector{<: ForwardDiff.Dual})             = similar(a, eltype(b))
+
+"""
+```
+TwoDiffCache
+```
+
+The TwoDiffCache type extends DiffCache from DiffEqBase to permit two Dual Array caches
+to permit the case where you need to autodiff w.r.t 2 different lengths of arguments.
+For example, suppose we have
+
+```
+function f(out, x, y) # in-place function
+    out .= x .* y
+end
+
+function F(cache::DiffCache, x, y) # wrapper function for f
+    f(get_tmp(cache, x), x, y)
+    return get_tmp(cache, x)
+end
+
+# Instantiate inputs and caches
+x = rand(3)
+y = rand(3)
+cache3 = dualcache(zeros(3), Val{3})
+cache6 = dualcache(zeros(3), Val{6})
+```
+
+Then the following block of code will work
+
+```
+JF3 = (G, x1, y1) -> ForwardDiff.jacobian!(G, z -> F(cache3, z, y1), x1)
+JF3(rand(3, 3), x, y)
+```
+
+but it may be the case that we also sometimes need to calculate
+
+```
+JF6 = (G, x1, y1) -> ForwardDiff.jacobian!(G, z -> F(cache3, z[1:3], z[4:6]), vcat(x1, y1))
+JF6(rand(3, 3), x, y)
+```
+
+This block of code will error because the chunk size needs to be 6, not 3 here.
+Therefore, the correct definition of `JF6` is
+
+```
+JF6 = (G, x1, y1) -> ForwardDiff.jacobian!(G, z -> F(cache6, z[1:3], z[4:6]), vcat(x1, y1))
+```
+
+Rather than carry around two `DiffCache` objects, it is better to simply add another dual cache
+to a single `DiffCache` object. In principle, this code could be generalized to `n` dual caches,
+but this would require some additional thought to implement generically.
+"""
+struct TwoDiffCache{T <: AbstractArray, C1 <: AbstractArray, C2 <: AbstractArray}
+    du::T
+    dual_du1::C1
+    dual_du2::C2
+end
+
+function TwoDiffCache(u::AbstractArray{T}, siz, ::Type{Val{chunk_size1}}, ::Type{Val{chunk_size2}}) where {T, chunk_size1, chunk_size2}
+    x1 = ArrayInterface.restructure(u, zeros(ForwardDiff.Dual{nothing, T, chunk_size1}, siz...))
+    x2 = ArrayInterface.restructure(u, zeros(ForwardDiff.Dual{nothing, T, chunk_size2}, siz...))
+    TwoDiffCache(u, x1, x2)
+end
+
+twodualcache(u::AbstractArray, N1, N2) = TwoDiffCache(u, size(u), N1, N2)
+
+# get_tmp for AbstractArray cases
+function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
+    if select[1] == 1
+        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
+    elseif select[1] == 2
+        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
+    end
+    return x
+end
+function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 select::Tuple{Int, Int}) where {T1 <: Number, T2 <: ForwardDiff.Dual}
+    if select[1] == 1
+        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
+    elseif select[1] == 2
+        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
+    end
+    return x
+end
+function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: Number}
+    if select[1] == 1
+        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
+    elseif select[1] == 2
+        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
+    end
+    return x
+end
+
+# get_tmp for no Dual cases
+get_tmp(tdc::TwoDiffCache, u1::AbstractArray, u2::AbstractArray, select::Tuple{Int, Int}) = dc.du
+
+"""
+```
+ThreeDiffCache
+```
+
+The ThreeDiffCache type extends DiffCache from DiffEqBase to permit three Dual Array caches.
+"""
+struct ThreeDiffCache{T <: AbstractArray, C1 <: AbstractArray, C2 <: AbstractArray, C3 <: AbstractArray}
+    du::T
+    dual_du1::C1
+    dual_du2::C2
+    dual_du3::C3
+end
+
+function ThreeDiffCache(u::AbstractArray{T}, siz, ::Type{Val{chunk_size1}},
+                        ::Type{Val{chunk_size2}}, ::Type{Val{chunk_size3}}) where {T, chunk_size1, chunk_size2, chunk_size3}
+    x1 = ArrayInterface.restructure(u, zeros(ForwardDiff.Dual{nothing, T, chunk_size1}, siz...))
+    x2 = ArrayInterface.restructure(u, zeros(ForwardDiff.Dual{nothing, T, chunk_size2}, siz...))
+    x3 = ArrayInterface.restructure(u, zeros(ForwardDiff.Dual{nothing, T, chunk_size3}, siz...))
+    ThreeDiffCache(u, x1, x2, x3)
+end
+
+threedualcache(u::AbstractArray, N1, N2, N3) = ThreeDiffCache(u, size(u), N1, N2, N3)
+
+# get_tmp for both AbstractArray
+function get_tmp(tdc::ThreeDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
+    dual_du = if select[2] == 1
+        dc.dual_du1
+    elseif select[2] == 2
+        dc.dual_du2
+    elseif select[2] == 3
+        dc.dual_du3
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache"))
+    end
+
+    if select[1] == 1
+        x = reinterpret(T1, dual_du)
+    elseif select[1] == 2
+        x = reinterpret(T2, dual_du)
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
+    end
+    return x
+end
+function get_tmp(tdc::ThreeDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 select::Tuple{Int, Int}) where {T1 <: Number, T2 <: ForwardDiff.Dual}
+    dual_du = if select[2] == 1
+        dc.dual_du1
+    elseif select[2] == 2
+        dc.dual_du2
+    elseif select[2] == 3
+        dc.dual_du3
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache"))
+    end
+
+    if select[1] == 1
+        x = reinterpret(T1, dual_du)
+    elseif select[1] == 2
+        x = reinterpret(T2, dual_du)
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
+    end
+    return x
+end
+function get_tmp(tdc::ThreeDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: Number}
+    dual_du = if select[2] == 1
+        dc.dual_du1
+    elseif select[2] == 2
+        dc.dual_du2
+    elseif select[2] == 3
+        dc.dual_du3
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache"))
+    end
+
+    if select[1] == 1
+        x = reinterpret(T1, dual_du)
+    elseif select[1] == 2
+        x = reinterpret(T2, dual_du)
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
+    end
+    return x
+end
+
+# get_tmp for no Dual cases
+get_tmp(tdc::ThreeDiffCache, u1::AbstractArray, u2::AbstractArray, select::Tuple{Int, Int}) = dc.du
