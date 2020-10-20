@@ -3,10 +3,11 @@ isdefined(Base, :__precompile__) && __precompile__(false)
 module RiskAdjustedLinearizations
 
 import Base: show, getindex
+import DiffEqBase: get_tmp
 using ArrayInterface, ForwardDiff, LinearAlgebra, Printf, SparseArrays# , SparseDiffTools, SparsityDetection
 using UnPack
 using BandedMatrices: Ones, Zeros
-using DiffEqBase: DiffCache, get_tmp, dualcache
+using DiffEqBase: DiffCache, dualcache
 using NLsolve: nlsolve
 
 # Utilities
