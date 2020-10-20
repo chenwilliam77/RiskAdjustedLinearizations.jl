@@ -20,11 +20,11 @@ nl = nonlinear_system(ral)
 li = linearized_system(ral)
 @testset "Evaluate WachterDisasterRisk in-place RiskAdjustedLinearization at deterministic steady state" begin
     @test nl[:μ_sss] ≈ detout["MU"]
-    @test nl[:Λ.cache] ==  detout["LAM"]
+    @test nl[:Λ_sss] ==  detout["LAM"]
     @test nl[:Σ_sss] ≈ detout["SIG"]
     @test nl[:ξ_sss] ≈ detout["XI"]
     @test nl[:𝒱_sss] ≈ detout["V"]
-    @test li[:Γ₁]] ≈ detout["GAM1"]
+    @test li[:Γ₁] ≈ detout["GAM1"]
     @test li[:Γ₂] ≈ detout["GAM2"]
     @test li[:Γ₃] ≈ detout["GAM3"]
     @test li[:Γ₄] ≈ detout["GAM4"]
@@ -32,11 +32,11 @@ li = linearized_system(ral)
     @test li[:Γ₆] ≈ detout["GAM6"]
     @test li[:JV] ≈ detout["JV"]
     @test ral[:μ_sss] ≈ detout["MU"]
-    @test ral[:Λ.cache] ==  detout["LAM"]
+    @test ral[:Λ_sss] ==  detout["LAM"]
     @test ral[:Σ_sss] ≈ detout["SIG"]
     @test ral[:ξ_sss] ≈ detout["XI"]
     @test ral[:𝒱_sss] ≈ detout["V"]
-    @test ral[:Γ₁]] ≈ detout["GAM1"]
+    @test ral[:Γ₁] ≈ detout["GAM1"]
     @test ral[:Γ₂] ≈ detout["GAM2"]
     @test ral[:Γ₃] ≈ detout["GAM3"]
     @test ral[:Γ₄] ≈ detout["GAM4"]
@@ -57,7 +57,7 @@ nl = nonlinear_system(ral)
 li = linearized_system(ral)
 @testset "Evaluate WachterDisasterRisk in-place RiskAdjustedLinearization at stochastic steady state" begin
     @test nl[:μ_sss] ≈ sssout["MU"]
-    @test nl[:Λ.cache] ==  sssout["LAM"]
+    @test nl[:Λ_sss] ==  sssout["LAM"]
     @test nl[:Σ_sss] ≈ sssout["SIG"]
     @test nl[:ξ_sss] ≈ sssout["XI"]
     @test nl[:𝒱_sss] ≈ sssout["V"]
@@ -69,7 +69,7 @@ li = linearized_system(ral)
     @test li[:Γ₆] ≈ sssout["GAM6"]
     @test li[:JV] ≈ sssout["JV"]
     @test ral[:μ_sss] ≈ sssout["MU"]
-    @test ral[:Λ.cache] ==  sssout["LAM"]
+    @test ral[:Λ_sss] ==  sssout["LAM"]
     @test ral[:Σ_sss] ≈ sssout["SIG"]
     @test ral[:ξ_sss] ≈ sssout["XI"]
     @test ral[:𝒱_sss] ≈ sssout["V"]
@@ -96,12 +96,16 @@ update!(ral, z, y, Ψ)
 nl = nonlinear_system(ral)
 li = linearized_system(ral)
 @testset "Evaluate WachterDisasterRisk out-of-place RiskAdjustedLinearization at deterministic steady state" begin
-    @test nl[:μ_sss] ≈ detout["MU"]
-    @test nl[:Λ_sss] == detout["LAM"]
-    @test isnothing(nl.Σ.cache])
+    @test_throws ErrorException nl[:μ_sss]
+    @test nl.μ(z, y) ≈ detout["MU"]
+    @test isa(nl[:Λ_sss], AbstractArray)
+    @test nl.Λ(z) == detout["LAM"]
+    @test_throws ErrorException nl[:Σ_sss]
     @test nl.Σ(z) ≈ detout["SIG"]
-    @test nl[:ξ_sss] ≈ detout["XI"]
+    @test_throws ErrorException nl[:ξ_sss]
+    @test nl.ξ(z, y) ≈ detout["XI"]
     @test nl[:𝒱_sss] ≈ detout["V"]
+    @test nl.𝒱(z, Ψ) ≈ detout["V"]
     @test li[:Γ₁] ≈ detout["GAM1"]
     @test li[:Γ₂] ≈ detout["GAM2"]
     @test li[:Γ₃] ≈ detout["GAM3"]
@@ -113,7 +117,7 @@ end
 
 ## Stochastic steady state
 sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../reference/iterative_sss_output.jld2"), "r")
-z = vec(sssout["z"])
+pz = vec(sssout["z"])
 y = vec(sssout["y"])
 Ψ = sssout["Psi"]
 
@@ -122,12 +126,16 @@ update!(ral, z, y, Ψ)
 nl = nonlinear_system(ral)
 li = linearized_system(ral)
 @testset "Evaluate WachterDisasterRisk out-of-place RiskAdjustedLinearization at stochastic steady state" begin
-    @test nl[:μ_sss] ≈ sssout["MU"]
-    @test nl[:Λ_sss] ==  sssout["LAM"]
-    @test isnothing(nl.Σ.cache)
-    @test nl.Σ(z) ≈ detout["SIG"]
-    @test nl[:ξ_sss] ≈ sssout["XI"]
+    @test_throws ErrorException nl[:μ_sss]
+    @test nl.μ(z, y) ≈ sssout["MU"]
+    @test isa(nl[:Λ_sss], AbstractArray)
+    @test nl.Λ(z) == sssout["LAM"]
+    @test_throws ErrorException nl[:Σ_sss]
+    @test nl.Σ(z) ≈ sssout["SIG"]
+    @test_throws ErrorException nl[:ξ_sss]
+    @test nl.ξ(z, y) ≈ sssout["XI"]
     @test nl[:𝒱_sss] ≈ sssout["V"]
+    @test nl.𝒱(z, Ψ) ≈ sssout["V"]
     @test li[:Γ₁] ≈ sssout["GAM1"]
     @test li[:Γ₂] ≈ sssout["GAM2"]
     @test li[:Γ₃] ≈ sssout["GAM3"]

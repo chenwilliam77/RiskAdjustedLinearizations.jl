@@ -69,6 +69,39 @@ is primarily for user convenience.
 @inline dualvector(a::AbstractVector{<: Real}, b::AbstractVector{<: Real})                         = similar(a)
 @inline dualvector(a::AbstractVector{<: Real}, b::AbstractVector{<: ForwardDiff.Dual})             = similar(a, eltype(b))
 
+# Extend get_tmp(dc::DiffCache, ...) to allow for two arguments
+function get_tmp(dc::DiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
+    if select[1] == 1
+        get_tmp(dc, u1)
+    elseif select[1] == 2
+        get_tmp(dc, u2)
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
+    end
+end
+function get_tmp(dc::DiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 select::Tuple{Int, Int}) where {T1 <: Number, T2 <: ForwardDiff.Dual}
+    if select[1] == 1
+        get_tmp(dc, u1)
+    elseif select[1] == 2
+        get_tmp(dc, u2)
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
+    end
+end
+function get_tmp(dc::DiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: Number}
+    if select[1] == 1
+        get_tmp(dc, u1)
+    elseif select[1] == 2
+        get_tmp(dc, u2)
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
+    end
+end
+get_tmp(dc::DiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2}, select::Tuple{Int, Int}) where {T1 <: Number, T2 <: Number} = dc.du
+
 """
 ```
 TwoDiffCache
@@ -138,9 +171,9 @@ twodualcache(u::AbstractArray, N1, N2) = TwoDiffCache(u, size(u), N1, N2)
 function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
                  select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
     if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
+        x = reinterpret(T1, select[2] == 1 ? tdc.dual_du1 : tdc.dual_du2)
     elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
+        x = reinterpret(T2, select[2] == 1 ? tdc.dual_du1 : tdc_dual_du2)
     else
         throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
     end
@@ -149,9 +182,9 @@ end
 function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
                  select::Tuple{Int, Int}) where {T1 <: Number, T2 <: ForwardDiff.Dual}
     if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
+        x = reinterpret(T1, select[2] == 1 ? tdc.dual_du1 : tdc.dual_du2)
     elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
+        x = reinterpret(T2, select[2] == 1 ? tdc.dual_du1 : tdc_dual_du2)
     else
         throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
     end
@@ -160,9 +193,9 @@ end
 function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
                  select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: Number}
     if select[1] == 1
-        x = reinterpret(T1, select[2] == 1 ? dc.dual_du1 : dc.dual_du2)
+        x = reinterpret(T1, select[2] == 1 ? tdc.dual_du1 : tdc.dual_du2)
     elseif select[1] == 2
-        x = reinterpret(T2, select[2] == 1 ? dc.dual_du1 : dc_dual_du2)
+        x = reinterpret(T2, select[2] == 1 ? tdc.dual_du1 : tdc_dual_du2)
     else
         throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
     end
@@ -170,7 +203,7 @@ function get_tmp(tdc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2}
 end
 
 # get_tmp for no Dual cases
-get_tmp(tdc::TwoDiffCache, u1::AbstractArray, u2::AbstractArray, select::Tuple{Int, Int}) = dc.du
+get_tmp(tdc::TwoDiffCache, u1::AbstractArray, u2::AbstractArray, select::Tuple{Int, Int}) = tdc.du
 
 """
 ```
@@ -200,11 +233,11 @@ threedualcache(u::AbstractArray, N1, N2, N3) = ThreeDiffCache(u, size(u), N1, N2
 function get_tmp(tdc::ThreeDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
                  select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual}
     dual_du = if select[2] == 1
-        dc.dual_du1
+        tdc.dual_du1
     elseif select[2] == 2
-        dc.dual_du2
+        tdc.dual_du2
     elseif select[2] == 3
-        dc.dual_du3
+        tdc.dual_du3
     else
         throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache"))
     end
@@ -221,11 +254,11 @@ end
 function get_tmp(tdc::ThreeDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
                  select::Tuple{Int, Int}) where {T1 <: Number, T2 <: ForwardDiff.Dual}
     dual_du = if select[2] == 1
-        dc.dual_du1
+        tdc.dual_du1
     elseif select[2] == 2
-        dc.dual_du2
+        tdc.dual_du2
     elseif select[2] == 3
-        dc.dual_du3
+        tdc.dual_du3
     else
         throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache"))
     end
@@ -242,11 +275,11 @@ end
 function get_tmp(tdc::ThreeDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
                  select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: Number}
     dual_du = if select[2] == 1
-        dc.dual_du1
+        tdc.dual_du1
     elseif select[2] == 2
-        dc.dual_du2
+        tdc.dual_du2
     elseif select[2] == 3
-        dc.dual_du3
+        tdc.dual_du3
     else
         throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache"))
     end
@@ -262,4 +295,4 @@ function get_tmp(tdc::ThreeDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T
 end
 
 # get_tmp for no Dual cases
-get_tmp(tdc::ThreeDiffCache, u1::AbstractArray, u2::AbstractArray, select::Tuple{Int, Int}) = dc.du
+get_tmp(tdc::ThreeDiffCache, u1::AbstractArray, u2::AbstractArray, select::Tuple{Int, Int}) = tdc.du

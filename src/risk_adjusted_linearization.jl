@@ -106,7 +106,7 @@ function update!(m::RALNonlinearSystem, z::C1, y::C1, Ψ::C2;
     m
 end
 
-mutable struct RALLinearizedSystem{Mz <: Function, My <: Function, Xz <: Function, Xy <: Function, J <: Function,
+mutable struct RALLinearizedSystem{Mz <: RALF2, My <: RALF2, Xz <: RALF2, Xy <: RALF2, J <: RALF2,
 #=                                   JC1 <: AbstractMatrix{<: Number}, JC2 <: AbstractMatrix{<: Number},
                                    JC3 <: AbstractMatrix{<: Number}, JC4 <: AbstractMatrix{<: Number},=#
                                    JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number}}#,
@@ -126,7 +126,7 @@ mutable struct RALLinearizedSystem{Mz <: Function, My <: Function, Xz <: Functio
 #     inplace::NamedTuple{(:μz, :μy, :ξz, :ξy, :J𝒱), NTuple{5, Bool}}
 end
 
-function RALLinearizedSystem(μz::Mz, μy::My, ξz::Xz, ξy::Xy, J𝒱::J,
+#=function RALLinearizedSystem(μz::Mz, μy::My, ξz::Xz, ξy::Xy, J𝒱::J,
 #=                             Γ₁::JC1, Γ₂::JC2, Γ₃::JC3, Γ₄::JC4,=# Γ₅::JC5, Γ₆::JC6#,
                              #=JV::JC7, z::C1, y::C1, Ψ::C2,
                              μ_sss::VC1, ξ_sss::VC2, 𝒱_sss::VC3=#) where {Mz <: RALF2, My <: RALF2, Xz <: RALF2,
@@ -144,7 +144,7 @@ function RALLinearizedSystem(μz::Mz, μy::My, ξz::Xz, ξy::Xy, J𝒱::J,
 
 #     return RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV, inplace)
     return RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₅, Γ₆)
-end
+end=#
 
 function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2,
                  # μ_sss::VC1, ξ_sss::VC2, 𝒱_sss::VC3;
@@ -333,7 +333,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     else # in place
         _𝒱 = (F, z, Ψ) -> ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
     end
-    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ, z, Ψ, sss_vector_type, (Nz, ), (Nz + Ny, Nz)))
+    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type, (Nz, ), (Nz + Ny, Nz))
 
     _J𝒱(F, z, Ψ) = ForwardDiff.jacobian!(F, x -> 𝒱(x, Ψ, (1, 2)), z)
     J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_type, (Nz, Nz))
@@ -497,9 +497,9 @@ end
 
 ## Indexing for convenient access to steady state values
 function Base.getindex(m::RiskAdjustedLinearization, sym::Symbol)
-    if sym in [:μ_sss, :ξ_sss, :𝒱_sss]
+    if sym in [:μ_sss, :ξ_sss, :𝒱_sss, :Σ_sss, :Λ_sss]
         m.nonlinear[sym]
-    elseif sym in [:Γ₁, :Γ₂, :Γ₃, :Γ₄, :Γ₅, :Γ₆, :JV, :Σ_sss, :Λ_sss]
+    elseif sym in [:Γ₁, :Γ₂, :Γ₃, :Γ₄, :Γ₅, :Γ₆, :JV]
         m.linearization[sym]
     else
         throw(KeyError("key $sym not found"))
@@ -508,11 +508,27 @@ end
 
 function Base.getindex(m::RALNonlinearSystem, sym::Symbol)
     if sym == :μ_sss
-        m.μ.cache.du
+        isnothing(m.μ.cache) ? error("μ is out of place, so its stochastic steady state value is not cached.") : m.μ.cache.du
     elseif sym == :ξ_sss
-        m.ξ.cache.du
+        isnothing(m.ξ.cache) ? error("ξ is out of place, so its stochastic steady state value is not cached.") : m.ξ.cache.du
     elseif sym == :𝒱_sss
         m.𝒱.cache.du
+    elseif sym == :Σ_sss
+        if isnothing(m.Σ.cache)
+            error("Λ is out of place, so its stochastic steady state value is not cached.")
+        elseif isa(m.Σ.cache, DiffCache)
+            m.Σ.cache.du
+        else
+            m.Σ.cache
+        end
+    elseif sym == :Λ_sss
+        if isnothing(m.Λ.cache)
+            error("Λ is out of place, so its stochastic steady state value is not cached.")
+        elseif isa(m.Λ.cache, DiffCache)
+            m.Λ.cache.du
+        else
+            m.Λ.cache
+        end
     else
         throw(KeyError("key $sym not found"))
     end
