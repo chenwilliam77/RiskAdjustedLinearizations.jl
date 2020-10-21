@@ -94,7 +94,7 @@ function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1
         throw(RALRelaxationError("Relaxation method to find the risk-adjusted linearization did not converge."))
     else
         if verbose == :low
-            println("Convergence achieved after $(count) iterations! Error under norm=$(pnorm) is $(err).")
+            println("Convergence achieved after $(count) iterations! Error under norm = $(pnorm) is $(err).")
         elseif verbose == :high
             println("")
             println("Convergence achieved after $(count) iterations! Error under norm=$(pnorm) is $(err).")
@@ -110,17 +110,21 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
                             kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
+    nl = nonlinear_system(m)
+    li = linearized_system(m)
     _my_eqn = function _my_stochastic_equations(F, x)
         # Unpack
         z = @view x[1:m.Nz]
         y = @view x[(m.Nz + 1):end]
 
         # Update μ(z, y) and ξ(z, y)
-        update!(m.nonlinear, z, y, Ψ, m.linearization[:Γ₅], m.linearization[:Γ₆]; select = Symbol[:μ, :ξ])
+        update!(nl, z, y, Ψ; select = Symbol[:μ, :ξ])
 
         # Calculate residuals
-        F[1:m.Nz] = m.nonlinear.μ_sss - z
-        F[(m.Nz + 1):end] = m.nonlinear[:ξ_sss] + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y + 𝒱
+        μ_sss             = get_tmp(nl.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one corresponds to autodiffing both z and y
+        ξ_sss             = get_tmp(nl.ξ.cache, z, y, (1, 1))
+        F[1:m.Nz]         = μ_sss - z
+        F[(m.Nz + 1):end] = ξ_sss + li[:Γ₅] * z + li[:Γ₆] * y + 𝒱
     end
 
     out = nlsolve(_my_eqn, x0; kwargs...)

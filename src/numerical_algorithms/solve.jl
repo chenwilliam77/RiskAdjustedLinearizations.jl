@@ -128,17 +128,21 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
                                     verbose::Symbol = :none, kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
+    nl = nonlinear_system(m)
+    li = linearized_system(m)
     _my_eqn = function _my_deterministic_equations(F, x)
         # Unpack
         z = @view x[1:m.Nz]
         y = @view x[(m.Nz + 1):end]
 
         # Update μ(z, y) and ξ(z, y)
-        update!(m.nonlinear, z, y, m.Ψ, m.linearization[:Γ₅], m.linearization[:Γ₆]; select = Symbol[:μ, :ξ])
+        update!(m.nonlinear, z, y, m.Ψ; select = Symbol[:μ, :ξ])
 
         # Calculate residuals
-        F[1:m.Nz] = m.nonlinear[:μ_sss]  - z
-        F[(m.Nz + 1):end] = m.nonlinear[:ξ_sss] + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y
+        μ_sss             = get_tmp(nl.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one corresponds to autodiffing both z and y
+        ξ_sss             = get_tmp(nl.ξ.cache, z, y, (1, 1))
+        F[1:m.Nz]         = μ_sss - z
+        F[(m.Nz + 1):end] = ξ_sss + li[:Γ₅] * z + li[:Γ₆] * y
     end
 
     out = nlsolve(_my_eqn, x0; kwargs...)

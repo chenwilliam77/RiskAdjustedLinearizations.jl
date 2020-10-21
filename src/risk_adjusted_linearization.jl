@@ -146,7 +146,7 @@ end
     return RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₅, Γ₆)
 end=#
 
-function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2,
+function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2;
                  # μ_sss::VC1, ξ_sss::VC2, 𝒱_sss::VC3;
                  select::Vector{Symbol} =
                  Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}#,
@@ -333,7 +333,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     else # in place
         _𝒱 = (F, z, Ψ) -> ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
     end
-    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type, (Nz, ), (Nz + Ny, Nz))
+    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type, (Nz, ), (Nz + Ny * Nz, Nz))
 
     _J𝒱(F, z, Ψ) = ForwardDiff.jacobian!(F, x -> 𝒱(x, Ψ, (1, 2)), z)
     J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_type, (Nz, Nz))
@@ -560,7 +560,7 @@ end
 @inline nonlinear_system(m::RiskAdjustedLinearization) = m.nonlinear
 @inline linearized_system(m::RiskAdjustedLinearization) = m.linearization
 
-function update!(m::RiskAdjustedLinearization)
+@inline function update!(m::RiskAdjustedLinearization)
     update!(nonlinear_system(m), m.z, m.y, m.Ψ)
     update!(linearized_system(m), m.z, m.y, m.Ψ)
 end
