@@ -11,36 +11,57 @@ y = vec(detout["y"])
 # Set up RiskAdjustedLinearization
 m = WachterDisasterRisk()
 ral = inplace_wachter_disaster_risk(m)
-zguess = copy(ral.z)
-yguess = copy(ral.y)
+zguess = 1.01 .* copy(ral.z)
+yguess = 1.01 .* copy(ral.y)
 
 # Solve!
 @info "The following series of print statements are expected."
 
-# First w/finite diff Jacobian
+# relaxation w/finite diff Jacobian
 solve!(ral, zguess, yguess; verbose = :high, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
-update!(ral, z, y, Ψ)                                             # and then proceeding to stochastic steady state
-solve!(ral, z, y, Ψ; verbose = :none, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
+@test ral.z ≈ sssout["z"]                                                      # and then proceeding to stochastic steady state
+@test ral.y ≈ sssout["y"] atol=5e-7
+@test ral.Ψ ≈ sssout["Psi"]
+
+update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
+solve!(ral; verbose = :none, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
 @test ral.z ≈ sssout["z"]
 @test ral.y ≈ sssout["y"] atol=5e-7
 @test ral.Ψ ≈ sssout["Psi"]
 
-solve!(ral, zguess, yguess; verbose = :high, algorithm = :homotopy, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
-update!(ral, z, y, Ψ)                                             # and then proceeding to stochastic steady state
-solve!(ral, z, y, Ψ; verbose = :none, algorithm = :homotopy, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
+solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ;
+       verbose = :none, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
 @test ral.z ≈ sssout["z"]
 @test ral.y ≈ sssout["y"] atol=5e-7
 @test ral.Ψ ≈ sssout["Psi"]
+
+# homotopy w/finite diff Jacobian
+solve!(ral, zguess, yguess;
+       verbose = :high, algorithm = :homotopy, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
+@test ral.z ≈ sssout["z"]                                                      # and then proceeding to stochastic steady state
+@test ral.y ≈ sssout["y"] atol=5e-7
+@test ral.Ψ ≈ sssout["Psi"]
+
+update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
+solve!(ral; verbose = :none, algorithm = :homotopy, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
+@test ral.z ≈ sssout["z"]
+@test ral.y ≈ sssout["y"] atol=5e-7
+@test ral.Ψ ≈ sssout["Psi"]
+
+solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ;
+       verbose = :none, algorithm = :homotopy, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
+@test ral.z ≈ sssout["z"]
+@test ral.y ≈ sssout["y"] atol=5e-7
+@test ral.Ψ ≈ sssout["Psi"]
+
 
 # Now autodiff Jacobian
-@test_broken solve!(ral, zguess, yguess; verbose = :high, autodiff = :forward, ftol = 1e-8)
-update!(ral, z, y, Ψ)
-@test_broken solve!(ral, z, y, Ψ; verbose = :none, autodiff = :forward, ftol = 1e-8) # currently can't autodiff b/c caching problem
+solve!(ral, zguess, yguess; verbose = :high, autodiff = :forward, ftol = 1e-8)
+update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
+solve!(ral; verbose = :high, autodiff = :forward, ftol = 1e-8)
+solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ; verbose = :none, autodiff = :forward, ftol = 1e-8) # currently can't autodiff b/c caching problem
 
-@test_broken solve!(ral, zguess, yguess; verbose = :high, autodiff = :forward, ftol = 1e-8, algorithm = :homotopy)
-update!(ral, z, y, Ψ)
-@test_broken solve!(ral, z, y, Ψ; verbose = :none, autodiff = :forward, ftol = 1e-8, algorithm = :homotopy) # currently can't autodiff b/c caching problem
-
-#=@test ral.z ≈ sssout["z"]
-@test ral.y ≈ sssout["y"] atol=5e-7
-@test ral.Ψ ≈ sssout["Psi"]=#
+solve!(ral, zguess, yguess; verbose = :high, autodiff = :forward, ftol = 1e-8, algorithm = :homotopy)
+update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
+solve!(ral; verbose = :high, autodiff = :forward, ftol = 1e-8, algorithm = :homotopy)
+solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ; verbose = :none, autodiff = :forward, ftol = 1e-8, algorithm = :homotopy) # currently can't autodiff b/c caching problem

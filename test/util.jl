@@ -1,4 +1,4 @@
-using RiskAdjustedLinearizations, ForwardDiff, Random
+using RiskAdjustedLinearizations, ForwardDiff, Random, Test
 
 Random.seed!(1793)
 
