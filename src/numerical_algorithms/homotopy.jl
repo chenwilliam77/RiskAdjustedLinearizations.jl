@@ -65,12 +65,20 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         Ψ = reshape(Ψ, m.Ny, m.Nz)
 
         # Given coefficients, update the model
-        update!(m, z, y, Ψ)
+        update!(nl, z, y, Ψ)
 
         # Calculate residuals
-        F[1:m.Nz] = nl[:μ_sss] - z
-        F[(m.Nz + 1):N_zy] = nl[:ξ_sss] + li[:Γ₅] * z + li[:Γ₆] * y + q * nl[:𝒱_sss]
-        F[(N_zy + 1):end] = li[:Γ₃] + li[:Γ₄] * Ψ + (li[:Γ₅] + li[:Γ₆] * Ψ) * (li[:Γ₁] + li[:Γ₂] * Ψ) + q * li[:JV]
+        μ_sss              = get_tmp(nl.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one corresponds to autodiffing both z and y
+        ξ_sss              = get_tmp(nl.ξ.cache, z, y, (1, 1))
+        𝒱_sss              = get_tmp(nl.𝒱.cache, z, Ψ, (1, 1))
+        Γ₁                 = get_tmp(li.μz.cache, z, y, (1, 1))
+        Γ₂                 = get_tmp(li.μy.cache, z, y, (1, 1))
+        Γ₃                 = get_tmp(li.ξz.cache, z, y, (1, 1))
+        Γ₄                 = get_tmp(li.ξy.cache, z, y, (1, 1))
+        JV                 = get_tmp(li.J𝒱.cache, z, Ψ, (1, 1))
+        F[1:m.Nz]          = μ_sss - z
+        F[(m.Nz + 1):N_zy] = ξ_sss + li[:Γ₅] * z + li[:Γ₆] * y + q * 𝒱_sss
+        F[(N_zy + 1):end]  = Γ₃ + Γ₄ * Ψ + (li[:Γ₅] + li[:Γ₆] * Ψ) * (Γ₁ + Γ₂ * Ψ) + q * JV
     end
 
     out = nlsolve(_my_eqn, x0; kwargs...)
