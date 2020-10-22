@@ -36,6 +36,11 @@ if time_methods
         solve!(m, zdet, ydet, Ψdet; algorithm = :relaxation, autodiff = autodiff_method, verbose = :none)
     end
 
+    println("Relaxation method with Anderson acceleration")
+    @btime begin # called the "iterative" method in the original paper
+        solve!(m, zdet, ydet, Ψdet; algorithm = :relaxation, use_anderson = true, m = 3, autodiff = autodiff_method, verbose = :none)
+    end
+
     println("Homotopy method")
     @btime begin # called the "continuation" method in the original paper, but is called homotopy in the original code
         solve!(m, zdet, ydet, Ψdet; algorithm = :homotopy, autodiff = autodiff_method, verbose = :none)
