@@ -111,4 +111,14 @@ RiskAdjustedLinearizations.RiskAdjustedLinearization
 
 
 ## Helper Types
-TBD
+To organize the functions comprisng a risk-adjusted linearization, we create two helper types, `RALNonlinearSystem` and `RALLinearizedSystem`.
+The first type holds the ``\mu``, ``\Lambda``, ``\Sigma``, ``\xi``, and ``\mathcal{V}`` functions while the second type holds
+the ``\mu_z``, ``\mu_y``, ``\xi_z``, ``\xi_y``, ``J\mathcal{V}``, ``\Gamma_5``, and ``\Gamma_6`` quantities.
+The `RALNonlinearSystem` type holds potentially nonlinear functions, and in particular ``\mu``, ``\xi``, and ``\mathcal{V}``,
+which need to be linearized (e.g. by automatic differentiation). The `RALLinearizedSystem` holds both matrices that
+are only relevant once the model is linearized, such as ``\Gamma_1`` (calculated by ``\mu_z``), as well as ``\Gamma_5`` and ``\Gamma_6``
+since these latter two quantities are always constant matrices.
+
+Aside from providing a way to organize the various functions comprising a risk-adjusted linearization, these helper types do not
+have much additional functionality. The `update!` functions for a `RiskAdjustedLinearization`, for example, are implemented
+underneath the hood by calling `update!` functions written for the `RALNonlinearSystem` and `RALLinearizedSystem`.
