@@ -117,7 +117,7 @@ end
 
 ## Stochastic steady state
 sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../reference/iterative_sss_output.jld2"), "r")
-pz = vec(sssout["z"])
+z = vec(sssout["z"])
 y = vec(sssout["y"])
 Ψ = sssout["Psi"]
 
@@ -126,23 +126,23 @@ update!(ral, z, y, Ψ)
 nl = nonlinear_system(ral)
 li = linearized_system(ral)
 @testset "Evaluate WachterDisasterRisk out-of-place RiskAdjustedLinearization at stochastic steady state" begin
-    @test nl.μ(z, y) ≈ detout["MU"]
-    @test nl[:μ_sss] ≈ detout["MU"]
+    @test nl.μ(z, y) ≈ sssout["MU"]
+    @test nl[:μ_sss] ≈ sssout["MU"]
     @test isa(nl[:Λ_sss], AbstractArray)
-    @test nl.Λ(z) == detout["LAM"]
-    @test nl[:Σ_sss] ≈ detout["SIG"]
-    @test nl.Σ(z) ≈ detout["SIG"]
-    @test nl[:ξ_sss] ≈ detout["XI"]
-    @test nl.ξ(z, y) ≈ detout["XI"]
-    @test nl[:𝒱_sss] ≈ detout["V"]
-    @test nl.𝒱(z, Ψ) ≈ detout["V"]
-    @test li[:Γ₁] ≈ detout["GAM1"]
-    @test li[:Γ₂] ≈ detout["GAM2"]
-    @test li[:Γ₃] ≈ detout["GAM3"]
-    @test li[:Γ₄] ≈ detout["GAM4"]
-    @test li[:Γ₅] ≈ detout["GAM5"]
-    @test li[:Γ₆] ≈ detout["GAM6"]
-    @test li[:JV] ≈ detout["JV"]
+    @test nl.Λ(z) == sssout["LAM"]
+    @test nl[:Σ_sss] ≈ sssout["SIG"]
+    @test nl.Σ(z) ≈ sssout["SIG"]
+    @test nl[:ξ_sss] ≈ sssout["XI"]
+    @test nl.ξ(z, y) ≈ sssout["XI"]
+    @test nl[:𝒱_sss] ≈ sssout["V"]
+    @test nl.𝒱(z, Ψ) ≈ sssout["V"]
+    @test li[:Γ₁] ≈ sssout["GAM1"]
+    @test li[:Γ₂] ≈ sssout["GAM2"]
+    @test li[:Γ₃] ≈ sssout["GAM3"]
+    @test li[:Γ₄] ≈ sssout["GAM4"]
+    @test li[:Γ₅] ≈ sssout["GAM5"]
+    @test li[:Γ₆] ≈ sssout["GAM6"]
+    @test li[:JV] ≈ sssout["JV"]
 end
 
 nothing
