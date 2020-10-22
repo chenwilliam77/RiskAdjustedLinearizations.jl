@@ -5,8 +5,7 @@ makedocs(
     doctest = false,
     strict = false,
     clean = false,
-    format = Documenter.HTML(;
-                             prettyurls = get(ENV, "CI", "false") == "true",
+    format = Documenter.HTML(; # prettyurls = get(ENV, "CI", "false") == "true",
                              canonical = "https://juliadocs.github.io/Documenter.jl/stable/",
                              assets=String[],
                              ),
@@ -23,4 +22,6 @@ makedocs(
 
 deploydocs(;
     repo = "github.com/chenwilliam77/RiskAdjustedLinearizations.jl.git",
+    target = "build",
+    versions = ["stable" => "v^", "v#.#"],
 )
