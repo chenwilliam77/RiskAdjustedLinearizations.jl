@@ -113,10 +113,9 @@ end
 # It will call a lower-level constructor that uses automatic differentiation
 # to calculate the Jacobian functions.
 # Note that here we pass in the ccgf, rather than 𝒱
-# TODO: update sss_matrix_type keyword to be more specific that it refers only to Λ and Σ
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int; sss_vector_type::DataType = Vector{T}, sss_matrix_type::DataType = Matrix{T},
+                                   Nε::Int; sss_vector_type::DataType = Vector{T}, Λ_Σ_type::DataType = Matrix{T},
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: Function, L, S,
                                                                                X <: Function,
                                                                                JC5 <: AbstractMatrix{<: Number},
@@ -189,18 +188,17 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
 end
 
 # The following four constructors cover different common cases for the Λ and Σ functions.
-# Users will typically use these constructors.
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, sss_matrix_type::DataType = Matrix{T},
+                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, Λ_Σ_type::DataType = Matrix{T},
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: Function, S <: Function,
                                                                                X <: RALF2,
                                                                                JC5 <: AbstractMatrix{<: Number},
                                                                                JC6 <: AbstractMatrix{<: Number},
                                                                                CF <: Function}
     # Create wrappers enabling caching for Λ and Σ
-    _Λ = RALF1(Λ, z, sss_matrix_type, (Nz, Ny))
-    _Σ = RALF1(Σ, z, sss_matrix_type, (Nz, Nε))
+    _Λ = RALF1(Λ, z, Λ_Σ_type, (Nz, Ny))
+    _Σ = RALF1(Σ, z, Λ_Σ_type, (Nz, Nε))
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
                                      jacobian_type = jacobian_type)
@@ -208,7 +206,7 @@ end
 
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, sss_matrix_type::DataType = Matrix{T},
+                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, Λ_Σ_type::DataType = Matrix{T},
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: AbstractMatrix{<: Number}, S <: Function,
                                                                                X <: RALF2,
                                                                                JC5 <: AbstractMatrix{<: Number},
@@ -217,7 +215,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
 
     # Create wrappers enabling caching for Λ and Σ
     _Λ = RALF1(Λ)
-    _Σ = RALF1(Σ, z, sss_matrix_type, (Nz, Nε))
+    _Σ = RALF1(Σ, z, Λ_Σ_type, (Nz, Nε))
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
                                      jacobian_type = jacobian_type)
@@ -225,7 +223,7 @@ end
 
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, sss_matrix_type::DataType = Matrix{T},
+                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, Λ_Σ_type::DataType = Matrix{T},
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: Function, S <: AbstractMatrix{<: Number},
                                                                                X <: RALF2,
                                                                                JC5 <: AbstractMatrix{<: Number},
@@ -233,7 +231,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                                                                CF <: Function}
 
     # Create wrappers enabling caching for Λ and Σ
-    _Λ = RALF1(Λ, z, sss_matrix_type, (Nz, Ny))
+    _Λ = RALF1(Λ, z, Λ_Σ_type, (Nz, Ny))
     _Σ = RALF1(Σ)
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
@@ -242,7 +240,7 @@ end
 
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, sss_matrix_type::DataType = Matrix{T},
+                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, Λ_Σ_type::DataType = Matrix{T},
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2,
                                                                                L <: AbstractMatrix{<: Number}, S <: AbstractMatrix{<: Number},
                                                                                X <: RALF2,
