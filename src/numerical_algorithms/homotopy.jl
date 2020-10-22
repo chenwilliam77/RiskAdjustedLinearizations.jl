@@ -25,7 +25,8 @@ until ``q`` reaches 1 or passes 1 (in which case, we force ``q = 1``).
     b) `:high` -> statement when homotopy continuation succeeds and for each successful iteration
 """
 function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
-                   step::Float64 = .1, verbose::Symbol = :none, kwargs...) where {S1 <: Number}
+                   step::Float64 = .1, verbose::Symbol = :none, autodiff::Symbol = :central,
+                   kwargs...) where {S1 <: Number}
     # Set up
     nl = nonlinear_system(m)
     li = linearized_system(m)
@@ -35,7 +36,7 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
         qguesses = vcat(qguesses, 1.)
     end
     for (i, q) in enumerate(qguesses)
-        solve_steadystate!(m, vcat(m.z, m.y, vec(m.Ψ)), q; kwargs...)
+        solve_steadystate!(m, vcat(m.z, m.y, vec(m.Ψ)), q; autodiff = autodiff, kwargs...)
 
         if verbose == :high
             println("Success at iteration $(i) of $(length(qguesses))")
@@ -51,7 +52,8 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
     return m
 end
 
-function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, q::Float64; kwargs...) where {S1 <: Real}
+function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, q::Float64;
+                            autodiff::Symbol = :central, kwargs...) where {S1 <: Real}
 
     # Set up system of equations
     N_zy = m.Nz + m.Ny
@@ -66,6 +68,7 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
 
         # Given coefficients, update the model
         update!(nl, z, y, Ψ)
+        update!(li, z, y, Ψ)
 
         # Calculate residuals
         μ_sss              = get_tmp(nl.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one corresponds to autodiffing both z and y
@@ -81,7 +84,8 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         F[(N_zy + 1):end]  = Γ₃ + Γ₄ * Ψ + (li[:Γ₅] + li[:Γ₆] * Ψ) * (Γ₁ + Γ₂ * Ψ) + q * JV
     end
 
-    out = nlsolve(_my_eqn, x0; kwargs...)
+    # Need to declare chunk size to ensure no problems with reinterpreting the cache
+    out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff, ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]

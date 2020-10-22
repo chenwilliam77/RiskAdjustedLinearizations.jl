@@ -8,7 +8,7 @@ using ArrayInterface, ForwardDiff, LinearAlgebra, Printf, SparseArrays# , Sparse
 using UnPack
 using BandedMatrices: Ones, Zeros
 using DiffEqBase: DiffCache, dualcache
-using NLsolve: nlsolve
+using NLsolve: nlsolve, OnceDifferentiable
 
 # Utilities
 include("util.jl") # in principle, several of these utility functions could work for other packages
