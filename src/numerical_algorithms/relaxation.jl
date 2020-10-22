@@ -36,8 +36,8 @@ solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization b
     b) `:high` -> statement when homotopy continuation succeeds and for each successful iteration
 """
 function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1}, Ψₙ₋₁::AbstractMatrix{S1};
-                    tol::S2 = 1e-10, max_iters::Int = 1000, damping::S2 = .5, pnorm::S3 = Inf,
-                    schur_fnct::Function = schur!, verbose::Symbol = :none,
+                     tol::S2 = 1e-10, max_iters::Int = 1000, damping::S2 = .5, pnorm::S3 = Inf,
+                     schur_fnct::Function = schur!, autodiff::Symbol = :central, verbose::Symbol = :none,
                      kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
     # Set up
     err   = 1.
@@ -64,7 +64,7 @@ function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1
         update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:JV]) # updates li.JV
 
         # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
-        solve_steadystate!(m, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁; kwargs...) # updates m.z and m.y
+        solve_steadystate!(m, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, kwargs...) # updates m.z and m.y
 
         # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
         update!(li, zₙ, yₙ, Ψₙ₋₁; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ
@@ -107,6 +107,7 @@ end
 
 function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1},
                             Ψ::AbstractMatrix{<: Number}, 𝒱::AbstractVector{<: Number};
+                            autodiff::Symbol = :central,
                             kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
@@ -127,7 +128,8 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         F[(m.Nz + 1):end] = ξ_sss + li[:Γ₅] * z + li[:Γ₆] * y + 𝒱
     end
 
-    out = nlsolve(_my_eqn, x0; kwargs...)
+    out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff,
+                                     ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]

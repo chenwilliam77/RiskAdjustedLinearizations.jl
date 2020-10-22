@@ -44,21 +44,23 @@ Note these methods are not exported.
 - `:homotopy` -> `homotopy!`
 - `:deterministic` -> `deterministic_steadystate!`
 """
-function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation, verbose::Symbol = :high, kwargs...)
+function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation,
+                autodiff::Symbol = :central, verbose::Symbol = :high, kwargs...)
     if algorithm == :deterministic
-        solve!(m, m.z, m.y; algorithm = algorithm, verbose = verbose, kwargs...)
+        solve!(m, m.z, m.y; algorithm = algorithm, autodiff = autodiff, verbose = verbose, kwargs...)
     else
-        solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm, verbose = verbose, kwargs...)
+        solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm, autodiff = autodiff, verbose = verbose, kwargs...)
     end
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1};
-                algorithm::Symbol = :relaxation, verbose::Symbol = :high, kwargs...) where {S1 <: Real}
+                algorithm::Symbol = :relaxation, autodiff::Symbol = :central,
+                verbose::Symbol = :high, kwargs...) where {S1 <: Real}
 
     @assert algorithm in [:deterministic, :relaxation, :homotopy]
 
     # Deterministic steady state
-    deterministic_steadystate!(m, vcat(z0, y0); verbose = verbose, kwargs...)
+    deterministic_steadystate!(m, vcat(z0, y0); autodiff = autodiff, verbose = verbose, kwargs...)
 
     # Calculate linearization
     nl = nonlinear_system(m)
@@ -86,17 +88,18 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1}, Ψ0::AbstractMatrix{S1};
-                algorithm::Symbol = :relaxation, verbose::Symbol = :high, kwargs...) where {S1 <: Number}
+                algorithm::Symbol = :relaxation, autodiff::Symbol = :central,
+                verbose::Symbol = :high, kwargs...) where {S1 <: Number}
 
     @assert algorithm in [:relaxation, :homotopy]
 
     # Stochastic steady state
     if algorithm == :relaxation
         N_zy = m.Nz + m.Ny
-        relaxation!(m, vcat(z0, y0), Ψ0;
+        relaxation!(m, vcat(z0, y0), Ψ0; autodiff = autodiff,
                     verbose = verbose, kwargs...)
     elseif algorithm == :homotopy
-        homotopy!(m, vcat(z0, y0, vec(Ψ0)); verbose = verbose, kwargs...)
+        homotopy!(m, vcat(z0, y0, vec(Ψ0)); autodiff = autodiff, verbose = verbose, kwargs...)
     end
 
     # Check Blanchard-Kahn
@@ -125,7 +128,8 @@ calculates the deterministic steady state.
     If `:low` or `:high`, a print statement occurs when a steady state is solved.
 """
 function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1};
-                                    verbose::Symbol = :none, kwargs...) where {S1 <: Real, S2 <: Real}
+                                    autodiff::Symbol = :central, verbose::Symbol = :none,
+                                    kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
     nl = nonlinear_system(m)
@@ -145,7 +149,7 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
         F[(m.Nz + 1):end] = ξ_sss + li[:Γ₅] * z + li[:Γ₆] * y
     end
 
-    out = nlsolve(_my_eqn, x0; kwargs...)
+    out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff, ForwardDiff.Chunk(min(m.Nz, m.Ny))), x0; kwargs...)
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]

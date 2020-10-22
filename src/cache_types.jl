@@ -15,7 +15,7 @@ mutable struct RALF1{F <: Function, LC}
 end
 
 function RALF1(f::Function, x1::C1, array_type::DataType, dims::NTuple{N, Int};
-               chunksize::Int = length(x1)) where {C1 <: AbstractArray{<: Number}, N}
+               chunksize::Int = ForwardDiff.pickchunksize(length(x1))) where {C1 <: AbstractArray{<: Number}, N}
     cache = array_type(undef, dims)
     if applicable(f, cache, x1)
         fnew = function _f_ip(cache::LCN, x1::C1N) where {LCN <: DiffCache, C1N <: AbstractArray{<: Number}}
@@ -47,7 +47,7 @@ end
 
 function RALF2(f::Function, x1::C1, x2::C2, array_type::DataType,
                dims::NTuple{N, Int}, chunksizes::NTuple{Nc, Int} =
-               (length(x1) + length(x2), )) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number}, N, Nc}
+               (ForwardDiff.pickchunksize(min(length(x1), length(x2))), )) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number}, N, Nc}
     cache = array_type(undef, dims)
     if applicable(f, cache, x1, x2)
         if length(chunksizes) == 1 # Figure out which type of DiffCache is needed
