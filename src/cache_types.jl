@@ -1,14 +1,4 @@
-# Concrete types used to create non-allocating functions
-# by caching the output using the dualcache function from DiffEqBase.jl.
-# This code could be automatically generated through macros or some other
-# type of metaprogramming, but for our purposes, it is sufficient to define
-# these types for up to two inputs (aside from the array used for in-place operations),
-# i.e. RALF1 works for functions of the form f(F, x).
-#
-# For caching, we always infer whether to cache or not from the first element type since
-# that element w/in context of this package always tells us whether or not we need to use the
-# autodiffed version
-# TODO: copy and paste this description for each function type
+# RALF1
 mutable struct RALF1{F <: Function, LC}
     f::F
     cache::LC
@@ -40,6 +30,7 @@ function (ralf::RALF1)(x1::C1) where {C1 <: AbstractArray{<: Number}}
     return ralf.f(ralf.cache, x1)
 end
 
+# RALF2
 mutable struct RALF2{F <: Function, LC}
     f::F
     cache::LC
@@ -120,16 +111,3 @@ end
 function (ralf::RALF2)(x1::C1, x2::C2, select::Tuple{Int, Int} = (1, 1)) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number}}
     return ralf.f(ralf.cache, x1, x2, select)
 end
-
-# The following two functions are required for RAL-specific purposes. Rather than add an additional field
-# to enforce the safety of this call, we rely on the underlying `f` to throw a MethodError.
-#=function (ralf::RALF2)(x1::C1, x2::C2, x3::C3, x4::C4) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number},
-                                                              C3 <: AbstractArray{<: Number}, C4 <: AbstractArray{<: Number}}
-    return ralf.f(ralf.cache, x1, x2, x3, x4)
-end
-
-function (ralf::RALF2)(x1::C1, x2::C2, x3::C3, x4::C4, x5::C5) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number},
-                                                                      C3 <: AbstractArray{<: Number}, C4 <: AbstractArray{<: Number},
-                                                                      C5 <: AbstractArray{<: Number}}
-    return ralf.f(ralf.cache, x1, x2, x3, x4, x5)
-end=#
