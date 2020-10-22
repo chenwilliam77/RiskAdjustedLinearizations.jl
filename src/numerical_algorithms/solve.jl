@@ -1,8 +1,8 @@
 """
 ```
-solve!(m; algorithm = :relaxation, verbose = :high, kwargs...)
-solve!(m, z0, y0; algorithm = :relaxation, verbose = :high, kwargs...)
-solve!(m, z0, y0, Ψ0; algorithm = :relaxation, verbose = :high, kwargs...)
+solve!(m; algorithm = :relaxation, autodiff = :central, use_anderson = false, verbose = :high, kwargs...)
+solve!(m, z0, y0; algorithm = :relaxation, autodiff = :central, use_anderson = false, verbose = :high, kwargs...)
+solve!(m, z0, y0, Ψ0; algorithm = :relaxation, autodiff = :central, use_anderson = false, verbose = :high, kwargs...)
 ```
 
 computes the risk-adjusted linearization of the dynamic economic model
@@ -31,9 +31,11 @@ The three available `solve!` algorithms are slight variations on each other.
 - `S1 <: Real`
 
 ### Keywords
-The `algorithm::Symbol` keyword can be one of `[:deterministic, :relaxation, :homotopy]`.
+- `algorithm::Symbol`: speciifies which numerical algorithm to use. Can be one of `[:relaxation, :homotopy, :deterministic]`.
+- `autodiff::Symbol`: specifies whether to use autodiff. This is the keyword is the same as in `nlsolve`.
+- `use_anderson::Bool`: specifies whether to use Anderson acceleration if the relaxation algorithm is applied.
 
-The underlying algorithms all use `nlsolve` to calculate the solution to systems of nonlinear
+The solution algorithms all use `nlsolve` to calculate the solution to systems of nonlinear
 equations. The user can pass in any of the keyword arguments for `nlsolve` to adjust
 the settings of the nonlinear solver.
 
@@ -45,16 +47,19 @@ Note these methods are not exported.
 - `:deterministic` -> `deterministic_steadystate!`
 """
 function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation,
-                autodiff::Symbol = :central, verbose::Symbol = :high, kwargs...)
+                autodiff::Symbol = :central, use_anderson::Bool = false,
+                verbose::Symbol = :high, kwargs...)
     if algorithm == :deterministic
         solve!(m, m.z, m.y; algorithm = algorithm, autodiff = autodiff, verbose = verbose, kwargs...)
     else
-        solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm, autodiff = autodiff, verbose = verbose, kwargs...)
+        solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm, autodiff = autodiff,
+               use_anderson = use_anderson, verbose = verbose, kwargs...)
     end
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1};
                 algorithm::Symbol = :relaxation, autodiff::Symbol = :central,
+                use_anderson::Bool = false,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Real}
 
     @assert algorithm in [:deterministic, :relaxation, :homotopy]
@@ -81,6 +86,7 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
         blanchard_kahn(m; deterministic = true, verbose = verbose)
     else
         solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm,
+               use_anderson = use_anderson,
                verbose = verbose, kwargs...)
     end
 
@@ -89,21 +95,22 @@ end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1}, Ψ0::AbstractMatrix{S1};
                 algorithm::Symbol = :relaxation, autodiff::Symbol = :central,
-                verbose::Symbol = :high, kwargs...) where {S1 <: Number}
+                use_anderson::Bool = false, verbose::Symbol = :high, kwargs...) where {S1 <: Number}
 
-    @assert algorithm in [:relaxation, :homotopy]
+    @assert algorithm in [:relaxation, :homotopy] "The algorithm must be :relaxation or :homotopy because this function calculates the stochastic steady state"
 
     # Stochastic steady state
     if algorithm == :relaxation
         N_zy = m.Nz + m.Ny
         relaxation!(m, vcat(z0, y0), Ψ0; autodiff = autodiff,
-                    verbose = verbose, kwargs...)
+                    use_anderson = use_anderson, verbose = verbose, kwargs...)
     elseif algorithm == :homotopy
         homotopy!(m, vcat(z0, y0, vec(Ψ0)); autodiff = autodiff, verbose = verbose, kwargs...)
     end
 
     # Check Blanchard-Kahn
-    blanchard_kahn(m; deterministic = algorithm == :deterministic, verbose = verbose)
+    blanchard_kahn(m; deterministic = false, verbose = verbose)
+
     m
 end
 

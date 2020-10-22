@@ -66,3 +66,24 @@ solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ; verbose = :none, autodiff = :forwa
 update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
 @test_broken solve!(ral; verbose = :high, autodiff = :forward, ftol = 1e-8, algorithm = :homotopy)
 @test_broken solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ; verbose = :none, autodiff = :forward, ftol = 1e-8, algorithm = :homotopy)
+
+# relaxation w/Anderson
+solve!(ral, zguess, yguess; verbose = :high, autodiff = :central,
+       use_anderson = true, ftol = 1e-8) # first w/ calculating the deterministic steady state
+@test ral.z ≈ sssout["z"]                                                      # and then proceeding to stochastic steady state
+@test ral.y ≈ sssout["y"] atol=1e-6
+@test ral.Ψ ≈ sssout["Psi"]
+
+update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
+solve!(ral; verbose = :none, autodiff = :central,
+       use_anderson = true, ftol = 1e-8) # Now just go straight to solving stochastic steady state
+@test ral.z ≈ sssout["z"] atol=1e-6
+@test ral.y ≈ sssout["y"] atol=1e-6
+@test ral.Ψ ≈ sssout["Psi"]
+
+solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ;
+       verbose = :none, autodiff = :central,
+       use_anderson = true, ftol = 1e-8) # Now just go straight to solving stochastic steady state
+@test ral.z ≈ sssout["z"] atol=1e-6
+@test ral.y ≈ sssout["y"] atol=1e-6
+@test ral.Ψ ≈ sssout["Psi"]
