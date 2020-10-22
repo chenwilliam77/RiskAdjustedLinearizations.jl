@@ -1,7 +1,8 @@
 """
 ```
-relaxation!(m, xₙ₋₁, Ψₙ₋₁; tol = 1e-10, max_iters = 1000, damping = .5, pnorm = Inf,
-            schur_fnct::Function = schur!, verbose = :none, kwargs...)
+relaxation!(ral, xₙ₋₁, Ψₙ₋₁; tol = 1e-10, max_iters = 1000, damping = .5, pnorm = Inf,
+            schur_fnct = schur!, autodiff = :central, use_anderson = false, m = 5,
+            verbose = :none, kwargs...)
 ```
 
 solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization by the following relaxation algorithm:
@@ -31,63 +32,118 @@ solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization b
     `xₙ = damping * proposal + (1 - damping) * xₙ₋₁`.
 - `pnorm::S3`: norm for residual tolerance
 - `schur_fnct::Function`: function for calculating the Schur factorization during QZ decomposition
+- `autodiff::Symbol`: specifies whether to use autoamtic differentiation in `nlsolve`
+    (and is the same keyword as the `autodiff` keyword for `nlsolve`)
+- `use_anderson::Bool`: set to true to apply Anderson acceleration to the
+    fixed point iteration of the relaxation algorithm
+- `m::Int`: `m` coefficient if using Anderson acceleration
 - `verbose::Symbol`: verbosity of information printed out during solution.
     a) `:low` -> statement when homotopy continuation succeeds
     b) `:high` -> statement when homotopy continuation succeeds and for each successful iteration
 """
-function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1}, Ψₙ₋₁::AbstractMatrix{S1};
+function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1}, Ψₙ₋₁::AbstractMatrix{S1};
                      tol::S2 = 1e-10, max_iters::Int = 1000, damping::S2 = .5, pnorm::S3 = Inf,
-                     schur_fnct::Function = schur!, autodiff::Symbol = :central, verbose::Symbol = :none,
+                     schur_fnct::Function = schur!, autodiff::Symbol = :central,
+                     use_anderson::Bool = false, m::Int = 5, verbose::Symbol = :none,
                      kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
     # Set up
     err   = 1.
     count = 0
-    nl  = nonlinear_system(m)
-    li  = linearized_system(m)
-    Nzy = m.Nz + m.Ny
+    nl  = nonlinear_system(ral)
+    li  = linearized_system(ral)
+    Nzy = ral.Nz + ral.Ny
     AA  = Matrix{Complex{S1}}(undef, Nzy, Nzy)
     BB  = similar(AA)
 
-    # Some aliases/views will be useful
-    zₙ₋₁  = @view xₙ₋₁[1:m.Nz]
-    yₙ₋₁  = @view xₙ₋₁[(m.Nz + 1):end]
-    zₙ    = m.z
-    yₙ    = m.y
-    Ψₙ    = m.Ψ
-    𝒱ₙ₋₁  = nl[:𝒱_sss]
-    J𝒱ₙ₋₁ = li[:JV]
+    if use_anderson
+        # Some aliases/views will be useful
+        zₙ    = ral.z
+        yₙ    = ral.y
+        Ψₙ    = ral.Ψ
+        𝒱ₙ₋₁  = nl[:𝒱_sss]
+        J𝒱ₙ₋₁ = li[:JV]
 
-    while (err > tol) && (count < max_iters)
+        _anderson_f = function _my_anderson(F::AbstractArray{T}, xₙ₋₁::AbstractVector{T}) where {T <: Number}
+            zₙ₋₁  = @view xₙ₋₁[1:ral.Nz]
+            yₙ₋₁  = @view xₙ₋₁[(ral.Nz + 1):Nzy]
+            Ψₙ₋₁  = @view xₙ₋₁[(Nzy + 1):end]
+            Ψₙ₋₁  = reshape(Ψₙ₋₁, ral.Ny, ral.Nz)
 
-        # Calculate entropy terms 𝒱ₙ₋₁, J𝒱ₙ₋₁
-        update!(nl, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:𝒱]) # updates nl.𝒱_sss
-        update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:JV]) # updates li.JV
+            # Calculate entropy terms 𝒱ₙ₋₁, J𝒱ₙ₋₁
+            update!(nl, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:𝒱]) # updates nl.𝒱_sss
+            update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:JV]) # updates li.JV
 
-        # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
-        solve_steadystate!(m, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, kwargs...) # updates m.z and m.y
+            # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
+            solve_steadystate!(ral, vcat(zₙ₋₁, yₙ₋₁), Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, kwargs...) # updates ral.z and ral.y
 
-        # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
-        update!(li, zₙ, yₙ, Ψₙ₋₁; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ
+            # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
+            update!(li, zₙ, yₙ, Ψₙ₋₁; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ
 
-        # QZ decomposition to get Ψₙ, taking Γ₁, Γ₂, Γ₃, Γ₄, and J𝒱ₙ₋₁ as given
-        Ψₙ .= compute_Ψ!(AA, BB, li; schur_fnct = schur_fnct)
+            # QZ decomposition to get Ψₙ, taking Γ₁, Γ₂, Γ₃, Γ₄, and J𝒱ₙ₋₁ as given
+            Ψₙ .= compute_Ψ!(AA, BB, li; schur_fnct = schur_fnct)
 
-        # Update zₙ, yₙ, and Ψₙ; then calculate error for convergence check
-        zₙ .= damping .* zₙ + (1 - damping) .* zₙ₋₁
-        yₙ .= damping .* yₙ + (1 - damping) .* yₙ₋₁
-        Ψₙ .= damping .* Ψₙ + (1 - damping) .* Ψₙ₋₁
-        err = norm(vcat(zₙ - zₙ₋₁, yₙ - yₙ₋₁, vec(Ψₙ - Ψₙ₋₁)), pnorm)
+            # Update zₙ, yₙ, and Ψₙ; then calculate error for convergence check
+            zₙ .= damping .* zₙ + (1 - damping) .* zₙ₋₁
+            yₙ .= damping .* yₙ + (1 - damping) .* yₙ₋₁
+            Ψₙ .= damping .* Ψₙ + (1 - damping) .* Ψₙ₋₁
+            err = norm(vcat(zₙ - zₙ₋₁, yₙ - yₙ₋₁, vec(Ψₙ - Ψₙ₋₁)), pnorm)
 
-        # Update zₙ₋₁, yₙ₋₁, and Ψₙ₋₁ (without reallocating them)
-        zₙ₋₁ .= zₙ
-        yₙ₋₁ .= yₙ
-        Ψₙ₋₁ .= Ψₙ
+            # Calculate residual
+            F[1:ral.Nz] = zₙ - zₙ₋₁
+            F[(ral.Nz + 1):Nzy] = yₙ - yₙ₋₁
+            F[(Nzy + 1):end] = vec(Ψₙ - Ψₙ₋₁)
 
-        if verbose == :high
-            println("Iteration $(count): error under norm=$(pnorm) is $(err)")
+            return F
         end
 
-        count += 1
+        out   = nlsolve(_anderson_f, vcat(xₙ₋₁, vec(Ψₙ₋₁)); m = m, ftol = tol, iterations = max_iters)
+        count = out.iterations
+        if out.f_converged
+            update!(ral, out.zero[1:ral.Nz], out.zero[(ral.Nz + 1):Nzy],
+                    reshape(out.zero[(Nzy + 1):end], ral.Ny, ral.Nz); update_cache = false)
+        end
+    else
+        # Some aliases/views will be useful
+        zₙ₋₁  = @view xₙ₋₁[1:ral.Nz]
+        yₙ₋₁  = @view xₙ₋₁[(ral.Nz + 1):end]
+        zₙ    = ral.z
+        yₙ    = ral.y
+        Ψₙ    = ral.Ψ
+        𝒱ₙ₋₁  = nl[:𝒱_sss]
+        J𝒱ₙ₋₁ = li[:JV]
+
+        while (err > tol) && (count < max_iters)
+
+            # Calculate entropy terms 𝒱ₙ₋₁, J𝒱ₙ₋₁
+            update!(nl, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:𝒱]) # updates nl.𝒱_sss
+            update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:JV]) # updates li.JV
+
+            # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
+            solve_steadystate!(ral, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, kwargs...) # updates ral.z and ral.y
+
+            # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
+            update!(li, zₙ, yₙ, Ψₙ₋₁; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ
+
+            # QZ decomposition to get Ψₙ, taking Γ₁, Γ₂, Γ₃, Γ₄, and J𝒱ₙ₋₁ as given
+            Ψₙ .= compute_Ψ!(AA, BB, li; schur_fnct = schur_fnct)
+
+            # Update zₙ, yₙ, and Ψₙ; then calculate error for convergence check
+            zₙ .= damping .* zₙ + (1 - damping) .* zₙ₋₁
+            yₙ .= damping .* yₙ + (1 - damping) .* yₙ₋₁
+            Ψₙ .= damping .* Ψₙ + (1 - damping) .* Ψₙ₋₁
+            err = norm(vcat(zₙ - zₙ₋₁, yₙ - yₙ₋₁, vec(Ψₙ - Ψₙ₋₁)), pnorm)
+
+            # Update zₙ₋₁, yₙ₋₁, and Ψₙ₋₁ (without reallocating them)
+            zₙ₋₁ .= zₙ
+            yₙ₋₁ .= yₙ
+            Ψₙ₋₁ .= Ψₙ
+
+            if verbose == :high
+                println("Iteration $(count): error under norm=$(pnorm) is $(err)")
+            end
+
+            count += 1
+        end
     end
 
     if count == max_iters
@@ -99,9 +155,9 @@ function relaxation!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1
             println("")
             println("Convergence achieved after $(count) iterations! Error under norm=$(pnorm) is $(err).")
         end
-        update!(m)
+        update!(ral)
 
-        return m
+        return ral
     end
 end
 
