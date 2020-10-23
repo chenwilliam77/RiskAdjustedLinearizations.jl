@@ -1,6 +1,6 @@
 # This script actually solves the WachterDisasterRisk model with a risk-adjusted linearization
 # and times the methods, if desired
-using BenchmarkTools, RiskAdjustedLinearizations
+using BenchmarkTools, RiskAdjustedLinearizations, Test
 include("wachter.jl")
 
 # Settings: what do you want to do?
