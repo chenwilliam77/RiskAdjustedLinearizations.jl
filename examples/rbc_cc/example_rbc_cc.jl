@@ -1,7 +1,7 @@
 # This script actually solves the WachterDisasterRisk model with a risk-adjusted linearization
 # and times the methods, if desired
-using BenchmarkTools, RiskAdjustedLinearizations
-include("wachter.jl")
+using BenchmarkTools, RiskAdjustedLinearizations, Test
+include("rbc_cc.jl")
 
 # Settings: what do you want to do?
 time_methods        = false
@@ -9,9 +9,9 @@ numerical_algorithm = :relaxation
 autodiff            = false
 
 # Set up
-autodiff_method = autodiff ? :forwarddiff : :central
-m_wachter = WachterDisasterRisk()
-m = inplace_wachter_disaster_risk(m_wachter)
+autodiff_method = autodiff ? :forward : :central
+m_rbc_cc = RBCCampbellCochraneHabits()
+m = rbc_cc(m_rbc_cc)
 z0 = copy(m.z)
 y0 = copy(m.y)
 Ψ0 = copy(m.Ψ)
@@ -20,10 +20,9 @@ y0 = copy(m.y)
 solve!(m; algorithm = numerical_algorithm, autodiff = autodiff_method)
 
 if numerical_algorithm == :relaxation
-    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/iterative_sss_output.jld2"), "r")
-
+    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/rbccc_sss_iterative_output.jld2"), "r")
 elseif numerical_algorithm == :homotopy
-    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/homotopy_sss_output.jld2"), "r")
+    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/rbcccc_sss_homotopy_output.jld2"), "r")
 end
 
 @test isapprox(sssout["z_rss"], m.z, atol=1e-4)
@@ -45,6 +44,11 @@ if time_methods
     println("Relaxation method")
     @btime begin # called the "iterative" method in the original paper
         solve!(m, zdet, ydet, Ψdet; algorithm = :relaxation, autodiff = autodiff_method, verbose = :none)
+    end
+
+    println("Relaxation method with automatic differentiation")
+    @btime begin # called the "iterative" method in the original paper
+        solve!(m, zdet, ydet, Ψdet; algorithm = :relaxation, autodiff = :forward, verbose = :none)
     end
 
     println("Relaxation method with Anderson acceleration")
