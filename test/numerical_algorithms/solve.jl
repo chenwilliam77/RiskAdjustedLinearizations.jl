@@ -36,20 +36,22 @@ solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ;
 @test ral.Ψ ≈ sssout["Psi"]
 
 # homotopy w/finite diff Jacobian
-solve!(ral, zguess, yguess;
-       verbose = :high, algorithm = :homotopy, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
+solve!(ral, zguess, yguess; algorithm = :homotopy, step = .12,
+       verbose = :high, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
 @test ral.z ≈ sssout["z"]                                                      # and then proceeding to stochastic steady state
 @test ral.y ≈ sssout["y"] atol=1e-6
 @test ral.Ψ ≈ sssout["Psi"]
 
 update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
-solve!(ral; verbose = :none, algorithm = :homotopy, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
+solve!(ral; verbose = :none, algorithm = :homotopy, step = .12,
+       autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
 @test ral.z ≈ sssout["z"]
 @test ral.y ≈ sssout["y"] atol=1e-6
 @test ral.Ψ ≈ sssout["Psi"]
 
 solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ;
-       verbose = :none, algorithm = :homotopy, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
+       verbose = :none, algorithm = :homotopy, step = .12,
+       autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
 @test ral.z ≈ sssout["z"]
 @test ral.y ≈ sssout["y"] atol=1e-6
 @test ral.Ψ ≈ sssout["Psi"]
