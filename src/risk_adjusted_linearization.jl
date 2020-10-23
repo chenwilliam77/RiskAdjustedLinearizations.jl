@@ -132,8 +132,8 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     # Create wrappers enabling caching for μ and ξ
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
-    _μ = RALF2(μ, z, y, sss_vector_type, (Nz, ), (min(Nzchunk, Nychunk), Nzchunk, Nychunk))
-    _ξ = RALF2(ξ, z, y, sss_vector_type, (Ny, ), (min(Nzchunk, Nychunk), Nzchunk, Nychunk))
+    _μ = RALF2(μ, z, y, sss_vector_type, (Nz, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk, Nychunk))
+    _ξ = RALF2(ξ, z, y, sss_vector_type, (Ny, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk, Nychunk))
 
     # Apply dispatch on Λ and Σ to figure what they should be
     return RiskAdjustedLinearization(_μ, Λ, Σ, _ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
@@ -175,10 +175,10 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
-    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type, (Ny, ), (min(Nzchunk, Nychunk), Nzchunk))
+    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type, (Ny, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
 
     _J𝒱(F, z, Ψ) = ForwardDiff.jacobian!(F, x -> 𝒱(x, Ψ, (1, 2)), z)
-    J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_type, (Nz, Nz))
+    J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_type, (Ny, Nz))
 
     # Form underlying RAL blocks
     nonlinear_system  = RALNonlinearSystem(μ, Λ, Σ, ξ, 𝒱)
