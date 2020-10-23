@@ -1,8 +1,8 @@
 """
 ```
-solve!(m; algorithm = :relaxation, autodiff = :central, use_anderson = false, verbose = :high, kwargs...)
-solve!(m, z0, y0; algorithm = :relaxation, autodiff = :central, use_anderson = false, verbose = :high, kwargs...)
-solve!(m, z0, y0, Ψ0; algorithm = :relaxation, autodiff = :central, use_anderson = false, verbose = :high, kwargs...)
+solve!(m; algorithm = :relaxation, autodiff = :central, verbose = :high, kwargs...)
+solve!(m, z0, y0; kwargs...)
+solve!(m, z0, y0, Ψ0; kwargs...)
 ```
 
 computes the risk-adjusted linearization of the dynamic economic model
@@ -31,9 +31,10 @@ The three available `solve!` algorithms are slight variations on each other.
 - `S1 <: Real`
 
 ### Keywords
-- `algorithm::Symbol`: speciifies which numerical algorithm to use. Can be one of `[:relaxation, :homotopy, :deterministic]`.
-- `autodiff::Symbol`: specifies whether to use autodiff. This is the keyword is the same as in `nlsolve`.
-- `use_anderson::Bool`: specifies whether to use Anderson acceleration if the relaxation algorithm is applied.
+- `algorithm::Symbol`: which numerical algorithm to use? Can be one of `[:relaxation, :homotopy, :deterministic]`
+- `autodiff::Symbol`: use autodiff or not? This keyword is the same as in `nlsolve`
+- `use_anderson::Bool`: use Anderson acceleration if the relaxation algorithm is applied. Defaults to `false`
+- `step::Float64`: size of step from 0 to 1 if the homotopy algorithm is applied. Defaults to 0.1
 
 The solution algorithms all use `nlsolve` to calculate the solution to systems of nonlinear
 equations. The user can pass in any of the keyword arguments for `nlsolve` to adjust
@@ -48,18 +49,18 @@ Note these methods are not exported.
 """
 function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation,
                 autodiff::Symbol = :central, use_anderson::Bool = false,
-                verbose::Symbol = :high, kwargs...)
+                step::Float64 = .1, verbose::Symbol = :high, kwargs...)
     if algorithm == :deterministic
         solve!(m, m.z, m.y; algorithm = algorithm, autodiff = autodiff, verbose = verbose, kwargs...)
     else
         solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm, autodiff = autodiff,
-               use_anderson = use_anderson, verbose = verbose, kwargs...)
+               use_anderson = use_anderson, step = step, verbose = verbose, kwargs...)
     end
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1};
                 algorithm::Symbol = :relaxation, autodiff::Symbol = :central,
-                use_anderson::Bool = false,
+                use_anderson::Bool = false, step::Float64 = .1,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Real}
 
     @assert algorithm in [:deterministic, :relaxation, :homotopy]
@@ -86,7 +87,7 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
         blanchard_kahn(m; deterministic = true, verbose = verbose)
     else
         solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm,
-               use_anderson = use_anderson,
+               use_anderson = use_anderson, step = step,
                verbose = verbose, kwargs...)
     end
 
@@ -95,7 +96,7 @@ end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1}, Ψ0::AbstractMatrix{S1};
                 algorithm::Symbol = :relaxation, autodiff::Symbol = :central,
-                use_anderson::Bool = false, verbose::Symbol = :high, kwargs...) where {S1 <: Number}
+                use_anderson::Bool = false, step::Float64 = .1, verbose::Symbol = :high, kwargs...) where {S1 <: Number}
 
     @assert algorithm in [:relaxation, :homotopy] "The algorithm must be :relaxation or :homotopy because this function calculates the stochastic steady state"
 
@@ -105,7 +106,7 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
         relaxation!(m, vcat(z0, y0), Ψ0; autodiff = autodiff,
                     use_anderson = use_anderson, verbose = verbose, kwargs...)
     elseif algorithm == :homotopy
-        homotopy!(m, vcat(z0, y0, vec(Ψ0)); autodiff = autodiff, verbose = verbose, kwargs...)
+        homotopy!(m, vcat(z0, y0, vec(Ψ0)); autodiff = autodiff, step = step, verbose = verbose, kwargs...)
     end
 
     # Check Blanchard-Kahn

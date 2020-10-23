@@ -16,14 +16,14 @@ update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
 # Solve!
 @info "The following series of print statements are expected."
 RiskAdjustedLinearizations.homotopy!(ral, vcat(ral.z, ral.y, vec(ral.Ψ)); verbose = :low, autodiff = :central,
-                                     step = .1, ftol = 1e-8) # first with finite diff NLsolve Jacobian
+                                     step = .12, ftol = 1e-8) # first with finite diff NLsolve Jacobian
 @test ral.z ≈ sssout["z"] atol=1e-6
 @test ral.y ≈ sssout["y"] atol=1e-4
 @test ral.Ψ ≈ sssout["Psi"] atol=5e-3
 
 update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ) # now autodiff Jacobian
 @test_broken RiskAdjustedLinearizations.homotopy!(ral, vcat(ral.z, ral.y, vec(ral.Ψ)); verbose = :low, autodiff = :forward,
-                                                  step = .1, ftol = 1e-8) # currently can't autodiff b/c problem with chunk size selection
+                                                  step = .12, ftol = 1e-8) # currently can't autodiff b/c problem with chunk size selection
 #=@test ral.z ≈ sssout["z"] atol=1e-6
 @test ral.y ≈ sssout["y"] atol=1e-4
 @test ral.Ψ ≈ sssout["Psi"] atol=5e-3=#
