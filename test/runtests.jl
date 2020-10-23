@@ -19,4 +19,9 @@ using SafeTestsets
         include("numerical_algorithms/homotopy.jl")
         include("numerical_algorithms/solve.jl")
     end
+
+    @time @safetestset "Examples" begin
+        include(joinpath(dirname(@__FILE__), "../examples/rbc_cc/example_rbc_cc.jl"))
+        include(joinpath(dirname(@__FILE__), "../examples/wachter_disaster_risk/example_wachter.jl"))
+    end
 end
