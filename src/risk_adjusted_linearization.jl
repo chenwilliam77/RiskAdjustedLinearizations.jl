@@ -175,7 +175,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
-    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type, (Nz, ), (min(Nzchunk, Nychunk), Nzchunk))
+    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type, (Ny, ), (min(Nzchunk, Nychunk), Nzchunk))
 
     _J𝒱(F, z, Ψ) = ForwardDiff.jacobian!(F, x -> 𝒱(x, Ψ, (1, 2)), z)
     J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_type, (Nz, Nz))
