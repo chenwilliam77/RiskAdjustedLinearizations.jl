@@ -46,6 +46,7 @@ function inplace_wachter_disaster_risk(m::WachterDisasterRisk{T}) where {T <: Re
 
     Λ = zeros(T, Nz, Ny)
 
+    # The cache is initialized as zeros so we only need to fill non-zero elements
     function Σ(F, z)
         F_type = eltype(F)
         F[SH[:εₚ], SH[:εₚ]] = sqrt(z[S[:p]]) * ϕₚ * σₐ
