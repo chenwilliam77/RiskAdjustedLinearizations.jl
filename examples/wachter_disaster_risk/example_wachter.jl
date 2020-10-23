@@ -26,9 +26,9 @@ elseif numerical_algorithm == :homotopy
     sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/homotopy_sss_output.jld2"), "r")
 end
 
-@test isapprox(sssout["z_rss"], m.z, atol=1e-4)
-@test isapprox(sssout["y_rss"], m.y, atol=1e-4)
-@test isapprox(sssout["Psi_rss"], m.Ψ, atol=1e-4)
+@test isapprox(sssout["z"], m.z, atol=1e-4)
+@test isapprox(sssout["y"], m.y, atol=1e-4)
+@test isapprox(sssout["Psi"], m.Ψ, atol=1e-4)
 
 if time_methods
     println("Deterministic steady state")
