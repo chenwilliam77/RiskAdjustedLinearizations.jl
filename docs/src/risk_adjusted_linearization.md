@@ -100,7 +100,7 @@ accessible through Julia.
 
 3. Functions provided by the user will be converted into in-place functions with pre-allocated caches.
 
-4. (Coming in the future) Calculation of Jacobians with automatic differentiation is accelereated by exploiting sparsity with SparseDiffTools.jl
+4. (Coming in the future) Calculation of Jacobians with automatic differentiation is accelerated by exploiting sparsity with SparseDiffTools.jl
 
 See the [Example](@ref example) for how to use the type.
 
