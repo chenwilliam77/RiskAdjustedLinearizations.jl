@@ -11,6 +11,8 @@ julia:
 branches:
   only:
     - master
+    - /^release-.*$/    
+    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/    
 notifications:
   email: false
 # script:
