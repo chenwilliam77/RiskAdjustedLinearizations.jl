@@ -1,7 +1,7 @@
 name = "RiskAdjustedLinearizations"
 uuid = "7bb39b10-f246-11ea-2456-25a63198e074"
 authors = ["William Chen <chenwilliamy77@gmail.com>"]
-version = "0.3.1"
+version = "0.4.0"
 
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
