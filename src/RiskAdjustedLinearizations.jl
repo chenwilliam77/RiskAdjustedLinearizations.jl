@@ -24,5 +24,9 @@ include("numerical_algorithms/relaxation.jl")
 include("numerical_algorithms/homotopy.jl")
 include("numerical_algorithms/solve.jl")
 
-export RiskAdjustedLinearization, update!, nonlinear_system, linearized_system, solve!
+# Simulations
+include("simulation/simulate.jl")
+include("simulation/impulse_responses.jl")
+
+export RiskAdjustedLinearization, update!, nonlinear_system, linearized_system, solve!, simulate, impulse_responses
 end # module
