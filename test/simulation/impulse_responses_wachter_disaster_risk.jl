@@ -1,4 +1,4 @@
-using RiskAdjustedLinearizations, Test, Random, LinearAlgebra
+using RiskAdjustedLinearizations, Test, LinearAlgebra
 include(joinpath(dirname(@__FILE__), "../../examples/wachter_disaster_risk/wachter.jl"))
 
 # Solve model
