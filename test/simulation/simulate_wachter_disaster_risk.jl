@@ -1,4 +1,4 @@
-using RiskAdjustedLinearizations, Test, Random, Distributions, LinearAlgebra
+using RiskAdjustedLinearizations, Test, Random, LinearAlgebra
 include(joinpath(dirname(@__FILE__), "../../examples/wachter_disaster_risk/wachter.jl"))
 
 # Solve model
@@ -31,7 +31,7 @@ zero_shocks = zeros(3, horizon) # 100 fake draws
 end
 
 Random.seed!(1793) # 100 draws from a standard multivariate normal, technically not the right
-shocks = rand(MvNormal(zeros(3), Diagonal(ones(3))), horizon) # distribution but it's fine
+shocks = rand(Normal(0., 1.), 3, horizon) # distribution but it's fine
 
 @testset "Simulate Wachter (2013) with shocks" begin
     state1, jump1 = simulate(m, horizon)
