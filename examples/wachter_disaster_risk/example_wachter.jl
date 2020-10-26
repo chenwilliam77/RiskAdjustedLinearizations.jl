@@ -9,7 +9,7 @@ numerical_algorithm = :relaxation
 autodiff            = false
 
 # Set up
-autodiff_method = autodiff ? :forwarddiff : :central
+autodiff_method = autodiff ? :forward : :central
 m_wachter = WachterDisasterRisk()
 m = inplace_wachter_disaster_risk(m_wachter)
 z0 = copy(m.z)
