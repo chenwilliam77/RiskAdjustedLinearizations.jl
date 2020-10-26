@@ -1,4 +1,4 @@
-using RiskAdjustedLinearizations, Test, Random, Distributions
+using RiskAdjustedLinearizations, Test, Random
 include(joinpath(dirname(@__FILE__), "../../examples/rbc_cc/rbc_cc.jl"))
 
 # Solve model
