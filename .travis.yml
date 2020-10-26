@@ -26,7 +26,6 @@ after_success:
 jobs:
   include:
     - stage: "Documentation"
-      os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
                                                Pkg.instantiate()'
