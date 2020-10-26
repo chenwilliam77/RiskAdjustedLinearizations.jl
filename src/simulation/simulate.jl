@@ -1,11 +1,14 @@
 """
 ```
-simulate(m, z₀, horizon, shock_matrix)
-simulate(m, z₀, horizon)
+simulate(m, horizon, shock_matrix, z₀)
+simulate(m, horizon, z₀)
+simulate(m, horizon, shock_matrix)
+simulate(m, horizon)
 ```
 simulates the economy approximated by a risk-adjusted linearization. The first method
 incorporates an arbitrary path of shocks across the horizon while the
-second method assumes no shocks occur during the horizon.
+second method assumes no shocks occur during the horizon. The third and fourth methods
+are the same as the first two but assume the economy begins at the stochastic steady state.
 
 ### Inputs
 - `m::RiskAdjustedLinearization`: a solved risk-adjusted linearization of a dynamic economy
@@ -20,7 +23,7 @@ second method assumes no shocks occur during the horizon.
 - `states`: a matrix of the simulated path of states `z`, with type specified by the array type of `z₀`
 - `jumps`: a matrix of the simulated path of jump variables `y`, with type specified by the array type of `z₀`
 """
-function simulate(m::RiskAdjustedLinearization, z₀::AbstractVector, horizon::Int, shock_matrix::AbstractMatrix)
+function simulate(m::RiskAdjustedLinearization, horizon::Int, shock_matrix::AbstractMatrix, z₀::AbstractVector)
     @assert horizon <= size(shock_matrix, 2) "There are not enough draws in shock_matrix (horizon <= size(shock_matrix, 2))"
 
     # Set up
@@ -60,7 +63,7 @@ function simulate(m::RiskAdjustedLinearization, z₀::AbstractVector, horizon::I
     end
 
     # Iterate forward!
-    states[:, 1] = expected_transition(m.y, m.z, m.Ψ, Γ₁, Γ₂, z₀, y₀) + shock_fnct(z₀, shock_matrix[:, 1])
+    states[:, 1] = expected_transition(m.z, m.y, m.Ψ, Γ₁, Γ₂, z₀, y₀) + shock_fnct(z₀, shock_matrix[:, 1])
     jumps[:, 1]  = m.y + m.Ψ * ((@view states[:, 1]) - m.z)
     for t in 2:horizon
         states[:, t] = expected_transition(m.z, m.y, m.Ψ, Γ₁, Γ₂, (@view states[:, t - 1]), (@view jumps[:, t - 1])) +
@@ -71,7 +74,7 @@ function simulate(m::RiskAdjustedLinearization, z₀::AbstractVector, horizon::I
     return states, jumps
 end
 
-function simulate(m::RiskAdjustedLinearization, z₀::AbstractVector, horizon::Int)
+function simulate(m::RiskAdjustedLinearization, horizon::Int, z₀::AbstractVector)
 
     # Set up
     states = similar(z₀, m.Nz, horizon)
@@ -81,7 +84,7 @@ function simulate(m::RiskAdjustedLinearization, z₀::AbstractVector, horizon::I
     y₀     = m.y + m.Ψ * (z₀ - m.z)
 
     # Iterate forward!
-    states[:, 1] = expected_transition(m.y, m.z, m.Ψ, Γ₁, Γ₂, z₀, y₀)
+    states[:, 1] = expected_transition(m.z, m.y, m.Ψ, Γ₁, Γ₂, z₀, y₀)
     jumps[:, 1]  = m.y + m.Ψ * ((@view states[:, 1]) - m.z)
     for t in 2:horizon
         states[:, t] = expected_transition(m.z, m.y, m.Ψ, Γ₁, Γ₂, (@view states[:, t - 1]), (@view jumps[:, t - 1]))
@@ -94,4 +97,12 @@ end
 function expected_transition(z::AbstractVector, y::AbstractVector, Ψ::AbstractMatrix,
                              Γ₁::AbstractMatrix, Γ₂::AbstractMatrix, zₜ::AbstractVector, yₜ::AbstractVector)
     return z + Γ₁ * (zₜ - z) + Γ₂ * (yₜ - y)
+end
+
+function simulate(m::RiskAdjustedLinearization, horizon::Int, shock_matrix::AbstractMatrix)
+    simulate(m, horizon, shock_matrix, m.z)
+end
+
+function simulate(m::RiskAdjustedLinearization, horizon::Int)
+    simulate(m, horizon, m.z)
 end

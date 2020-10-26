@@ -24,4 +24,11 @@ using SafeTestsets
         include(joinpath(dirname(@__FILE__), "../examples/rbc_cc/example_rbc_cc.jl"))
         include(joinpath(dirname(@__FILE__), "../examples/wachter_disaster_risk/example_wachter.jl"))
     end
+
+    @time @safetestset "Simulations and Impulse Responses" begin
+        include("simulation/simulate_rbc_cc.jl")
+        include("simulation/simulate_wachter_disaster_risk.jl")
+        include("simulation/impulse_responses_rbc_cc.jl")
+        include("simulation/impulse_responses_wachter_disaster_risk.jl")
+    end
 end
