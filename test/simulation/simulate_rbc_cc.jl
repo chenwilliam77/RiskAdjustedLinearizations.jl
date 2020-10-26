@@ -1,4 +1,4 @@
-using RiskAdjustedLinearizations, Test, Random
+using RiskAdjustedLinearizations, Test
 include(joinpath(dirname(@__FILE__), "../../examples/rbc_cc/rbc_cc.jl"))
 
 # Solve model
@@ -29,8 +29,7 @@ zero_shocks = zeros(1, horizon) # 100 fake draws
     @test jump1 ≈ repeat(m.y, 1, horizon)
 end
 
-Random.seed!(1793)
-shocks = rand(Normal(0, 1.), 1, horizon) # 100 draws from a standard normal
+shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "../reference/rbc_cc_shocks.jld2"), "r")["shocks"] # 100 draws from a standard normal
 
 @testset "Simulate an RBC Model w/Campbell-Cochrane Habits with shocks" begin
     state1, jump1 = simulate(m, horizon)
