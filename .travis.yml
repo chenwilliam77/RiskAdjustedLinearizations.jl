@@ -3,7 +3,7 @@ language: julia
 
 os:
   - linux
-  - osx
+#   - osx # testing on linux should be cover testing on osx for this package
   - windows
 julia:
   - 1
@@ -11,8 +11,8 @@ julia:
 branches:
   only:
     - master
-    - /^release-.*$/    
-    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/    
+    - /^release-.*$/
+    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
 notifications:
   email: false
 # script:
