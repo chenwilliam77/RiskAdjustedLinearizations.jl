@@ -16,6 +16,7 @@ makedocs(
              "Risk-Adjusted Linearizations" => "risk_adjusted_linearization.md",
              "Numerical Algorithms" => "numerical_algorithms.md",
              "Example" => "example.md",
+             "Caching" => "caching.md",
              "Tips" => "tips.md",
              ]
 )
