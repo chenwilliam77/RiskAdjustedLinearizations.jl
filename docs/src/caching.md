@@ -9,7 +9,7 @@ we use the wrapper types `RALF1` and `RALF2` to convert these
 functions to non-allocating ones. The implementation of these wrappers is similar to the
 implementation of `LinSolveFactorize` in
 [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/features/linear_nonlinear/#Implementing-Your-Own-LinSolve:-How-LinSolveFactorize-Was-Created).
-See [Automated Caching via `RALF1` and `RALF2`](@ref ralf wrappers) for further details.
+See [Automated Caching via `RALF1` and `RALF2`](@ref ralfwrappers) for further details.
 Unlike `LinSolveFactorize`, however, we need to be able to automatically differentiate with `RALF1` and `RALF2`
 so the cache needs to be handled more carefully. To do this, we
 utilize and extend the `DiffCache` type implemented by [DiffEqBase.jl](https://github.com/SciML/DiffEqBase.jl).
@@ -29,7 +29,7 @@ used to calculate the Jacobians, which occur with respect to only one of the inp
 
 *Note that the cache is always initialized as zeros by defaults (rather than undefined arrays).*
 
-## [Automated Caching via `RALF1` and `RALF2` Wrappers](@id ralf wrappers)
+## [Automated Caching via `RALF1` and `RALF2` Wrappers](@id ralfwrappers)
 The `RALF1` type applies to functions with 1 input variables (``\Lambda`` and ``\Sigma``) and
 `RALF2` to functions with 2 input variables (e.g. ``\mu``, ``\mu_z``). The way these wrappers work is that
 they take a user-defined function `f` and convert it to a new in-place function whose first input argument
