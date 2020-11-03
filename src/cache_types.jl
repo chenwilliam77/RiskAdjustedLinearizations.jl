@@ -1,8 +1,8 @@
 abstract type AbstractRALF end
 
 # RALF1
-mutable struct RALF1{F <: Function, LC} <: AbstractRALF
-    f::F
+mutable struct RALF1{LC} <: AbstractRALF
+    f::Function
     cache::LC
 end
 
@@ -25,7 +25,7 @@ end
 
 function RALF1(fin::LC) where {LC <: AbstractArray{<: Number}}
     f(cache::LCN, x1::C1N) where {LCN <: AbstractMatrix{ <: Number}, C1N <: AbstractArray{<: Number}} = cache
-    return RALF1{Function, LC}(f, fin)
+    return RALF1{LC}(f, fin)
 end
 
 function (ralf::RALF1)(x1::C1) where {C1 <: AbstractArray{<: Number}}
@@ -33,8 +33,8 @@ function (ralf::RALF1)(x1::C1) where {C1 <: AbstractArray{<: Number}}
 end
 
 # RALF2
-mutable struct RALF2{F <: Function, LC} <: AbstractRALF
-    f::F
+mutable struct RALF2{LC} <: AbstractRALF
+    f::Function
     cache::LC
 end
 
@@ -104,7 +104,7 @@ end
 
 function RALF2(fin::LC) where {LC <: AbstractArray{<: Number}}
     f(cache::LCN, x1::C1N, x2::C2N, select::Tuple{Int, Int}) where {LCN <: AbstractArray{<: Number}, C1N <: AbstractArray{<: Number}, C2N <: AbstractArray{<: Number}} = cache
-    return RALF2{Function, LC}(f, fin)
+    return RALF2{LC}(f, fin)
 end
 
 # Using the default of (1, 1) for `select` is important. This way, we can use autodiff
@@ -115,15 +115,15 @@ function (ralf::RALF2)(x1::C1, x2::C2, select::Tuple{Int, Int} = (1, 1)) where {
 end
 
 # RALF3
-mutable struct RALF3{F <: Function, LC} <: AbstractRALF
-    f::F
+mutable struct RALF3{LC} <: AbstractRALF
+    f::Function
     cache::LC
 end
 
 function RALF3(f::Function, x1::C1, x2::C2, x3::C3, array_type::DataType,
                dims::NTuple{N, Int}, chunksizes::NTuple{Nc, Int} =
                (ForwardDiff.pickchunksize(min(length(x1),
-                                              length(x2), legnth(x3), length(x4))), )) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number},
+                                              length(x2), length(x3), length(x4))), )) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number},
                                                                                               C3 <: AbstractArray{<: Number}, N, Nc}
     cache = array_type(undef, dims)
     if applicable(f, cache, x1, x2, x3)
@@ -200,7 +200,7 @@ end
 
 function RALF3(fin::LC) where {LC <: AbstractArray{<: Number}}
     f(cache::LCN, x1::C1N, x2::C2N, x3::C3N, select::Tuple{Int, Int}) where {LCN <: AbstractArray{<: Number}, C1N <: AbstractArray{<: Number}, C2N <: AbstractArray{<: Number}, C3N <: AbstractArray{<: Number}} = cache
-    return RALF3{Function, LC}(f, fin)
+    return RALF3{LC}(f, fin)
 end
 
 # Using the default of (1, 1) for `select` is important. This way, we can use autodiff
@@ -213,8 +213,8 @@ function (ralf::RALF3)(x1::C1, x2::C2, x3::C3,
 end
 
 # RALF4
-mutable struct RALF4{F <: Function, LC} <: AbstractRALF
-    f::F
+mutable struct RALF4{LC} <: AbstractRALF
+    f::Function
     cache::LC
 end
 
@@ -304,7 +304,7 @@ end
 
 function RALF4(fin::LC) where {LC <: AbstractArray{<: Number}}
     f(cache::LCN, x1::C1N, x2::C2N, x3::C3N, x4::C4N, select::Tuple{Int, Int}) where {LCN <: AbstractArray{<: Number}, C1N <: AbstractArray{<: Number}, C2N <: AbstractArray{<: Number}, C3N <: AbstractArray{<: Number}, C4N <: AbstractArray{<: Number}} = cache
-    return RALF4{Function, LC}(f, fin)
+    return RALF4{LC}(f, fin)
 end
 
 # Using the default of (1, 1) for `select` is important. This way, we can use autodiff
