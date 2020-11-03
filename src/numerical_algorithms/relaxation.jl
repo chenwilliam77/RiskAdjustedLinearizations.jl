@@ -52,7 +52,7 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
     nl  = nonlinear_system(ral)
     li  = linearized_system(ral)
     Nzy = ral.Nz + ral.Ny
-    AA  = Matrix{Complex{S1}}(undef, Nzy, Nzy)
+    AA  = Matrix{Complex{S1}}(undef, Nzy, Nzy) # pre-allocate these matrices to calculate QZ decomp for Ψ
     BB  = similar(AA)
 
     if use_anderson
