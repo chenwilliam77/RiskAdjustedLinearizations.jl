@@ -123,7 +123,7 @@ end
 function RALF3(f::Function, x1::C1, x2::C2, x3::C3, array_type::DataType,
                dims::NTuple{N, Int}, chunksizes::NTuple{Nc, Int} =
                (ForwardDiff.pickchunksize(min(length(x1),
-                                              length(x2), length(x3), length(x4))), )) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number},
+                                              length(x2), length(x3))), )) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number},
                                                                                               C3 <: AbstractArray{<: Number}, N, Nc}
     cache = array_type(undef, dims)
     if applicable(f, cache, x1, x2, x3)
