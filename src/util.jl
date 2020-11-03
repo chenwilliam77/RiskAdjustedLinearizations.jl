@@ -100,7 +100,45 @@ function get_tmp(dc::DiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
         throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache."))
     end
 end
+
 get_tmp(dc::DiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2}, select::Tuple{Int, Int}) where {T1 <: Number, T2 <: Number} = dc.du
+
+# Extend get_tmp to allow 4 input arguments, only done for the case required by RiskAdjustedLinearizations.jl
+function get_tmp(dc::DiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 u3::AbstractArray{T3}, u4::AbstractArray{T4},
+                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual,
+                                                 T3 <: ForwardDiff.Dual, T4 <: ForwardDiff.Dual}
+    if select[1] == 1
+        get_tmp(dc, u1)
+    elseif select[1] == 2
+        get_tmp(dc, u2)
+    elseif select[1] == 3
+        get_tmp(dc, u3)
+    elseif select[1] == 4
+        get_tmp(dc, u4)
+    else
+        throw(MethodError("Sixth input argument to get_tmp points to a non-existent cache."))
+    end
+end
+
+function get_tmp(dc::DiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 u3::AbstractArray{T3}, u4::AbstractArray{T4},
+                 select::Tuple{Int, Int}) where {T1 <: Number, T2 <: Number,
+                                                 T3 <: Number, T4 <: ForwardDiff.Dual}
+    if select[1] == 1
+        get_tmp(dc, u1)
+    elseif select[1] == 2
+        get_tmp(dc, u2)
+    elseif select[1] == 3
+        get_tmp(dc, u3)
+    elseif select[1] == 4
+        get_tmp(dc, u4)
+    else
+        throw(MethodError("Sixth input argument to get_tmp points to a non-existent cache."))
+    end
+end
+
+get_tmp(dc::DiffCache, u1::AbstractArray{<: Number}, u2::AbstractArray{<: Number}, u3::AbstractArray{<: Number}, u4::AbstractArray{<: Number}, select::Tuple{Int, Int}) = dc.du
 
 """
 ```
@@ -205,6 +243,43 @@ end
 # get_tmp for no Dual cases
 get_tmp(tdc::TwoDiffCache, u1::AbstractArray, u2::AbstractArray, select::Tuple{Int, Int}) = tdc.du
 
+# Extend get_tmp to allow 4 input arguments, only done for the case required by RiskAdjustedLinearizations.jl
+function get_tmp(dc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 u3::AbstractArray{T3}, u4::AbstractArray{T4},
+                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual,
+                                                 T3 <: ForwardDiff.Dual, T4 <: ForwardDiff.Dual}
+    if select[1] == 1
+        x = reinterpret(T1, select[2] == 1 ? tdc.dual_du1 : tdc.dual_du2)
+    elseif select[1] == 2
+        x = reinterpret(T2, select[2] == 1 ? tdc.dual_du1 : tdc_dual_du2)
+    elseif select[1] == 3
+        x = reinterpret(T3, select[2] == 1 ? tdc.dual_du1 : tdc.dual_du2)
+    elseif select[1] == 4
+        x = reinterpret(T4, select[2] == 1 ? tdc.dual_du1 : tdc_dual_du2)
+    else
+        throw(MethodError("Sixth input argument to get_tmp points to a non-existent cache."))
+    end
+end
+
+function get_tmp(dc::TwoDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 u3::AbstractArray{T3}, u4::AbstractArray{T4},
+                 select::Tuple{Int, Int}) where {T1 <: Number, T2 <: Number,
+                                                 T3 <: Number, T4 <: Number}
+    if select[1] == 1
+        x = reinterpret(T1, select[2] == 1 ? tdc.dual_du1 : tdc.dual_du2)
+    elseif select[1] == 2
+        x = reinterpret(T2, select[2] == 1 ? tdc.dual_du1 : tdc_dual_du2)
+    elseif select[1] == 3
+        x = reinterpret(T3, select[2] == 1 ? tdc.dual_du1 : tdc.dual_du2)
+    elseif select[1] == 4
+        x = reinterpret(T4, select[2] == 1 ? tdc.dual_du1 : tdc_dual_du2)
+    else
+        throw(MethodError("Sixth input argument to get_tmp points to a non-existent cache."))
+    end
+end
+
+get_tmp(dc::TwoDiffCache, u1::AbstractArray{<: Number}, u2::AbstractArray{<: Number}, u3::AbstractArray{<: Number}, u4::AbstractArray{<: Number}, select::Tuple{Int, Int}) = dc.du
+
 """
 ```
 ThreeDiffCache
@@ -296,3 +371,60 @@ end
 
 # get_tmp for no Dual cases
 get_tmp(tdc::ThreeDiffCache, u1::AbstractArray, u2::AbstractArray, select::Tuple{Int, Int}) = tdc.du
+
+# Extend get_tmp to allow 4 input arguments, only done for the case required by RiskAdjustedLinearizations.jl
+function get_tmp(dc::ThreeDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 u3::AbstractArray{T3}, u4::AbstractArray{T4},
+                 select::Tuple{Int, Int}) where {T1 <: ForwardDiff.Dual, T2 <: ForwardDiff.Dual,
+                                                 T3 <: ForwardDiff.Dual, T4 <: ForwardDiff.Dual}
+    dual_du = if select[2] == 1
+        tdc.dual_du1
+    elseif select[2] == 2
+        tdc.dual_du2
+    elseif select[2] == 3
+        tdc.dual_du3
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache"))
+    end
+
+    if select[1] == 1
+        x = reinterpret(T1, dual_du)
+    elseif select[1] == 2
+        x = reinterpret(T2, dual_du)
+    elseif select[1] == 3
+        x = reinterpret(T3, dual_du)
+    elseif select[1] == 4
+        x = reinterpret(T4, dual_du)
+    else
+        throw(MethodError("Sixth input argument to get_tmp points to a non-existent cache."))
+    end
+end
+
+function get_tmp(dc::ThreeDiffCache, u1::AbstractArray{T1}, u2::AbstractArray{T2},
+                 u3::AbstractArray{T3}, u4::AbstractArray{T4},
+                 select::Tuple{Int, Int}) where {T1 <: Number, T2 <: Number,
+                                                 T3 <: Number, T4 <: ForwardDiff.Dual}
+    dual_du = if select[2] == 1
+        tdc.dual_du1
+    elseif select[2] == 2
+        tdc.dual_du2
+    elseif select[2] == 3
+        tdc.dual_du3
+    else
+        throw(MethodError("Fourth input argument to get_tmp points to a non-existent cache"))
+    end
+
+    if select[1] == 1
+        x = reinterpret(T1, dual_du)
+    elseif select[1] == 2
+        x = reinterpret(T2, dual_du)
+    elseif select[1] == 3
+        x = reinterpret(T3, dual_du)
+    elseif select[1] == 4
+        x = reinterpret(T4, dual_du)
+    else
+        throw(MethodError("Sixth input argument to get_tmp points to a non-existent cache."))
+    end
+end
+
+get_tmp(dc::ThreeDiffCache, u1::AbstractArray{<: Number}, u2::AbstractArray{<: Number}, u3::AbstractArray{<: Number}, u4::AbstractArray{<: Number}, select::Tuple{Int, Int}) = dc.du
