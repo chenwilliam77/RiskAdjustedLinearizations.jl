@@ -1,6 +1,6 @@
 """
 ```
-homotopy!(m, xₙ₋₁; step = .1, verbose = :none, kwargs...)
+homotopy!(m, xₙ₋₁; step = .1, pnorm = Inf, verbose = :none, kwargs...)
 ```
 
 solves the system of equations characterizing a risk-adjusted linearization by a homotopy method with
@@ -20,12 +20,14 @@ until ``q`` reaches 1 or passes 1 (in which case, we force ``q = 1``).
 
 ### Keywords
 - `step::Float64`: size of the uniform step from `step` to 1.
+- `pnorm::Float64`: norm under which to evaluate the errors after homotopy succeeds.
 - `verbose::Symbol`: verbosity of information printed out during solution.
     a) `:low` -> statement when homotopy continuation succeeds
     b) `:high` -> statement when homotopy continuation succeeds and for each successful iteration
 """
 function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
-                   step::Float64 = .1, verbose::Symbol = :none, autodiff::Symbol = :central,
+                   step::Float64 = .1, pnorm::Float64 = Inf,
+                   verbose::Symbol = :none, autodiff::Symbol = :central,
                    kwargs...) where {S1 <: Number}
     # Set up
     nl = nonlinear_system(m)
@@ -44,7 +46,11 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
     end
 
     if verbose in [:low, :high]
+        errvec = vcat(m[:μ_sss] - m.z, m[:ξ_sss] + m[:Γ₅] * m.z + m[:Γ₆] * m.y + m[:𝒱_sss],
+                      vec(m[:Γ₃] + m[:Γ₄] * m.Ψ + (m[:Γ₅] + m[:Γ₆] * m.Ψ) * (m[:Γ₁] + m[:Γ₂] * m.Ψ) + m[:JV]))
+
         println("Homotopy succeeded!")
+        println("Error under norm = $(pnorm) is $(norm(errvec, pnorm)).")
     end
 
     update!(m)
@@ -112,13 +118,17 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
     end
 
     # Need to declare chunk size to ensure no problems with reinterpreting the cache
-    out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff, ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
+    out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff,
+                                     ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]
         m.y .= out.zero[(m.Nz + 1):N_zy]
         m.Ψ .= reshape(out.zero[(N_zy + 1):end], m.Ny, m.Nz)
     else
+        if verbose == :high
+            println(out)
+        end
         throw(RALHomotopyError("A solution for (z, y, Ψ) to the state transition, expectational, " *
                                "and linearization equations could not be found when the embedding " *
                                "parameter q equals $(q)"))
