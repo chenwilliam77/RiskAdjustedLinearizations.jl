@@ -37,7 +37,12 @@ The functions
 ```
 are differentiable. The first two functions characterize the effects of time ``t`` variables on the expectational and
 state transition equations. The function ``\Lambda`` characterizes heteroskedastic endogenous risk that depends on
-innovations in jump variables while the function ``\Sigma`` characterizes exogenous risk.
+innovations in jump variables while the function ``\Sigma`` characterizes exogenous risk. These latter two functions
+can also depend on jump variables. Denote the jump-dependent versions as
+``\tilde{\Lambda}:\mathbb{R}^{n_z\times n_y} \rightarrow \mathbb{R}^{n_z \times n_y}``
+and ``\tilde{\Sigma}:\mathbb{R}^{n_z \times n_y}\ \rightarrow \mathbb{R}^{n_z\times n_\varepsilon}``.
+If there exists a mapping ``y_t = y(z_t)``, then we define ``\Lambda(z_t) = \tilde{\Lambda}(z_t, y(z_t))``
+and ``\Sigma(z_t) = \tilde{\Sigma}(z_t, y(z_t))``.
 
 The expectational equations can be simplified as
 ```math
