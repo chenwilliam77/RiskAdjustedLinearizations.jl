@@ -13,15 +13,18 @@ Most dynamic economic models can be formulated as the system of nonlinear equati
 ```
 
 The vectors ``z_t\in \mathbb{R}^{n_z}`` and ``y_t \in \mathbb{R}^{n_y}`` are the state and jump variables, respectively.
-The first vector equation comprise the model's expectational equations, which are typically
+The first vector equation comprise the transition equations of the state variables.
+The second vector equation comprise the model's expectational equations, which are typically
 the first-order conditions for the jump variables from agents' optimization problem.
-The second vector equation comprise the transition equations of the state variables. The exogenous shocks
-``\varepsilon\in\mathbb{R}^{n_\varepsilon}`` form a martingale difference sequence whose distribution
-is described by the differentiable, conditional cumulant generating function (ccgf)
+The exogenous shocks
+``\varepsilon_t \in\mathbb{R}^{n_\varepsilon}`` form a martingale difference sequence. Given some
+differentiable mapping ``\alpha:\mathbb{R}^{n_z}\rightarrow\mathbb{R}^{n_\varepsilon}``,
+the random variable ``X_t = \alpha(z_t)^T \varepsilon_{t + 1}`` has the
+differentiable, conditional (on ``z_t``) cumulant generating function (ccgf)
 
 ```math
 \begin{aligned}
-\kappa[\alpha(z_t) \mid z_t] = \log\mathbb{E}_t[\exp(\alpha(z_t)' \varepsilon_{t + 1})],\quad \text{ for any differentiable map }\alpha:\mathbb{R}^{n_z}\rightarrow\mathbb{R}^{n_\varepsilon}.
+\kappa[\alpha(z_t) \mid z_t] = \log\mathbb{E}_t[\exp(\alpha(z_t)^T \varepsilon_{t + 1})].
 \end{aligned}
 ```
 
@@ -36,7 +39,24 @@ are differentiable. The first two functions characterize the effects of time ``t
 state transition equations. The function ``\Lambda`` characterizes heteroskedastic endogenous risk that depends on
 innovations in jump variables while the function ``\Sigma`` characterizes exogenous risk.
 
-### Risk-Adjusted Linearizations by Affine Approximation
+The expectational equations can be simplified as
+```math
+\begin{aligned}
+0 & = \log\mathbb{E}_t[\exp(\xi(z_t, y_t) + \Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1})]\\
+  & = \log[\exp(\xi(z_t, y_t))\mathbb{E}_t[\exp(\Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1})]]\\
+  & = \xi(z_t, y_t) + \Gamma_5\mathbb{E}_t z_{t + 1} + \Gamma_6 \mathbb{E}_t y_{t + 1} + \log\mathbb{E}_t[\exp(\Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1})] - (\Gamma_5\mathbb{E}_t z_{t + 1} + \Gamma_6 \mathbb{E}_t y_{t + 1})
+  & = \xi(z_t, y_t) + \Gamma_5\mathbb{E}_t z_{t + 1} + \Gamma_6 \mathbb{E}_t y_{t + 1} + \mathcal{V}(\Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1}),
+\end{aligned}
+```
+where the last term is defined to be
+```math
+\begin{aligned}
+\mathcal{V}(x_{t + 1}) = \log\mathbb{E}_t[\exp(x_{t + 1})] - \mathbb{E}_t x_{t + 1}.
+\end{aligned}
+```
+As Lopez et al. (2018) describe it, this quantity "is a relative entropy measure, i.e. a nonnegative measure of dispersion that generalizes variance."
+
+### [Risk-Adjusted Linearizations by Affine Approximation](@id affine-theory)
 
 Many economic models are typically solved by perturbation around the deterministic steady state. To break certainty equivalence so that
 asset pricing is meaningful, these perturbations need to be at least third order. However, even third-order perturbations
@@ -81,7 +101,41 @@ The unknowns ``(z, y, \Psi)`` solve the system of equations
 \end{aligned}
 ```
 
+Under an affine approximation, the entropy term is a nonnegative function
+``\mathcal{V}:\mathbb{R}^{n_z} \rightarrow \mathbb{R}_+^{n_y}`` defined such that
+```math
+\begin{aligned}
+\mathcal{V}(z_t) \equiv \mathcal{V}_t(\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})) = \vec{\kappa}[(\Gamma_5 + \Gamma_6 \Psi)(I_{n_z} - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t) \mid z_t]
+\end{aligned}
+```
+where the notation ``\vec{\kappa}`` means that each component ``\kappa_i[\cdot \mid \cdot]`` is a conditional cumulant-generating
+function. Explicitly, define
+```math
+\begin{aligned}
+A(z_t) = (\Gamma_5 + \Gamma_6 \Psi)(I_{n_z} - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t) = [A_1(z_t), \dots, A_{n_y}(z_t)]^T.
+\end{aligned}
+```
+Each ``A_i(z_t)`` is a mapping from ``z_t`` to the ``i``th row vector in ``A(z_t)``. Then
+``\kappa_i[\cdot \mid \cdot]`` is the ccgf
+```math
+\begin{aligned}
+\kappa_i[A_i(z_t)\mid z_t] = \log\mathbb{E}_t[\exp(A_i(z_t) \varepsilon_{t + 1})].
+\end{aligned}
+```
+Every ``\kappa_i[\cdot \mid \cdot]`` corresponds to an expectational equation and thus
+acts as a risk correction to each one. In the common case where the individual components of
+``\varepsilon_{t + 1}`` are independent, the
+ccgf simplifies to
+```math
+\begin{aligned}
+\kappa_i[A_i(z_t)\mid z_t] = \sum_{j = 1}^{n_\varepsilon}\log\mathbb{E}_t[\exp(A_{ij}(z_t) \varepsilon_{j, t + 1})],
+\end{aligned}
+```
+i.e. it is the sum of the cumulant-generating functions for each shock ``\varepsilon_{j, t + 1}``.
+
 Refer to [Lopez et al. (2018) "Risk-Adjusted Linearizations of Dynamic Equilibrium Models"](https://ideas.repec.org/p/bfr/banfra/702.html) for more details about the theory justifying this approximation approach.
+See [Deriving the conditional cumulant generating function](@ref ccgf-tips) for some guidance on calculating the ccgf, which
+many users may not have seen before.
 
 ## Implementation: `RiskAdjustedLinearization`
 
