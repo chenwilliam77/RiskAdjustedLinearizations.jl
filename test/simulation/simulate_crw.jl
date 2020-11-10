@@ -32,7 +32,7 @@ zero_shocks = zeros(2, horizon) # 100 fake draws
     @test jump7 ≈ jump6[:, 1]
 end
 
-shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "crw_shocks.jld2"), "r")["shocks"] # 100 draws from a standard normal
+shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "crw_shocks.jld2"), "r")["shocks"] # 100 draws from a bivariate standard normal
 
 @testset "Simulate Coeurdacier et al. (2011) with shocks" begin
     state1, jump1 = simulate(m, horizon)

@@ -4,7 +4,7 @@ module RiskAdjustedLinearizations
 
 import Base: show, getindex
 import DiffEqBase: get_tmp
-using ArrayInterface, ForwardDiff, LinearAlgebra, Printf, SparseArrays# , SparseDiffTools, SparsityDetection
+using ArrayInterface, FastGaussQuadrature, ForwardDiff, LinearAlgebra, Printf, SparseArrays# , SparseDiffTools, SparsityDetection
 using UnPack
 using BandedMatrices: Ones, Zeros
 using DiffEqBase: DiffCache, dualcache
@@ -24,9 +24,12 @@ include("numerical_algorithms/relaxation.jl")
 include("numerical_algorithms/homotopy.jl")
 include("numerical_algorithms/solve.jl")
 
-# Simulations
+# Simulations and Simulation-based Diagnostics
 include("simulation/simulate.jl")
 include("simulation/impulse_responses.jl")
+include("simulation/gausshermite_expectation.jl")
+# include("simulation/euler_equation_error.jl")
 
-export RiskAdjustedLinearization, update!, nonlinear_system, linearized_system, solve!, simulate, impulse_responses
+export RiskAdjustedLinearization, update!, nonlinear_system, linearized_system, solve!,
+    simulate, impulse_responses, gausshermite_expectation, euler_equation_error
 end # module
