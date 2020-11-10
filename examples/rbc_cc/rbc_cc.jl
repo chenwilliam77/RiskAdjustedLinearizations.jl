@@ -69,7 +69,7 @@ function rbc_cc(m::RBCCampbellCochraneHabits{T}) where {T <: Real}
 
     function ccgf(F, α, z)
         # F .= .5 * RiskAdjustedLinearizations.diag(α * α') # slower but this is the underlying math
-        F .= .5 * sum(α.^2, dims = 2) # faster implementation
+        F .= vec(.5 * sum(α.^2, dims = 2)) # faster implementation
     end
 
     Γ₅ = zeros(T, Ny, Nz)
