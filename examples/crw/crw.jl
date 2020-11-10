@@ -51,14 +51,12 @@ function crw(m::CoeurdacierReyWinant{T}) where {T <: Real}
 
     # The cache is initialized as zeros so we only need to fill non-zero elements
     function Λ(F, z, y)
-        F_type = eltype(F)
         F[S[:N], J[:x]] = z[S[:N]] - exp(y[J[:c]])
         F[S[:N], J[:w]] = 1.
     end
 
     # The cache is initialized as zeros so we only need to fill non-zero elements
     function Σ(F, z, y)
-        F_type = eltype(F)
         F[S[:r], SH[:εr]] = σr
         F[S[:y], SH[:εy]] = σy
     end

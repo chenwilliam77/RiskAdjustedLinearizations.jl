@@ -136,7 +136,7 @@ function create_shock_function(Σ::RALF2{S}, Λ::RALF2{L}, z::AbstractVector,
 end
 
 function create_shock_function(Σ::RALF2{S}, Λ::RALF2{L}, z::AbstractVector,
-                               y::AbstractVector, Ψ::AbstractMatrix) where {S <: DiffCache, L <: AbstractMatrix}
+                               y::AbstractVector, Ψ::AbstractMatrix) where {S <: TwoDiffCache, L <: AbstractMatrix}
     f = if all(m[:Λ_sss] .≈ 0.)
         function _only_nonzero_Λ_mat(zₜ::AbstractVector, ε::AbstractVector)
             Σ(zₜ, y + Ψ * (zₜ - z)) * ε
@@ -151,7 +151,7 @@ function create_shock_function(Σ::RALF2{S}, Λ::RALF2{L}, z::AbstractVector,
 end
 
 function create_shock_function(Σ::RALF2{S}, Λ::RALF2{L}, z::AbstractVector,
-                               y::AbstractVector, Ψ::AbstractMatrix) where {S <: AbstractMatrix, L <: DiffCache}
+                               y::AbstractVector, Ψ::AbstractMatrix) where {S <: AbstractMatrix, L <: TwoDiffCache}
     f = function _only_Σ_mat(zₜ::AbstractVector, ε::AbstractVector)
            (I - Λ(zₜ, y + Ψ * (zₜ - z)) * Ψ) \ (Σ.cache * ε)
        end
@@ -160,9 +160,10 @@ function create_shock_function(Σ::RALF2{S}, Λ::RALF2{L}, z::AbstractVector,
 end
 
 function create_shock_function(Σ::RALF2{S}, Λ::RALF2{L}, z::AbstractVector,
-                               y::AbstractVector, Ψ::AbstractMatrix) where {S <: DiffCache, L <: DiffCache}
+                               y::AbstractVector, Ψ::AbstractMatrix) where {S <: TwoDiffCache, L <: TwoDiffCache}
     f = function _both_fnct(zₜ::AbstractVector, ε::AbstractVector)
-           (I - Λ(zₜ, y + Ψ * (zₜ - z)) * Ψ) \ (Σ(zₜ, y + Ψ * (zₜ - z)) * ε)
+        yₜ = y + Ψ * (zₜ - z)
+        (I - Λ(zₜ, yₜ) * Ψ) \ (Σ(zₜ, yₜ) * ε)
        end
 
     return f
