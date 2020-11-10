@@ -1,3 +1,5 @@
+# TODO: Add functions for various cases with jump-dependent Σ and Λ (i.e. Σ has jumps or not, is a matrix, etc.
+
 # Subtypes used for the main RiskAdjustedLinearization type
 mutable struct RALNonlinearSystem{L <: AbstractRALF, S <: AbstractRALF, V <: AbstractRALF}
     μ::RALF2
@@ -126,7 +128,7 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nε::Int; sss_vector_type::DataType = Vector{T},
-                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shocks::Bool = false,
+                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: Function, L, S,
                                                                                X <: Function,
                                                                                JC5 <: AbstractMatrix{<: Number},
@@ -148,7 +150,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
 
     # Apply dispatch on Λ and Σ to figure what they should be
     return RiskAdjustedLinearization(_μ, Λ, Σ, _ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
-                                     jump_dependent_shocks = jump_dependent_shocks, jacobian_type = jacobian_type)
+                                     jump_dependent_shock_matrices = jump_dependent_shock_matrices, jacobian_type = jacobian_type)
 end
 
 # Constructor that uses ForwardDiff to calculate Jacobian functions.
@@ -250,7 +252,7 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
-                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shocks::Bool = false,
+                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: Function, S <: Function,
                                                                                X <: RALF2,
                                                                                JC5 <: AbstractMatrix{<: Number},
@@ -259,7 +261,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     # Create wrappers enabling caching for Λ and Σ
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
-    if jump_dependent_shocks
+    if jump_dependent_shock_matrices
         _Λ = RALF2(Λ, z, y, Λ_Σ_type, (Nz, Ny), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
         _Σ = RALF2(Σ, z, y, Λ_Σ_type, (Nz, Nε), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
     else
@@ -274,7 +276,7 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
-                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shocks::Bool = false,
+                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: AbstractMatrix{<: Number}, S <: Function,
                                                                                X <: RALF2,
                                                                                JC5 <: AbstractMatrix{<: Number},
@@ -283,7 +285,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
 
     # Create wrappers enabling caching for Λ and Σ
     _Λ = RALF1(Λ)
-    if jump_dependent_shocks
+    if jump_dependent_shock_matrices
         _Σ = RALF2(Σ, z, y, Λ_Σ_type, (Nz, Nε), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
     else
         _Σ = RALF1(Σ, z, Λ_Σ_type, (Nz, Nε))
@@ -296,7 +298,7 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
-                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shocks::Bool = false,
+                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: Function, S <: AbstractMatrix{<: Number},
                                                                                X <: RALF2,
                                                                                JC5 <: AbstractMatrix{<: Number},
@@ -306,7 +308,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     # Create wrappers enabling caching for Λ and Σ
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
-    if jump_dependent_shocks
+    if jump_dependent_shock_matrices
         _Λ = RALF2(Λ, z, y, Λ_Σ_type, (Nz, Ny), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
     else
         _Λ = RALF1(Λ, z, Λ_Σ_type, (Nz, Ny))
@@ -320,7 +322,7 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
-                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shocks::Bool = false,
+                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2,
                                                                                L <: AbstractMatrix{<: Number}, S <: AbstractMatrix{<: Number},
                                                                                X <: RALF2,
