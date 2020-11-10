@@ -2,13 +2,16 @@
 ```
 simulate(m, horizon, shock_matrix, z₀)
 simulate(m, horizon, z₀)
+simulate(m, shock_vector, z₀)
 simulate(m, horizon, shock_matrix)
 simulate(m, horizon)
 ```
 simulates the economy approximated by a risk-adjusted linearization. The first method
-incorporates an arbitrary path of shocks across the horizon while the
-second method assumes no shocks occur during the horizon. The third and fourth methods
-are the same as the first two but assume the economy begins at the stochastic steady state.
+incorporates an arbitrary path of shocks across the horizon while the second method
+assumes no shocks occur during the horizon. The third method calculates next
+period's states and jump variables, given a vector of shocks. The fourth and fifth
+methods are the same as the first two but assume the economy begins at the
+stochastic steady state.
 
 ### Inputs
 - `m::RiskAdjustedLinearization`: a solved risk-adjusted linearization of a dynamic economy
@@ -64,6 +67,23 @@ function simulate(m::RiskAdjustedLinearization, horizon::Int, z₀::AbstractVect
         states[:, t] = expected_transition(m.z, m.y, m.Ψ, Γ₁, Γ₂, (@view states[:, t - 1]), (@view jumps[:, t - 1]))
         jumps[:, t]  = m.y + m.Ψ * ((@view states[:, t]) - m.z)
     end
+
+    return states, jumps
+end
+
+function simulate(m::RiskAdjustedLinearization, shock_vector::AbstractVector, z₀::AbstractVector)
+
+    # Set up
+    Γ₁     = m[:Γ₁]
+    Γ₂     = m[:Γ₂]
+    y₀     = m.y + m.Ψ * (z₀ - m.z)
+
+    # Create "shock function" which creates the matrix mapping shocks to states
+    shock_fnct = create_shock_function(m.nonlinear.Σ, m.nonlinear.Λ, m.z, m.y, m.Ψ)
+
+    # Iterate forward!
+    states = expected_transition(m.z, m.y, m.Ψ, Γ₁, Γ₂, z₀, y₀) + shock_fnct(z₀, shock_vector)
+    jumps  = m.y + m.Ψ * (states - m.z)
 
     return states, jumps
 end

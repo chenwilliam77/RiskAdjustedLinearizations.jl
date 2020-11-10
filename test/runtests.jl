@@ -29,7 +29,9 @@ using SafeTestsets
     @time @safetestset "Simulations and Impulse Responses" begin
         include("simulation/simulate_rbc_cc.jl")
         include("simulation/simulate_wachter_disaster_risk.jl")
+        include("simulation/simulate_crw.jl")
         include("simulation/impulse_responses_rbc_cc.jl")
         include("simulation/impulse_responses_wachter_disaster_risk.jl")
+        include("simulation/impulse_responses_crw.jl")
     end
 end
