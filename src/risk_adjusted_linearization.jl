@@ -1,14 +1,20 @@
+# TODO: Add functions for various cases with jump-dependent Σ and Λ (i.e. Σ has jumps or not, is a matrix, etc.
+
 # Subtypes used for the main RiskAdjustedLinearization type
-mutable struct RALNonlinearSystem{M <: RALF2, L <: RALF1, S <: RALF1, X <: RALF2, V <: RALF2}
-    μ::M
+mutable struct RALNonlinearSystem{L <: AbstractRALF, S <: AbstractRALF, V <: AbstractRALF}
+    μ::RALF2
     Λ::L
     Σ::S
-    ξ::X
+    ξ::RALF2
     𝒱::V
 end
 
-function update!(m::RALNonlinearSystem, z::C1, y::C1, Ψ::C2;
-                 select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+Λ_eltype(m::RALNonlinearSystem{L, S}) where {L, S} = L
+Σ_eltype(m::RALNonlinearSystem{L, S}) where {L, S} = S
+
+function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
+                 select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {L, S, V <: RALF2,
+                                                                     C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
 
     if :μ in select
         m.μ(z, y)
@@ -25,20 +31,39 @@ function update!(m::RALNonlinearSystem, z::C1, y::C1, Ψ::C2;
     m
 end
 
-mutable struct RALLinearizedSystem{Mz <: RALF2, My <: RALF2, Xz <: RALF2, Xy <: RALF2, J <: RALF2,
-                                   JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number}}
-    μz::Mz
-    μy::My
-    ξz::Xz
-    ξy::Xy
-    J𝒱::J
+function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
+                 select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {L, S, V <: RALF4,
+                                                                     C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+
+    if :μ in select
+        m.μ(z, y)
+    end
+
+    if :ξ in select
+        m.ξ(z, y)
+    end
+
+    if :𝒱 in select
+        m.𝒱(z, y, Ψ, z)
+    end
+
+    m
+end
+
+mutable struct RALLinearizedSystem{JV <: AbstractRALF, JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number}}
+    μz::RALF2
+    μy::RALF2
+    ξz::RALF2
+    ξy::RALF2
+    J𝒱::JV
     Γ₅::JC5
     Γ₆::JC6
 end
 
-function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2;
+function update!(m::RALLinearizedSystem{JV, JC5, JC6}, z::C1, y::C1, Ψ::C2;
                  select::Vector{Symbol} =
-                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {JV <: RALF2, JC5, JC6,
+                                                         C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
 
     if :Γ₁ in select
         m.μz(z, y)
@@ -58,6 +83,34 @@ function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2;
 
     if :JV in select
         m.J𝒱(z, Ψ)
+    end
+
+    m
+end
+
+function update!(m::RALLinearizedSystem{JV, JC5, JC6}, z::C1, y::C1, Ψ::C2;
+                 select::Vector{Symbol} =
+                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {JV <: RALF3, JC5, JC6,
+                                                         C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+
+    if :Γ₁ in select
+        m.μz(z, y)
+    end
+
+    if :Γ₂ in select
+        m.μy(z, y)
+    end
+
+    if :Γ₃ in select
+        m.ξz(z, y)
+    end
+
+    if :Γ₄ in select
+        m.ξy(z, y)
+    end
+
+    if :JV in select
+        m.J𝒱(z, y, Ψ)
     end
 
     m
@@ -97,11 +150,11 @@ The first method is the main constructor most users will want, while the second 
 - `Ny::Int`: number of jump variables
 - `Nε::Int`: number of exogenous shocks
 """
-mutable struct RiskAdjustedLinearization{A <: RALNonlinearSystem, B <: RALLinearizedSystem,
-                                         C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}} <: AbstractRiskAdjustedLinearization
-    nonlinear::A
-    linearization::B
-    z::C1        # Coefficients, TODO: at some point, we may or may not want to make z, y, and Ψ also DiffCache types
+mutable struct RiskAdjustedLinearization{C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}} <: AbstractRiskAdjustedLinearization
+
+    nonlinear::RALNonlinearSystem
+    linearization::RALLinearizedSystem
+    z::C1 # Coefficients, TODO: at some point, we may or may not want to make z, y, and Ψ also DiffCache types
     y::C1
     Ψ::C2
     Nz::Int      # Dimensions
@@ -115,7 +168,8 @@ end
 # Note that here we pass in the ccgf, rather than 𝒱
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nε::Int; sss_vector_type::DataType = Vector{T}, Λ_Σ_type::DataType = Matrix{T},
+                                   Nε::Int; sss_vector_type::DataType = Vector{T},
+                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: Function, L, S,
                                                                                X <: Function,
                                                                                JC5 <: AbstractMatrix{<: Number},
@@ -137,7 +191,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
 
     # Apply dispatch on Λ and Σ to figure what they should be
     return RiskAdjustedLinearization(_μ, Λ, Σ, _ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
-                                     jacobian_type = jacobian_type)
+                                     jump_dependent_shock_matrices = jump_dependent_shock_matrices, jacobian_type = jacobian_type)
 end
 
 # Constructor that uses ForwardDiff to calculate Jacobian functions.
@@ -152,6 +206,13 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                                                                JC5 <: AbstractMatrix{<: Number},
                                                                                JC6 <: AbstractMatrix{<: Number},
                                                                                CF <: Function}
+    # Get dimensions
+    Nz  = length(z)
+    Ny  = length(y)
+    Nzy = Nz + Ny
+    if Nε < 0
+        throw(BoundsError("Nε cannot be negative"))
+    end
 
     # Use RALF2 wrapper to create Jacobian functions with caching for μ, ξ.
     # Use the tuple to select the correct Dual cache b/c μ is in place
@@ -187,18 +248,74 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     return RiskAdjustedLinearization(nonlinear_system, linearized_system, z, y, Ψ, Nz, Ny, Nε)
 end
 
+# Handles case where Λ and Σ are RALF2
+function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
+                                   z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
+                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
+                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: RALF2, S <: RALF2,
+                                                                               X <: RALF2,
+                                                                               JC5 <: AbstractMatrix{<: Number},
+                                                                               JC6 <: AbstractMatrix{<: Number},
+                                                                               CF <: Function}
+
+    # Use RALF2 wrapper to create Jacobian functions with caching for μ, ξ.
+    # Use the tuple to select the correct Dual cache b/c μ is in place
+    μz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(x, y, (1, 2)), z), z, y,
+               jacobian_type, (Nz, Nz))
+    μy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(z, x, (2, 3)), y), z, y,
+               jacobian_type, (Nz, Ny))
+
+    ξz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(x, y, (1, 2)), z), z, y,
+               jacobian_type, (Ny, Nz))
+    ξy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(z, x, (2, 3)), y), z, y,
+               jacobian_type, (Ny, Ny))
+
+    # Create RALF2 wrappers for 𝒱 and its Jacobian J𝒱
+    if applicable(ccgf, Γ₅, z) # Check if ccgf is in place or not
+        _𝒱 = function _𝒱_oop(F, z, y, Ψ, zₜ)
+            yₜ = y + Ψ * (zₜ - z)
+            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - Λ(zₜ, yₜ) * Ψ) \ Σ(zₜ, yₜ)), zₜ)
+        end
+    else # in place
+        _𝒱 = function _𝒱_ip(F, z, y, Ψ, zₜ)
+            yₜ = y + Ψ * (zₜ - z)
+            ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - Λ(zₜ, yₜ) * Ψ) \ Σ(zₜ, yₜ)), zₜ)
+        end
+    end
+    Nzchunk = ForwardDiff.pickchunksize(Nz)
+    Nychunk = ForwardDiff.pickchunksize(Ny)
+    𝒱       = RALF4((F, z, y, Ψ, zₜ) -> _𝒱(F, z, y, Ψ, zₜ), z, y, Ψ, z, sss_vector_type, (Ny, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+
+    _J𝒱(F, z, y, Ψ) = ForwardDiff.jacobian!(F, zₜ -> 𝒱(z, y, Ψ, zₜ, (4, 2)), z) # use zₜ argument to infer the cache
+    J𝒱              = RALF3((F, z, y, Ψ) -> _J𝒱(F, z, y, Ψ), z, y, Ψ, jacobian_type, (Ny, Nz))
+
+    # Form underlying RAL blocks
+    nonlinear_system  = RALNonlinearSystem(μ, Λ, Σ, ξ, 𝒱)
+    linearized_system = RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₅, Γ₆)
+
+    return RiskAdjustedLinearization(nonlinear_system, linearized_system, z, y, Ψ, Nz, Ny, Nε)
+end
+
 # The following four constructors cover different common cases for the Λ and Σ functions.
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, Λ_Σ_type::DataType = Matrix{T},
+                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
+                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: Function, S <: Function,
                                                                                X <: RALF2,
                                                                                JC5 <: AbstractMatrix{<: Number},
                                                                                JC6 <: AbstractMatrix{<: Number},
                                                                                CF <: Function}
     # Create wrappers enabling caching for Λ and Σ
-    _Λ = RALF1(Λ, z, Λ_Σ_type, (Nz, Ny))
-    _Σ = RALF1(Σ, z, Λ_Σ_type, (Nz, Nε))
+    Nzchunk = ForwardDiff.pickchunksize(Nz)
+    Nychunk = ForwardDiff.pickchunksize(Ny)
+    if jump_dependent_shock_matrices
+        _Λ = RALF2(Λ, z, y, Λ_Σ_type, (Nz, Ny), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Σ = RALF2(Σ, z, y, Λ_Σ_type, (Nz, Nε), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+    else
+        _Λ = RALF1(Λ, z, Λ_Σ_type, (Nz, Ny))
+        _Σ = RALF1(Σ, z, Λ_Σ_type, (Nz, Nε))
+    end
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
                                      jacobian_type = jacobian_type)
@@ -206,7 +323,8 @@ end
 
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, Λ_Σ_type::DataType = Matrix{T},
+                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
+                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: AbstractMatrix{<: Number}, S <: Function,
                                                                                X <: RALF2,
                                                                                JC5 <: AbstractMatrix{<: Number},
@@ -214,8 +332,13 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                                                                CF <: Function}
 
     # Create wrappers enabling caching for Λ and Σ
-    _Λ = RALF1(Λ)
-    _Σ = RALF1(Σ, z, Λ_Σ_type, (Nz, Nε))
+    if jump_dependent_shock_matrices
+        _Λ = RALF2(Λ)
+        _Σ = RALF2(Σ, z, y, Λ_Σ_type, (Nz, Nε), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+    else
+        _Λ = RALF1(Λ)
+        _Σ = RALF1(Σ, z, Λ_Σ_type, (Nz, Nε))
+    end
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
                                      jacobian_type = jacobian_type)
@@ -223,7 +346,8 @@ end
 
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, Λ_Σ_type::DataType = Matrix{T},
+                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
+                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: Function, S <: AbstractMatrix{<: Number},
                                                                                X <: RALF2,
                                                                                JC5 <: AbstractMatrix{<: Number},
@@ -231,8 +355,15 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                                                                CF <: Function}
 
     # Create wrappers enabling caching for Λ and Σ
-    _Λ = RALF1(Λ, z, Λ_Σ_type, (Nz, Ny))
-    _Σ = RALF1(Σ)
+    Nzchunk = ForwardDiff.pickchunksize(Nz)
+    Nychunk = ForwardDiff.pickchunksize(Ny)
+    if jump_dependent_shock_matrices
+        _Λ = RALF2(Λ, z, y, Λ_Σ_type, (Nz, Ny), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Σ = RALF2(Σ)
+    else
+        _Λ = RALF1(Λ, z, Λ_Σ_type, (Nz, Ny))
+        _Σ = RALF1(Σ)
+    end
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
                                      jacobian_type = jacobian_type)
@@ -240,7 +371,8 @@ end
 
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
-                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T}, Λ_Σ_type::DataType = Matrix{T},
+                                   Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
+                                   Λ_Σ_type::DataType = Matrix{T},
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2,
                                                                                L <: AbstractMatrix{<: Number}, S <: AbstractMatrix{<: Number},
                                                                                X <: RALF2,
@@ -257,7 +389,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
 end
 
 ## Print statements for RAL objects
-function Base.show(io::IO, m::RiskAdjustedLinearization)
+function Base.show(io::IO, m::AbstractRiskAdjustedLinearization)
     @printf io "Risk-Adjusted Linearization of an Economic Model\n"
     @printf io "No. of state variables:      %i\n" m.Nz
     @printf io "No. of jump variables:       %i\n" m.Ny

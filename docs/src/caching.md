@@ -29,16 +29,18 @@ used to calculate the Jacobians, which occur with respect to only one of the inp
 
 *Note that the cache is always initialized as zeros by defaults (rather than undefined arrays).*
 
-## [Automated Caching via `RALF1` and `RALF2` Wrappers](@id ralfwrappers)
-The `RALF1` type applies to functions with 1 input variables (``\Lambda`` and ``\Sigma``) and
-`RALF2` to functions with 2 input variables (e.g. ``\mu``, ``\mu_z``). The way these wrappers work is that
+## [Automated Caching via `RALF1`, `RALF2`, `RALF3`, and `RALF4` Wrappers](@id ralfwrappers)
+The `RALF1` type applies to functions with 1 input variables (``\Lambda`` and ``\Sigma``),
+`RALF2` to functions with 2 input variables (e.g. ``\mu``, ``\mu_z``), and so on.
+The way these wrappers work is that
 they take a user-defined function `f` and convert it to a new in-place function whose first input argument
 is a cache, which is a `DiffCache`, `TwoDiffCache`, or a `ThreeDiffCache`.
-The `RALF1` and `RALF2` types are callable in the same way `LinSolveFactorize` is.
+The `RALF1`, `RALF2`, `RALF3`, and `RALF4` types are callable in the same way `LinSolveFactorize` is.
 
 For `RALF2`, the syntax `(x::RALF2)(x1, x2)` on its own would not work, however, because (1) it is not clear
 which input should be used to infer whether or not to use a Dual cache and (2) there
 are potentially multiple Dual caches. To get around this problem, we add an optional third argument
 named `select`, which is a `Tuple{Int, Int}`. The first element specifies which input argument
 to use for infering whether a Dual cache is needed, and the second element specifies which
-cache to use. By default, `select = (1, 1)`.
+cache to use. By default, `select = (1, 1)`. This approach is the same for `RALF3` and `RALF4`.
+The types `RALF3` and `RALF4` are only relevant if ``\Lambda`` and ``\Sigma`` depend on jump variables.

@@ -23,6 +23,11 @@ The quantities ``\mu``, ``\xi``, and ccgf are always functions. The quantities `
 either be functions or matrices. For example, in endowment economies like Wachter (2013), ``\Lambda`` is
 the zero matrix since there is no endogenous risk. In other applications, ``\Sigma`` may not be state-dependent
 and thus a constant matrix. The last two quantities ``\Gamma_5`` and ``\Gamma_6`` are always matrices.
+These functions do not need to have type assertions for the inputs, but if the user wants to add type assertions,
+then the types should be `AbstractVector{T}`, `AbstractMatrix{T}`, or `AbstractArray{T}` where `T` should
+allow any subtypes of `Real` to permit automatic differentiation, e.g. `AbstractVector{T} where T <: Real`.
+If more specific types than `AbstractVector`, etc., are used, then `RiskAdjustedLinearization` may not
+work properly. For these reasons, it is recommended that type assertions are not added unless necessary.
 
 In addition, you need to define initial guesses for the coefficients `z, y, Ψ` and specify the number of exogenous shocks `Nε`.
 The initial guesses can be undefined if you don't want to use actual numbers yet, but

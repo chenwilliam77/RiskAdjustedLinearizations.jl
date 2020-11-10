@@ -52,7 +52,7 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
     nl  = nonlinear_system(ral)
     li  = linearized_system(ral)
     Nzy = ral.Nz + ral.Ny
-    AA  = Matrix{Complex{S1}}(undef, Nzy, Nzy)
+    AA  = Matrix{Complex{S1}}(undef, Nzy, Nzy) # pre-allocate these matrices to calculate QZ decomp for Ψ
     BB  = similar(AA)
 
     if use_anderson
@@ -74,7 +74,8 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
             update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:JV]) # updates li.JV
 
             # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
-            solve_steadystate!(ral, vcat(zₙ₋₁, yₙ₋₁), Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, kwargs...) # updates ral.z and ral.y
+            solve_steadystate!(ral, vcat(zₙ₋₁, yₙ₋₁), Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, # updates ral.z and ral.y
+                               verbose = verbose, kwargs...)
 
             # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
             update!(li, zₙ, yₙ, Ψₙ₋₁; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ
@@ -119,7 +120,8 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
             update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:JV]) # updates li.JV
 
             # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
-            solve_steadystate!(ral, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, kwargs...) # updates ral.z and ral.y
+            solve_steadystate!(ral, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, # updates ral.z and ral.y
+                               verbose = verbose, kwargs...)
 
             # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
             update!(li, zₙ, yₙ, Ψₙ₋₁; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄]) # updates li.Γᵢ
@@ -149,13 +151,20 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
     if count == max_iters
         throw(RALRelaxationError("Relaxation method to find the risk-adjusted linearization did not converge."))
     else
-        if verbose == :low
-            println("Convergence achieved after $(count) iterations! Error under norm = $(pnorm) is $(err).")
-        elseif verbose == :high
-            println("")
-            println("Convergence achieved after $(count) iterations! Error under norm=$(pnorm) is $(err).")
-        end
         update!(ral)
+
+        if verbose == :low
+            errvec = vcat(ral[:μ_sss] - ral.z, ral[:ξ_sss] + ral[:Γ₅] * ral.z + ral[:Γ₆] * ral.y + ral[:𝒱_sss],
+                          vec(ral[:Γ₃] + ral[:Γ₄] * ral.Ψ + (ral[:Γ₅] + ral[:Γ₆] * ral.Ψ) * (ral[:Γ₁] + ral[:Γ₂] * ral.Ψ) + ral[:JV]))
+            println("Convergence achieved after $(count) iterations! Error under norm = $(pnorm) is " *
+                    "$(norm(errvec, pnorm)).")
+        elseif verbose == :high
+            errvec = vcat(ral[:μ_sss] - ral.z, ral[:ξ_sss] + ral[:Γ₅] * ral.z + ral[:Γ₆] * ral.y + ral[:𝒱_sss],
+                          vec(ral[:Γ₃] + ral[:Γ₄] * ral.Ψ + (ral[:Γ₅] + ral[:Γ₆] * ral.Ψ) * (ral[:Γ₁] + ral[:Γ₂] * ral.Ψ) + ral[:JV]))
+            println("")
+            println("Convergence achieved after $(count) iterations! Error under norm = $(pnorm) is " *
+                    "$(norm(errvec, pnorm)).")
+        end
 
         return ral
     end
@@ -163,7 +172,7 @@ end
 
 function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1},
                             Ψ::AbstractMatrix{<: Number}, 𝒱::AbstractVector{<: Number};
-                            autodiff::Symbol = :central,
+                            autodiff::Symbol = :central, verbose::Symbol = :none,
                             kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
@@ -191,6 +200,9 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         m.z .= out.zero[1:m.Nz]
         m.y .= out.zero[(m.Nz + 1):end]
     else
+        if verbose == :high
+            println(out)
+        end
         throw(RALRelaxationError())
     end
 end

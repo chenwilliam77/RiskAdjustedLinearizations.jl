@@ -23,6 +23,7 @@ using SafeTestsets
     @time @safetestset "Examples" begin
         include(joinpath(dirname(@__FILE__), "../examples/rbc_cc/example_rbc_cc.jl"))
         include(joinpath(dirname(@__FILE__), "../examples/wachter_disaster_risk/example_wachter.jl"))
+        include(joinpath(dirname(@__FILE__), "../examples/crw/example_crw.jl")) # This example tests case of jump-dependent Σ and Λ
     end
 
     @time @safetestset "Simulations and Impulse Responses" begin
