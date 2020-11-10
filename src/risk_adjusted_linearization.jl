@@ -12,8 +12,9 @@ end
 Λ_eltype(m::RALNonlinearSystem{L, S}) where {L, S} = L
 Σ_eltype(m::RALNonlinearSystem{L, S}) where {L, S} = S
 
-function update!(m::RALNonlinearSystem, z::C1, y::C1, Ψ::C2;
-                 select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
+                 select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {L, S, V <: RALF2,
+                                                                     C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
 
     if :μ in select
         m.μ(z, y)
@@ -24,11 +25,26 @@ function update!(m::RALNonlinearSystem, z::C1, y::C1, Ψ::C2;
     end
 
     if :𝒱 in select
-        if isa(m.𝒱, RALF2)
-            m.𝒱(z, Ψ)
-        else
-            m.𝒱(z, y, Ψ, z)
-        end
+        m.𝒱(z, Ψ)
+    end
+
+    m
+end
+
+function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
+                 select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {L, S, V <: RALF4,
+                                                                     C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+
+    if :μ in select
+        m.μ(z, y)
+    end
+
+    if :ξ in select
+        m.ξ(z, y)
+    end
+
+    if :𝒱 in select
+        m.𝒱(z, y, Ψ, z)
     end
 
     m
@@ -44,9 +60,10 @@ mutable struct RALLinearizedSystem{JV <: AbstractRALF, JC5 <: AbstractMatrix{<: 
     Γ₆::JC6
 end
 
-function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2;
+function update!(m::RALLinearizedSystem{JV, JC5, JC6}, z::C1, y::C1, Ψ::C2;
                  select::Vector{Symbol} =
-                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {JV <: RALF2, JC5, JC6,
+                                                         C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
 
     if :Γ₁ in select
         m.μz(z, y)
@@ -65,11 +82,35 @@ function update!(m::RALLinearizedSystem, z::C1, y::C1, Ψ::C2;
     end
 
     if :JV in select
-        if isa(m.J𝒱, RALF2)
-            m.J𝒱(z, Ψ)
-        else
-            m.J𝒱(z, y, Ψ)
-        end
+        m.J𝒱(z, Ψ)
+    end
+
+    m
+end
+
+function update!(m::RALLinearizedSystem{JV, JC5, JC6}, z::C1, y::C1, Ψ::C2;
+                 select::Vector{Symbol} =
+                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {JV <: RALF3, JC5, JC6,
+                                                         C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+
+    if :Γ₁ in select
+        m.μz(z, y)
+    end
+
+    if :Γ₂ in select
+        m.μy(z, y)
+    end
+
+    if :Γ₃ in select
+        m.ξz(z, y)
+    end
+
+    if :Γ₄ in select
+        m.ξy(z, y)
+    end
+
+    if :JV in select
+        m.J𝒱(z, y, Ψ)
     end
 
     m
