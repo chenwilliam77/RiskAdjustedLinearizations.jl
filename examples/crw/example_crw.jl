@@ -22,10 +22,15 @@ sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/crw_sss
 m.z .= vec(detout["z_dss"])
 m.y .= vec(detout["y_dss"])
 m.Ψ .= detout["Psi_dss"]
+m.z .= vec(sssout["z_rss"])
+m.y .= vec(sssout["y_rss"])
+m.Ψ .= sssout["Psi_rss"]
 # Solve!
-# solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, verbose = :high) # homotopy works!
-# solve!(m, m.z, m.y, m.Ψ; algorithm = :relaxation, verbose = :high, ftol = 8e-4,
-#        damping = .1) # bug!, need to double check the error or output when calling g0
+solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, verbose = :high) # homotopy works!
+m.z *= 1.1
+m.y *= 1.1
+m.Ψ *= 1.1
+solve!(m, m.z, m.y, m.Ψ; algorithm = :relaxation, verbose = :high, ftol = 5e-5, damping = .9)
 # solve!(m; algorithm = numerical_algorithm, autodiff = autodiff_method)
 
 #=

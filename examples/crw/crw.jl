@@ -23,7 +23,7 @@ function crw(m::CoeurdacierReyWinant{T}) where {T <: Real}
 
     # N = exp(rₜ) * Aₜ₋₁ + Yₜ, where Aₜ is foreign assets and Yₜ is the endowment
     # The jump variables are consumption, expected return on assets Xₜ = 𝔼ₜ[Rₜ₊₁], and
-    # the exponentiated interest rate.
+    # Wₜ = 𝔼ₜ[Yₜ₊₁]
     S  = OrderedDict{Symbol, Int}(:N => 1, :r => 2, :y => 3) # State variables
     J  = OrderedDict{Symbol, Int}(:c => 1, :x => 2, :w => 3) # Jump variables
     SH = OrderedDict{Symbol, Int}(:εr => 1, :εy => 2)        # Exogenous shocks
@@ -31,30 +31,39 @@ function crw(m::CoeurdacierReyWinant{T}) where {T <: Real}
     Ny = length(J)
     Nε = length(SH)
 
-    function μ(F, z, y) # note that y here refers to jump variables
         # This equation is mis-specified b/c y_t should also have a Lambda term, namely we're missing an expectational Y_t term, in the same way the w jump variable seems pointeless (replace with expectational Y_t?) but first let's solve this as is
         # Nt = e^(rt) A_{t - 1} + Y_t
         # E_t N_{t + 1} = E_t [e^{r_{t + 1}} * A_t + Y_{t + 1}]
         #               = E_t [R_{t + 1} * (N_t - C_t) + Y_{t + 1}]
         #               = E_t [R_{t + 1} * (N_t - C_t) + Y_{t + 1}]
         # N_{t + 1}     = R_{t + 1} * (N_t - C_t) + Y_{t + 1}
-        #               = E_t [R_{t + 1} * (N_t - C_t)] + R_{t + 1} * (N_t - C_t) - E_t [R_{t + 1} * (N_t - C_t)] + exp((1 - ρy) * yy + ρy * y_t + eps)
-        #               = E_t [R_{t + 1} * (N_t - C_t)] + (N_t - C_t) (R_{t + 1} - E_t[R_{t + 1}]) + θ
-        F[S[:N]] = exp(z[S[:y]]) - exp(y[J[:c]] + y[J[:x]]) + z[S[:N]] * exp(y[J[:x]])
+        #               = E_t [R_{t + 1} * (N_t - C_t)] + R_{t + 1} * (N_t - C_t) - E_t [R_{t + 1} * (N_t - C_t)]
+        #                 + (Y_{t + 1} - E_t[Y_{t + 1}]) + E_t[Y_{t + 1}]
+        #               = E_t [R_{t + 1}] * (N_t - C_t) + E_t[Y_{t + 1}] +
+        #                 + (N_t - C_t) (R_{t + 1} - E_t[R_{t + 1}]) + (Y_{t + 1} - E_t[Y_{t + 1}])
+
+    function μ(F, z, y) # note that y here refers to jump variables
+        #               = E_t [R_{t + 1}] * (N_t - C_t) + E_t[Y_{t + 1}] +
+        #                 + (N_t - C_t) (R_{t + 1} - E_t[R_{t + 1}]) + (Y_{t + 1} - E_t[Y_{t + 1}])
+
+        F[S[:N]] = exp(y[J[:w]]) + exp(y[J[:x]]) * (z[S[:N]] - exp(y[J[:c]]))
+        # F[S[:N]] = exp(z[S[:y]]) + exp(y[J[:x]]) * (z[S[:N]] - exp(y[J[:c]]))
         F[S[:r]] = (1 - ρr) * rr + ρr * z[S[:r]]
         F[S[:y]] = (1 - ρy) * yy + ρy * z[S[:y]]
     end
 
     function ξ(F, z, y)
         F[J[:c]] = log(β) + γ * y[J[:c]]    # Euler equation
-        F[J[:x]] = -y[J[:x]]                # rₜ₊₁ - xₜ,   consistency conditions b/n interest rates as prices
-        F[J[:w]] = exp(z[S[:r]]) - y[J[:w]] # exp(rₜ) - wₜ and as exogenously given by the RoW
+        F[J[:x]] = -y[J[:x]]                # rₜ₊₁ - xₜ, rational expectations
+        F[J[:w]] = -y[J[:w]]                # yₜ₊₁ - wₜ
+        # F[J[:w]] = exp(z[S[:r]]) - y[J[:w]]                # yₜ₊₁ - wₜ
     end
 
     # The cache is initialized as zeros so we only need to fill non-zero elements
     function Λ(F, z, y)
         F_type = eltype(F)
-        F[S[:N], J[:w]] = z[S[:N]] - exp(y[J[:c]])
+        F[S[:N], J[:x]] = z[S[:N]] - exp(y[J[:c]])
+        F[S[:N], J[:w]] = 1.
     end
 
     # The cache is initialized as zeros so we only need to fill non-zero elements
@@ -71,6 +80,7 @@ function crw(m::CoeurdacierReyWinant{T}) where {T <: Real}
     Γ₅ = zeros(T, Ny, Nz)
     Γ₅[J[:c], S[:r]] = 1.
     Γ₅[J[:x], S[:r]] = 1.
+    Γ₅[J[:w], S[:y]] = 1.
 
     Γ₆ = zeros(T, Ny, Ny)
     Γ₆[J[:c], J[:c]] = -γ
