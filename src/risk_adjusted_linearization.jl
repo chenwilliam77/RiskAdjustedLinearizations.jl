@@ -284,10 +284,11 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                                                                CF <: Function}
 
     # Create wrappers enabling caching for Λ and Σ
-    _Λ = RALF1(Λ)
     if jump_dependent_shock_matrices
+        _Λ = RALF2(Λ)
         _Σ = RALF2(Σ, z, y, Λ_Σ_type, (Nz, Nε), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
     else
+        _Λ = RALF1(Λ)
         _Σ = RALF1(Σ, z, Λ_Σ_type, (Nz, Nε))
     end
 
@@ -310,10 +311,11 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     Nychunk = ForwardDiff.pickchunksize(Ny)
     if jump_dependent_shock_matrices
         _Λ = RALF2(Λ, z, y, Λ_Σ_type, (Nz, Ny), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Σ = RALF2(Σ)
     else
         _Λ = RALF1(Λ, z, Λ_Σ_type, (Nz, Ny))
+        _Σ = RALF1(Σ)
     end
-    _Σ = RALF1(Σ)
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
                                      jacobian_type = jacobian_type)
@@ -322,7 +324,7 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
-                                   Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
+                                   Λ_Σ_type::DataType = Matrix{T},
                                    jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2,
                                                                                L <: AbstractMatrix{<: Number}, S <: AbstractMatrix{<: Number},
                                                                                X <: RALF2,
