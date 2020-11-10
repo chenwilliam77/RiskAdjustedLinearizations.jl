@@ -1,8 +1,8 @@
 using RiskAdjustedLinearizations, Test, JLD2
-include(joinpath(dirname(@__FILE__), "../../examples/wachter_disaster_risk/wachter.jl"))
+include(joinpath(dirname(@__FILE__), "..", "..", "examples", "wachter_disaster_risk", "wachter.jl"))
 
 # Get stochastic steady state
-sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../reference/iterative_sss_output.jld2"), "r")
+sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "iterative_sss_output.jld2"), "r")
 z = vec(sssout["z"])
 y = vec(sssout["y"])
 Ψ = sssout["Psi"]
@@ -17,7 +17,7 @@ update!(ral, z, y, Ψ)
 @test RiskAdjustedLinearizations.blanchard_kahn(ral; verbose = :none)
 
 # Get deterministic steady state
-detout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../reference/det_ss_output.jld2"), "r")
+detout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "det_ss_output.jld2"), "r")
 z = vec(detout["z"])
 y = vec(detout["y"])
 

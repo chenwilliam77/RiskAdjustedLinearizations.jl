@@ -1,6 +1,6 @@
 using RiskAdjustedLinearizations, JLD2, Test
 
-output  = JLD2.jldopen(joinpath(dirname(@__FILE__), "../reference/compute_psi_output.jld2"), "r")
+output  = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "compute_psi_output.jld2"), "r")
 GAM1    = output["GAM1"]
 GAM2    = output["GAM2"]
 GAM3    = output["GAM3"]

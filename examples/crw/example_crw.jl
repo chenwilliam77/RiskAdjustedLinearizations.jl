@@ -10,7 +10,7 @@ z0 = copy(m.z)
 y0 = copy(m.y)
 Ψ0 = copy(m.Ψ)
 
-sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/crw_sss.jld2"), "r")
+sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference/crw_sss.jld2"), "r")
 
 # Small perturbation b/c initialized at the stochastic steady state from a saved file
 m.z .= 1.1 * m.z

@@ -1,5 +1,5 @@
 using RiskAdjustedLinearizations, Test
-include(joinpath(dirname(@__FILE__), "../../examples/crw/crw.jl"))
+include(joinpath(dirname(@__FILE__), "..", "..", "examples", "crw", "crw.jl"))
 
 # Solve model
 m_crw = CoeurdacierReyWinant()

@@ -1,5 +1,5 @@
 using RiskAdjustedLinearizations, Test, LinearAlgebra
-include(joinpath(dirname(@__FILE__), "../../examples/wachter_disaster_risk/wachter.jl"))
+include(joinpath(dirname(@__FILE__), "..", "..", "examples", "wachter_disaster_risk", "wachter.jl"))
 
 # Solve model
 m_wachter = WachterDisasterRisk()
@@ -8,7 +8,7 @@ solve!(m, m.z, m.y)
 
 # Verify impulse responses with a zero shock is the same as simulate with no shocks
 horizon = 100
-@testset "Calculate impulse resposnes for Wachter (2013)" begin
+@testset "Calculate impulse responses for Wachter (2013)" begin
 
     # No shocks and start from steady state
     state1, jump1 = simulate(m, horizon)

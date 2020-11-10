@@ -1,9 +1,8 @@
-# TODO: add unit test for solve_steadystate! specifically
 using RiskAdjustedLinearizations, Test, JLD2
-include(joinpath(dirname(@__FILE__), "../../examples/wachter_disaster_risk/wachter.jl"))
+include(joinpath(dirname(@__FILE__), "..", "..", "examples", "wachter_disaster_risk", "wachter.jl"))
 
 # Load in guesses and true solutions
-detout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../reference/det_ss_output.jld2"), "r")
+detout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "det_ss_output.jld2"), "r")
 
 # Set up RiskAdjustedLinearization
 m = WachterDisasterRisk()
@@ -39,7 +38,3 @@ RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y);
                                                       verbose = :none, autodiff = :forward)
 @test maximum(abs.(ral.z - detout["z"])) < 1e-6
 @test maximum(abs.(ral.y - detout["y"])) < 1e-6
-
-#=@test ral.z ≈ sssout["z"]
-@test ral.y ≈ sssout["y"] atol=5e-7
-@test ral.Ψ ≈ sssout["Psi"]=#

@@ -1,7 +1,7 @@
 using UnPack, OrderedCollections, ForwardDiff, JLD2
 
-init_z = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/rbccc_det_ss_output.jld2"), "r")["z_dss"]
-init_y = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/rbccc_det_ss_output.jld2"), "r")["y_dss"]
+init_z = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_det_ss_output.jld2"), "r")["z_dss"]
+init_y = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_det_ss_output.jld2"), "r")["y_dss"]
 
 mutable struct RBCCampbellCochraneHabits{T <: Real}
     IK̄::T

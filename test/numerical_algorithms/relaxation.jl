@@ -1,9 +1,9 @@
 using RiskAdjustedLinearizations, Test, JLD2
-include(joinpath(dirname(@__FILE__), "../../examples/wachter_disaster_risk/wachter.jl"))
+include(joinpath(dirname(@__FILE__), "..", "..", "examples", "wachter_disaster_risk", "wachter.jl"))
 
 # Load in guesses and true solutions
-detout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../reference/det_ss_output.jld2"), "r")
-sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../reference/iterative_sss_output.jld2"), "r")
+detout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "det_ss_output.jld2"), "r")
+sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "iterative_sss_output.jld2"), "r")
 z = vec(detout["z"])
 y = vec(detout["y"])
 Ψ = zeros(length(y), length(z))

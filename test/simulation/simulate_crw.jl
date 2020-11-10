@@ -1,5 +1,5 @@
 using RiskAdjustedLinearizations, Test
-include(joinpath(dirname(@__FILE__), "../../examples/crw/crw.jl"))
+include(joinpath(dirname(@__FILE__), "..", "..", "examples", "crw", "crw.jl"))
 
 # Solve model
 m_crw = CoeurdacierReyWinant()
@@ -29,7 +29,7 @@ zero_shocks = zeros(2, horizon) # 100 fake draws
     @test jump1 ≈ repeat(m.y, 1, horizon)
 end
 
-shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "../reference/crw_shocks.jld2"), "r")["shocks"] # 100 draws from a standard normal
+shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "crw_shocks.jld2"), "r")["shocks"] # 100 draws from a standard normal
 
 @testset "Simulate Coeurdacier et al. (2011) with shocks" begin
     state1, jump1 = simulate(m, horizon)

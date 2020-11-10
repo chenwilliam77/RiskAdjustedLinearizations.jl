@@ -1,7 +1,7 @@
 using UnPack, OrderedCollections, LinearAlgebra, JLD2
 
 # Load guesses
-sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/crw_sss.jld2"), "r")
+sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "crw_sss.jld2"), "r")
 
 zguess = vec(sssout["z_rss"])
 yguess = vec(sssout["y_rss"])

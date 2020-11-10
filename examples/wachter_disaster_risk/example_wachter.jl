@@ -20,10 +20,10 @@ y0 = copy(m.y)
 solve!(m; algorithm = numerical_algorithm, autodiff = autodiff_method)
 
 if numerical_algorithm == :relaxation
-    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/iterative_sss_output.jld2"), "r")
+    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "iterative_sss_output.jld2"), "r")
 
 elseif numerical_algorithm == :homotopy
-    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "../../test/reference/homotopy_sss_output.jld2"), "r")
+    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "homotopy_sss_output.jld2"), "r")
 end
 
 @test isapprox(sssout["z"], m.z, atol=1e-4)

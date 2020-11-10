@@ -1,5 +1,5 @@
 using RiskAdjustedLinearizations, Test
-include(joinpath(dirname(@__FILE__), "../../examples/rbc_cc/rbc_cc.jl"))
+include(joinpath(dirname(@__FILE__), "..", "..", "examples", "rbc_cc", "rbc_cc.jl"))
 
 # Solve model
 m_rbc_cc = RBCCampbellCochraneHabits()
@@ -8,7 +8,7 @@ solve!(m, m.z, m.y)
 
 # Verify impulse responses with a zero shock is the same as simulate with no shocks
 horizon = 100
-@testset "Calculate impulse resposnes for an RBC Model w/Campbell-Cochrane Habits" begin
+@testset "Calculate impulse responses for an RBC Model w/Campbell-Cochrane Habits" begin
 
     # No shocks and start from steady state
     state1, jump1 = simulate(m, horizon)
