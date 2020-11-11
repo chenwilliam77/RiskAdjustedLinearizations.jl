@@ -28,7 +28,7 @@ include("numerical_algorithms/solve.jl")
 include("simulation/simulate.jl")
 include("simulation/impulse_responses.jl")
 include("simulation/gausshermite_expectation.jl")
-# include("simulation/euler_equation_error.jl")
+include("simulation/euler_equation_error.jl")
 
 export RiskAdjustedLinearization, update!, nonlinear_system, linearized_system, solve!,
     simulate, impulse_responses, gausshermite_expectation, euler_equation_error
