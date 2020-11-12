@@ -62,10 +62,10 @@ shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "crw_shock
                                      raw_output = true, n_aug = 1)
     c_err, endo_states_err = dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, shocks;
                                                           raw_output = false, n_aug = 1)
-    @test_throws BoundsError dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, shocks;
+    @test_throws DimensionMismatch dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, shocks;
                                                           raw_output = false)
     @test c_err < 2e-5
     @test endo_states_err < 1e-3
     @test c_err == norm((c_ral - c_impl) ./ c_ral, Inf)
-    @test endo_state_err == norm(vec(endo_states_ral - endo_states_impl) ./ vec(endo_states_ral), Inf)
+    @test endo_states_err == norm(vec(endo_states_ral - endo_states_impl) ./ vec(endo_states_ral), Inf)
 end
