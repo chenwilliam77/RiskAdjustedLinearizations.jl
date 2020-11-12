@@ -33,6 +33,7 @@ using SafeTestsets
         include("simulation/impulse_responses_rbc_cc.jl")
         include("simulation/impulse_responses_wachter_disaster_risk.jl")
         include("simulation/impulse_responses_crw.jl")
+        include("simulation/gausshermite_expectation.jl")
         include("simulation/euler_equation_error.jl")
     end
 end
