@@ -19,7 +19,9 @@ by [Judd (1992)](https://www.sciencedirect.com/science/article/abs/pii/002205319
 the so-called "dynamic Euler equation errors" test proposed by
 [Den Haan (2009)](https://www.sciencedirect.com/science/article/abs/pii/S0165188909001298).
 We defer the reader to these articles for explanations of the theory behind these tests.
-The wrapper functions are `euler_equation_error` and `dynamic_euler_equation_error`.
+A good set of slides on accuracy tests are [these ones by Den Haan](http://www.wouterdenhaan.com/numerical/slidesaccuracy.pdf).
+
+The wrapper functions in RiskAdjustedLinearizations.jl are `euler_equation_error` and `dynamic_euler_equation_error`.
 
 ```
 @docs
