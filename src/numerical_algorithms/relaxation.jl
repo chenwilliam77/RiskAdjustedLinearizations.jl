@@ -47,8 +47,7 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
                      use_anderson::Bool = false, m::Int = 5, verbose::Symbol = :none,
                      kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
     # Set up
-    err   = 1.
-    count = 0
+    err = 1.
     nl  = nonlinear_system(ral)
     li  = linearized_system(ral)
     Nzy = ral.Nz + ral.Ny
@@ -104,6 +103,8 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
                     reshape(out.zero[(Nzy + 1):end], ral.Ny, ral.Nz); update_cache = false)
         end
     else
+        count = 1
+
         # Some aliases/views will be useful
         zₙ₋₁  = @view xₙ₋₁[1:ral.Nz]
         yₙ₋₁  = @view xₙ₋₁[(ral.Nz + 1):end]
