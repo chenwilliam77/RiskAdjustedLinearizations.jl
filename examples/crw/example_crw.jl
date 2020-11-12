@@ -3,6 +3,9 @@
 using BenchmarkTools, RiskAdjustedLinearizations, Test, JLD2
 include("crw.jl")
 
+# Settings
+diagnostics = true
+
 # Set up
 m_crw = CoeurdacierReyWinant()
 m = crw(m_crw)
@@ -27,3 +30,13 @@ solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy)
 @test isapprox(sssout["z_rss"], m.z)
 @test isapprox(sssout["y_rss"], m.y)
 @test isapprox(sssout["Psi_rss"], m.Ψ)
+
+if diagnostics
+    # See crw.jl for the definition of the functions
+    # crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, and crw_endo_states
+    shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "crw_shocks.jld2"), "r")["shocks"]
+    @test abs(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, shocks, summary_statistic = x -> norm(x, Inf))) < 3e-5
+    c_err, endo_states_err = dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, 1, shocks)
+    @test c_err < 2e-5
+    @test endo_states_err < 1e-3
+end

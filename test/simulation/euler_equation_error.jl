@@ -21,14 +21,6 @@ std_norm_mean = zeros(2)
 std_norm_sig  = ones(2)
 crw_𝔼_quadrature(f::Function) = gausshermite_expectation(f, std_norm_mean, std_norm_sig, 10)
 
-# Augment state variables with foreign assets
-function crw_augment_states(m, zₜ, zₜ₋₁)
-    yₜ = m.y + m.Ψ * (zₜ - m.z)
-    Cₜ = exp(yₜ[1])
-    # Aₜ = zₜ[1] - Cₜ
-    return vcat(zₜ, zₜ[1] - Cₜ)
-end
-
 # Calculate implied state variable(s)
 function crw_endo_states(m, zₜ, zₜ₋₁, c_impl)
     # rₜ, yₜ are exogenous while Nₜ = exp(rₜ) * Aₜ₋₁ + Yₜ is entirely pre-determined.
