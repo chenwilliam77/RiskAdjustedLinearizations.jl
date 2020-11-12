@@ -4,7 +4,7 @@ include(joinpath(dirname(@__FILE__), "..", "..", "examples", "crw", "crw.jl"))
 # Solve model
 m_crw = CoeurdacierReyWinant()
 m = crw(m_crw)
-solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy)
+solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, verbose = :none)
 
 # Calculate consumption at state zₜ
 crw_cₜ(m, zₜ) = exp(m.y[1] + (m.Ψ * (zₜ - m.z))[1])

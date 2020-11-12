@@ -4,7 +4,7 @@ include(joinpath(dirname(@__FILE__), "..", "..", "examples", "wachter_disaster_r
 # Solve model
 m_wachter = WachterDisasterRisk()
 m = inplace_wachter_disaster_risk(m_wachter)
-solve!(m, m.z, m.y)
+solve!(m, m.z, m.y; verbose = :none)
 
 # Simulate with no shocks
 horizon = 100

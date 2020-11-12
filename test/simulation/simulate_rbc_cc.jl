@@ -4,7 +4,7 @@ include(joinpath(dirname(@__FILE__), "..", "..", "examples", "rbc_cc", "rbc_cc.j
 # Solve model
 m_rbc_cc = RBCCampbellCochraneHabits()
 m = rbc_cc(m_rbc_cc)
-solve!(m, m.z, m.y)
+solve!(m, m.z, m.y; verbose = :none)
 
 # Simulate with no shocks
 horizon = 100
