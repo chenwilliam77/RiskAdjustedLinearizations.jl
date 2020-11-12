@@ -5,7 +5,7 @@ include(joinpath(dirname(@__FILE__), "..", "examples", "rbc_cc", "rbc_cc.jl"))
 
 # Set up
 m_rbc_cc = RBCCampbellCochraneHabits()
-m = rbc_cc(m_rbc_cc, n_strips)
+m = rbc_cc(m_rbc_cc, 0)
 
 # Solve!
 solve!(m; algorithm = :relaxation)
