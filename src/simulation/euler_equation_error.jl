@@ -55,8 +55,8 @@ function euler_equation_error(m::RiskAdjustedLinearization, cₜ::Function, logS
 end
 
 function euler_equation_error(m::RiskAdjustedLinearization, cₜ::Function, logSDFxR::Function, 𝔼_quadrature::Function,
-                              shock_matrix::AbstractMatrix, summary_stat::Function,
-                              zₜ::AbstractVector = m.z; kwargs...)
+                              shock_matrix::AbstractMatrix, zₜ::AbstractVector = m.z; c_init::Number = NaN,
+                              summary_statistic::Function = x -> norm(x, Inf), kwargs...)
 
     # Set up
     T = size(shock_matrix, 2)
@@ -66,44 +66,59 @@ function euler_equation_error(m::RiskAdjustedLinearization, cₜ::Function, logS
 
     # Compute implied consumption according to the quadrature rule for each state
     # and expected consumption according to RAL
-    err = [euler_equation_error(m, cₜ, logSDFxR, 𝔼_quadrature, (@view states[:, t]); kwargs...) for t in 1:T]
+    err = [euler_equation_error(m, cₜ, logSDFxR, 𝔼_quadrature, (@view states[:, t]); c_init = c_init, kwargs...) for t in 1:T]
 
     # Return error in unit-free terms
-    return summary_stat(err)
+    return summary_statistic(err)
 end
 
 function dynamic_euler_equation_error(m::RiskAdjustedLinearization, cₜ::Function, logSDFxR::Function,
-                                      𝔼_quadrature::Function, z̃ₜ::Function, shock_matrix::AbstractMatrix, p::Number,
-                                      z₀::AbstractVector = m.z)
+                                      𝔼_quadrature::Function, endo_states::Function,
+                                      shock_matrix::AbstractMatrix, z₀::AbstractVector = m.z;
+                                      c_init::Number = NaN, summary_statistic::Function = x -> norm(x, Inf),
+                                      raw_output::Bool = false, n_aug::Int = 0, kwargs...)
 
     # Set up
     T = size(shock_matrix, 2)
     c_impl = Vector{eltype(shock_matrix)}(undef, T)
-    z_impl = similar(shock_matrix, m.Nz, T)
 
     # Simulate states and calculate consumption according to RAL
-    states, _ = simulate(m, T, shock_matrix, z₀)
-    c_ral     = [cₜ(m, (@view states[:, t])) for t in 1:T]
+    states, _  = simulate(m, T, shock_matrix, z₀)
+    c_ral      = [cₜ(m, (@view states[:, t])) for t in 1:T]
+    orig_i     = 1:size(states, 1)
+
+    # Additional set up
+    endo_states_impl = similar(states, length(orig_i) + n_aug, T)
+    endo_states_ral  = similar(endo_states_impl)
 
     # For each state, calculate conditional expectation using quadrature rule
     # and compute the implied states
-    out = nlsolve(c -> [log(𝔼_quadrature(εₜ₊₁ -> exp(logSDFxR(m, zₜ, εₜ₊₁, c))))], (@view states[:, 1]))
+    out = nlsolve(c -> [log(𝔼_quadrature(εₜ₊₁ -> exp(logSDFxR(m, (@view states[:, 1]), εₜ₊₁, c[1]))))], [isnan(c_init) ? c_ral[1] : c_init];
+                  kwargs...) # Do period 1 separately b/c needed to initialize endo_states_impl
     if out.f_converged
         c_impl[1] = out.zero[1]
     else
         error("Failed to solve implied consumption in period 1 of $T.")
     end
-    z_impl[:, 1] = z̃ₜ(m, (@view states[:, 1]), z₀, c_impl[1])
+    endo_states_impl[:, 1] = endo_states(m, (@view states[:, 1]), z₀, c_impl[1])
+    endo_states_ral[:, 1]  = endo_states(m, (@view states[:, 1]), z₀, c_ral[1])
 
     for t in 2:T
-        out = nlsolve(c -> [log(𝔼_quadrature(εₜ₊₁ -> exp(logSDFxR(m, zₜ, εₜ₊₁, c))))], (@view states[:, t]))
+        out = nlsolve(c -> [log(𝔼_quadrature(εₜ₊₁ -> exp(logSDFxR(m, (@view states[:, t]), εₜ₊₁, c[1]))))], [isnan(c_init) ? c_ral[t] : c_init];
+                      kwargs...)
         if out.f_converged
             c_impl[t] = out.zero[1]
         else
             error("Failed to solve implied consumption in period $t of $T.")
         end
-        z_impl[:, t] = z̃ₜ(m, (@view states[:, t]), (@view z_impl[:, t - 1]), c_impl[t])
+        endo_states_impl[:, t] = endo_states(m, (@view states[:, t]), (@view endo_states_impl[orig_i, t - 1]), c_impl[t])
+        endo_states_ral[:, t]  = endo_states(m, (@view states[:, t]), (@view endo_states_ral[orig_i, t - 1]),  c_ral[t])
     end
 
     # Calculate the errors
+    if raw_output
+        return c_ral, c_impl, endo_states_ral, endo_states_impl
+    else
+        return summary_statistic((c_ral - c_impl) ./ c_ral), summary_statistic(vec(endo_states_ral - endo_states_impl) ./ vec(endo_states_ral))
+    end
 end

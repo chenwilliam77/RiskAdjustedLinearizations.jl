@@ -31,5 +31,6 @@ include("simulation/gausshermite_expectation.jl")
 include("simulation/euler_equation_error.jl")
 
 export RiskAdjustedLinearization, update!, nonlinear_system, linearized_system, solve!,
-    simulate, impulse_responses, gausshermite_expectation, euler_equation_error
+    simulate, impulse_responses, gausshermite_expectation, euler_equation_error,
+    dynamic_euler_equation_error
 end # module

@@ -26,12 +26,13 @@ using SafeTestsets
         include(joinpath(dirname(@__FILE__), "..", "examples", "crw", "example_crw.jl")) # This example tests case of jump-dependent Σ and Λ
     end
 
-    @time @safetestset "Simulations and Impulse Responses" begin
+    @time @safetestset "Simulations, Impulse Responses, and Simulation-Based Diagnostics" begin
         include("simulation/simulate_rbc_cc.jl")
         include("simulation/simulate_wachter_disaster_risk.jl")
         include("simulation/simulate_crw.jl")
         include("simulation/impulse_responses_rbc_cc.jl")
         include("simulation/impulse_responses_wachter_disaster_risk.jl")
         include("simulation/impulse_responses_crw.jl")
+        include("simulation/euler_equation_error.jl")
     end
 end

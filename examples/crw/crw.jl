@@ -27,7 +27,7 @@ end
 function crw(m::CoeurdacierReyWinant{T}) where {T <: Real}
     @unpack σr, σy, β, γ, θ, ρr, ρy, rr, yy = m
 
-    # N = exp(rₜ) * Aₜ₋₁ + Yₜ, where Aₜ is foreign assets and Yₜ is the endowment
+    # Nₜ = exp(rₜ) * Aₜ₋₁ + Yₜ, where Aₜ is foreign assets and Yₜ is the endowment
     # The jump variables are consumption, expected return on assets Xₜ = 𝔼ₜ[Rₜ₊₁], and
     # Wₜ = 𝔼ₜ[Yₜ₊₁]
     S  = OrderedDict{Symbol, Int}(:N => 1, :r => 2, :y => 3) # State variables
