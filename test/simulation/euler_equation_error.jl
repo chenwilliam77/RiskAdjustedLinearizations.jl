@@ -57,11 +57,11 @@ shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "crw_shock
     @test abs(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, shocks, summary_statistic = x -> norm(x, 2))) < 9e-5
 
     c_ral, c_impl, endo_states_ral, endo_states_impl =
-        dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, shocks;
-                                     raw_output = true, n_aug = 1)
-    c_err, endo_states_err = dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, shocks;
-                                                          raw_output = false, n_aug = 1)
-    @test_throws DimensionMismatch dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, shocks;
+        dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, 1, shocks;
+                                     raw_output = true)
+    c_err, endo_states_err = dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, 1, shocks;
+                                                          raw_output = false)
+    @test_throws DimensionMismatch dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, 0, shocks;
                                                           raw_output = false)
     @test c_err < 2e-5
     @test endo_states_err < 1e-3
