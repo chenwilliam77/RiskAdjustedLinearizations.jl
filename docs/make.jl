@@ -17,6 +17,7 @@ makedocs(
              "Numerical Algorithms" => "numerical_algorithms.md",
              "Example" => "example.md",
              "Caching" => "caching.md",
+             "Diagnostics" => "diagnostics.md",
              "Tips" => "tips.md",
              ]
 )

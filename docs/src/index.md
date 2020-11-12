@@ -12,5 +12,5 @@ This content is released under the [MIT](https://opensource.org/licenses/MIT) Li
 ## Contents
 
 ```@contents
-Pages = ["risk_adjusted_linearization.md", "numerical_algorithms.md", "example.md", "caching.md", "tips.md"]
+Pages = ["risk_adjusted_linearization.md", "numerical_algorithms.md", "example.md", "caching.md", "diagnostics.md", "tips.md"]
 ```
