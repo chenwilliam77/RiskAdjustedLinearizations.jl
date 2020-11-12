@@ -7,11 +7,12 @@ include("rbc_cc.jl")
 time_methods        = false
 numerical_algorithm = :relaxation
 autodiff            = false
+n_strips            = 3
 
 # Set up
 autodiff_method = autodiff ? :forward : :central
 m_rbc_cc = RBCCampbellCochraneHabits()
-m = rbc_cc(m_rbc_cc)
+m = rbc_cc(m_rbc_cc, n_strips)
 z0 = copy(m.z)
 y0 = copy(m.y)
 Ψ0 = copy(m.Ψ)
@@ -19,15 +20,25 @@ y0 = copy(m.y)
 # Solve!
 solve!(m; algorithm = numerical_algorithm, autodiff = autodiff_method)
 
-if numerical_algorithm == :relaxation
-    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_sss_iterative_output.jld2"), "r")
-elseif numerical_algorithm == :homotopy
-    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_sss_homotopy_output.jld2"), "r")
+if n_strips == 0
+    if numerical_algorithm == :relaxation
+        sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_sss_iterative_output.jld2"), "r")
+    elseif numerical_algorithm == :homotopy
+        sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_sss_homotopy_output.jld2"), "r")
+    end
+elseif n_strips == 3
+    if numerical_algorithm == :relaxation
+        sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_sss_iterative_N3_output.jld2"), "r")
+    elseif numerical_algorithm == :homotopy
+        sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_sss_homotopy_N3_output.jld2"), "r")
+    end
 end
 
-@test isapprox(sssout["z_rss"], m.z, atol=1e-4)
-@test isapprox(sssout["y_rss"], m.y, atol=1e-4)
-@test isapprox(sssout["Psi_rss"], m.Ψ, atol=1e-4)
+if n_strips in [0, 3]
+    @test isapprox(sssout["z_rss"], m.z, atol=1e-4)
+    @test isapprox(sssout["y_rss"], m.y, atol=2e-4)
+    @test isapprox(sssout["Psi_rss"], m.Ψ, atol=1e-4)
+end
 
 if time_methods
     println("Deterministic steady state")
