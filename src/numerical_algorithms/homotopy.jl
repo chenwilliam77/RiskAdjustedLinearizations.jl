@@ -38,7 +38,7 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
         qguesses = vcat(qguesses, 1.)
     end
     for (i, q) in enumerate(qguesses)
-        solve_steadystate!(m, getvecvalues(m), q; autodiff = autodiff, kwargs...)
+        solve_steadystate!(m, getvecvalues(m), q; verbose = verbose, autodiff = autodiff, kwargs...)
 
         if verbose == :high
             println("Success at iteration $(i) of $(length(qguesses))")
@@ -59,7 +59,7 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
 end
 
 function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, q::Float64;
-                            autodiff::Symbol = :central, kwargs...) where {S1 <: Real}
+                            autodiff::Symbol = :central, verbose::Symbol = :none, kwargs...) where {S1 <: Real}
 
     # Set up system of equations
     N_zy = m.Nz + m.Ny

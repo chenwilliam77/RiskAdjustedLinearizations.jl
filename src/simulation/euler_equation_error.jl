@@ -143,7 +143,7 @@ function dynamic_euler_equation_error(m::RiskAdjustedLinearization, cₜ::Functi
                                       𝔼_quadrature::Function, endo_states::Function, n_aug::Int,
                                       shock_matrix::AbstractMatrix, z₀::AbstractVector = m.z;
                                       c_init::Number = NaN, summary_statistic::Function = x -> norm(x, Inf),
-                                      raw_output::Bool = false, kwargs...)
+                                      burnin::Int = 0, raw_output::Bool = false, kwargs...)
 
     # Set up
     T = size(shock_matrix, 2)
@@ -184,8 +184,8 @@ function dynamic_euler_equation_error(m::RiskAdjustedLinearization, cₜ::Functi
 
     # Calculate the errors
     if raw_output
-        return c_ral[(burnin + 1):end], c_impl(burnin + 1):end, endo_states_ral(burnin + 1):end, endo_states_impl(burnin + 1):end
+        return c_ral[(burnin + 1):end], c_impl[(burnin + 1):end], endo_states_ral[(burnin + 1):end], endo_states_impl[(burnin + 1):end]
     else
-        return summary_statistic(((@view c_ral[(burnin + 1):end]) - (@view c_impl[(burnin + 1):end])) ./ (@view c_ral[(burnin + 1):end])), summary_statistic(vec((@view endo_states_ral[:, (burnin + 1):end]) - (@view endo_states_impl[:, (burnin + 1):end]) ./ vec((@view endo_states_ral[:, (burnin + 1):end])))
+        return summary_statistic(((@view c_ral[(burnin + 1):end]) - (@view c_impl[(burnin + 1):end])) ./ (@view c_ral[(burnin + 1):end])), summary_statistic(vec((@view endo_states_ral[:, (burnin + 1):end]) - (@view endo_states_impl[:, (burnin + 1):end])) ./ vec((@view endo_states_ral[:, (burnin + 1):end])))
     end
 end
