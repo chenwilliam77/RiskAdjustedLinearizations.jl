@@ -22,6 +22,8 @@ We defer the reader to these articles for explanations of the theory behind thes
 A good set of slides on accuracy tests are [these ones by Den Haan](http://www.wouterdenhaan.com/numerical/slidesaccuracy.pdf).
 
 The wrapper functions in RiskAdjustedLinearizations.jl are `euler_equation_error` and `dynamic_euler_equation_error`.
+See the [Coeurdacier, Rey, and Winant (2011) script](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/crw/example_crw.jl)
+for an example of how to use these functions.
 
 ```
 @docs
@@ -29,5 +31,13 @@ RiskAdjustedLinearizations.euler_equation_error
 RiskAdjustedLinearizations.dynamic_euler_equation_error
 ```
 
-See the [Coeurdacier, Rey, and Winant (2011) script](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/crw/example_crw.jl)
-for an example of how to use these functions.
+To make running diagnostics even easier, we also provide user-friendly functions
+for calculating Gauss-Hermite quadrature when shocks are Gaussian. Extensions
+of Gauss-Hermite quadrature rules for non-Gaussian shocks (e.g. Poisson disaster risk)
+should be straightforward to implement by mirroring the implementation
+in RiskAdjustedLinearizations.jl.
+
+```
+@docs
+RiskAdjustedLinearizations.gausshermite_expectation
+```

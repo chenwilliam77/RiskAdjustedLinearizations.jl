@@ -6,6 +6,32 @@ function standard_normal_gausshermite(n::Int)
     return ϵᵢ, wᵢ
 end
 
+"""
+```
+gausshermite_expectation(f, μ, σ, n = 10)
+gausshermite_expectation(f, μ, Σ, n = 10)
+gausshermite_expectation(f, μ, Σ, ns)
+```
+
+calculates the expectation of a function of a Gaussian random variable/vector.
+The first method evalulates ``\\mathbb{E}[f(X)]`` where ``X \\sim N(\\mu, \\sigma)``,
+while the other two methods evaluate ``\\mathbb{E}[f(X)]`` where
+``X \\sim \\mathcal{N}(\\mu, \\Sigma)`` and ``\\Sigma`` is diagonal.
+The latter two methods differ in that the first assumes the same number of
+quadrature points in every dimension while the second does not.
+
+### Inputs
+- `f::Function`: some function of a random variable. If `f(x) = x`, then
+    `gausshermite_expectation(f, μ, σ)` calculates the mean of ``N(\\mu, \\sigma)``
+    using 10-point Gauss-Hermite quadrature.
+- `μ::Number` or `μ::AbstractVector`: mean of the Gaussian random variable/vector.
+- `σ::Number`: standard deviation of the Gaussian random variable.
+- `Σ::AbstractVector`: diagonal of the variance-covariance matrix of
+     the Gaussian random vector.
+- `n::Int`: number of quadrature points to use
+- `ns::AbstractVector{Int}` or `ns::NTuple{N, Int} where N`: number of quadrature points to use
+    in each dimension of the Gaussian random vector.
+"""
 function gausshermite_expectation(f::Function, μ::Number, σ::Number, n::Int = 10)
     ϵᵢ, wᵢ = gausshermite(n)
     ϵᵢ   .*= sqrt(2.)  # Normalize ϵᵢ and wᵢ nodes to approximate standard normal
