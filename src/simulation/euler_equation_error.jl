@@ -14,11 +14,13 @@ and returns some summary statistic of the errors specified by the keyword
 `summary_statistic`.
 
 The Euler equation is
+
 ``math
 \\begin{aligned}
 0 = \\log \\mathbb{E}_t \\exp(m_{t + 1} + r_{t + 1}) = \\log \\mathbb{E}_t[M_{t + 1} R_{t + 1}],
 \\end{aligned}
 ``
+
 where ``m_{t + 1} = \\log(M_{t + 1})`` is the log stochastic discount factor and ``r_{t + 1} = \\log(R_{t + 1})``
 is the risk free rate.
 
@@ -90,11 +92,13 @@ dynamic_euler_equation_error(m, cₜ, logSDFxR, 𝔼_quadrature, endo_states, n_
 ```
 calculates dynamic Euler equation errors, as proposed in Den Haan (2009).
 The Euler equation is
+
 ``math
 \\begin{aligned}
 0 = \\log \\mathbb{E}_t \\exp(m_{t + 1} + r_{t + 1}) = \\log \\mathbb{E}_t[M_{t + 1} R_{t + 1}],
 \\end{aligned}
 ``
+
 where ``m_{t + 1} = \\log(M_{t + 1})`` is the log stochastic discount factor and ``r_{t + 1} = \\log(R_{t + 1})``
 is the risk free rate.
 
