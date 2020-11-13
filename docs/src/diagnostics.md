@@ -25,8 +25,7 @@ The wrapper functions in RiskAdjustedLinearizations.jl are `euler_equation_error
 See the [Coeurdacier, Rey, and Winant (2011) script](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/crw/example_crw.jl)
 for an example of how to use these functions.
 
-```
-@docs
+```@docs
 RiskAdjustedLinearizations.euler_equation_error
 RiskAdjustedLinearizations.dynamic_euler_equation_error
 ```
@@ -37,7 +36,6 @@ of Gauss-Hermite quadrature rules for non-Gaussian shocks (e.g. Poisson disaster
 should be straightforward to implement by mirroring the implementation
 in RiskAdjustedLinearizations.jl.
 
-```
-@docs
+```@docs
 RiskAdjustedLinearizations.gausshermite_expectation
 ```
