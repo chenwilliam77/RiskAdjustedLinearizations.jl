@@ -49,7 +49,7 @@ The expectational equations can be simplified as
 \begin{aligned}
 0 & = \log\mathbb{E}_t[\exp(\xi(z_t, y_t) + \Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1})]\\
   & = \log[\exp(\xi(z_t, y_t))\mathbb{E}_t[\exp(\Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1})]]\\
-  & = \xi(z_t, y_t) + \Gamma_5\mathbb{E}_t z_{t + 1} + \Gamma_6 \mathbb{E}_t y_{t + 1} + \log\mathbb{E}_t[\exp(\Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1})] - (\Gamma_5\mathbb{E}_t z_{t + 1} + \Gamma_6 \mathbb{E}_t y_{t + 1})
+  & = \xi(z_t, y_t) + \Gamma_5\mathbb{E}_t z_{t + 1} + \Gamma_6 \mathbb{E}_t y_{t + 1} + \log\mathbb{E}_t[\exp(\Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1})] - (\Gamma_5\mathbb{E}_t z_{t + 1} + \Gamma_6 \mathbb{E}_t y_{t + 1})\\
   & = \xi(z_t, y_t) + \Gamma_5\mathbb{E}_t z_{t + 1} + \Gamma_6 \mathbb{E}_t y_{t + 1} + \mathcal{V}(\Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1}),
 \end{aligned}
 ```
@@ -163,8 +163,7 @@ accessible through Julia.
 
 See the [Example](@ref example) for how to use the type.
 
-```
-@docs
+```@docs
 RiskAdjustedLinearizations.RiskAdjustedLinearization
 ```
 

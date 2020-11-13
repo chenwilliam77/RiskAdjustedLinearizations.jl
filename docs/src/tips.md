@@ -19,7 +19,7 @@ As an example, if ``X \sim N(\mu, \sigma^2)``, then ``M_X(t) = \exp(t\mu + \sigm
 ``cgf_X(t) = t\mu + \sigma^2 t^2 / 2``.
 
 Risk-adjusted linearizations imply that the relative entropy measure ``\mathcal{V}(\Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1})``
-becomes a vector of conditional cumulant-generating functions for the random variables ``A_i(z_t) \varepsilon_{t + 1}`,
+becomes a vector of conditional cumulant-generating functions for the random variables ``A_i(z_t) \varepsilon_{t + 1}``,
 where ``A_i(z_t)`` is the ``i``th row vector of
 ```math
 \begin{aligned}
@@ -45,7 +45,7 @@ Rather, `ccgf` should just return a vector of conditional cumulant-generating fu
 for the ``n_y`` random variables ``X_i = A_i(z_t)\varepsilon_{t + 1}``.
 
 Because the individual components of ``\varepsilon_{t + 1}`` are independent,
-the moment-generating function for ``X_i`` is ``\exp\left(\frac{1}{2}\left(\sum_{j = 1}^{n_\varepsilon} X_{ij} \varepsilon_{i, t + j}\right)\right)``, hence the ``i``th cumulant-generating function is ``\frac{1}{2}\left(\sum_{j = 1}^{n_\varepsilon} X_{ij} \varepsilon_{i, t + j}``. This is precisely what the code above achieves.
+the moment-generating function for ``X_i`` is ``\exp\left(\frac{1}{2}\left(\sum_{j = 1}^{n_\varepsilon} X_{ij} \varepsilon_{i, t + j}\right)\right)``, hence the ``i``th cumulant-generating function is ``\frac{1}{2}\left(\sum_{j = 1}^{n_\varepsilon} X_{ij} \varepsilon_{i, t + j}\right)``. This is precisely what the code above achieves.
 
 Second, let us consider a more complicated example. In the [Wachter (2013) Example](@ref example),
 the ccgf is
