@@ -29,7 +29,7 @@ A(z_t) = (\Gamma_5 + \Gamma_6 \Psi)(I_{n_z} - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t
 
 To create a `RiskAdjustedLinearization`, the user needs to define a function `ccgf` in the form
 `ccgf(F, A, z)` or `ccgf(A, z)`, where `A` refers to the matrix ``A(z_t)`` once it has already been
-evaluated at ``z_t``. In other words, the input `A` should seen as a `n_y \times n_\varepsilon` matrix
+evaluated at ``z_t``. In other words, the input `A` should seen as a ``n_y \times n_\varepsilon`` matrix
 of real scalars. However,
 depending on the distributions of the martingale difference sequence ``\varepsilon_{t + 1}``,
 writing the conditional cumulant-generating function may also require knowing the current state ``z_t``.
@@ -40,7 +40,7 @@ Then we claim
 ccgf(A, z) = sum(A.^2, dims = 2) / 2
 ```
 Based on the definition of ``\mathcal{V}(z_t)``, one may be tempted to derive the conditional cumulant-generating function
-for the random vector `A(z_t) \varepsilon_{t + 1}`. However, this is not actually what we want.
+for the random vector ``A(z_t) \varepsilon_{t + 1}``. However, this is not actually what we want.
 Rather, `ccgf` should just return a vector of conditional cumulant-generating functions
 for the ``n_y`` random variables ``X_i = A_i(z_t)\varepsilon_{t + 1}``.
 
