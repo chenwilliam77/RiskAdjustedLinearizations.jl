@@ -162,7 +162,7 @@ accessible through Julia.
 4. (Coming in the future) Calculation of Jacobians with automatic differentiation is accelerated by exploiting sparsity with SparseDiffTools.jl
 
 See the [Example](@ref example) for how to use the type. To compare this package's speed with the original MATLAB code,
-run the [wac_disaster.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/master/examples/matlab_timing_test/wac_disaster.jl) or [rbc_cc.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/master/examples/matlab_timing_test/wac_disaster.jl)
+run the [wac_disaster.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/master/examples/matlab_timing_test/wac_disaster.jl) or [rbc_cc.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/master/examples/matlab_timing_test/rbc_cc.jl)
 scripts. These scripts assess how long it takes to calculate a risk-adjusted linearization using the two numerical algorithms
 implemented by this package and by the original authors. The relaxation algorithm is generally around 50x-100x faster
 while the homotopy algorithm 3x-4x times faster.

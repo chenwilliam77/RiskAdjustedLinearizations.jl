@@ -9,7 +9,7 @@
 This package implements [Lopez et al. (2018) "Risk-Adjusted Linearizations of Dynamic Equilibrium Models"](https://ideas.repec.org/p/bfr/banfra/702.html) in Julia. The [original companion code](https://github.com/fvazquezgrande/gen_affine) for the paper implements the method using MATLAB's Symbolic Math Toolbox. RiskAdjustedLinearizations.jl takes advantage of Julia's speed and flexibility so that the method can be used for solving and estimating large-scale Dynamic Stochastic General Equilibrium (DSGE) models.
 
 Timing tests indicate that this package's speed is significantly faster than the original MATLAB code.
-As examples, run the [wac_disaster.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/master/examples/matlab_timing_test/wac_disaster.jl) or [rbc_cc.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/master/examples/matlab_timing_test/wac_disaster.jl) scripts, which assess how long it takes to calculate a risk-adjusted linearization using the two numerical algorithms
+As examples, run the [wac_disaster.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/master/examples/matlab_timing_test/wac_disaster.jl) or [rbc_cc.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/master/examples/matlab_timing_test/rbc_cc.jl) scripts, which assess how long it takes to calculate a risk-adjusted linearization using the two numerical algorithms
 implemented by this package and by the original authors.
 The relaxation algorithm in Julia is around 50x-100x faster while the homotopy algorithm in Julia is 3x-4x times faster.
 
