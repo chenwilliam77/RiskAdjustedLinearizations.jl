@@ -40,7 +40,7 @@ sol_opt = 0;
 syms ka hats ;
 zt = [ka ; hats] ;
 % Enter name of jump variables
-disp('Select number of strips')
+% disp('Select number of strips')
 % N = input(''); % number of strips (if used)
 N = 0;
 name_model = [name_model, '_strips',num2str(N)] ;
@@ -166,8 +166,8 @@ ka_SS = log(exp(ck_SS) + exp(ik_SS))/(alpha-1)  ;
 SS_x = double([ck_SS; ik_SS; wk_SS; ka_SS; 0 ]) ;
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    tic;
-    disp('---------------------Parametrizing---------------------')
+    % tic;
+    % disp('---------------------Parametrizing---------------------')
     Npar = length(MODEL.parameters.params);
     for i=1:Npar;
         eval(['params(i,1) = ' char(MODEL.parameters.params(i)) ';'])
@@ -184,17 +184,14 @@ SS_x = double([ck_SS; ik_SS; wk_SS; ka_SS; 0 ]) ;
         end
     end
 
-	disp('... done!')
-    toc;
+	% disp('... done!')
+    % toc;
 
-    disp('---------------------Loading---------------------')
-	tic;
+    % disp('---------------------Loading---------------------')
+	% tic;
     run fct_setup_step3 ;
-    toc;
+    % toc;
 
-    save model_setup MODEL
-    clear
-    load model_setup ;
 	Npar = length(MODEL.parameters.params);
     for i=1:Npar;
         eval([char(MODEL.parameters.params(i)) '=' num2str(MODEL.calibration.params(i)) ';'])
@@ -210,23 +207,23 @@ SS_x = double([ck_SS; ik_SS; wk_SS; ka_SS; 0 ]) ;
     Nx = length(xt) ;
     Neps = length(epst) ;
 
-    disp('... done!')
+    % disp('... done!')
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %% Solution
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    disp('---------------------Solving---------------------')
+    % disp('---------------------Solving---------------------')
     run fct_solution ;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Simulation
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    tic;
-    disp('------------------------------------------')
-    disp('Simulate? (=0 no; =1 yes)')
+    % tic;
+    % disp('------------------------------------------')
+    % disp('Simulate? (=0 no; =1 yes)')
     % sim_opt = input('');
     sim_opt = 0;
     if sim_opt == 1
@@ -235,8 +232,8 @@ SS_x = double([ck_SS; ik_SS; wk_SS; ka_SS; 0 ]) ;
         disp('---------------------Simulating---------------------')
         [ MODEL ] = fct_stochsimul( MODEL, TT, floor(TT/100) ) ;
     end
-	disp('... done!')
-    toc;
+	% disp('... done!')
+    % toc;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% IRF
@@ -259,21 +256,11 @@ else
 end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    tic;
-    disp('---------------------Ex post impulse responses---------------------')
-	x = MODEL.solution.rss.x ;
-    Psi = MODEL.solution.rss.Psi ;
-    [ MODEL ] = fct_irf( MODEL, x, Psi, shocks, var_sel, var_plot, freq*horizon, z0_rss ) ;
-	disp('... done!')
-    toc;
+    % tic;
+    % disp('---------------------Ex post impulse responses---------------------')
+	% x = MODEL.solution.rss.x ;
+    % Psi = MODEL.solution.rss.Psi ;
+    % [ MODEL ] = fct_irf( MODEL, x, Psi, shocks, var_sel, var_plot, freq*horizon, z0_rss ) ;
+	% disp('... done!')
+    % toc;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% save
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	disp('---------------------Saving---------------------')
-    filename = [char(MODEL.name) '_results.mat'] ;
-    save(filename,'MODEL')
-    delete('model_setup.mat')
-	disp('... done!')
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
