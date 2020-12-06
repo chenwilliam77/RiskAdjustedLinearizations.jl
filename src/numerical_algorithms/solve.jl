@@ -75,7 +75,7 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     update!(li, m.z, m.y, m.Ψ; select = Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄])
 
     # Back out Ψ
-    compute_Ψ(m; zero_entropy_jacobian = true)
+    m.Ψ .= compute_Ψ(m; zero_entropy_jacobian = true)
 
     # Use deterministic steady state as guess for stochastic steady state?
     if algorithm == :deterministic
