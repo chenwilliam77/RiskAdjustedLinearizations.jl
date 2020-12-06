@@ -1,0 +1,527 @@
+\documentclass[12 pt, oneside]{article}
+\textheight 9 in
+\textwidth 6.5 in
+\topmargin 0 in
+\oddsidemargin .3 in
+\evensidemargin .3 in
+\usepackage{amssymb}
+\usepackage{amsmath,amsthm}
+\usepackage{amsbsy,paralist}
+\usepackage{appendix}
+\usepackage{natbib}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{color}
+\usepackage{mathrsfs}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+%\usepackage[nodisplayskipstretch]{setspace}
+\usepackage{fullpage}
+\usepackage{cancel}
+\usepackage{pgfplots}
+\usepackage{lipsum}
+% \usepackage{subfig}
+\usepackage{wrapfig,subcaption}
+\usepackage{xfrac}
+\usepackage{bbm}
+\let\oldemptyset\emptyset
+\let\emptyset\varnothing
+\newtheorem*{thm}{Theorem}
+\newtheorem*{lem}{Lemma}
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{lemnum}{Lemma}
+\newtheorem*{cor}{Corollary}
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{cornum}{Corollary}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{thmnum}{Theorem}
+\newtheorem*{prop}{Proposition}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{propnum}{Proposition}
+\theoremstyle{definition}
+\newtheorem*{remark}{Remarks}
+\theoremstyle{definition}
+\newtheorem*{eg}{Example}
+\theoremstyle{definition}
+\newtheorem*{defn}{Definition}
+\newtheorem{definition}{Definition}
+\newtheorem{defnnum}{Definition}[section]
+\newcommand{\bigsum}[2]{\sum\limits_{#1}^{#2}}
+\newcommand{\bigprod}[2]{\prod\limits_{#1}^{#2}}
+\newcommand{\nlim}{\lim_{n\ra\infty}}
+\DeclareMathOperator{\as}{a.s.}
+\DeclareMathOperator{\almalw}{a.a.}
+\newcommand{\vecx}{\vec{x}}
+\newcommand{\vecy}{\vec{y}}
+\DeclareMathOperator{\Char}{Char}
+\DeclareMathOperator{\orb}{orb}
+\DeclareMathOperator{\stab}{stab}
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\Inn}{Inn}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\card}{card}
+\DeclareMathOperator{\Cl}{Cl}
+\DeclareMathOperator{\Int}{Int}
+\DeclareMathOperator{\var}{Var}
+\DeclareMathOperator{\cov}{Cov}
+\DeclareMathOperator{\io}{i.o.}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\tr}{trace}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\vect}{vec}
+\DeclareMathOperator{\diver}{div}
+\DeclareMathOperator{\gradi}{grad}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\bfSigma}{\mathbf{\Sigma}}
+\newcommand{\bfc}{\mathbf{c}}
+\newcommand{\bfb}{\mathbf{b}}
+\newcommand{\bfa}{\mathbf{a}}
+\newcommand{\bfd}{\mathbf{d}}
+\newcommand{\bff}{\mathbf{f}}
+\newcommand{\bfh}{\mathbf{h}}
+\newcommand{\bfg}{\mathbf{g}}
+\newcommand{\bfi}{\mathbf{i}}
+\newcommand{\bfj}{\mathbf{j}}
+\newcommand{\bfk}{\mathbf{k}}
+\newcommand{\bfl}{\mathbf{l}}
+\newcommand{\bfm}{\mathbf{m}}
+\newcommand{\bfn}{\mathbf{n}}
+\newcommand{\bfo}{\mathbf{o}}
+\newcommand{\bfp}{\mathbf{p}}
+\newcommand{\bfq}{\mathbf{q}}
+\newcommand{\bfr}{\mathbf{r}}
+\newcommand{\bfs}{\mathbf{s}}
+\newcommand{\bft}{\mathbf{t}}
+\newcommand{\bfx}{\mathbf{x}}
+\newcommand{\bfy}{\mathbf{y}}
+\newcommand{\bfz}{\mathbf{z}}
+\newcommand{\bfu}{\mathbf{u}}
+\newcommand{\bfv}{\mathbf{v}}
+\newcommand{\bfw}{\mathbf{w}}
+\newcommand{\bfX}{\mathbf{X}}
+\newcommand{\bfY}{\mathbf{Y}}
+\newcommand{\bfA}{\mathbf{A}}
+\newcommand{\bfB}{\mathbf{B}}
+\newcommand{\bfC}{\mathbf{C}}
+\newcommand{\bfD}{\mathbf{D}}
+\newcommand{\bfE}{\mathbf{E}}
+\newcommand{\bfF}{\mathbf{F}}
+\newcommand{\bfG}{\mathbf{G}}
+\newcommand{\bfH}{\mathbf{H}}
+\newcommand{\bfI}{\mathbf{I}}
+\newcommand{\bfJ}{\mathbf{J}}
+\newcommand{\bfK}{\mathbf{K}}
+\newcommand{\bfL}{\mathbf{L}}
+\newcommand{\bfU}{\mathbf{U}}
+\newcommand{\bfV}{\mathbf{V}}
+\newcommand{\bfW}{\mathbf{W}}
+\newcommand{\bfZ}{\mathbf{Z}}
+\newcommand{\bfM}{\mathbf{M}}
+\newcommand{\bfN}{\mathbf{N}}
+\newcommand{\bfQ}{\mathbf{Q}}
+\newcommand{\bfO}{\mathbf{O}}
+\newcommand{\bfR}{\mathbf{R}}
+\newcommand{\bfS}{\mathbf{S}}
+\newcommand{\bfT}{\mathbf{T}}
+\newcommand{\bfP}{\mathbf{P}}
+\newcommand{\bfzero}{\mathbf{0}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\curA}{\mathscr{A}}
+\newcommand{\curC}{\mathscr{C}}
+\newcommand{\curD}{\mathscr{D}}
+\newcommand{\curE}{\mathscr{E}}
+\newcommand{\curH}{\mathscr{H}}
+\newcommand{\curJ}{\mathscr{J}}
+\newcommand{\curK}{\mathscr{K}}
+\newcommand{\curN}{\mathscr{N}}
+\newcommand{\curO}{\mathscr{O}}
+\newcommand{\curQ}{\mathscr{Q}}
+\newcommand{\curS}{\mathscr{S}}
+\newcommand{\curT}{\mathscr{T}}
+\newcommand{\curU}{\mathscr{U}}
+\newcommand{\curV}{\mathscr{V}}
+\newcommand{\curW}{\mathscr{W}}
+\newcommand{\curZ}{\mathscr{Z}}
+\newcommand{\curI}{\mathscr{I}}
+\newcommand{\curB}{\mathscr{B}}
+\newcommand{\curF}{\mathscr{F}}
+\newcommand{\curG}{\mathscr{G}}
+\newcommand{\curM}{\mathscr{M}}
+\newcommand{\curL}{\mathscr{L}}
+\newcommand{\curP}{\mathscr{P}}
+\newcommand{\curR}{\mathscr{R}}
+\newcommand{\curX}{\mathscr{X}}
+\newcommand{\curY}{\mathscr{Y}}
+\newcommand{\calA}{\mathcal{A}}
+\newcommand{\calB}{\mathcal{B}}
+\newcommand{\calC}{\mathcal{C}}
+\newcommand{\calD}{\mathcal{D}}
+\newcommand{\calE}{\mathcal{E}}
+\newcommand{\calF}{\mathcal{F}}
+\newcommand{\calG}{\mathcal{G}}
+\newcommand{\calH}{\mathcal{H}}
+\newcommand{\calI}{\mathcal{I}}
+\newcommand{\calJ}{\mathcal{J}}
+\newcommand{\calL}{\mathcal{L}}
+\newcommand{\calK}{\mathcal{K}}
+\newcommand{\calM}{\mathcal{M}}
+\newcommand{\calN}{\mathcal{N}}
+\newcommand{\calO}{\mathcal{O}}
+\newcommand{\calP}{\mathcal{P}}
+\newcommand{\calQ}{\mathcal{Q}}
+\newcommand{\calR}{\mathcal{R}}
+\newcommand{\calS}{\mathcal{S}}
+\newcommand{\calT}{\mathcal{T}}
+\newcommand{\calU}{\mathcal{U}}
+\newcommand{\calV}{\mathcal{V}}
+\newcommand{\calW}{\mathcal{W}}
+\newcommand{\calX}{\mathcal{X}}
+\newcommand{\calY}{\mathcal{Y}}
+\newcommand{\calZ}{\mathcal{Z}}
+\newcommand{\RA}{\Rightarrow}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\fd}{\vspace{2.5mm}}
+\newcommand{\ds}{\vspace{1mm}}
+\setlength{\parindent}{0pt}
+\begin{document}
+The notes for the New Keynesian model follows Eric Sims's notes.
+
+\section{Model}
+
+
+\subsection{Household}
+
+Households solve the problem
+\begin{align*}
+  \max_{C_t, N_t, B_{t + 1}, M_t} \E_0 \sum_{t = 0}^\infty \beta^t \left( \frac{C_t^{1 - \sigma}}{1 - \sigma} - \psi \frac{N_t^{1 + \eta}}{1 + \eta} + \theta\log\left(\frac{M_t}{P_t}\right) \right)
+\end{align*}
+subject to the budget constraint
+\begin{align*}
+  P_tC_t + B_{t + 1} + M_t - M_{t - 1} \leq W_t N_t + \Pi_t + (1 + i_{t - 1})B_t.
+\end{align*}
+In this model, households have demand for money $M_t$, which is also the numeraire. The price of goods in terms of money is $P_t$.
+The stock of nominal bonds a households has is $B_t$.
+Note that $B_t$ will be pre-determined at period $t$ while $M_t$ will not be ($M_{t - 1}$ is pre-determined).
+
+The Lagrangian for the household is
+\begin{align*}
+\calL & = \E_0 \sum_{t = 0}^\infty \beta^t\left[\frac{C_t^{1 - \sigma}}{1 - \sigma} - \psi \frac{N_t^{1 + \eta}}{1 + \eta} + \theta\log\left(\frac{M_t}{P_t}\right)\right]\\
+        &\quad + \E_0 \sum_{t = 0}^\infty \beta^t\left[\lambda_t(  P_tC_t + B_{t + 1} + M_t - M_{t - 1} - W_t N_t + \Pi_t + (1 + i_{t - 1})B_t)\right],
+\end{align*}
+which implies first-order conditions
+\begin{align*}
+  0 & = C_t^{- \sigma} - \lambda_t P_t\\
+  0 & = -\psi N_t^\eta + \lambda_t W_t\\
+  0 & = -\lambda_t + \beta \E_t\lambda_{t + 1}(1 + i_t)\\
+  0 & = \theta \frac{1}{M_t} - \lambda_t + \beta\E_t\lambda_{t + 1}.
+\end{align*}
+The first two equations can be combined by isolating $\lambda_t$.
+Using $\lambda_t = C_t^{-\sigma} / P_t$, we can obtain the Euler equation for households
+and an equation relating money balances to consumption.
+\begin{align*}
+  C_t^{-\sigma} \frac{W_t}{P_t} & = \psi N_t^\eta,\\
+  C_t^{-\sigma} & = \beta\E_t C_{t + 1}^{-\sigma} ( 1 + i_t),\\
+  \theta\left(\frac{M_t}{P_t}\right)^{-1} & = \frac{i_t}{1 + i_t}C_t^{-\sigma}.
+\end{align*}
+
+\subsection{Production}
+
+\paragraph{Final Producers}
+
+There is a representative final goods firm which sells consumption goods in a competitive market.
+It aggregates intermediate goods using the CES technology
+\begin{align*}
+  Y_t & = \left(\int_0^1 Y_t(j)^{ \frac{\epsilon - 1}{\epsilon}}\right)^{\frac{\epsilon}{\epsilon - 1}}
+\end{align*}
+where $\epsilon > 1$ so that inputs are substitutes. Profit maximization for the final good firm is
+\begin{align*}
+  \max_{Y_t(j)} P_t\left(\int_0^1 Y_t(j)^{ \frac{\epsilon - 1}{\epsilon}}\right)^{\frac{\epsilon}{\epsilon - 1}} - \int_0^1 P_t(j) Y_t(j)\, dj.
+\end{align*}
+The FOC for $Y_t(j)$ is
+\begin{align*}
+  0 & = P_t\frac{\epsilon}{\epsilon - 1}\left(\int_0^1 Y_t(j)^{\frac{\epsilon}{\epsilon - 1}}\right)^{\frac{1}{\epsilon - 1}}\frac{\epsilon - 1}{\epsilon} Y_t(j)^{-\frac{1}{\epsilon}} - P_t(j)\\
+  0 & = \left(\int_0^1 Y_t(j)^{\frac{\epsilon}{\epsilon - 1}}\right)^{\frac{1}{\epsilon - 1}}Y_t(j)^{-\frac{1}{\epsilon}} - \frac{P_t(j)}{P_t}\\
+  0 & = \left(\int_0^1 Y_t(j)^{\frac{\epsilon}{\epsilon - 1}}\right)^{-\frac{\epsilon}{\epsilon - 1}}Y_t(j) - \left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}\\
+  Y_t(j) & =  \left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} Y_t.
+\end{align*}
+Plugging this quantity into the identity
+\begin{align*}
+  P_tY_t & = \int_0^1 P_t(j) Y_t(j)\, dj
+\end{align*}
+and simplifying yields the price index
+\begin{align*}
+  P_t & = \left(\int_0^1 P_t(j)^{1 - \epsilon}\, dj\right)^{\frac{1}{1 - \epsilon}}.
+\end{align*}
+
+\paragraph{Intermediate Producers}
+
+Intermediate goods are producing according to the linear technology
+\begin{align*}
+  Y_t(j) = A_t N_t(j).
+\end{align*}
+Intermediate producers minimize cost subject to the constraint of meeting demand and Calvo price rigidities. Formally,
+\begin{align*}
+  \min_{N_t(j)} W_t N_t(j)\quad\quad\quad\text{s.t.}\quad\quad\quad A_t N_t(j) \geq \left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}Y_t.
+\end{align*}
+The Lagrangian is
+\begin{align*}
+  \calL = W_tN_t(j) + \varphi_t(j)\left(\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}Y_t - A_t N_t(j)\right),
+\end{align*}
+so the first-order condition is
+\begin{align*}
+  0 & = W_t - \varphi_t(j) A_t \RA \varphi_t(j) = \frac{W_t}{A_t}.
+\end{align*}
+The multiplier $\varphi_t$ can be interpreted as the nominal marginal cost. Let $mc_t$ be the real marginal cost. Then profits for
+an intermediate producer is
+\begin{align*}
+  \Pi_t(j) = \frac{P_t(j)}{P_t}Y_t(j) - mc_t Y_t(j).
+\end{align*}
+
+In addition to the labor choice, firms also have the chance to reset prices in every period with probability $1 - \phi$. This problem can be
+written as
+\begin{align*}
+  \max_{P_t(j)} \E_t\sum_{s = 0}^\infty(\beta \phi)^s \frac{u'(C_{t + s})}{u'(C_t)}\left(\frac{P_t(j)}{P_{t + s}}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - mc_{t + s}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s}\right),
+\end{align*}
+where I have imposed that output equals demand. The first-order condition is
+\begin{align*}
+0 & =  (1 - \epsilon)P_t(j)^{-\epsilon}\E_t\sum_{s = 0}^\infty (\beta\phi)^s \frac{u'(C_{t + s})}{u'(C_t)}(P_{t + s})^{-(1 - \epsilon)}Y_{t + s}\\
+  &\quad + \epsilon P_t(j)^{-\epsilon - 1}\E_t\sum_{s = 0}^\infty (\beta\phi)^s \frac{u'(C_{t + s})}{u'(C_t)} mc_{t + s}P_{t + s}^{\epsilon}Y_{t + s}
+\end{align*}
+Divide by $P_t(j)^{-\epsilon} / u'(C_t)$ and re-arrange to obtain
+\begin{align*}
+  P_t(j) & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty (\beta\phi)^s u'(C_{t + s}) mc_{t + s}P_{t + s}^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty (\beta\phi)^s u'(C_{t + s})P_{t + s}^{\epsilon - 1}Y_{t + s}}.
+\end{align*}
+This expression gives the optimal reset price $P_t^*$, which we can write more compactly as
+\begin{align*}
+  P_t^* & = \frac{\epsilon}{\epsilon - 1}\frac{X_{1, t}}{X_{2, t}}
+\end{align*}
+where
+\begin{align*}
+  X_{1, t} & = u'(C_t) mc_t P_t^{\epsilon} Y_t + \phi \beta \E_tX_{1, t + 1}\\
+  X_{2, t} & = u'(C_t) P_t^{\epsilon - 1} Y_t + \phi \beta \E_tX_{2, t + 1}.
+\end{align*}
+
+\subsection{Equilibrium and Aggregation}
+
+To close the model, I assume that the log of technology $A_t$ follows the AR(1)
+\begin{align*}
+  \log A_t = \rho_a \log A_{t _ 1} + \varepsilon_{a, t},
+\end{align*}
+and the growth rate in the log money supply follows the AR(1)
+\begin{align*}
+  \Delta \log M_t & = (1 - \rho_m) \pi + \rho_m \Delta \log M_{t - 1} + \varepsilon_{m, t},
+\end{align*}
+where $\pi$ is the steady-state rate of inflation. Note that this specification ensures
+that money balances grow at the same rate as the price level, which ensures real balances
+are stationary. To re-write the money growth equation in real terms, note that
+\begin{align*}
+  \log(m_t) = \log(M_t) - \log(P_t) \RA \Delta \log(m_t) = \log(m_t) - \log(m_{t - 1}) = \Delta \log(M_t) - \log(1 + \pi_t),
+\end{align*}
+hence
+\begin{align*}
+  \Delta \log(m_t) & = (1 - \rho_m) \pi + \rho_m \Delta \log(m_{t - 1}) + \rho_m \log(1 + \pi_{t - 1}) - \log(1 + \pi_t) +  \varepsilon_{m, t}.
+\end{align*}
+
+In equilibrium, bond-holding must be zero, hence
+\begin{align*}
+  C_t = w_t N_t + \frac{\Pi_t}{P_t}.
+\end{align*}
+Real dividends $\Pi_t$ satisfy the accounting identity
+\begin{align*}
+  \frac{\Pi_t}{P_t} & = \int_0^1\left(\frac{P_t(j)}{P_t}Y_t(j) - \frac{W_t}{P_t}N_t(j)\right)\, dj\\
+                    & = \int_0^1\frac{P_t(j)}{P_t}Y_t(j) \, dj - w_t\int_0^1N_t(j)\, dj
+\end{align*}
+where $w_t = W_t / P_t$. Aggregate labor supply $N_t$ equals aggregate labor demand in equilibrium, and
+market-clearing for consumption requires
+\begin{align*}
+  C_t = \int_0^1\frac{P_t(j)}{P_t} Y_t(j)\, dj = \int_0^1 \frac{P_t(j)}{P_t}\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} Y_t\, dj = P_t^{\epsilon - 1}Y_t\int_0^1P_t(j)^{1 - \epsilon}\, dj = Y_t
+\end{align*}
+since $\int_0^1 P_t(j)^{1 - \epsilon}\, dj = P_t^{1 - \epsilon}$.
+
+The quantity $Y_t$ is aggregate output, so we must have
+\begin{align*}
+\int_0^1 A_t N_t(j)\, dj & = \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} Y_t\, dj\\
+  A_tN_t & = Y_t \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} \, dj = v_t Y_t.
+\end{align*}
+Thus, aggregate output is
+\begin{align*}
+  Y_t = \frac{A_tN_t}{v_t}.
+\end{align*}
+It can be shown that $v_t \geq 1$ by applying Jensen's inequality.
+
+Finally, recall that
+\begin{align*}
+  P_t^{1 - \epsilon} = \int_0^1 P_t(j)^{1 - \epsilon}\, dj.
+\end{align*}
+In each period, a fraction $\phi$ cannot change their price. Without loss of generality, we may re-order these firms to the top of the interval so that
+\begin{align*}
+  P_t^{1 - \epsilon} = (1 - \phi)(P_t^*)^{1 - \epsilon} +  \int_{1 - \phi}^1 P_{t - 1}(j)^{1 - \epsilon}\, dj.
+\end{align*}
+The latter term can be further simplified under the law of large numbers assumption that a positive measure of firms  which cannot change their price
+still comprise a representative sample of all firms, yielding
+\begin{align*}
+  P_t^{1 - \epsilon} = (1 - \phi)(P_t^*)^{1 - \epsilon} +  \phi\int_0^1 P_{t - 1}(j)^{1 - \epsilon}\, dj = (1 - \phi)(P_t^*)^{1 - \epsilon} +  \phi P_{t - 1}^{1 - \epsilon}.
+\end{align*}
+Dividing by $P_{t - 1}^{1 - \epsilon}$ implies
+\begin{align*}
+  (1 + \pi_t)^{ 1 - \epsilon} & = (1 - \phi) (1 + \pi_t^*)^{1 - \epsilon} + \phi
+\end{align*}
+The price dispersion term can similarly be re-written in terms of aggregates by distinguishing which firms get to change prices.
+\begin{align*}
+  v_t & = \int_0^{1 - \phi}\left(\frac{P_t^*}{P_t}\right)^{ - \epsilon}\, dj + \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_t}\right)^{ - \epsilon}\, dj\\
+      & = \int_0^{1 - \phi}\left(\frac{P_t^*}{P_{t - 1}}\right)^{ - \epsilon}\left(\frac{P_{t - 1}}{P_t}\right)^{ - \epsilon}\, dj + \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\left(\frac{P_{t - 1}}{P_t}\right)^{ - \epsilon}\, dj\\
+      & = (1 - \phi) ( 1  + \pi_t^*)^{-\epsilon} ( 1 + \pi_t)^{\epsilon}  +(1 + \pi_t)^{\epsilon} \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj.
+\end{align*}
+By invoking the law of large assumptions applied to any positive measure subset of firms, we must have
+\begin{align*}
+  \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj & = \phi\int_0^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj = \phi v_{t - 1}.
+\end{align*}
+Thus, we acquire
+\begin{align*}
+  v_t & = (1 - \phi) ( 1  + \pi_t^*)^{-\epsilon} ( 1 + \pi_t)^{\epsilon}  +\phi(1 + \pi_t)^{\epsilon}  v_{t - 1}\\
+      & = ( 1 + \pi_t)^{\epsilon}((1 - \phi) ( 1  + \pi_t^*)^{-\epsilon}   +\phi  v_{t - 1}).
+\end{align*}
+To finish, we need to derive an expression characterizing $\pi_t^*$. Define
+\begin{align*}
+  x_{1, t} \equiv \frac{X_{1, t}}{P_t^\epsilon},\quad\quad x_{2, t} \equiv \frac{X_{2, t}}{P_t^{\epsilon - 1}}.
+\end{align*}
+It follows that
+\begin{align*}
+  x_{1, t} & = u'(C_t)mc_t Y_t + \phi \beta \E_t \frac{X_{1, t + 1}}{P_t^\epsilon}\\
+           & = u'(C_t)mc_t Y_t + \phi \beta \E_t\left[ \frac{X_{1, t + 1}}{P_{t + 1}^\epsilon}\frac{P_{t + 1}^\epsilon}{P_t^\epsilon}\right]\\
+           & = u'(C_t)mc_t Y_t + \phi \beta \E_t[x_{1, t + 1}(1 + \pi_{t + 1})]\\
+  x_{2, t} & = C_t^{-\sigma} Y_t + \phi \beta \E_t\frac{X_{2, t + 1}}{P_t^{\epsilon - 1}}\\
+           & = C_t^{-\sigma} Y_t + \phi \beta \E_t\left[\frac{X_{2, t + 1}}{P_{t + 1}^{\epsilon - 1}}\frac{P_{t + 1}^{\epsilon - 1}}{P_t^{\epsilon - 1}}\right]\\
+           & = C_t^{-\sigma} Y_t + \phi \beta \E_t[x_{2, t + 1}(1 + \pi_{t + 1})].
+\end{align*}
+Further,
+\begin{align*}
+  \frac{X_{1, t}}{X_{2, t}} = \frac{x_{1, t}}{x_{2, t}}P_t,
+\end{align*}
+hence
+\begin{align*}
+  P_t^* & = \frac{\epsilon}{\epsilon - 1}\frac{x_{1, t}}{x_{2, t}}P_t\\
+  (1 + \pi_t^*) & = \frac{\epsilon}{\epsilon - 1}\frac{x_{1, t}}{x_{2, t}}(1 + \pi_t)\\
+\end{align*}
+
+
+All together, the full set of equilibrium conditions are
+\begin{align*}
+  C_t^{-\sigma} & = \beta \E_t\left[C_{t + 1}^{-\sigma}\frac{(1 + i_t)}{1 + \pi_{t + 1}}\right]\\
+  C_t^{-\sigma} & = \psi\frac{N_t^\eta}{w_t}\\
+  m_t & = \theta \frac{1 + i_t}{i_t} C_t^\sigma\\
+  mc_t & = \frac{w_t}{A_t}\\
+  C_t & = Y_t\\
+  Y_t & = \frac{A_tN_t}{v_t}\\
+  v_t & = ( 1 + \pi_t)^{\epsilon}((1 - \phi) ( 1  + \pi_t^*)^{-\epsilon}   +\phi  v_{t - 1})\\
+  (1 + \pi_t)^{ 1 - \epsilon} & = (1 - \phi) (1 + \pi_t^*)^{1 - \epsilon} + \phi\\
+  (1 + \pi_t^*) & = \frac{\epsilon}{\epsilon - 1}\frac{x_{1, t}}{x_{2, t}}(1 + \pi_t)\\
+  x_{1, t} & = C_t^{-\sigma}mc_t Y_t + \phi \beta \E_t[x_{1, t + 1}(1 + \pi_{t + 1})]\\
+  x_{2, t} & = C_t^{-\sigma} Y_t + \phi \beta \E_t[x_{2, t + 1}(1 + \pi_{t + 1})]\\
+  \log A_t & = \rho_a \log(A_{t - 1}) + \varepsilon_{a, t}\\
+  \Delta \log(m_t) & = (1 - \rho_m) \pi + \rho_m \Delta \log(m_{t - 1}) + \rho_m \log(1 + \pi_{t - 1}) - \log(1 + \pi_t) +  \varepsilon_{m, t}\\
+  \Delta \log m_t & = \log m_t - \log m_{t - 1},
+\end{align*}
+which comprise 14 equations in 14 aggregate variables
+$$(C_t, i_t, \pi_t, N_t, w_t, m_t, mc_t, A_t, Y_t, v_t, \pi^*_t, x_{1, t}, x_{2, t}, \Delta \log m_t).$$
+
+Alternatively, the money growth equation can be replaced by the Taylor rule
+\begin{align*}
+  \log(1 + i_t) & = (1 - \rho_i) \log(1 + i) + \rho_i \log(1 + i_{t - 1}) + (1 - \rho_i)\phi_\pi (\log(1 + \pi_t) - \log( 1 + \pi))  + \varepsilon_{i, t},
+\end{align*}
+and the third equation relating money demand to consumption could also be ignored. To reduce the number of equations, we utilize this specification. Furthermore, we can also substitute $1 + \pi_t^*$ to remove $\pi_t^*$ from the aggregate variables.
+
+
+\section{Risk-Adjusted Linearization}
+
+We now proceed to converting the equilibrium conditions into a suitable form for a risk-adjusted linearization. The system should conform to the representation
+\begin{align*}
+  0 & = \log \E_t\left[\exp\left(\xi(z_t, y_t) + \Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1}\right)\right]\\
+  z_{t + 1} & = \mu(z_t, y_t) + \Lambda(z_t, y_t) (y_{t + 1} - \E_t y_{t + 1}) + \Sigma(z_t, y_t) \varepsilon_{t + 1},
+\end{align*}
+where $z_t$ are (predetermined) state variables and $y_t$ are (nondetermined) jump variables.
+
+For the remainder of this section, lower case variables are the logs of previously upper case variables, and variables with a tilde are the logs of previously lower case variables (e.g. the real wage $w_t$)
+
+\fd
+
+The first equation becomes
+\begin{align*}
+  1 & = \beta \E_t\left[\frac{C_{t + 1}^{-\sigma}}{C_t^{-\sigma}}\frac{ 1 + i_t}{1 + \pi_{t + 1}}\right]\\
+  0 & = \log\E_t\left[\exp\left(\log(\beta) -\sigma (c_{t + 1} - c_t) + \tilde{i}_t - \tilde{\pi}_{t + 1} \right)\right]\\
+    & = \log\E_t\left[\exp\left(\underbrace{\log(\beta) + \sigma c_t + \tilde{i}_t}_{\xi} - \underbrace{\sigma c_{t + 1} - \tilde{\pi}_{t + 1}}_{\text{Forward-Looking}} \right)\right],
+\end{align*}
+where $c_t = \log(C_t)$, $\tilde{i}_t = \log(1 + i_t)$, and $\tilde{\pi}_t = \log(1 + \pi_{t + 1})$.
+
+\fd
+
+The second equation becomes
+\begin{align*}
+  1 & = \psi\frac{N_t^\eta}{C_t^{-\sigma} w_t}\\
+  0 & = \log \E_t\left[\exp\left(\underbrace{\log(\psi) + \eta n_t - \sigma c_t - \hat{w}_t}_{\xi}\right)\right],
+\end{align*}
+where $n_t = \log(N_t)$ and $\hat{w}_t = \log(w_t)$.
+
+\fd
+
+The third equation becomes
+\begin{align*}
+  1 & = \frac{w_t}{A_t mc_t}\\
+  0 & = \log\E_t\left[\exp\left(\hat{w}_t - a_t - \tilde{mc}_t \right)\right].
+\end{align*}
+
+The fourth and fifth equation become
+\begin{align*}
+  0 & = \log\E_t\left[\exp\left(c_t - a_t - n_t + \hat{v}_t \right)\right].
+\end{align*}
+
+The sixth equation becomes
+\begin{align*}
+  0 & = \hat{v}_t - \epsilon \tilde{\pi}_t - \log((1 - \phi) \exp(\tilde{\pi}_t^*)^{ - \epsilon} + \phi \exp(\hat{v}_{t - 1})),
+\end{align*}
+where $\hat{v}_{t - 1}$ will be treated as an additional state variable, i.e. if $a_t = \hat{v}_t$ is a jump variable and $b_t = \hat{v}_{t - 1}$
+is a state variable, then
+\begin{align*}
+  b_{t + 1} = a_t.
+\end{align*}
+
+The seventh equation becomes
+\begin{align*}
+  0 & = (1 - \epsilon)\tilde{\pi}_t - \log((1 - \phi) \exp(\tilde{\pi}_t^*)^{1 - \epsilon} + \phi).
+\end{align*}
+
+The eighth equation becomes
+\begin{align*}
+  0 & = \tilde{\pi}_t^* - \log\left(\frac{\epsilon}{\epsilon - 1}\right) - \tilde{\pi}_t - (\hat{x}_{1, t} - \hat{x}_{2, t})).
+\end{align*}
+
+The ninth and tenth equation become
+\begin{align*}
+  1 & = \E_t\left[\phi \beta\frac{x_{1, t + 1}(1 + \pi_{t + 1})}{x_{1, t} - C_t^{-\sigma} mc_t A_tN_t / v_t}\right]\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi\beta)   - \log(\exp(\hat{x}_{1, t}) - \exp(-\sigma c_t + \tilde{mc}_t + a_t + n_t - \hat{v}_t))}_{\xi} + \hat{x}_{1, t + 1} + \tilde{\pi}_{t + 1}\right)\right]\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi) + \log(\beta)  - \log(\exp(\hat{x}_{2, t}) - \exp(-\sigma c_t + a_t + n_t - \hat{v}_t))}_{\xi} + \hat{x}_{2, t + 1} + \tilde{\pi}_{t + 1}\right)\right],
+\end{align*}
+where the fact that $x_{1,t}$ and $x_{2, t}$ must both be positive implies $x_{1, t} - C_t^{-\sigma} mc_t Y_t$ and $x_{2, t} - C_t^{-\sigma}Y_t$ are both positive, as the expectations on the RHS are also both positive.
+
+\fd
+
+The eleventh equation is the monetary policy rule. We use $\tilde{i}_{t - 1} \equiv \log(1 + i_{t - 1})$ and $\varepsilon_{i, t}$ as states and treat $i_t$ as a jump variable, hence
+\begin{align*}
+  \tilde{i}_t & = (1 - \rho_i) \tilde{i} + \rho_i \tilde{i}_{t - 1} + (1 - \rho_i)\phi_\pi (\tilde{\pi}_t - \tilde{\pi})  + \varepsilon_{i, t},
+\end{align*}
+
+The above eleven equations comprise the expectational equations. The following four equations comprise the states:
+\begin{align*}
+  a_{t + 1} & = \rho_a a_t + \varepsilon_{a, t + 1}\\
+  \hat{v}_{(t - 1) + 1} & = \hat{v}_t\\
+  \tilde{i}_{(t - 1) + 1} & = \tilde{i}_t\\
+  \varepsilon_{i, t + 1} & = \varepsilon_{i, t + 1}
+\end{align*}
+
+
+\end{document}
