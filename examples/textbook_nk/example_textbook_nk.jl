@@ -29,14 +29,13 @@ solve!(m; algorithm = algorithm, autodiff = autodiff_method)
 @test m.Ψ ≈ out["Psi"]
 
 if test_price_dispersion
-    @info "Checking that price dispersion is always above 1."
     π̃_ss_vec = log.(range(1 - .005, stop = 1 + .005, length = 10)) # On annualized basis, range from -2% to 2% target inflation
     det_soln = Dict()
     sss_soln = Vector{RiskAdjustedLinearization}(undef, length(π̃_ss_vec))
 
     for (i, π̃_ss) in enumerate(π̃_ss_vec)
-        m_nk = TextbookNK(; π̃_ss = π̃_ss)
-        m = textbook_nk(m_nk)
+        local m_nk = TextbookNK(; π̃_ss = π̃_ss)
+        local m = textbook_nk(m_nk)
         solve!(m; algorithm = :deterministic, verbose = :none)
         det_soln[i] = Dict()
         det_soln[i][:z] = copy(m.z)
