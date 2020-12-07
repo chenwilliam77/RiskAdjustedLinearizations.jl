@@ -46,7 +46,7 @@ shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "crw_shock
     @test abs.(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, m.z * 1.1; c_init = m.y[1] * 1.1)) < 2.3e-5
     @test abs.(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, m.z * 1.1; c_init = m.y[1] * 1.1, method = :newton)) < 1e-3
     @test abs(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, shocks, summary_statistic = x -> norm(x, Inf))) < 3e-5
-    @test abs(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, shocks, summary_statistic = x -> norm(x, 2))) < 9e-5
+    @test abs(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, shocks, summary_statistic = x -> norm(x, 2))) < 1e-4
 
     c_ral, c_impl, endo_states_ral, endo_states_impl =
         dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, 1, shocks;
