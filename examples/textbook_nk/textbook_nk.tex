@@ -189,9 +189,9 @@
 \newcommand{\ds}{\vspace{1mm}}
 \setlength{\parindent}{0pt}
 \begin{document}
-The notes for the New Keynesian model follows Eric Sims's notes.
+These notes for the New Keynesian model follow Eric Sims's notes. Section \ref{sec:model} solves the equilibrium conditions of the New Keynesian model, and Section \ref{sec:ral} transforms the equilibrium conditions into the desired form for a risk-adjusted linearization.
 
-\section{Model}
+\section{Model}\label{sec:model}
 
 
 \subsection{Household}
@@ -437,7 +437,7 @@ Alternatively, the money growth equation can be replaced by the Taylor rule
 and the third equation relating money demand to consumption could also be ignored. To reduce the number of equations, we utilize this specification. Furthermore, we can also substitute $1 + \pi_t^*$ to remove $\pi_t^*$ from the aggregate variables.
 
 
-\section{Risk-Adjusted Linearization}
+\section{Risk-Adjusted Linearization}\label{sec:ral}
 
 We now proceed to converting the equilibrium conditions into a suitable form for a risk-adjusted linearization. The system should conform to the representation
 \begin{align*}
@@ -463,7 +463,7 @@ where $c_t = \log(C_t)$, $\tilde{i}_t = \log(1 + i_t)$, and $\tilde{\pi}_t = \lo
 The second equation becomes
 \begin{align*}
   1 & = \psi\frac{N_t^\eta}{C_t^{-\sigma} w_t}\\
-  0 & = \log \E_t\left[\exp\left(\underbrace{\log(\psi) + \eta n_t - \sigma c_t - \hat{w}_t}_{\xi}\right)\right],
+  0 & = \log \E_t\left[\exp\left(\underbrace{\log(\psi) + \eta n_t - (- \sigma c_t + \hat{w}_t)}_{\xi}\right)\right],
 \end{align*}
 where $n_t = \log(N_t)$ and $\hat{w}_t = \log(w_t)$.
 
@@ -499,23 +499,29 @@ The eighth equation becomes
 \begin{align*}
   0 & = \tilde{\pi}_t^* - \log\left(\frac{\epsilon}{\epsilon - 1}\right) - \tilde{\pi}_t - (\hat{x}_{1, t} - \hat{x}_{2, t})).
 \end{align*}
+By plugging this expression for $\tilde{\pi}_t^*$ into the previous two equations, we can also remove one more variable from the system.
+
+\fd
 
 The ninth and tenth equation become
 \begin{align*}
   1 & = \E_t\left[\phi \beta\frac{x_{1, t + 1}(1 + \pi_{t + 1})}{x_{1, t} - C_t^{-\sigma} mc_t A_tN_t / v_t}\right]\\
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi\beta)   - \log(\exp(\hat{x}_{1, t}) - \exp(-\sigma c_t + \tilde{mc}_t + a_t + n_t - \hat{v}_t))}_{\xi} + \hat{x}_{1, t + 1} + \tilde{\pi}_{t + 1}\right)\right]\\
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi) + \log(\beta)  - \log(\exp(\hat{x}_{2, t}) - \exp(-\sigma c_t + a_t + n_t - \hat{v}_t))}_{\xi} + \hat{x}_{2, t + 1} + \tilde{\pi}_{t + 1}\right)\right],
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi) + \log(\beta)   - \log(\exp(\hat{x}_{1, t}) - \exp((1-\sigma) c_t + \tilde{mc}_t))}_{\xi} + \hat{x}_{1, t + 1} + \tilde{\pi}_{t + 1}\right)\right]\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi) + \log(\beta)  - \log(\exp(\hat{x}_{2, t}) - \exp((1-\sigma) c_t))}_{\xi} + \hat{x}_{2, t + 1} + \tilde{\pi}_{t + 1}\right)\right],
 \end{align*}
 where the fact that $x_{1,t}$ and $x_{2, t}$ must both be positive implies $x_{1, t} - C_t^{-\sigma} mc_t Y_t$ and $x_{2, t} - C_t^{-\sigma}Y_t$ are both positive, as the expectations on the RHS are also both positive.
 
 \fd
 
-The eleventh equation is the monetary policy rule. We use $\tilde{i}_{t - 1} \equiv \log(1 + i_{t - 1})$ and $\varepsilon_{i, t}$ as states and treat $i_t$ as a jump variable, hence
+For the monetary policy rule, we use $\tilde{i}_{t - 1} \equiv \log(1 + i_{t - 1})$ and $\varepsilon_{i, t}$ as states and treat $i_t$ as a jump variable, hence
 \begin{align*}
-  \tilde{i}_t & = (1 - \rho_i) \tilde{i} + \rho_i \tilde{i}_{t - 1} + (1 - \rho_i)\phi_\pi (\tilde{\pi}_t - \tilde{\pi})  + \varepsilon_{i, t},
+  \tilde{i}_t & = (1 - \rho_i) \tilde{i} + \rho_i \tilde{i}_{t - 1} + (1 - \rho_i)\phi_\pi (\tilde{\pi}_t - \tilde{\pi})  + \varepsilon_{i, t}.
 \end{align*}
+This formulation allows us to treat the policy rule as an expectational equation.
 
-The above eleven equations comprise the expectational equations. The following four equations comprise the states:
+\fd
+
+The above nine equations comprise the expectational equations. The following four equations comprise the states:
 \begin{align*}
   a_{t + 1} & = \rho_a a_t + \varepsilon_{a, t + 1}\\
   \hat{v}_{(t - 1) + 1} & = \hat{v}_t\\

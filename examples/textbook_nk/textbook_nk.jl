@@ -15,9 +15,9 @@ mutable struct TextbookNK{T <: Real}
     π̃_ss::T
 end
 
-function TextbookNK(; β::T = .99, σ::T = 1.5, ψ::T = 1., η::T = 1., ϵ::T = 5., ϕ::T = .7,
+function TextbookNK(; β::T = .99, σ::T = 2., ψ::T = 1., η::T = 1., ϵ::T = 4.45, ϕ::T = .7,
                     ρₐ::T = 0.9, σₐ::T = .004, ρᵢ::T = .7, σᵢ::T = .025 / 4.,
-                    ϕ_π::T = 1.5, π̃_ss::T = log(1. + 0.005)) where {T <: Real}
+                    ϕ_π::T = 1.5, π̃_ss::T = 0.) where {T <: Real}
     return TextbookNK{T}(β, σ, ψ, η, ϵ, ϕ, ρₐ, σₐ, ρᵢ, σᵢ, ϕ_π, π̃_ss)
 end
 
@@ -39,8 +39,6 @@ function textbook_nk(m::TextbookNK{T}) where {T <: Real}
     @unpack euler, mrs, eq_mc, output, dispersion, phillips_curve, eq_x₁, eq_x₂, eq_mp = E
     @unpack εₐ, εᵢ = SH
 
-    # LIKELY BUG: vp < 1 even in deterministic steady state when π̃_ss > 0, but when π̃_ss < 0, we get vp > 1 . . .
-
     Nz = length(S)
     Ny = length(J)
     Nε = length(SH)
@@ -57,14 +55,14 @@ function textbook_nk(m::TextbookNK{T}) where {T <: Real}
         F_type = eltype(F)
         π̃_star = log(ϵ / (ϵ - 1.)) + y[π̃] + (y[x₁] - y[x₂])
         F[euler] = log(β) + σ * y[c] + y[ĩ]
-        F[mrs] = log(ψ) + η * y[n] - σ * y[n] - y[w]
-        F[eq_mc] = y[w] - z[a] - y[mc]
-        F[output] = y[c] - z[a] - y[n] + y[v]
-        F[dispersion] = y[v] - ϵ * y[π̃] - log((1. - ϕ) * exp(π̃_star)^(-ϵ) + ϕ * exp(z[v₋₁]))
-        F[phillips_curve] = (1. - ϵ) * y[π̃] - log((1. - ϕ) * exp(π̃_star) + ϕ)
-        F[eq_x₁] = log(ϕ) + log(β) - log(exp(y[x₁]) - exp(-σ * y[c] + y[mc] + z[a] + y[n] - y[v]))
-        F[eq_x₂] = log(ϕ) + log(β) - log(exp(y[x₂]) - exp(-σ * y[c] + z[a] + y[n] - y[v]))
-        F[eq_mp] = y[ĩ] - ((1. - ρᵢ) * ĩ_ss + ρᵢ * z[ĩ₋₁]  + (1 - ρᵢ) * ϕ_π * (y[π̃] - π̃_star) + z[i_sh])
+        F[mrs] = log(ψ) + η * y[n] - (-σ * y[n] + y[w])
+        F[eq_mc] = y[w] - (z[a] + y[mc])
+        F[output] = y[c] - (z[a] + y[n] - y[v])
+        F[dispersion] = y[v] - (ϵ * y[π̃] + log((1. - ϕ) * exp(π̃_star)^(-ϵ) + ϕ * exp(z[v₋₁])))
+        F[phillips_curve] = (1. - ϵ) * y[π̃] - log((1. - ϕ) * exp(π̃_star)^(1 - ϵ) + ϕ)
+        F[eq_x₁] = log(ϕ) + log(β) - log(exp(y[x₁]) - exp((1. - σ) * y[c] + y[mc]))
+        F[eq_x₂] = log(ϕ) + log(β) - log(exp(y[x₂]) - exp((1. - σ) * y[c]))
+        F[eq_mp] = y[ĩ] - ((1. - ρᵢ) * ĩ_ss + ρᵢ * z[ĩ₋₁]  + (1 - ρᵢ) * ϕ_π * (y[π̃] - π̃_ss) + z[i_sh])
     end
 
     # The cache is initialized as zeros so we only need to fill non-zero elements
