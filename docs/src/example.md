@@ -2,8 +2,8 @@
 
 This example shows how to calculate the risk-adjusted linearization of the
 discrete-time version of the [Wachter (2013)](http://finance.wharton.upenn.edu/~jwachter/research/Wachter2013jf.pdf)
-model with disaster-risk. You can run this example using the script [examples/wachter\_disaster\_risk/example_wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/wachter_disaster_risk/example_wachter.jl).
-For the equivalent code in MATLAB provided by Lopez et al., see [here](https://github.com/fvazquezgrande/gen_affine/blob/master/examples/wac_disaster/genaffine_ezdis.m).
+model with disaster-risk. You can run this example using the script [examples/wachter\_disaster\_risk/example_wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/main/examples/wachter_disaster_risk/example_wachter.jl).
+For the equivalent code in MATLAB provided by Lopez et al., see [here](https://github.com/fvazquezgrande/gen_affine/blob/main/examples/wac_disaster/genaffine_ezdis.m).
 
 ## Create a `RiskAdjustedLinearization`
 
@@ -45,7 +45,7 @@ ral = RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, N�
 ### Example
 The following code presents a function that defines the desired functions and matrices, given
 the parameters for the model in Wachter (2013), and returns a `RiskAdjustedLinearization` object.
-The code is from this script [examples/wachter\_disaster\_risk/wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/wachter_disaster_risk/wachter.jl), which has examples for both in-place and out-of-place functions.
+The code is from this script [examples/wachter\_disaster\_risk/wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/main/examples/wachter_disaster_risk/wachter.jl), which has examples for both in-place and out-of-place functions.
 
 
 ```

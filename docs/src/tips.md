@@ -162,7 +162,7 @@ Computing this quantity for each expectational equation yields the `ccgf` used i
   The `dualvector` function will infer from `z` and `y` whether `F` should be have `Dual` element types
   or not so you can repeatedly avoid writing if-else conditional blocks. The `dualarray` function
   generalizes this to arbitrary `AbstractMatrix` inputs.
-  See the out-of-place function for `ξ` in [examples/wachter\_disaster\_risk/wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/wachter_disaster_risk/wachter.jl).
+  See the out-of-place function for `ξ` in [examples/wachter\_disaster\_risk/wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/main/examples/wachter_disaster_risk/wachter.jl).
 
 
 
@@ -174,4 +174,4 @@ Computing this quantity for each expectational equation yields the `ccgf` used i
    approach is that you won't be able to assign names to the specific indices of the return vector (e.g.
    does this equation define the risk-free interest rate?). For small models, this disadvantage is generally not a problem.
    See the definition of the out-of-place expected state transition function `μ` in
-  [examples/wachter\_disaster\_risk/wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/master/examples/wachter_disaster_risk/wachter.jl).
+  [examples/wachter\_disaster\_risk/wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/main/examples/wachter_disaster_risk/wachter.jl).
