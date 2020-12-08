@@ -45,6 +45,8 @@ if test_price_dispersion
         sss_soln[i] = m
     end
 
+    det_v = exp.([det_soln[i][:z][3] for i in 1:length(det_soln)])
+    sss_v = exp.([sss_soln[i].z[3] for i in 1:length(sss_soln)])
     @test all(det_v .> 1.)
     @test all(sss_v .> 1.)
 end

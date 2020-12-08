@@ -394,10 +394,10 @@ It follows that
 \begin{align*}
   x_{1, t} & = u'(C_t)mc_t Y_t + \phi \beta \E_t \frac{X_{1, t + 1}}{P_t^\epsilon}\\
            & = u'(C_t)mc_t Y_t + \phi \beta \E_t\left[ \frac{X_{1, t + 1}}{P_{t + 1}^\epsilon}\frac{P_{t + 1}^\epsilon}{P_t^\epsilon}\right]\\
-           & = u'(C_t)mc_t Y_t + \phi \beta \E_t[x_{1, t + 1}(1 + \pi_{t + 1})]\\
+           & = u'(C_t)mc_t Y_t + \phi \beta \E_t[x_{1, t + 1}(1 + \pi_{t + 1})^\epsilon]\\
   x_{2, t} & = C_t^{-\sigma} Y_t + \phi \beta \E_t\frac{X_{2, t + 1}}{P_t^{\epsilon - 1}}\\
            & = C_t^{-\sigma} Y_t + \phi \beta \E_t\left[\frac{X_{2, t + 1}}{P_{t + 1}^{\epsilon - 1}}\frac{P_{t + 1}^{\epsilon - 1}}{P_t^{\epsilon - 1}}\right]\\
-           & = C_t^{-\sigma} Y_t + \phi \beta \E_t[x_{2, t + 1}(1 + \pi_{t + 1})].
+           & = C_t^{-\sigma} Y_t + \phi \beta \E_t[x_{2, t + 1}(1 + \pi_{t + 1})^{\epsilon - 1}].
 \end{align*}
 Further,
 \begin{align*}
@@ -421,8 +421,8 @@ All together, the full set of equilibrium conditions are
   v_t & = ( 1 + \pi_t)^{\epsilon}((1 - \phi) ( 1  + \pi_t^*)^{-\epsilon}   +\phi  v_{t - 1})\\
   (1 + \pi_t)^{ 1 - \epsilon} & = (1 - \phi) (1 + \pi_t^*)^{1 - \epsilon} + \phi\\
   (1 + \pi_t^*) & = \frac{\epsilon}{\epsilon - 1}\frac{x_{1, t}}{x_{2, t}}(1 + \pi_t)\\
-  x_{1, t} & = C_t^{-\sigma}mc_t Y_t + \phi \beta \E_t[x_{1, t + 1}(1 + \pi_{t + 1})]\\
-  x_{2, t} & = C_t^{-\sigma} Y_t + \phi \beta \E_t[x_{2, t + 1}(1 + \pi_{t + 1})]\\
+  x_{1, t} & = C_t^{-\sigma}mc_t Y_t + \phi \beta \E_t[x_{1, t + 1}(1 + \pi_{t + 1})^{\epsilon}]\\
+  x_{2, t} & = C_t^{-\sigma} Y_t + \phi \beta \E_t[x_{2, t + 1}(1 + \pi_{t + 1})^{\epsilon-1}]\\
   \log A_t & = \rho_a \log(A_{t - 1}) + \varepsilon_{a, t}\\
   \Delta \log(m_t) & = (1 - \rho_m) \pi + \rho_m \Delta \log(m_{t - 1}) + \rho_m \log(1 + \pi_{t - 1}) - \log(1 + \pi_t) +  \varepsilon_{m, t}\\
   \Delta \log m_t & = \log m_t - \log m_{t - 1},
@@ -506,8 +506,8 @@ By plugging this expression for $\tilde{\pi}_t^*$ into the previous two equation
 The ninth and tenth equation become
 \begin{align*}
   1 & = \E_t\left[\phi \beta\frac{x_{1, t + 1}(1 + \pi_{t + 1})}{x_{1, t} - C_t^{-\sigma} mc_t A_tN_t / v_t}\right]\\
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi) + \log(\beta)   - \log(\exp(\hat{x}_{1, t}) - \exp((1-\sigma) c_t + \tilde{mc}_t))}_{\xi} + \hat{x}_{1, t + 1} + \tilde{\pi}_{t + 1}\right)\right]\\
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi) + \log(\beta)  - \log(\exp(\hat{x}_{2, t}) - \exp((1-\sigma) c_t))}_{\xi} + \hat{x}_{2, t + 1} + \tilde{\pi}_{t + 1}\right)\right],
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi) + \log(\beta)   - \log(\exp(\hat{x}_{1, t}) - \exp((1-\sigma) c_t + \tilde{mc}_t))}_{\xi} + \hat{x}_{1, t + 1} + \epsilon\tilde{\pi}_{t + 1}\right)\right]\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi) + \log(\beta)  - \log(\exp(\hat{x}_{2, t}) - \exp((1-\sigma) c_t))}_{\xi} + \hat{x}_{2, t + 1} + (\epsilon - 1)\tilde{\pi}_{t + 1}\right)\right],
 \end{align*}
 where the fact that $x_{1,t}$ and $x_{2, t}$ must both be positive implies $x_{1, t} - C_t^{-\sigma} mc_t Y_t$ and $x_{2, t} - C_t^{-\sigma}Y_t$ are both positive, as the expectations on the RHS are also both positive.
 
@@ -529,5 +529,7 @@ The above nine equations comprise the expectational equations. The following fou
   \varepsilon_{i, t + 1} & = \varepsilon_{i, t + 1}
 \end{align*}
 
+
+To conclude, note that we have three forward difference equations. The first is the Euler equation, which can be expressed as
 
 \end{document}

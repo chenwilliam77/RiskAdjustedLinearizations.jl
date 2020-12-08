@@ -85,9 +85,9 @@ function textbook_nk(m::TextbookNK{T}) where {T <: Real}
     Γ₆[euler, c] = -σ
     Γ₆[euler, π̃] = -one(T)
     Γ₆[eq_x₁, x₁] = one(T)
-    Γ₆[eq_x₁, π̃] = one(T)
+    Γ₆[eq_x₁, π̃] = ϵ
     Γ₆[eq_x₂, x₂] = one(T)
-    Γ₆[eq_x₂, π̃] = one(T)
+    Γ₆[eq_x₂, π̃] = (ϵ - 1.)
 
     Ψ = zeros(T, Ny, Nz)
 
