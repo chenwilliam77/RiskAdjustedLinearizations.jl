@@ -133,7 +133,7 @@ the deterministic steady state as the initial guess.
 
 ## [Additional Examples](@ref listexample)
 
-- [Wachter (2013)](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/blob/main/examples/wachter_disaster_risk/example_wachter.jl): discrete-time model with Epstein-Zin preferences and disaster risk (as a Poisson mixture of normals)
+- [Wachter (2013)](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/blob/main/examples/wachter_disaster_risk/example_wachter.jl): discrete-time model with Epstein-Zin preferences and disaster risk (as a Poisson mixture of normals); demonstrates how to use both in-place and out-of-place functions with `RiskAdjustedLinearization`
 
 - [Jermann (1998)/Chen (2017)](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/blob/main/examples/rbc_cc/example_rbc_cc.jl): RBC model with Campbell-Cochrane habits and multi-period approximation of forward difference equations
 
