@@ -3,7 +3,7 @@
 This example shows how to calculate the risk-adjusted linearization of the
 discrete-time version of the [Wachter (2013)](http://finance.wharton.upenn.edu/~jwachter/research/Wachter2013jf.pdf)
 model with disaster-risk. You can run this example using the script [examples/wachter\_disaster\_risk/example_wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/main/examples/wachter_disaster_risk/example_wachter.jl).
-For the equivalent code in MATLAB provided by Lopez et al., see [here](https://github.com/fvazquezgrande/gen_affine/blob/main/examples/wac_disaster/genaffine_ezdis.m).
+For the equivalent code in MATLAB provided by Lopez et al., see [here](https://github.com/fvazquezgrande/gen_affine/blob/main/examples/wac_disaster/genaffine_ezdis.m). See [List of Examples](@ref listexample) for short descriptions of and links to all examples in this package.
 
 ## Create a `RiskAdjustedLinearization`
 
@@ -129,3 +129,16 @@ solve!(ral, z0, y0; algorithm = :relaxation)
 In this case, we calculate the deterministic steady state first using ``z`` and ``y``;
 back out the implied ``\Psi``; and then proceed with the relaxation algorithm using
 the deterministic steady state as the initial guess.
+
+
+## [Additional Examples](@ref listexample)
+
+- [Wachter (2013)](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/blob/main/examples/wachter_disaster_risk/example_wachter.jl): discrete-time model with Epstein-Zin preferences and disaster risk (as a Poisson mixture of normals)
+
+- [Jermann (1998)/Chen (2017)](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/blob/main/examples/rbc_cc/example_rbc_cc.jl): RBC model with Campbell-Cochrane habits and multi-period approximation of forward difference equations
+
+- [Textbook New Keynesian Model](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/blob/main/examples/textbook_nk/example_textbook_nk.jl): cashless limit of Gali (2015) textbook model with a simple Taylor rule. A Dynare script is also provided for comparison.
+
+- [Coeurdacier, Rey, Winant (2011)](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/main/examples/crw/example_crw.jl): small-open economy model whose deterministic steady state does not exist. Example also provides a tutorial on calculating Euler equation errors.
+
+- [MATLAB Timing Test](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/matlab_timing_test): compare speed of Julia to MATLAB for Jermann (1989) and Wachter (2013) examples
