@@ -15,11 +15,11 @@ and returns some summary statistic of the errors specified by the keyword
 
 The Euler equation is
 
-``math
+```math
 \\begin{aligned}
 0 = \\log \\mathbb{E}_t \\exp(m_{t + 1} + r_{t + 1}) = \\log \\mathbb{E}_t[M_{t + 1} R_{t + 1}],
 \\end{aligned}
-``
+```
 
 where ``m_{t + 1} = \\log(M_{t + 1})`` is the log stochastic discount factor and ``r_{t + 1} = \\log(R_{t + 1})``
 is the risk free rate.
