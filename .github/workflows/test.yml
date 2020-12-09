@@ -1,4 +1,4 @@
-name: 'Build Package and Run Tests'
+name: 'BuildAndTest'
 on: [push, pull_request]
 
 jobs:
