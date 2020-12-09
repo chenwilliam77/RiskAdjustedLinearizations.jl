@@ -1,7 +1,6 @@
 using SafeTestsets
 
 # Start Test Script
-Ntries = 5
 
 @time begin
     @time @safetestset "Utilities" begin
@@ -15,7 +14,7 @@ Ntries = 5
     @time @safetestset "Numerical algorithms" begin
         include("numerical_algorithms/blanchard_kahn.jl")
         include("numerical_algorithms/compute_psi.jl")
-        for i in 1:Ntries
+        for i in 1:5
             try
                 include("numerical_algorithms/deterministic.jl")
                 include("numerical_algorithms/relaxation.jl")
@@ -28,7 +27,7 @@ Ntries = 5
     end
 
     @time @safetestset "Examples" begin
-        for i in 1:Ntries
+        for i in 1:5
             try
                 include(joinpath(dirname(@__FILE__), "..", "examples", "rbc_cc", "example_rbc_cc.jl"))
                 include(joinpath(dirname(@__FILE__), "..", "examples", "wachter_disaster_risk", "example_wachter.jl"))
@@ -42,7 +41,7 @@ Ntries = 5
     end
 
     @time @safetestset "Simulations, Impulse Responses, and Simulation-Based Diagnostics" begin
-        for i in 1:Ntries
+        for i in 1:5
             try
                 include("simulation/simulate_rbc_cc.jl")
                 include("simulation/simulate_wachter_disaster_risk.jl")
