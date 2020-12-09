@@ -1,5 +1,5 @@
-
 name: 'Setup Julia environment'
+on: [push, pull_reqest]
 description: 'Setup a Julia environment and add it to the PATH'
 author: 'William Chen'
 inputs: 
