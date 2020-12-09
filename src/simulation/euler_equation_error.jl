@@ -29,10 +29,13 @@ is the risk free rate.
 - `cₜ::Function`: a function of `(m, zₜ)` that calculates consumption at state `zₜ`, given the
     state-space representation implied by `m`.
 - `logSDFxR::Function`: a `Function` evaluating ``m_{t + 1} + r_{t + 1}``. The `Function` must
-    take as input `(m, zₜ, εₜ₊₁, cₜ)`, where `m` is a `RiskAdjustedLinearization`,
+    take as input `(m, zₜ, εₜ₊₁, c)`, where `m` is a `RiskAdjustedLinearization`,
     `zₜ` is a state vector at which to evaluate, `εₜ₊₁` is a draw from the distribution
-    of exogenous shocks, and `cₜ` is the a guess for consumption at `zₜ` implied by
+    of exogenous shocks, and `c` is a guess for consumption at `zₜ` implied by
     the conditional expectation in the Euler equation when calculated with a quadrature rule.
+    Note that `c` can be either the consumption level or some transformation (e.g. log consumption),
+    but the user should be consistent in the definition of the `cₜ` function with the guess `c`,
+    i.e. both should return the same transformation of consumption (e.g. both should return the level).
 - `𝔼_quadrature::Function`: a quadrature rule whose single input is a `Function` with a single
     input, which is a shock `εₜ₊₁`.
 - `zₜ::AbstractVector`: a state at which to evaluate the Euler equation error
@@ -56,6 +59,7 @@ function euler_equation_error(m::RiskAdjustedLinearization, cₜ::Function, logS
     # Compute implied consumption according to the quadrature rule
     out = nlsolve(c -> [log(𝔼_quadrature(εₜ₊₁ -> exp(logSDFxR(m, zₜ, εₜ₊₁, c[1]))))], [isnan(c_init) ? c_ral : c_init];
                   kwargs...)
+
     if out.f_converged
         c_impl = out.zero[1]
     else
