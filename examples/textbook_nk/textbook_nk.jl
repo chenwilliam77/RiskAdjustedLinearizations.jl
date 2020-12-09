@@ -105,8 +105,8 @@ function textbook_nk(m::TextbookNK{T}) where {T <: Real}
     π̃0  = π̃_ss
     v0  = 0.
     mc0 = log((ϵ - 1.) / ϵ)
-    x₁0 = 1.2 + mc0
-    x₂0 = 1.2
+    x₁0 = log(exp(π̃0) * exp(mc0) / (1. - ϕ * β))
+    x₂0 = log(1. / (1. - ϕ * β))
     n0  = (1 / (η + σ)) * log(1. / ψ * (exp(v0))^σ * exp(mc0))
     c0  = n0 - v0
     w0  = a0 + mc0
@@ -114,3 +114,18 @@ function textbook_nk(m::TextbookNK{T}) where {T <: Real}
 
     return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε)
 end
+
+nk_cₜ(m, zₜ) = exp(m.y[1] + (m.Ψ * (zₜ - m.z))[1])
+
+# Evaluates euler equation in log terms
+function nk_logSDFxR(m, zₜ, εₜ₊₁, Cₜ; β::T = .99, σ::T = 2.) where {T <: Real}
+    yₜ = m.y + m.Ψ * (zₜ - m.z)
+    zₜ₊₁, yₜ₊₁ = simulate(m, εₜ₊₁, zₜ)
+
+    return log(β) - σ * (yₜ₊₁[1] - log(Cₜ)) + yₜ[9] - yₜ₊₁[2]
+end
+
+# Calculate Euler equation via quadrature
+std_norm_mean = zeros(2)
+std_norm_sig  = ones(2)
+nk_𝔼_quadrature(f::Function) = gausshermite_expectation(f, std_norm_mean, std_norm_sig, 10)

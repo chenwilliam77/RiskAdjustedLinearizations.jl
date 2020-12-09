@@ -1,12 +1,13 @@
 # This script actually solves the WachterDisasterRisk model with a risk-adjusted linearization
 # and times the methods, if desired
-using RiskAdjustedLinearizations, JLD2, Test
+using RiskAdjustedLinearizations, JLD2, LinearAlgebra, Test
 include("textbook_nk.jl")
 out = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "textbook_nk_ss_output.jld2"), "r")
 
 # Settings
 autodiff              = false
 algorithm             = :relaxation
+euler_equation_errors = false
 test_price_dispersion = false # check if price dispersion in steady state is always bounded below by 1
 
 # Set up
@@ -49,6 +50,15 @@ if test_price_dispersion
     sss_v = exp.([sss_soln[i].z[3] for i in 1:length(sss_soln)])
     @test all(det_v .> 1.)
     @test all(sss_v .> 1.)
+end
+
+if euler_equation_errors
+    # Load shocks. Using CRW ones b/c that model also has 2 standard normal random variables
+    shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "crw_shocks.jld2"), "r")["shocks"]
+
+    # With this simple model, the Euler equation holds exactly
+    @test abs(euler_equation_error(m, nk_cₜ, (a, b, c, d) -> nk_logSDFxR(a, b, c, d; β = m_nk.β, σ = m_nk.σ),
+                                   nk_𝔼_quadrature, shocks, summary_statistic = x -> norm(x, Inf))) ≈ 0.
 end
 
 nothing
