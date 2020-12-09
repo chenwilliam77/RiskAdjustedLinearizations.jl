@@ -1,4 +1,4 @@
-name: 'Setup Julia environment'
+name: 'Build Package and Run Tests'
 on: [push, pull_request]
 
 jobs:
@@ -11,15 +11,10 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v1.0.0
+      - uses: actions/checkout@v2
       - name: "Set up Julia"
-        uses: julia-actions/setup-julia@v1
+        uses: julia-actions/setup-julia@latest
         with:
           version: ${{ matrix.julia-version }}
-          arch: ${{ matrix.julia-arch }}
       - uses: julia-actions/julia-buildpkg@master
       - uses: julia-actions/julia-runtest@master
-      - name: "Run tests"
-        run: |
-          julia --project=@. -e "using Pkg; Pkg.instantiate();"
-          julia --project=@. -e "using Pkg; Pkg.test(\"RiskAdjustedLinearization\");"
