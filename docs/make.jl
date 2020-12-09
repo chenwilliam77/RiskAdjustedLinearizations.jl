@@ -23,7 +23,8 @@ makedocs(
 )
 
 deploydocs(;
-    repo = "github.com/chenwilliam77/RiskAdjustedLinearizations.jl.git",
-    target = "build",
-    versions = ["stable" => "v^", "v#.#"],
+           repo = "github.com/chenwilliam77/RiskAdjustedLinearizations.jl.git",
+           target = "build",
+           devbranch = "main",
+           versions = ["stable" => "v^", "v#.#"],
 )
