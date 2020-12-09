@@ -3,7 +3,7 @@
 [![GitHub release](https://img.shields.io/github/release/chenwilliam77/RiskAdjustedLinearizations.jl.svg)](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/releases/latest)
 [![](https://img.shields.io/badge/docs-stable-3f51b5.svg)](https://chenwilliam77.github.io/RiskAdjustedLinearizations.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-3f51b5.svg)](https://chenwilliam77.github.io/RiskAdjustedLinearizations.jl/dev)
-[![Main Build Status](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/workflows/.github/workflows/test.yml/badge.svg?branch=main)]<!--(https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/actions)-->
+[![Main Build Status](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/workflows/test/badge.svg)]<!--(https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/actions)-->
 [![Coverage Status](https://coveralls.io/repos/github/chenwilliam77/RiskAdjustedLinearizations.jl/badge.svg?branch=main)](https://coveralls.io/github/chenwilliam77/RiskAdjustedLinearizations.jl?branch=main)
 
 This package implements [Lopez et al. (2018) "Risk-Adjusted Linearizations of Dynamic Equilibrium Models"](https://ideas.repec.org/p/bfr/banfra/702.html) in Julia. The [original companion code](https://github.com/fvazquezgrande/gen_affine) for the paper implements the method using MATLAB's Symbolic Math Toolbox. RiskAdjustedLinearizations.jl takes advantage of Julia's speed and flexibility so that the method can be used for solving and estimating large-scale Dynamic Stochastic General Equilibrium (DSGE) models.
