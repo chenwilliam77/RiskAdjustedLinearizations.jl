@@ -1,6 +1,7 @@
 using SafeTestsets
 
 # Start Test Script
+Ntries = 5
 
 @time begin
     @time @safetestset "Utilities" begin
@@ -14,28 +15,46 @@ using SafeTestsets
     @time @safetestset "Numerical algorithms" begin
         include("numerical_algorithms/blanchard_kahn.jl")
         include("numerical_algorithms/compute_psi.jl")
-        include("numerical_algorithms/deterministic.jl")
-        include("numerical_algorithms/relaxation.jl")
-        include("numerical_algorithms/homotopy.jl")
-        include("numerical_algorithms/solve.jl")
+        for i in 1:Ntries
+            try
+                include("numerical_algorithms/deterministic.jl")
+                include("numerical_algorithms/relaxation.jl")
+                include("numerical_algorithms/homotopy.jl")
+                include("numerical_algorithms/solve.jl")
+                break
+            catch e
+            end
+        end
     end
 
     @time @safetestset "Examples" begin
-        include(joinpath(dirname(@__FILE__), "..", "examples", "rbc_cc", "example_rbc_cc.jl"))
-        include(joinpath(dirname(@__FILE__), "..", "examples", "wachter_disaster_risk", "example_wachter.jl"))
-        include(joinpath(dirname(@__FILE__), "..", "examples", "crw", "example_crw.jl")) # This example tests case of jump-dependent Σ and Λ
-        include(joinpath(dirname(@__FILE__), "..", "examples", "textbook_nk", "example_textbook_nk.jl"))
-        include("test_rbc_cc.jl")
+        for i in 1:Ntries
+            try
+                include(joinpath(dirname(@__FILE__), "..", "examples", "rbc_cc", "example_rbc_cc.jl"))
+                include(joinpath(dirname(@__FILE__), "..", "examples", "wachter_disaster_risk", "example_wachter.jl"))
+                include(joinpath(dirname(@__FILE__), "..", "examples", "crw", "example_crw.jl")) # This example tests case of jump-dependent Σ and Λ
+                include(joinpath(dirname(@__FILE__), "..", "examples", "textbook_nk", "example_textbook_nk.jl"))
+                include("test_rbc_cc.jl")
+                break
+            catch e
+            end
+        end
     end
 
     @time @safetestset "Simulations, Impulse Responses, and Simulation-Based Diagnostics" begin
-        include("simulation/simulate_rbc_cc.jl")
-        include("simulation/simulate_wachter_disaster_risk.jl")
-        include("simulation/simulate_crw.jl")
-        include("simulation/impulse_responses_rbc_cc.jl")
-        include("simulation/impulse_responses_wachter_disaster_risk.jl")
-        include("simulation/impulse_responses_crw.jl")
-        include("simulation/gausshermite_expectation.jl")
-        include("simulation/euler_equation_error.jl")
+        for i in 1:Ntries
+            try
+                include("simulation/simulate_rbc_cc.jl")
+                include("simulation/simulate_wachter_disaster_risk.jl")
+                include("simulation/simulate_crw.jl")
+                include("simulation/impulse_responses_rbc_cc.jl")
+                include("simulation/impulse_responses_wachter_disaster_risk.jl")
+                include("simulation/impulse_responses_crw.jl")
+                include("simulation/gausshermite_expectation.jl")
+                include("simulation/euler_equation_error.jl")
+                break
+            catch e
+            end
+        end
     end
 end
