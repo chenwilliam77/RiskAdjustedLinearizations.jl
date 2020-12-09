@@ -26,7 +26,7 @@ y_det = copy(m.y)
 solve!(m; algorithm = algorithm, autodiff = autodiff_method)
 @test m.z ≈ out["z"]
 @test m.y ≈ out["y"]
-@test m.Ψ ≈ out["Psi"]
+@test m.Ψ ≈ out["Ψ"]
 
 if test_price_dispersion
     π̃_ss_vec = log.(range(1 - .005, stop = 1 + .005, length = 10)) # On annualized basis, range from -2% to 2% target inflation
