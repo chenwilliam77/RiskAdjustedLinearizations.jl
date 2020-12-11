@@ -141,4 +141,4 @@ the deterministic steady state as the initial guess.
 
 - [Coeurdacier, Rey, Winant (2011)](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/main/examples/crw/example_crw.jl): small-open economy model whose deterministic steady state does not exist. Example also provides a tutorial on calculating Euler equation errors.
 
-- [MATLAB Timing Test](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/matlab_timing_test): compare speed of Julia to MATLAB for Jermann (1989) and Wachter (2013) examples
+- [MATLAB Timing Test](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/matlab_timing_test): compare speed of Julia to MATLAB for Jermann (1998) and Wachter (2013) examples
