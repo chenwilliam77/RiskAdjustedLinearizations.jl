@@ -211,7 +211,7 @@ Note that $B_t$ will be pre-determined at period $t$ while $M_t$ will not be ($M
 The Lagrangian for the household is
 \begin{align*}
 \calL & = \E_0 \sum_{t = 0}^\infty \beta^t\left[\frac{C_t^{1 - \sigma}}{1 - \sigma} - \psi \frac{N_t^{1 + \eta}}{1 + \eta} + \theta\log\left(\frac{M_t}{P_t}\right)\right]\\
-        &\quad + \E_0 \sum_{t = 0}^\infty \beta^t\left[\lambda_t(  P_tC_t + B_{t + 1} + M_t - M_{t - 1} - W_t N_t + \Pi_t + (1 + i_{t - 1})B_t)\right],
+        &\quad + \E_0 \sum_{t = 0}^\infty \beta^t\left[\lambda_t( W_t N_t + \Pi_t + (1 + i_{t - 1})B_t-  P_tC_t - B_{t + 1} - (M_t - M_{t - 1}))\right],
 \end{align*}
 which implies first-order conditions
 \begin{align*}
