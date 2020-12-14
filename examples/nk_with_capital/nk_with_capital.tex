@@ -394,15 +394,15 @@ From this section, we obtain the following five equilibrium conditions:
   \label{eq:real optimal reset price}
   P_t^* & = \frac{\epsilon}{\epsilon - 1}\frac{\tilde{S}_{1, t}}{\tilde{S}_{2, t}},\\
   \label{eq:numerator recursion}
-  \tilde{S}_{1, t} & = MC_t Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + s}^\epsilon \tilde{S}_{1, t + 1}],\\
+  \tilde{S}_{1, t} & = MC_t Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}],\\
   \label{eq:denominator recursion}
-  \tilde{S}_{2, t} & =  Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + s}^{\epsilon - 1} \tilde{S}_{2, t + 1}].
+  \tilde{S}_{2, t} & =  Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + 1}^{\epsilon - 1} \tilde{S}_{2, t + 1}].
 \end{align}
 
 \subsection{Monetary Policy}
 To close the model, I specify the monetary policy rule as the following Taylor rule
 \begin{align}\label{eq:taylor rule}
-  \frac{R_t}{R} & =  \left(\frac{R_{t - 1}}{R}\right)^{\phi_R}\left(\left(\frac{\Pi_t}{\Pi}\right)^{\phi_\Pi}\left(\frac{Y_t}{Y_{t - 1}}\right)^{\phi_Y}\right)^{1 - \phi_R}\exp(\eta_{R, t})
+  \frac{R_t}{R} & =  \left(\frac{R_{t - 1}}{R}\right)^{\phi_R}\left(\left(\frac{\Pi_t}{\Pi}\right)^{\phi_\pi}\left(\frac{Y_t}{Y_{t - 1}}\right)^{\phi_y}\right)^{1 - \phi_R}\exp(\eta_{R, t})
 \end{align}
 Any proceeds from monetary policy are distributed as lump sum to the representative household.
 
@@ -426,7 +426,7 @@ Dividing by $P_{t - 1}^{1 - \epsilon}$ implies
 \end{align}
 The price dispersion term can similarly be re-written in terms of aggregates by distinguishing which firms get to change prices.
 \begin{align*}
-  v_t & = \int_0^{1 - \phi}\left(P_t^*\right)^{ - \epsilon}\, dj + \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_t}\right)^{ - \epsilon}\, dj\\
+  V_t^p & = \int_0^{1 - \phi}\left(P_t^*\right)^{ - \epsilon}\, dj + \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_t}\right)^{ - \epsilon}\, dj\\
       & = \int_0^{1 - \phi}\left(P_t^*\Pi_t\right)^{ - \epsilon}\left(\frac{1}{\Pi_t}\right)^{ - \epsilon}\, dj + \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\left(\frac{P_{t - 1}}{P_t}\right)^{ - \epsilon}\, dj\\
       & = (1 - \phi) (P_t^*\Pi_t)^{-\epsilon} \Pi_t^{\epsilon}  + \Pi_t^{\epsilon} \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj.
 \end{align*}
@@ -436,7 +436,7 @@ By invoking the law of large assumptions applied to any positive measure subset 
 \end{align*}
 Thus, we acquire
 \begin{align}\label{eq:price dispersion evol}
-  v_t & = \Pi_t^{\epsilon}((1 - \phi) (P_t^* \Pi_t)^{\epsilon} + \phi v_{t - 1})
+  V_t^p & = \Pi_t^{\epsilon}((1 - \phi) (P_t^* \Pi_t)^{\epsilon} + \phi v_{t - 1})
 \end{align}
 
 
@@ -454,16 +454,18 @@ which has first derivative w.r.t. $X_t / X_{t - 1}$
 
 There are five shocks in the model: $\eta_{A, t}$, $\eta_{\beta, t}$, $\eta_{L, t}$, $\eta_{K, t}$, and $\eta_{R, t}$. Without loss of generality, I assume all shocks follow AR(1) processes with persistence $\rho_i$ and standard deviation $\sigma_i$.\\
 
-Markets must clear for capital, labor, bonds, final goods, and intermediate goods, . The first three markets clear as a consequence of optimality conditions and the assumption that bonds have zero net supply. To clear the market for final goods, we set aggregate consumption demand $C_t$ equal to aggregate supply $Y_t$, which satisfies
+Markets must clear for capital, labor, bonds, final goods, and intermediate goods, . The first three markets clear as a consequence of optimality conditions and the assumption that bonds have zero net supply. To clear the market for final goods, we set the sum of aggregate consumption demand $C_t$ and investment demand $X_t$ equal to aggregate supply $Y_t$, which satisfies
 \begin{align*}
 \int_0^1 A_t K_t^\alpha L_t^{1 - \alpha}\, dj & = \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} Y_t\, dj\\
-  A_tK_t^\alpha L_t^{1 - \alpha} & = Y_t \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} \, dj = v_t Y_t.
+  A_tK_t^\alpha L_t^{1 - \alpha} & = Y_t \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} \, dj = V_t^p Y_t.
 \end{align*}
-Re-arranging yields the consumption market-clearing condition
-\begin{align}\label{eq:consumption market clearing}
-  C_t & = \frac{A_t K_t^{\alpha}L_t^{1 - \alpha}}{v_t}.
+Re-arranging yields the output market-clearing condition
+\begin{align}\label{eq:output market clearing}
+  C_t + X_t & = Y_t,\\
+  \label{eq:aggregate supply}
+  Y_t & = \frac{A_t K_t^{\alpha}L_t^{1 - \alpha}}{V_t^p}.
 \end{align}
-It can be shown that $v_t \geq 1$ by applying Jensen's inequality.
+It can be shown that $V_t^p \geq 1$ by applying Jensen's inequality. For our purposes, because the dimensionality of our model is not too large, we add the auxiliary $Y_t$ variable, even though we could substitute it out of the system of equations.
 
 
 All together, the full set of endogenous equilibrium conditions are
@@ -485,17 +487,19 @@ All together, the full set of endogenous equilibrium conditions are
   \label{eq:real optimal reset price eqm}
   P_t^* & = \frac{\epsilon}{\epsilon - 1}\frac{\tilde{S}_{1, t}}{\tilde{S}_{2, t}},\\
   \label{eq:numerator recursion eqm}
-  \tilde{S}_{1, t} & = MC_t Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + s}^\epsilon \tilde{S}_{1, t + 1}],\\
+  \tilde{S}_{1, t} & = MC_t Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}],\\
   \label{eq:denominator recursion eqm}
-  \tilde{S}_{2, t} & =  Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + s}^{\epsilon - 1} \tilde{S}_{2, t + 1}],\\
+  \tilde{S}_{2, t} & =  Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + 1}^{\epsilon - 1} \tilde{S}_{2, t + 1}],\\
   \label{eq:inflation from optimal reset price eqm}
   \Pi_t^{ 1 - \epsilon} & = (1 - \phi) (P_t^*\Pi_t)^{1 - \epsilon} + \phi,\\
   \label{eq:price dispersion evol eqm}
-  v_t & = \Pi_t^{\epsilon}((1 - \phi) (P_t^* \Pi_t)^{\epsilon} + \phi v_{t - 1}),\\
+  V_t^p & = \Pi_t^{\epsilon}((1 - \phi) (P_t^* \Pi_t)^{\epsilon} + \phi v_{t - 1}),\\
   \label{eq:taylor rule eqm}
-  \frac{R_t}{R} & =  \left(\frac{R_{t - 1}}{R}\right)^{\phi_R}\left(\left(\frac{\Pi_t}{\Pi}\right)^{\phi_\Pi}\left(\frac{Y_t}{Y_{t - 1}}\right)^{\phi_Y}\right)^{1 - \phi_R}\exp(\eta_{R, t}),\\
-  \label{eq:consumption market clearing eqm}
-  C_t & = \frac{A_t K_t^{\alpha}L_t^{1 - \alpha}}{v_t},
+  \frac{R_t}{R} & =  \left(\frac{R_{t - 1}}{R}\right)^{\phi_R}\left(\left(\frac{\Pi_t}{\Pi}\right)^{\phi_\pi}\left(\frac{Y_t}{Y_{t - 1}}\right)^{\phi_y}\right)^{1 - \phi_R}\exp(\eta_{R, t}),\\
+  \label{eq:output market clearing eqm}
+  C_t + X_t & = Y_t,\\
+  \label{eq:aggregate supply eqm}
+  Y_t & = \frac{A_t K_t^{\alpha}L_t^{1 - \alpha}}{V_t^p},
 \end{align}
 as well as the law of motion for capital
 \begin{align}\label{eq:law of motion capital eqm}
@@ -503,10 +507,12 @@ as well as the law of motion for capital
 \end{align}
 and the five exogenous processes
 \begin{align}
+  \label{eq:ar1 beta}
   \eta_{\beta, t + 1} & = \rho_\beta\eta_{\beta, t} + \sigma_\beta \varepsilon_{\beta, t + 1},\\
   \eta_{L, t + 1} & = \rho_L\eta_{L, t} + \sigma_L \varepsilon_{L, t + 1},\\
   \eta_{A, t + 1} & = \rho_A\eta_{A, t} + \sigma_A \varepsilon_{A, t + 1},\\
   \eta_{K, t + 1} & = \rho_K\eta_{K, t} + \sigma_K \varepsilon_{K, t + 1},\\
+  \label{eq:ar1 R}
   \eta_{R, t + 1} & = \rho_R\eta_{R, t} + \sigma_R \varepsilon_{R, t + 1}.
 \end{align}
 
@@ -519,7 +525,7 @@ We now proceed to converting the equilibrium conditions into a suitable form for
 \end{align*}
 where $z_t$ are (predetermined) state variables and $y_t$ are (nondetermined) jump variables.
 
-For the remainder of this section, lower case variables are the logs of previously upper case variables, and with a small abuse of notation, let $s_{1, t} = \log(\tilde{S}_{1, t})$ and $s_{2, t} = \log(\tilde{S}_{2, t})$. Additionally, let $r_{k, t} = \log(R_{K, t})$.
+For the remainder of this section, lower case variables are the logs of previously upper case variables, and with a small abuse of notation, let $s_{1, t} = \log(\tilde{S}_{1, t})$ and $s_{2, t} = \log(\tilde{S}_{2, t})$. Additionally, let $r_{k, t} = \log(R_{K, t})$ and $v_t = \log(V_t^p)$.
 
 \fd
 
@@ -533,12 +539,12 @@ Equation (\ref{eq:stochastic discount factor}) will not be used in the system of
 but it simplifies the other equations. Taking logs and re-arranging yields
 \begin{align*}
   0 & =  \log(\beta) + \eta_{\beta, t + 1} + (-\gamma c_{t + 1}) - \eta_{\beta, t} - (-\gamma c_t) - m_{t + 1}\\
-    & = \underbrace{\log(\beta) -\eta_{\beta, t} + \gamma c_t}_{\xi} + \underbrace{\eta_{\beta, t + 1} - \gamma c_{t + 1} - m_{t + 1}}_{\text{forward-looking}}.
+  m_{t + 1}  & = \underbrace{\log(\beta) -\eta_{\beta, t} + \gamma c_t}_{\xi} + \underbrace{\eta_{\beta, t + 1} - \gamma c_{t + 1}}_{\text{forward-looking}}.
 \end{align*}
 
 Equation (\ref{eq:euler eqn eqm}) becomes
 \begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\beta) + r_t}_{\xi} + \underbrace{m_{t + 1} - \Pi_{t + 1}}_{\text{forward-looking}}  \right)\right].
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\beta) + r_t}_{\xi} + \underbrace{m_{t + 1} - \pi_{t + 1}}_{\text{forward-looking}}  \right)\right].
 \end{align*}
 
 Equation (\ref{eq:tobins q eqm}) becomes
@@ -562,12 +568,12 @@ Equation (\ref{eq:capital asset pricing eqm}) becomes
 \end{align*}
 This equation is not linear in the forward-looking variables, we define a new variable
 \begin{align}\label{eq:Omega defn}
-  N_t = R_{K, t} + Q_t(1 - \delta),
+  \Omega_t = R_{K, t} + Q_t(1 - \delta),
 \end{align}
 so that we may represent (\ref{eq:capital asset pricing eqm}) in the required form for risk-adjusted linearizations as the following two equations:
 \begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{-q_t}_{\xi} + \underbrace{m_{t + 1} + n_{t + 1}}_{\text{forward-looking}}\right)\right],\\
-  0 & = \log\E_t\left[\exp\left(\underbrace{n_t - \log(\exp(r_{k, t}) +  (1 - \delta)\exp(q_t)))}_{\xi} \right)\right],\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{-q_t}_{\xi} + \underbrace{m_{t + 1} + \omega_{t + 1}}_{\text{forward-looking}}\right)\right],\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{\omega_t - \log(\exp(r_{k, t}) +  (1 - \delta)\exp(q_t)))}_{\xi} \right)\right],\\
 \end{align*}
 
 Equation (\ref{eq:mc soln eqm}) becomes
@@ -585,82 +591,177 @@ Like the stochastic discount factor, equation (\ref{eq:real optimal reset price 
   p_t^* & = \log\left(\frac{\epsilon}{\epsilon - 1}\right) + s_{1, t} - s_{2, t}.
 \end{align*}
 
-
-The first equation becomes
+Equation (\ref{eq:numerator recursion eqm}) becomes
 \begin{align*}
-  1 & = \beta \E_t\left[\frac{C_{t + 1}^{-\sigma}}{C_t^{-\sigma}}\frac{ 1 + i_t}{1 + \pi_{t + 1}}\right]\\
-  0 & = \log\E_t\left[\exp\left(\log(\beta) -\sigma (c_{t + 1} - c_t) + \tilde{i}_t - \tilde{\pi}_{t + 1} \right)\right]\\
-    & = \log\E_t\left[\exp\left(\underbrace{\log(\beta) + \sigma c_t + \tilde{i}_t}_{\xi} - \underbrace{\sigma c_{t + 1} - \tilde{\pi}_{t + 1}}_{\text{Forward-Looking}} \right)\right],
+  & \tilde{S}_{1, t} - MC_t Y_t\\
+   & = \E_t\left[\exp\left(\log(\theta) + \log(\beta) + m_{t + 1} + \epsilon \pi_{t + 1} + s_{1, t + 1}\right)\right]\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - \log(\exp(s_{1, t}) - \exp(mc_t)\exp(y_t))}_{\xi} + \underbrace{m_{t + 1} + \epsilon \pi_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right]
 \end{align*}
-where $c_t = \log(C_t)$, $\tilde{i}_t = \log(1 + i_t)$, and $\tilde{\pi}_t = \log(1 + \pi_{t + 1})$.
-
-\fd
-
-The second equation becomes
-
-\fd
-
-The third equation becomes
+and equation (\ref{eq:denominator recursion eqm}) becomes
 \begin{align*}
-  1 & = \frac{w_t}{A_t MC_t}\\
-  0 & = \log\E_t\left[\exp\left(\hat{w}_t - a_t - \tilde{mc}_t \right)\right].
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - \log(\exp(s_{2, t}) - \exp(y_t))}_{\xi} + \underbrace{m_{t + 1} + (\epsilon - 1) \pi_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right].
 \end{align*}
 
-The fourth and fifth equation become
+Equation (\ref{eq:inflation from optimal reset price eqm}) becomes
 \begin{align*}
-  0 & = \log\E_t\left[\exp\left(c_t - a_t - n_t + \hat{v}_t \right)\right].
+  1 & = \frac{\Pi_t^{1 - \epsilon}}{(1 - \phi)(P_t^*\Pi_t)^{1 - \epsilon} + \phi}\\
+  0 & = \log\E_t\left[\exp\left((1 - \epsilon)\pi_t - \log((1 - \phi) \exp((1 - \epsilon)(p_t^* + \pi_t)) + \phi)\right)\right].
 \end{align*}
 
-The sixth equation becomes
+Equation (\ref{eq:price dispersion evol eqm}) becomes
 \begin{align*}
-  0 & = \hat{v}_t - \epsilon \tilde{\pi}_t - \log((1 - \phi) \exp(\tilde{\pi}_t^*)^{ - \epsilon} + \phi \exp(\hat{v}_{t - 1})),
-\end{align*}
-where $\hat{v}_{t - 1}$ will be treated as an additional state variable, i.e. if $a_t = \hat{v}_t$ is a jump variable and $b_t = \hat{v}_{t - 1}$
-is a state variable, then
-\begin{align*}
-  b_{t + 1} = a_t.
+  1 & = \frac{V_t^p}{\Pi_t^\epsilon((1 - \phi) (P_t^*\Pi_t)^{1 - \epsilon} + \phi V_{t - 1}^p)}\\
+  0 & = \log\E_t\left[\exp\left(v_t - \log((1 - \phi) \exp(\epsilon(p_t^* + \pi_t)) + \phi \exp(v_{t - 1}))\right)\right].
 \end{align*}
 
-The seventh equation becomes
+Equation (\ref{eq:taylor rule eqm}) becomes
 \begin{align*}
-  0 & = (1 - \epsilon)\tilde{\pi}_t - \log((1 - \phi) \exp(\tilde{\pi}_t^*)^{1 - \epsilon} + \phi).
+  0 & = \log\E_t\left[\exp\left(\phi_R r_{t - 1} + (1 - \phi_R)r + (1 - \phi_R)(\phi_\pi(\pi_t - \pi) + \phi_y(y_t - y_{t - 1})) + \eta_{R, t} - r_t\right)\right].
 \end{align*}
 
-The eighth equation becomes
+Equation (\ref{eq:output market clearing eqm}) becomes
 \begin{align*}
-  0 & = \tilde{\pi}_t^* - \log\left(\frac{\epsilon}{\epsilon - 1}\right) - \tilde{\pi}_t - (\hat{x}_{1, t} - \hat{x}_{2, t})).
-\end{align*}
-By plugging this expression for $\tilde{\pi}_t^*$ into the previous two equations, we can also remove one more variable from the system.
-
-\fd
-
-The ninth and tenth equation become
-\begin{align*}
-  1 & = \E_t\left[\phi \beta\frac{x_{1, t + 1}(1 + \pi_{t + 1})}{x_{1, t} - C_t^{-\sigma} MC_t A_tN_t / v_t}\right]\\
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi) + \log(\beta)   - \log(\exp(\hat{x}_{1, t}) - \exp((1-\sigma) c_t + \tilde{mc}_t))}_{\xi} + \hat{x}_{1, t + 1} + \epsilon\tilde{\pi}_{t + 1}\right)\right]\\
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\phi) + \log(\beta)  - \log(\exp(\hat{x}_{2, t}) - \exp((1-\sigma) c_t))}_{\xi} + \hat{x}_{2, t + 1} + (\epsilon - 1)\tilde{\pi}_{t + 1}\right)\right],
-\end{align*}
-where the fact that $x_{1,t}$ and $x_{2, t}$ must both be positive implies $x_{1, t} - C_t^{-\sigma} MC_t Y_t$ and $x_{2, t} - C_t^{-\sigma}Y_t$ are both positive, as the expectations on the RHS are also both positive.
-
-\fd
-
-For the monetary policy rule, we use $\tilde{i}_{t - 1} \equiv \log(1 + i_{t - 1})$ and $\varepsilon_{i, t}$ as states and treat $i_t$ as a jump variable, hence
-\begin{align*}
-  \tilde{i}_t & = (1 - \rho_i) \tilde{i} + \rho_i \tilde{i}_{t - 1} + (1 - \rho_i)\phi_\pi (\tilde{\pi}_t - \tilde{\pi})  + \varepsilon_{i, t}.
-\end{align*}
-This formulation allows us to treat the policy rule as an expectational equation.
-
-\fd
-
-The above nine equations comprise the expectational equations. The following four equations comprise the states:
-\begin{align*}
-  a_{t + 1} & = \rho_a a_t + \varepsilon_{a, t + 1}\\
-  \hat{v}_{(t - 1) + 1} & = \hat{v}_t\\
-  \tilde{i}_{(t - 1) + 1} & = \tilde{i}_t\\
-  \varepsilon_{i, t + 1} & = \varepsilon_{i, t + 1}
+  0 & = \log\E_t\left[\exp(y_t - \log(\exp(c_t) + \exp(x_t)))\right].
 \end{align*}
 
+Equation (\ref{eq:aggregate supply eqm}) becomes
+\begin{align*}
+  0 & = \log\E_t\left[\exp(a_t + \alpha k_t + (1 - \alpha)l_t - v_t - y_t)\right].
+\end{align*}
 
-To conclude, note that we have three forward difference equations. The first is the Euler equation, which can be expressed as
+Equation (\ref{eq:law of motion capital eqm}) becomes
+\begin{align*}
+  k_{t + 1} & = \log\left((1 - \delta)\exp(k_t) + \exp(\eta_{K, t}) \left(1 - \frac{\chi}{2}\exp(2(x_t - x_{t - 1}))\right)\exp(x_t)\right).
+\end{align*}
+
+The autoregressive processes (\ref{eq:ar1 beta}) to (\ref{eq:ar1 R}) remain as they are.\\
+
+The jump variables are $y_t$, $c_t$, $l_t$, $w_t$, $r_t$, $\pi_t$, $q_t$, $x_t$, $r_{k, t}$, $\omega_t$, $mc_t$, $s_{1, t}$, $s_{2, t}$, and $v_t$.
+The state variables are $k_t$, $x_{t - 1}$, $v_{t - 1}$, $r_{t - 1}$, $y_{t - 1}$, and the autoregressive processes. The equations defining the evolution of the lags $x_{t - 1}$, $v_{t - 1}$, $r_{t - 1}$, and $y_{t - 1}$ are obtained by the formula $z_{(t - 1) + 1} = z_t$.
+
+
+This system has three forward difference equations (\ref{eq:capital asset pricing eqm}), (\ref{eq:numerator recursion eqm}), and
+(\ref{eq:denominator recursion eqm}). To ensure accuracy of the risk-adjusted linearization, I derive $N$-period
+ahead forward difference equations for all three.\\
+
+We can write (\ref{eq:capital asset pricing eqm}) recursively as
+\begin{align*}
+  Q_t & = \E_t[M_{t + 1} (R_{K, t + 1} + Q_{t + 1}(1 - \delta))]\\
+      & = \E_t[M_{t + 1}R_{K, t + 1} + (1 - \delta)M_{t + 1}\E_{t + 1}[M_{t + 2}(R_{K, t + 2} + Q_{t  + 2}(1 - \delta))]]\\
+      & = \E_t[M_{t + 1}R_{K, t + 1}] + (1 - \delta)\E_t\E_{t + 1}[M_{t + 1}M_{t + 2}(R_{K, t + 2} + Q_{t  + 2}(1 - \delta))].
+\end{align*}
+By the tower property,
+\begin{align*}
+  Q_t & = \E_t[M_{t + 1}R_{K, t + 1}] + (1 - \delta)\E_t[M_{t + 1}M_{t + 2}(R_{K, t + 2} + Q_{t  + 2}(1 - \delta))]\\
+      & = \E_t\left[\left(\sum_{s = 1}^2 (1-\delta)^{s - 1} \left(\prod_{u = 1}^sM_{t + s}\right)R_{K, t + s}\right) + M_{t + 1}M_{t + 2}Q_{t + 2}(1 - \delta)^2\right]\\
+      & = \E_t\left[\left(\sum_{s = 1}^2 (1 - \delta)^{s - 1}\left(\prod_{u = 1}^sM_{t + s}\right)R_{K, t + s}\right) + M_{t + 1}M_{t + 2}(1 - \delta)^2\E_{t + 2}[M_{t + 3}(R_{K, t + 3} + Q_{t + 3}(1 - \delta))]\right]\\
+      & = \E_t\left[\left(\sum_{s = 1}^3 (1 - \delta)^{s - 1}\left(\prod_{u = 1}^sM_{t + s}\right) R_{K, t + s}\right) + \prod_{s = 1}^3((1 - \delta)M_{t + s})Q_{t + 3}\right]
+\end{align*}
+and so on. Given this recursive structure, define $D_{Q, t}^{(n)}$ and $P_{Q, t}^{(n)}$ as
+\begin{align*}
+  D_{Q, t}^{(n)} & = \E_t\left[(1 - \delta)M_{t + 1}D_{Q, t + 1}^{(n - 1)}\right]\\
+  P_{Q, t}^{(n)} & = \E_t\left[(1 - \delta)M_{t + 1} P_{Q, t + 1}^{(n - 1)}\right]
+\end{align*}
+with boundary conditions
+\begin{align*}
+  D_{Q, t}^{(0)} & = \frac{R_{K, t + 1}}{1 - \delta}\\
+  P_{Q, t}^{(0)} & = Q_{t + 1}.
+\end{align*}
+Then I may write the $N$-period ahead recursive form of equation (\ref{eq:capital asset pricing eqm}) as
+\begin{align*}
+  Q_t & = \sum_{n = 1}^ND_{Q, t}^{(n)} + P_{Q, t}^{(N)}.
+\end{align*}
+To see why this recursion works, it is simpler to first verify that $P_{Q, t}^{(3)}$ is correct:
+\begin{align*}
+  P_{Q, t}^{(1)} & = \E_t\left[(1 - \delta)M_{t + 1} Q_{t + 1}\right]\\
+  P_{Q, t}^{(2)} & = \E_t\left[(1 - \delta)M_{t + 1} (\E_{t + 1}[(1 - \delta)M_{t + 2} Q_{t + 2}])\right]\\
+                 & = \E_t\left[\E_{t + 1}[(1 - \delta)^2M_{t + 1}M_{t + 2} Q_{t + 2}]\right]\\
+                 & = \E_t\left[\prod_{s = 1}^2((1 - \delta)M_{t + s}) Q_{t + 2}\right],
+\end{align*}
+where the second equality for $P_{Q, t}^{(2)}$ follows from the fact that $M_{t + 1}$ is measurable with respect to the information set at time $t + 1$ and can
+therefore be moved insided the conditional expectation $\E_{t + 1}[\cdot]$. Continuing for one more recursion, I have
+\begin{align*}
+  P_{Q, t}^{(3)} & = \E_t\left[(1 - \delta)M_{t + 1}\E_{t + 1}\left[\prod_{s = 1}^2((1 - \delta)M_{t + 1 + s}) Q_{t + 3}\right]\right]\\
+                 & = \E_t\left[\prod_{s = 1}^3((1 - \delta)M_{t + s}) Q_{t + 3}\right].
+\end{align*}
+Similarly, for $D_{Q, t}$, I have
+\begin{align*}
+  D_{Q, t}^{(1)} & = \E_t\left[(1 - \delta)M_{t + 1}\frac{R_{K, t + 1}}{1 - \delta}\right] = \E_t[M_{t + 1} R_{K, t + 1}]\\
+  D_{Q, t}^{(2)} & = \E_t[(1 - \delta)M_{t + 1}\E_{t + 1}[M_{t + 2}R_{K, t + 2}]]\\
+                 & = \E_t[(1 - \delta)M_{t + 1}M_{t + 2}R_{K, t + 2}]\\
+  D_{Q, t}^{(3)} & = \E_t[(1 - \delta)M_{t + 1}\E_{t + 1}[(1 - \delta)M_{t + 2}M_{t + 3}R_{K, t + 3}]]\\
+                 & = \E_t[(1 - \delta)^2M_{t + 1}M_{t + 2}M_{t + 3}R_{K, t + 3}].
+\end{align*}
+Since $P_{Q, t}^{(n)}$ and $D_{Q, t}^{(n)}$ are time-$t$ conditional expectations, they are measurable at time $t$, so they are not forward-looking variables. Thus, to get this version of (\ref{eq:capital asset pricing eqm}) in the appropriate form, define $d_{q, n, t} = \log(D_{Q, t}^{(n)})$ and $p_{q, n, t} = \log(P_{Q, t}^{(n)})$, and use the following $2N + 1$ equations:
+\begin{align}
+  0 & = \log\E_t\left[\exp\left(\underbrace{q_t - \log\left(\sum_{n = 1}^{N}\exp(d_{q, n, t}) + \exp(p_{q, n, t})\right)}_{\xi}\right)\right]\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\log(1 - \delta) - d_{q, n, t}}_{\xi} + \underbrace{m_{t + 1} + d_{q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{- d_{q, 1, t}}_{\xi} + \underbrace{m_{t + 1} + r_{k, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
+      \end{cases}\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\log(1 - \delta)- p_{q, n, t}}_{\xi} + \underbrace{m_{t + 1} + p_{q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\log(1 - \delta) - p_{q, 1, t}}_{\xi} + \underbrace{m_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
+      \end{cases}
+\end{align}
+
+
+For (\ref{eq:numerator recursion eqm}), observe that
+\begin{align*}
+  \tilde{S}_{1, t} & = MC_t Y_t + \theta\beta\E_t[M_{t + 1}\Pi_{t + 1}^\epsilon (MC_{t + 1}Y_{t + 1} + \theta\beta \E_{t + 1}[M_{ t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}])]\\
+                   & = MC_t Y_t + \theta\beta\E_t[M_{t + 1}\Pi_{t + 1}^\epsilon MC_{t + 1}Y_{t + 1} + \theta\beta M_{t + 1}\Pi_{t + 1}^\epsilon M_{ t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}]\\
+                   & =  MC_tY_t+ \E_t\left[\sum_{s = 1}^1 ((\theta\beta)^s \prod_{u = 1}^s (M_{t + u}\Pi_{t + u}^\epsilon)) MC_{t + s}Y_{t + s}\right] + \E_t\left[\prod_{s = 1}^2(\theta\beta M_{t + s} \Pi_{t + s}^\epsilon) \tilde{S}_{1, t + 2}\right].
+\end{align*}
+Thus, define $D_{S1, t}^{(n)}$ and $P_{S1, t}^{(n)}$ as the recursions
+\begin{align*}
+  D_{S1, t}^{(n)} & = \E_t[\theta\beta M_{t + 1} \Pi_{t + 1}^\epsilon D_{S1, t + 1}^{(n - 1)}],\\
+  P_{S1, t}^{(n)} & = \E_t[\theta\beta M_{t + 1} \Pi_{t + 1}^\epsilon P_{S1, t + 1}^{(n - 1)}],
+\end{align*}
+with boundary conditions
+\begin{align*}
+  D_{S1, t}^{(0)} & = MC_t Y_t\\
+  P_{S1, t}^{(0)} & = \tilde{S}_{1, t}.
+\end{align*}
+Given these definitions, it follows that
+\begin{align*}
+  D_{S1, t}^{(1)} & = \E_t[\theta\beta M_{t + 1} \Pi_{t + 1}^\epsilon MC_{t + 1}Y_{t + 1}]\\
+  P_{S1, t}^{(1)} & = \E_t[\theta\beta M_{t + 1}\Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}]\\
+  P_{S1, t}^{(2)} & = \E_t[\theta\beta M_{t + 1}\Pi_{t + 1}^\epsilon\E_{t + 1}[\theta\beta M_{t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}]]\\
+                  & = \E_t[(\theta\beta)^2 M_{t + 1}\Pi_{t + 1}^\epsilon M_{t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}].
+\end{align*}
+Thus, defining $d_{s1, t} = \log(D_{S1, t})$ and $p_{s1, t} = \log(P_{S1, t})$,
+the $N$-period ahead recursive form of (\ref{eq:numerator recursion eqm}) results in the $2N + 1$ equations
+\begin{align}
+  0 & = \log\E_t\left[\exp\left(\underbrace{s_{1, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s1, n, t}) + \exp(p_{s1, n, t})\right)}_{\xi}\right)\right]\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - d_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1} + \epsilon \pi_{t + 1} + d_{s1, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
+        \log\E_t\left[\exp\left(\underbrace{d_{s1, 0, t} - mc_t - y_t}_{\xi}\right)\right] & \text{if } n = 0.
+      \end{cases}\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - p_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1} + \epsilon \pi_{t + 1} + p_{s1, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - p_{s1, 1, t}}_{\xi} + \underbrace{m_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1.
+      \end{cases}
+\end{align}
+\\
+
+It is straightforward to show that a similar recursive form applies to (\ref{eq:denominator recursion eqm}):
+\begin{align}
+  0 & = \log\E_t\left[\exp\left(\underbrace{s_{2, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s2, n, t}) + \exp(p_{s2, n, t})\right)}_{\xi}\right)\right]\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - d_{s2, n, t}}_{\xi} + \underbrace{m_{t + 1} + (\epsilon - 1) \pi_{t + 1} + d_{s2, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
+        \log\E_t\left[\exp\left(\underbrace{d_{s2, 0, t} - y_t}_{\xi}\right)\right] & \text{if } n = 0.
+      \end{cases}\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - p_{s2, n, t}}_{\xi} + \underbrace{m_{t + 1} + (\epsilon - 1) \pi_{t + 1} + p_{s2, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - p_{s2, 1, t}}_{\xi} + \underbrace{m_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
+      \end{cases}
+\end{align}
+where terms and boundary conditions are analogously defined.
 
 \end{document}

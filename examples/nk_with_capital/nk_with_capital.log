@@ -1,10 +1,11 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.5.21)  13 DEC 2020 10:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.5.21)  13 DEC 2020 23:30
 entering extended mode
  restricted \write18 enabled.
- file:line:error style messages enabled.
  %&-line parsing enabled.
-**\input nk_with_capital.tex
- (./nk_with_capital.tex
+**nk_with_capital.tex
+(./nk_with_capital.tex
+LaTeX2e <2020-02-02> patch level 5
+L3 programming layer <2020-05-15>
 (/usr/local/texlive/2020/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2019/12/20 v1.4l Standard LaTeX document class
 (/usr/local/texlive/2020/texmf-dist/tex/latex/base/size12.clo
@@ -786,24 +787,59 @@ Underfull \hbox (badness 10000) in paragraph at lines 385--387
 
  []
 
-[6] [7] [8] [9] [10] [11]
-Overfull \hbox (1.19568pt too wide) detected at line 642
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 444--445
+
+ []
+
+[7]
+Underfull \hbox (badness 10000) in paragraph at lines 455--456
+
+ []
+
+[8] [9] [10] [11]
+Overfull \hbox (15.8721pt too wide) detected at line 599
 []
  []
 
-[12] [13] (./nk_with_capital.aux)
+
+Overfull \hbox (2.82228pt too wide) detected at line 603
+[]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 637--638
+
+ []
+
+[12]
+Underfull \hbox (badness 10000) in paragraph at lines 643--646
+
+ []
+
+
+Overfull \hbox (48.98116pt too wide) detected at line 659
+[]
+ []
+
+[13] [14] [15]
+Underfull \hbox (badness 10000) in paragraph at lines 748--750
+
+ []
+
+[16] [17] (./nk_with_capital.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 25800 strings out of 480476
- 648925 string characters out of 5899591
+ 25804 strings out of 480476
+ 648984 string characters out of 5899591
  1102227 words of memory out of 5000000
- 41386 multiletter control sequences out of 15000+600000
+ 41390 multiletter control sequences out of 15000+600000
  538995 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 68i,19n,98p,737b,609s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 68i,23n,98p,730b,609s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
 ></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb>
 </usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><
@@ -816,10 +852,10 @@ exlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/te
 xlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texl
 ive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texliv
 e/2020/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on nk_with_capital.pdf (13 pages, 172020 bytes).
+Output written on nk_with_capital.pdf (17 pages, 184086 bytes).
 PDF statistics:
- 98 PDF objects out of 1000 (max. 8388607)
- 70 compressed objects within 1 object stream
+ 110 PDF objects out of 1000 (max. 8388607)
+ 78 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 
