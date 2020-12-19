@@ -394,9 +394,9 @@ From this section, we obtain the following five equilibrium conditions:
   \label{eq:real optimal reset price}
   P_t^* & = \frac{\epsilon}{\epsilon - 1}\frac{\tilde{S}_{1, t}}{\tilde{S}_{2, t}},\\
   \label{eq:numerator recursion}
-  \tilde{S}_{1, t} & = MC_t Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}],\\
+  \tilde{S}_{1, t} & = MC_t Y_t + \theta\E_t[M_{t + 1} \Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}],\\
   \label{eq:denominator recursion}
-  \tilde{S}_{2, t} & =  Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + 1}^{\epsilon - 1} \tilde{S}_{2, t + 1}].
+  \tilde{S}_{2, t} & =  Y_t + \theta\E_t[M_{t + 1} \Pi_{t + 1}^{\epsilon - 1} \tilde{S}_{2, t + 1}].
 \end{align}
 
 \subsection{Monetary Policy}
@@ -411,32 +411,32 @@ The price level is currently characterized as the integral
 \begin{align*}
   P_t^{1 - \epsilon} = \int_0^1 P_t(j)^{1 - \epsilon}\, dj.
 \end{align*}
-To represent the model entirely in terms of aggregates, notice that, without loss of generality, we may re-order the fraction $\phi$ of firms which cannot reset prices to the top of the interval so that
+To represent the model entirely in terms of aggregates, notice that, without loss of generality, we may re-order the fraction $\theta$ of firms which cannot reset prices to the top of the interval so that
 \begin{align*}
-  P_t^{1 - \epsilon} = (1 - \phi)(P_t^*)^{1 - \epsilon} +  \int_{1 - \phi}^1 P_{t - 1}(j)^{1 - \epsilon}\, dj.
+  P_t^{1 - \epsilon} = (1 - \theta)(P_t^*)^{1 - \epsilon} +  \int_{1 - \theta}^1 P_{t - 1}(j)^{1 - \epsilon}\, dj.
 \end{align*}
 The latter term can be further simplified under the law of large numbers assumption that a positive measure of firms which cannot change their price
 still comprise a representative sample of all firms, yielding
 \begin{align*}
-  P_t^{1 - \epsilon} = (1 - \phi)(P_t^*)^{1 - \epsilon} +  \phi\int_0^1 P_{t - 1}(j)^{1 - \epsilon}\, dj = (1 - \phi)(P_t^*)^{1 - \epsilon} +  \phi P_{t - 1}^{1 - \epsilon}.
+  P_t^{1 - \epsilon} = (1 - \theta)(P_t^*)^{1 - \epsilon} +  \theta\int_0^1 P_{t - 1}(j)^{1 - \epsilon}\, dj = (1 - \theta)(P_t^*)^{1 - \epsilon} +  \theta P_{t - 1}^{1 - \epsilon}.
 \end{align*}
 Dividing by $P_{t - 1}^{1 - \epsilon}$ implies
 \begin{align}\label{eq:inflation from optimal reset price}
-  \Pi_t^{ 1 - \epsilon} & = (1 - \phi) (P_t^*\Pi_t)^{1 - \epsilon} + \phi.
+  \Pi_t^{ 1 - \epsilon} & = (1 - \theta) (P_t^*\Pi_t)^{1 - \epsilon} + \theta.
 \end{align}
 The price dispersion term can similarly be re-written in terms of aggregates by distinguishing which firms get to change prices.
 \begin{align*}
-  V_t^p & = \int_0^{1 - \phi}\left(P_t^*\right)^{ - \epsilon}\, dj + \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_t}\right)^{ - \epsilon}\, dj\\
-      & = \int_0^{1 - \phi}\left(P_t^*\Pi_t\right)^{ - \epsilon}\left(\frac{1}{\Pi_t}\right)^{ - \epsilon}\, dj + \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\left(\frac{P_{t - 1}}{P_t}\right)^{ - \epsilon}\, dj\\
-      & = (1 - \phi) (P_t^*\Pi_t)^{-\epsilon} \Pi_t^{\epsilon}  + \Pi_t^{\epsilon} \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj.
+  V_t^p & = \int_0^{1 - \theta}\left(P_t^*\right)^{ - \epsilon}\, dj + \int_{1 - \theta}^1 \left(\frac{P_{t - 1}(j)}{P_t}\right)^{ - \epsilon}\, dj\\
+      & = \int_0^{1 - \theta}\left(P_t^*\Pi_t\right)^{ - \epsilon}\left(\frac{1}{\Pi_t}\right)^{ - \epsilon}\, dj + \int_{1 - \theta}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\left(\frac{P_{t - 1}}{P_t}\right)^{ - \epsilon}\, dj\\
+      & = (1 - \theta) (P_t^*\Pi_t)^{-\epsilon} \Pi_t^{\epsilon}  + \Pi_t^{\epsilon} \int_{1 - \theta}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj.
 \end{align*}
 By invoking the law of large assumptions applied to any positive measure subset of firms, we must have
 \begin{align*}
-  \int_{1 - \phi}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj & = \phi\int_0^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj = \phi v_{t - 1}.
+  \int_{1 - \theta}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj & = \theta\int_0^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj = \theta V_{t - 1}^p.
 \end{align*}
 Thus, we acquire
 \begin{align}\label{eq:price dispersion evol}
-  V_t^p & = \Pi_t^{\epsilon}((1 - \phi) (P_t^* \Pi_t)^{\epsilon} + \phi v_{t - 1})
+  V_t^p & = \Pi_t^{\epsilon}((1 - \theta) (P_t^* \Pi_t)^{-\epsilon} + \theta V_{t - 1}^p)
 \end{align}
 
 
@@ -475,7 +475,7 @@ All together, the full set of endogenous equilibrium conditions are
   \label{eq:stochastic discount factor}
   M_{t + 1} & = \beta\frac{\exp(\eta_{\beta, t + 1})}{\exp(\eta_{\beta, t})}\frac{C_{t + 1}^{-\gamma}}{C_t^{-\gamma}},\\
   \label{eq:euler eqn eqm}
-  1 & = \beta \E_t\left[M_{t + 1}\frac{R_t}{\Pi_{t + 1}}\right],\\
+  1 & = \E_t\left[M_{t + 1}\frac{R_t}{\Pi_{t + 1}}\right],\\
   \label{eq:tobins q eqm}
     1  & =  \exp(\eta_{K, t}) Q_t \left(1 - \frac{3\chi}{2}\left(\frac{X_t}{X_{t - 1}}\right)^2\right)  + \E_t\left[M_{t + 1}\exp(\eta_{K, t + 1})Q_{t + 1} \chi \left(\frac{X_{t + 1}}{X_t}\right)^3\right],\\
   \label{eq:capital asset pricing eqm}
@@ -487,13 +487,13 @@ All together, the full set of endogenous equilibrium conditions are
   \label{eq:real optimal reset price eqm}
   P_t^* & = \frac{\epsilon}{\epsilon - 1}\frac{\tilde{S}_{1, t}}{\tilde{S}_{2, t}},\\
   \label{eq:numerator recursion eqm}
-  \tilde{S}_{1, t} & = MC_t Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}],\\
+  \tilde{S}_{1, t} & = MC_t Y_t + \theta\E_t[M_{t + 1} \Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}],\\
   \label{eq:denominator recursion eqm}
-  \tilde{S}_{2, t} & =  Y_t + \theta\beta\E_t[M_{t + 1} \Pi_{t + 1}^{\epsilon - 1} \tilde{S}_{2, t + 1}],\\
+  \tilde{S}_{2, t} & =  Y_t + \theta\E_t[M_{t + 1} \Pi_{t + 1}^{\epsilon - 1} \tilde{S}_{2, t + 1}],\\
   \label{eq:inflation from optimal reset price eqm}
-  \Pi_t^{ 1 - \epsilon} & = (1 - \phi) (P_t^*\Pi_t)^{1 - \epsilon} + \phi,\\
+  \Pi_t^{ 1 - \epsilon} & = (1 - \theta) (P_t^*\Pi_t)^{1 - \epsilon} + \theta,\\
   \label{eq:price dispersion evol eqm}
-  V_t^p & = \Pi_t^{\epsilon}((1 - \phi) (P_t^* \Pi_t)^{\epsilon} + \phi v_{t - 1}),\\
+  V_t^p & = \Pi_t^{\epsilon}((1 - \theta) (P_t^* \Pi_t)^{-\epsilon} + \theta V_{t - 1}^p),\\
   \label{eq:taylor rule eqm}
   \frac{R_t}{R} & =  \left(\frac{R_{t - 1}}{R}\right)^{\phi_R}\left(\left(\frac{\Pi_t}{\Pi}\right)^{\phi_\pi}\left(\frac{Y_t}{Y_{t - 1}}\right)^{\phi_y}\right)^{1 - \phi_R}\exp(\eta_{R, t}),\\
   \label{eq:output market clearing eqm}
@@ -515,6 +515,80 @@ and the five exogenous processes
   \label{eq:ar1 R}
   \eta_{R, t + 1} & = \rho_R\eta_{R, t} + \sigma_R \varepsilon_{R, t + 1}.
 \end{align}
+
+\subsection{Deterministic Steady State}
+To provide an initial guess for the risk-adjusted linearization and to provide a verification that the model is coded correctly, I determine some reasonable guesses for the deterministic steady state.
+
+Within this subsection, I denote the deterministic steady state values by an absence of a time subscript. The exogenous processes, by construction, have steady states of 0, i.e. $\eta_\beta = \eta_L = \eta_A = \eta_K = \eta_R = 0$. Further, $A = 1$.
+
+Focusing now on the endogenous equilibrium conditions, from (\ref{eq:consumption labor eqm}),
+\begin{align*}
+  W & = \frac{\varphi L^\nu}{C^{-\gamma}}.
+\end{align*}
+From (\ref{eq:tobins q eqm}),
+\begin{align*}
+  1 & = \left(1 - \frac{3\chi}{2}\right) Q + \chi Q \Rightarrow  Q = \frac{1}{1 - \frac{\chi}{2}}.
+\end{align*}
+From (\ref{eq:capital asset pricing eqm}),
+\begin{align*}
+  R_K & = \delta Q.
+\end{align*}
+Equation (\ref{eq:mc soln eqm}) remains as it is but with time subscripts removed. From (\ref{eq:numerator recursion eqm}),
+\begin{align*}
+  \tilde{S}_1 & = MC \cdot Y + \theta \Pi^\epsilon \tilde{S}_1 \Rightarrow \tilde{S}_1 = \frac{MC\cdot Y}{1 - \theta \Pi^\epsilon}.
+\end{align*}
+From (\ref{eq:denominator recursion eqm}),
+\begin{align*}
+  \tilde{S}_2 & = Y + \theta \Pi^{\epsilon - 1}\tilde{S}_2 \Rightarrow \tilde{S}_1 = \frac{Y}{1 - \theta \Pi^{\epsilon - 1}}.
+\end{align*}
+Thus,
+\begin{align*}
+  P^* & = \frac{\epsilon}{\epsilon - 1}MC \frac{1 - \theta \Pi^{\epsilon - 1}}{1 - \theta \Pi^{\epsilon}}.
+\end{align*}
+From (\ref{eq:inflation from optimal reset price eqm}),
+\begin{align*}
+  \Pi^{1 - \epsilon} & = ( 1- \theta) \left(P^* \Pi\right)^{1 - \epsilon} + \theta
+\end{align*}
+Note that $P^*$ depends on $MC$ and fundamental parameters, hence the above equation pins down $MC$, which then pins down the ratio of $K$ to $L$.
+From (\ref{eq:price dispersion evol eqm}),
+\begin{align*}
+  V^p & = \Pi^\epsilon\left((1 - \theta)(P^* \Pi)^{-\epsilon} + \theta V^p\right)\\
+  V^p & = \frac{(1 - \theta)(P^* \Pi)^{-\epsilon}}{\Pi^{-\epsilon} - \theta} = \frac{(1- \theta)(P^*)^{-\epsilon}}{1 - \theta \Pi^{\epsilon}}.
+\end{align*}
+From the Taylor rule (\ref{eq:taylor rule eqm}), the steady state interest and inflation rates are $R$ and $\Pi$, respectively, and from the Euler equation (\ref{eq:euler eqn eqm}), $R$ must satisfy
+\begin{align*}
+  R = \frac{\Pi}{\beta}.
+\end{align*}
+From (\ref{eq:output market clearing eqm}),
+\begin{align*}
+  C + X = Y.
+\end{align*}
+From (\ref{eq:aggregate supply eqm}),
+\begin{align*}
+  Y & = \frac{K^\alpha L^{1 - \alpha}}{V^p}.
+\end{align*}
+From (\ref{eq:law of motion capital eqm}), steady-state investment satisfies
+\begin{align*}
+  K - (1 - \delta)K & = \left(1 - \frac{\chi}{2}\right) X \Rightarrow  X = \frac{\delta K}{1 - \frac{\chi}{2}}.
+\end{align*}
+I claim that the deterministic steady state reduces to a nonlinear equation in $L$. Using the aggregate supply and capital accumulation equations,
+\begin{align*}
+  C + \frac{\delta K}{1 - \chi/2} = \frac{K^\alpha L^{1 - \alpha}}{V^p}.
+\end{align*}
+The optimal capital-labor ratio implies
+\begin{align*}
+  K & = \frac{\alpha}{1 - \alpha}\frac{W}{R_K}L,\\
+  C + \frac{\delta K}{1 - \chi/2} & = \left(\frac{\alpha}{1 - \alpha}\right)^{\alpha} \left(\frac{W}{R_K}\right)^\alpha\frac{L}{V^p}.
+\end{align*}
+The intratemporal condition for consumption and labor implies
+\begin{align*}
+  K & = \frac{\alpha}{1 - \alpha}\frac{\varphi L^\nu}{C^{-\gamma} R_K} L,\\
+  C + \frac{\delta K}{1 - \chi/2} & = \left(\frac{\alpha}{1 - \alpha}\right)^{\alpha} \left(\frac{\varphi L^\nu}{C^{-\gamma}R_K }\right)^\alpha\frac{L}{V^p}.
+\end{align*}
+Given a guess for $L$, I can compute $C$ using these two equations. Given $C$, I can compute $W$. Given the wage $W$, I can compute $K$ and $MC$. Given the marginal cost $MC$, I can compute the inflation-related terms.
+
+
+
 
 \section{Risk-Adjusted Linearization}\label{sec:ral}
 
@@ -604,14 +678,14 @@ and equation (\ref{eq:denominator recursion eqm}) becomes
 
 Equation (\ref{eq:inflation from optimal reset price eqm}) becomes
 \begin{align*}
-  1 & = \frac{\Pi_t^{1 - \epsilon}}{(1 - \phi)(P_t^*\Pi_t)^{1 - \epsilon} + \phi}\\
-  0 & = \log\E_t\left[\exp\left((1 - \epsilon)\pi_t - \log((1 - \phi) \exp((1 - \epsilon)(p_t^* + \pi_t)) + \phi)\right)\right].
+  1 & = \frac{\Pi_t^{1 - \epsilon}}{(1 - \theta)(P_t^*\Pi_t)^{1 - \epsilon} + \theta}\\
+  0 & = \log\E_t\left[\exp\left((1 - \epsilon)\pi_t - \log((1 - \theta) \exp((1 - \epsilon)(p_t^* + \pi_t)) + \theta)\right)\right].
 \end{align*}
 
 Equation (\ref{eq:price dispersion evol eqm}) becomes
 \begin{align*}
-  1 & = \frac{V_t^p}{\Pi_t^\epsilon((1 - \phi) (P_t^*\Pi_t)^{1 - \epsilon} + \phi V_{t - 1}^p)}\\
-  0 & = \log\E_t\left[\exp\left(v_t - \log((1 - \phi) \exp(\epsilon(p_t^* + \pi_t)) + \phi \exp(v_{t - 1}))\right)\right].
+  1 & = \frac{V_t^p}{\Pi_t^\epsilon((1 - \theta) (P_t^*\Pi_t)^{-\epsilon} + \theta V_{t - 1}^p)}\\
+  0 & = \log\E_t\left[\exp\left(v_t - \epsilon \pi_t - \log((1 - \theta) \exp(-\epsilon(p_t^* + \pi_t)) + \theta \exp(v_{t - 1}))\right)\right].
 \end{align*}
 
 Equation (\ref{eq:taylor rule eqm}) becomes
@@ -763,5 +837,7 @@ It is straightforward to show that a similar recursive form applies to (\ref{eq:
       \end{cases}
 \end{align}
 where terms and boundary conditions are analogously defined.
+
+
 
 \end{document}
