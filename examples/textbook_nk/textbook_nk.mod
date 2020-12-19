@@ -4,18 +4,17 @@ varexo eA eR;
 
 parameters epsi phi sigma eta beta psi rhoA rhoR phipi sA sR;
 
-load param_textbook_nk;
-set_param_value('beta',beta);
-set_param_value('epsi',epsi);
-set_param_value('sigma',sigma);
-set_param_value('eta',eta);
-set_param_value('psi',psi);
-set_param_value('phi',phi);
-set_param_value('phipi',phipi);
-set_param_value('rhoA',rhoA);
-set_param_value('rhoR',rhoR);
-set_param_value('sA',sA);
-set_param_value('sR',sR);
+beta = .99;
+epsi = 4.45;
+sigma = 2.0;
+eta = 1.0;
+psi = 1.0;
+phi = 0.7;
+phipi = 1.5;
+rhoA = .9;
+rhoR = 0.7;
+sA = 0.004;
+sR = .025 / 4.0;
 
 model;
 
