@@ -633,31 +633,17 @@ Equation (\ref{eq:euler eqn eqm}) becomes
 
 Equation (\ref{eq:tobins q eqm}) becomes
 \begin{align*}
-  & 1 - Q_t\left(1 - \frac{3\chi}{2}\left(\frac{X_t}{X_{t - 1}}\right)^2\right)\\
-  & = \E_t\left[M_{t + 1}Q_{t + 1}\chi\left(\frac{X_{t + 1}}{X_t}\right)^3\right]\\
-  & \log\left(1 - \exp(q_t)\left(1 - \frac{3\chi}{2}\exp(2x_t - 2x_{t - 1})\right)\right)\\
-  & = \log\E_t\left[\exp\left(m_{t + 1} + q_{t + 1} + \log(\chi) + 3 x_{t + 1} - 3 x_t\right)\right]\\
-  0 & = \log\E_t\left[\frac{\exp\left(m_{t + 1} + q_{t + 1} + \log(\chi) + 3 x_{t + 1} - 3 x_t\right)}{\exp\left(\log\left(1 - \exp(q_t)\left(1 - \frac{3\chi}{2}\exp(2x_t - 2x_{t - 1})\right)\right)\right)}\right].
-\end{align*}
-Re-arranging yields
-\begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\chi)- 3x_t - \log\left(1 - \exp(q_t)\left(1 - \frac{3\chi}{2}\exp(2x_t - 2x_{t - 1})\right)\right)}_{\xi}\right)\right]\\
-    &\quad + \log \E_t\left[\exp(\underbrace{m_{t + 1} + q_{t + 1} + 3x_{t + 1}}_{\text{forward-looking}})\right].
+  0 & = \log\E_t\left[\exp\left(q_t + \log\left(\Phi'\left(\exp(x_t - k_{t - 1})\right)\right)\right)\right].
 \end{align*}
 
-Equation (\ref{eq:capital asset pricing eqm}) becomes
-\begin{align*}
-  1 & = \E_t\left[\frac{M_{t + 1} (R_{K, t + 1} + Q_{t + 1}(1 - \delta))}{Q_t}\right]\\
-  0 & = \log\E_t\left[\exp\left(m_{t + 1} + \log(\exp(r_{k, t + 1}) + (1-\delta)\exp(q_{t + 1})) - q_t\right)\right].
-\end{align*}
-This equation is not linear in the forward-looking variables, we define a new variable
+For equation (\ref{eq:capital asset pricing eqm}), observe that the RHS is not log-linear in the forward-looking variables. To handle this case, I define the new variable
 \begin{align}\label{eq:Omega defn}
-  \Omega_t = R_{K, t} + Q_t(1 - \delta),
+  \Omega_t & = R_{K, t} + Q_t\left(1 - \delta + \Phi\left(\frac{X_t}{K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{K_{t - 1}}\right)\frac{X_t}{K_{t - 1}}\right).
 \end{align}
-so that we may represent (\ref{eq:capital asset pricing eqm}) in the required form for risk-adjusted linearizations as the following two equations:
+Then (\ref{eq:capital asset pricing eqm}) can be written as
 \begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{-q_t}_{\xi} + \underbrace{m_{t + 1} + \omega_{t + 1}}_{\text{forward-looking}}\right)\right],\\
-  0 & = \log\E_t\left[\exp\left(\underbrace{\omega_t - \log(\exp(r_{k, t}) +  (1 - \delta)\exp(q_t)))}_{\xi} \right)\right],\\
+  1 = \E_t\left[\frac{M_{t + 1} \Omega_{t + 1}}{Q_t}\right]\\
+  0 & = \log\E_t\left[\exp(m_{t + 1} + \omega_{t + 1} - q_t)\right].
 \end{align*}
 
 Equation (\ref{eq:mc soln eqm}) becomes
@@ -715,40 +701,44 @@ Equation (\ref{eq:aggregate supply eqm}) becomes
 
 Equation (\ref{eq:law of motion capital eqm}) becomes
 \begin{align*}
-  k_{t + 1} & = \log\left((1 - \delta)\exp(k_t) +  \left(1 - \frac{\chi}{2}\exp(2(x_t - x_{t - 1}))\right)\exp(x_t)\right).
+  k_t & = \log\left(1 + \frac{\overline{X}^{1 / \chi}}{1 - 1 / \chi}(\exp(x_t - k_{t - 1}))^{1 - 1 / \chi} - \frac{\overline{X}}{1 - 1 / \chi} \right) + k_{t - 1}.
 \end{align*}
 
 The autoregressive processes (\ref{eq:ar1 beta}) to (\ref{eq:ar1 R}) remain as they are.\\
 
 The jump variables are $y_t$, $c_t$, $l_t$, $w_t$, $r_t$, $\pi_t$, $q_t$, $x_t$, $r_{k, t}$, $\omega_t$, $mc_t$, $s_{1, t}$, $s_{2, t}$, and $v_t$.
-The state variables are $k_t$, $x_{t - 1}$, $v_{t - 1}$, $r_{t - 1}$, $y_{t - 1}$, and the autoregressive processes. The equations defining the evolution of the lags $x_{t - 1}$, $v_{t - 1}$, $r_{t - 1}$, and $y_{t - 1}$ are obtained by the formula $z_{(t - 1) + 1} = z_t$.
+The state variables are $k_{t - 1}$, $v_{t - 1}$, $r_{t - 1}$, $y_{t - 1}$, and the autoregressive processes. The equations defining the evolution of the lags $v_{t - 1}$, $r_{t - 1}$, and $y_{t - 1}$ are obtained by the formula $z_{(t - 1) + 1} = z_t$.
 
 
 This system has three forward difference equations (\ref{eq:capital asset pricing eqm}), (\ref{eq:numerator recursion eqm}), and
 (\ref{eq:denominator recursion eqm}). To ensure accuracy of the risk-adjusted linearization, I derive $N$-period
 ahead forward difference equations for all three.\\
 
-We can write (\ref{eq:capital asset pricing eqm}) recursively as
+First, redefine $\Omega_t$ as
 \begin{align*}
-  Q_t & = \E_t[M_{t + 1} (R_{K, t + 1} + Q_{t + 1}(1 - \delta))]\\
-      & = \E_t[M_{t + 1}R_{K, t + 1} + (1 - \delta)M_{t + 1}\E_{t + 1}[M_{t + 2}(R_{K, t + 2} + Q_{t  + 2}(1 - \delta))]]\\
-      & = \E_t[M_{t + 1}R_{K, t + 1}] + (1 - \delta)\E_t\E_{t + 1}[M_{t + 1}M_{t + 2}(R_{K, t + 2} + Q_{t  + 2}(1 - \delta))].
+  \Omega_t = 1 - \delta + \Phi\left(\frac{X_t}{K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{K_{t - 1}}\right) \frac{X_t}{K_{t - 1}}.
+\end{align*}
+Then we can write (\ref{eq:capital asset pricing eqm}) recursively as
+\begin{align*}
+  Q_t & = \E_t[M_{t + 1} (R_{K, t + 1} + Q_{t + 1}\Omega_{t + 1})]\\
+      & = \E_t[M_{t + 1}R_{K, t + 1} + \Omega_{t + 1}M_{t + 1}\E_{t + 1}[M_{t + 2}(R_{K, t + 2} + Q_{t  + 2}\Omega_{t + 1})]]\\
+      & = \E_t[M_{t + 1}R_{K, t + 1}] + \Omega_{t + 1}\E_t\E_{t + 1}[M_{t + 1}M_{t + 2}(R_{K, t + 2} + Q_{t  + 2}\Omega_{t + 2})].
 \end{align*}
 By the tower property,
 \begin{align*}
-  Q_t & = \E_t[M_{t + 1}R_{K, t + 1}] + (1 - \delta)\E_t[M_{t + 1}M_{t + 2}(R_{K, t + 2} + Q_{t  + 2}(1 - \delta))]\\
-      & = \E_t\left[\left(\sum_{s = 1}^2 (1-\delta)^{s - 1} \left(\prod_{u = 1}^sM_{t + s}\right)R_{K, t + s}\right) + M_{t + 1}M_{t + 2}Q_{t + 2}(1 - \delta)^2\right]\\
-      & = \E_t\left[\left(\sum_{s = 1}^2 (1 - \delta)^{s - 1}\left(\prod_{u = 1}^sM_{t + s}\right)R_{K, t + s}\right) + M_{t + 1}M_{t + 2}(1 - \delta)^2\E_{t + 2}[M_{t + 3}(R_{K, t + 3} + Q_{t + 3}(1 - \delta))]\right]\\
-      & = \E_t\left[\left(\sum_{s = 1}^3 (1 - \delta)^{s - 1}\left(\prod_{u = 1}^sM_{t + s}\right) R_{K, t + s}\right) + \prod_{s = 1}^3((1 - \delta)M_{t + s})Q_{t + 3}\right]
+  Q_t & = \E_t[M_{t + 1}R_{K, t + 1}] + \Omega_{t + 1}\E_t[M_{t + 1}M_{t + 2}(R_{K, t + 2} + Q_{t  + 2}\Omega_{t + 2})]\\
+      & = \E_t\left[\left(\sum_{s = 1}^2 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right) \left(\prod_{u = 1}^sM_{t + u}\right)R_{K, t + s}\right) + M_{t + 1}M_{t + 2}Q_{t + 2}\Omega_{t + 1}\Omega_{t + 2}\right]\\
+      & = \E_t\left[\left(\sum_{s = 1}^2 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right)\left(\prod_{u = 1}^sM_{t + u}\right)R_{K, t + s}\right) + \prod_{s = 1}^2 (M_{t + s}\Omega_{t + s})\E_{t + 2}[M_{t + 3}(R_{K, t + 3} + Q_{t + 3}\Omega_{t + 3})]\right]\\
+      & = \E_t\left[\left(\sum_{s = 1}^3 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right)\left(\prod_{u = 1}^sM_{t + u}\right) R_{K, t + s}\right) + \prod_{s = 1}^3(M_{t + s}\Omega_{t + s})Q_{t + 3}\right]
 \end{align*}
-and so on. Given this recursive structure, define $D_{Q, t}^{(n)}$ and $P_{Q, t}^{(n)}$ as
+and so on, with the abuse of notation that $\prod_{u = 1}^0 \Omega_{t + u} = 1$. Given this recursive structure, define $D_{Q, t}^{(n)}$ and $P_{Q, t}^{(n)}$ as
 \begin{align*}
-  D_{Q, t}^{(n)} & = \E_t\left[(1 - \delta)M_{t + 1}D_{Q, t + 1}^{(n - 1)}\right]\\
-  P_{Q, t}^{(n)} & = \E_t\left[(1 - \delta)M_{t + 1} P_{Q, t + 1}^{(n - 1)}\right]
+  D_{Q, t}^{(n)} & = \E_t\left[\Omega_{t + 1}M_{t + 1}D_{Q, t + 1}^{(n - 1)}\right]\\
+  P_{Q, t}^{(n)} & = \E_t\left[\Omega_{t + 1}M_{t + 1} P_{Q, t + 1}^{(n - 1)}\right]
 \end{align*}
 with boundary conditions
 \begin{align*}
-  D_{Q, t}^{(0)} & = \frac{R_{K, t + 1}}{1 - \delta}\\
+  D_{Q, t}^{(0)} & = \frac{R_{K, t + 1}}{\Omega_{t + 1}}\\
   P_{Q, t}^{(0)} & = Q_{t + 1}.
 \end{align*}
 Then I may write the $N$-period ahead recursive form of equation (\ref{eq:capital asset pricing eqm}) as
@@ -757,37 +747,37 @@ Then I may write the $N$-period ahead recursive form of equation (\ref{eq:capita
 \end{align*}
 To see why this recursion works, it is simpler to first verify that $P_{Q, t}^{(3)}$ is correct:
 \begin{align*}
-  P_{Q, t}^{(1)} & = \E_t\left[(1 - \delta)M_{t + 1} Q_{t + 1}\right]\\
-  P_{Q, t}^{(2)} & = \E_t\left[(1 - \delta)M_{t + 1} (\E_{t + 1}[(1 - \delta)M_{t + 2} Q_{t + 2}])\right]\\
-                 & = \E_t\left[\E_{t + 1}[(1 - \delta)^2M_{t + 1}M_{t + 2} Q_{t + 2}]\right]\\
-                 & = \E_t\left[\prod_{s = 1}^2((1 - \delta)M_{t + s}) Q_{t + 2}\right],
+  P_{Q, t}^{(1)} & = \E_t\left[\Omega_{t + 1}M_{t + 1} Q_{t + 1}\right]\\
+  P_{Q, t}^{(2)} & = \E_t\left[\Omega_{t + 1}M_{t + 1} (\E_{t + 1}[\Omega_{t + 2}M_{t + 2} Q_{t + 2}])\right]\\
+                 & = \E_t\left[\E_{t + 1}\left[\prod_{s = 1}^2(\Omega_{t + s}M_{t + s}) Q_{t + 2}\right]\right]\\
+                 & = \E_t\left[\prod_{s = 1}^2(\Omega_{t + s}M_{t + s}) Q_{t + 2}\right].
 \end{align*}
 where the second equality for $P_{Q, t}^{(2)}$ follows from the fact that $M_{t + 1}$ is measurable with respect to the information set at time $t + 1$ and can
 therefore be moved insided the conditional expectation $\E_{t + 1}[\cdot]$. Continuing for one more recursion, I have
 \begin{align*}
-  P_{Q, t}^{(3)} & = \E_t\left[(1 - \delta)M_{t + 1}\E_{t + 1}\left[\prod_{s = 1}^2((1 - \delta)M_{t + 1 + s}) Q_{t + 3}\right]\right]\\
-                 & = \E_t\left[\prod_{s = 1}^3((1 - \delta)M_{t + s}) Q_{t + 3}\right].
+  P_{Q, t}^{(3)} & = \E_t\left[\Omega_{t + 1}M_{t + 1}\E_{t + 1}\left[\prod_{s = 1}^2(\Omega_{t + 1 + s}M_{t + 1 + s}) Q_{t + 3}\right]\right]\\
+                 & = \E_t\left[\prod_{s = 1}^3(\Omega_{t + s}M_{t + s}) Q_{t + 3}\right].
 \end{align*}
 Similarly, for $D_{Q, t}$, I have
 \begin{align*}
-  D_{Q, t}^{(1)} & = \E_t\left[(1 - \delta)M_{t + 1}\frac{R_{K, t + 1}}{1 - \delta}\right] = \E_t[M_{t + 1} R_{K, t + 1}]\\
-  D_{Q, t}^{(2)} & = \E_t[(1 - \delta)M_{t + 1}\E_{t + 1}[M_{t + 2}R_{K, t + 2}]]\\
-                 & = \E_t[(1 - \delta)M_{t + 1}M_{t + 2}R_{K, t + 2}]\\
-  D_{Q, t}^{(3)} & = \E_t[(1 - \delta)M_{t + 1}\E_{t + 1}[(1 - \delta)M_{t + 2}M_{t + 3}R_{K, t + 3}]]\\
-                 & = \E_t[(1 - \delta)^2M_{t + 1}M_{t + 2}M_{t + 3}R_{K, t + 3}].
+  D_{Q, t}^{(1)} & = \E_t\left[\Omega_{t + 1}M_{t + 1}\frac{R_{K, t + 1}}{\Omega_{t + 1}}\right] = \E_t[M_{t + 1} R_{K, t + 1}]\\
+  D_{Q, t}^{(2)} & = \E_t[\Omega_{t + 1}M_{t + 1}\E_{t + 1}[M_{t + 2}R_{K, t + 2}]]\\
+                 & = \E_t[\Omega_{t + 1}M_{t + 1}M_{t + 2}R_{K, t + 2}]\\
+  D_{Q, t}^{(3)} & = \E_t[\Omega_{t + 1}M_{t + 1}\E_{t + 1}[\Omega_{t + 2}M_{t + 2}M_{t + 3}R_{K, t + 3}]]\\
+                 & = \E_t[\Omega_{t + 1}\Omega_{t + 2}M_{t + 1}M_{t + 2}M_{t + 3}R_{K, t + 3}].
 \end{align*}
 Since $P_{Q, t}^{(n)}$ and $D_{Q, t}^{(n)}$ are time-$t$ conditional expectations, they are measurable at time $t$, so they are not forward-looking variables. Thus, to get this version of (\ref{eq:capital asset pricing eqm}) in the appropriate form, define $d_{q, n, t} = \log(D_{Q, t}^{(n)})$ and $p_{q, n, t} = \log(P_{Q, t}^{(n)})$, and use the following $2N + 1$ equations:
 \begin{align}
   0 & = \log\E_t\left[\exp\left(\underbrace{q_t - \log\left(\sum_{n = 1}^{N}\exp(d_{q, n, t}) + \exp(p_{q, n, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(1 - \delta) - d_{q, n, t}}_{\xi} + \underbrace{m_{t + 1} + d_{q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{-d_{q, n, t}}_{\xi} + \underbrace{\omega_{t + 1} + m_{t + 1} + d_{q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
         \log\E_t\left[\exp\left(\underbrace{- d_{q, 1, t}}_{\xi} + \underbrace{m_{t + 1} + r_{k, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(1 - \delta)- p_{q, n, t}}_{\xi} + \underbrace{m_{t + 1} + p_{q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\log(1 - \delta) - p_{q, 1, t}}_{\xi} + \underbrace{m_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
+        \log\E_t\left[\exp\left(\underbrace{-p_{q, n, t}}_{\xi} + \underbrace{\omega_{t + 1} + m_{t + 1} + p_{q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{-p_{q, 1, t}}_{\xi} + \underbrace{\omega_{t + 1} + m_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
       \end{cases}
 \end{align}
 
