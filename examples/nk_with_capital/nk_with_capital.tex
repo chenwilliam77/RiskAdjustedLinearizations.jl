@@ -628,7 +628,7 @@ but it simplifies the other equations. Taking logs and re-arranging yields
 
 Equation (\ref{eq:euler eqn eqm}) becomes
 \begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\beta) + r_t}_{\xi} + \underbrace{m_{t + 1} - \pi_{t + 1}}_{\text{forward-looking}}  \right)\right].
+  0 & = \log\E_t\left[\exp\left(\underbrace{r_t}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} - \underbrace{\pi_{t + 1}}_{\text{forward-looking}}  \right)\right].
 \end{align*}
 
 Equation (\ref{eq:tobins q eqm}) becomes
@@ -653,7 +653,7 @@ Equation (\ref{eq:mc soln eqm}) becomes
 
 Equation (\ref{eq:optimal capital labor ratio eqm}) becomes
 \begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{k_t - l_t - \log\left(\frac{\alpha}{1 - \alpha}\right) - (w_t - r_{k, t})}_{\xi} \right)\right].
+  0 & = \log\E_t\left[\exp\left(\underbrace{k_{t - 1} - l_t - \log\left(\frac{\alpha}{1 - \alpha}\right) - (w_t - r_{k, t})}_{\xi} \right)\right].
 \end{align*}
 
 Like the stochastic discount factor, equation (\ref{eq:real optimal reset price eqm}) will not be used in the system of equations, but it will be useful to simplify other equations. Taking logs yields
@@ -664,12 +664,12 @@ Like the stochastic discount factor, equation (\ref{eq:real optimal reset price 
 Equation (\ref{eq:numerator recursion eqm}) becomes
 \begin{align*}
   & \tilde{S}_{1, t} - MC_t Y_t\\
-   & = \E_t\left[\exp\left(\log(\theta) + \log(\beta) + m_{t + 1} + \epsilon \pi_{t + 1} + s_{1, t + 1}\right)\right]\\
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - \log(\exp(s_{1, t}) - \exp(mc_t)\exp(y_t))}_{\xi} + \underbrace{m_{t + 1} + \epsilon \pi_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right]
+   & = \E_t\left[\exp\left(\log(\theta) + m_{t + 1} + \epsilon \pi_{t + 1} + s_{1, t + 1}\right)\right]\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\theta) - \log(\exp(s_{1, t}) - \exp(mc_t)\exp(y_t))}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right]
 \end{align*}
 and equation (\ref{eq:denominator recursion eqm}) becomes
 \begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - \log(\exp(s_{2, t}) - \exp(y_t))}_{\xi} + \underbrace{m_{t + 1} + (\epsilon - 1) \pi_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right].
+  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\theta) - \log(\exp(s_{2, t}) - \exp(y_t))}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1) \pi_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right].
 \end{align*}
 
 Equation (\ref{eq:inflation from optimal reset price eqm}) becomes
@@ -696,7 +696,7 @@ Equation (\ref{eq:output market clearing eqm}) becomes
 
 Equation (\ref{eq:aggregate supply eqm}) becomes
 \begin{align*}
-  0 & = \log\E_t\left[\exp(a_t + \alpha k_t + (1 - \alpha)l_t - v_t - y_t)\right].
+  0 & = \log\E_t\left[\exp(a_t + \alpha k_{t - 1} + (1 - \alpha)l_t - v_t - y_t)\right].
 \end{align*}
 
 Equation (\ref{eq:law of motion capital eqm}) becomes
@@ -771,13 +771,13 @@ Since $P_{Q, t}^{(n)}$ and $D_{Q, t}^{(n)}$ are time-$t$ conditional expectation
   0 & = \log\E_t\left[\exp\left(\underbrace{q_t - \log\left(\sum_{n = 1}^{N}\exp(d_{q, n, t}) + \exp(p_{q, n, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{-d_{q, n, t}}_{\xi} + \underbrace{\omega_{t + 1} + m_{t + 1} + d_{q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{- d_{q, 1, t}}_{\xi} + \underbrace{m_{t + 1} + r_{k, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
+        \log\E_t\left[\exp\left(\underbrace{-d_{q, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + d_{q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{- d_{q, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{r_{k, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{-p_{q, n, t}}_{\xi} + \underbrace{\omega_{t + 1} + m_{t + 1} + p_{q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{-p_{q, 1, t}}_{\xi} + \underbrace{\omega_{t + 1} + m_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
+        \log\E_t\left[\exp\left(\underbrace{-p_{q, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + p_{q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{-p_{q, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
       \end{cases}
 \end{align}
 
@@ -811,13 +811,13 @@ the $N$-period ahead recursive form of (\ref{eq:numerator recursion eqm}) result
   0 & = \log\E_t\left[\exp\left(\underbrace{s_{1, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s1, n, t}) + \exp(p_{s1, n, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - d_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1} + \epsilon \pi_{t + 1} + d_{s1, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - d_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + d_{s1, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
         \log\E_t\left[\exp\left(\underbrace{d_{s1, 0, t} - mc_t - y_t}_{\xi}\right)\right] & \text{if } n = 0.
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1} + \epsilon \pi_{t + 1} + p_{s1, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, 1, t}}_{\xi} + \underbrace{m_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1.
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + p_{s1, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{s_{1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1.
       \end{cases}
 \end{align}
 \\
@@ -827,13 +827,13 @@ It is straightforward to show that a similar recursive form applies to (\ref{eq:
   0 & = \log\E_t\left[\exp\left(\underbrace{s_{2, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s2, n, t}) + \exp(p_{s2, n, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - d_{s2, n, t}}_{\xi} + \underbrace{m_{t + 1} + (\epsilon - 1) \pi_{t + 1} + d_{s2, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - d_{s2, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1) \pi_{t + 1} + d_{s2, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
         \log\E_t\left[\exp\left(\underbrace{d_{s2, 0, t} - y_t}_{\xi}\right)\right] & \text{if } n = 0.
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - p_{s2, n, t}}_{\xi} + \underbrace{m_{t + 1} + (\epsilon - 1) \pi_{t + 1} + p_{s2, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - p_{s2, 1, t}}_{\xi} + \underbrace{m_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s2, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1) \pi_{t + 1} + p_{s2, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s2, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{s_{2, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
       \end{cases}
 \end{align}
 where terms and boundary conditions are analogously defined.
