@@ -300,35 +300,35 @@ and simplifying yields the price index
 
 Intermediate goods are producing according to the Cobb-Douglas technology
 \begin{align*}
-  Y_t(j) = A_t K_{t - 1}^\alpha(j)L_t^{1 - \alpha}(j).
+  Y_t(j) = \exp(\eta_{A, t}) K_{t - 1}^\alpha(j)L_t^{1 - \alpha}(j).
 \end{align*}
 Intermediate producers minimize cost subject to the constraint of meeting demand and Calvo price rigidities. Formally,
 \begin{align*}
-  \min_{K_{t - 1}(j), L_t(j)} R_{K, t} K_{t - 1}(j) + W_t L_t(j)\quad\quad\quad\text{s.t.}\quad\quad\quad A_t K_{t - 1}^\alpha(j) L_t^{1 - \alpha}(j) \geq \left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}Y_t.
+  \min_{K_{t - 1}(j), L_t(j)} R_{K, t} K_{t - 1}(j) + W_t L_t(j)\quad\quad\quad\text{s.t.}\quad\quad\quad \exp(\eta_{A, t}) K_{t - 1}^\alpha(j) L_t^{1 - \alpha}(j) \geq \left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}Y_t.
 \end{align*}
 The RHS of the inequality constraint is the demand from final goods producers for intermediate $j$. The Lagrangian is
 \begin{align*}
-  \calL = R_{K, t} K_{t - 1}(j) + W_t L_t(j) + MC_t(j)\left(\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}Y_t - A_t K_{t - 1}^\alpha(j) L_t^{1 - \alpha}(j)\right),
+  \calL = R_{K, t} K_{t - 1}(j) + W_t L_t(j) + MC_t(j)\left(\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}Y_t - \exp(\eta_{A, t}) K_{t - 1}^\alpha(j) L_t^{1 - \alpha}(j)\right),
 \end{align*}
 so the first-order conditions are
 \begin{align*}
-  0 & = R_{K, t} - MC_t(j) \alpha A_t \left(\frac{L_t(j)}{K_{t - 1}(j)}\right)^{1 - \alpha}\\
-  0 & = W_t - MC_t(j) (1-\alpha) A_t \left(\frac{K_{t - 1}(j)}{L_t(j)}\right)^{\alpha},
+  0 & = R_{K, t} - MC_t(j) \alpha \exp(\eta_{A, t}) \left(\frac{L_t(j)}{K_{t - 1}(j)}\right)^{1 - \alpha}\\
+  0 & = W_t - MC_t(j) (1-\alpha) \exp(\eta_{A, t}) \left(\frac{K_{t - 1}(j)}{L_t(j)}\right)^{\alpha},
 \end{align*}
 hence the optimal capital-labor ratio satisfies
 \begin{align*}
-  \frac{R_{K, t}}{\alpha A_t(K_{t - 1}(j)/L_t(j))^{\alpha - 1}} & = \frac{W_t}{(1-\alpha) A_t(K_{t - 1}(j)/L_t(j))^{ \alpha}}\\
+  \frac{R_{K, t}}{\alpha \exp(\eta_{A, t})(K_{t - 1}(j)/L_t(j))^{\alpha - 1}} & = \frac{W_t}{(1-\alpha) \exp(\eta_{A, t})(K_{t - 1}(j)/L_t(j))^{ \alpha}}\\
   \frac{K_{t - 1}(j)}{L_t(j)} & =\frac{\alpha}{1 - \alpha} \frac{W_t}{R_{K, t}}.
 \end{align*}
 Since the RHS does not vary with $j$, all firms choose the same capital-labor ratio. Given this optimal ratio, the marginal cost satisfies
 \begin{align*}
-  MC_t & = \frac{R_{K, t}}{\alpha A_t}\left(\frac{K_{t - 1}}{L_t}\right)^{1 - \alpha}\\
-       & =  \frac{R_{K, t}}{\alpha A_t}\left(\frac{\alpha}{1 - \alpha} \frac{W_t}{R_{K, t}}\right)^{1 - \alpha}\\
-       & =  \left(\frac{1}{1 - \alpha}\right)^{1 - \alpha}\left(\frac{1}{\alpha}\right)^{\alpha}\frac{W_t^{1 - \alpha}R_{K, t}^{\alpha}}{ A_t}.
+  MC_t & = \frac{R_{K, t}}{\alpha \exp(\eta_{A, t})}\left(\frac{K_{t - 1}}{L_t}\right)^{1 - \alpha}\\
+       & =  \frac{R_{K, t}}{\alpha \exp(\eta_{A, t})}\left(\frac{\alpha}{1 - \alpha} \frac{W_t}{R_{K, t}}\right)^{1 - \alpha}\\
+       & =  \left(\frac{1}{1 - \alpha}\right)^{1 - \alpha}\left(\frac{1}{\alpha}\right)^{\alpha}\frac{W_t^{1 - \alpha}R_{K, t}^{\alpha}}{ \exp(\eta_{A, t})}.
 \end{align*}
 It follows that
 \begin{align*}
-  R_{K, t}K_{t - 1} + W_tL_t & = \left(\frac{R_{K, t}}{A_t}\left(\frac{K_{t - 1}}{L_t}\right)^{1 - \alpha} + \frac{W_t}{A_t}\left(\frac{L_t}{K_{t - 1}}\right)^{\alpha}\right)(A_tK_{t - 1}^\alpha L_t^{1 - \alpha})\\
+  R_{K, t}K_{t - 1} + W_tL_t & = \left(\frac{R_{K, t}}{\exp(\eta_{A, t})}\left(\frac{K_{t - 1}}{L_t}\right)^{1 - \alpha} + \frac{W_t}{\exp(\eta_{A, t})}\left(\frac{L_t}{K_{t - 1}}\right)^{\alpha}\right)(\exp(\eta_{A, t})K_{t - 1}^\alpha L_t^{1 - \alpha})\\
                        & = \left(\alpha MC_t + (1 - \alpha)MC_t\right)Y_t(j) = MC_t Y_t(j).
 \end{align*}
 Therefore, (real) profits for an intermediate producer become
@@ -376,7 +376,7 @@ By defining $\tilde{S}_{1, t} \equiv S_{1, t}/ (\exp(\eta_{\beta, t})u'(C_t))$ a
 From this section, we obtain the following five equilibrium conditions:
 \begin{align}
   \label{eq:mc soln}
-  MC_t & =  \left(\frac{1}{1 - \alpha}\right)^{1 - \alpha}\left(\frac{1}{\alpha}\right)^{\alpha}\frac{W_t^{1 - \alpha}R_{K, t}^{\alpha}}{ A_t},\\
+  MC_t & =  \left(\frac{1}{1 - \alpha}\right)^{1 - \alpha}\left(\frac{1}{\alpha}\right)^{\alpha}\frac{W_t^{1 - \alpha}R_{K, t}^{\alpha}}{ \exp(\eta_{A, t})},\\
   \label{eq:optimal capital labor ratio}
   \frac{K_{t - 1}}{L_t} & =\frac{\alpha}{1 - \alpha} \frac{W_t}{R_{K, t}},\\
   \label{eq:real optimal reset price}
@@ -458,14 +458,14 @@ There are four shocks in the model: $\eta_{A, t}$, $\eta_{\beta, t}$, $\eta_{L, 
 
 Markets must clear for capital, labor, bonds, final goods, and intermediate goods, . The first three markets clear as a consequence of optimality conditions and the assumption that bonds have zero net supply. To clear the market for final goods, we set the sum of aggregate consumption demand $C_t$ and investment demand $X_t$ equal to aggregate supply $Y_t$, which satisfies
 \begin{align*}
-\int_0^1 A_t K_{t - 1}^\alpha L_t^{1 - \alpha}\, dj & = \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} Y_t\, dj\\
-  A_tK_{t - 1}^\alpha L_t^{1 - \alpha} & = Y_t \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} \, dj = V_t^p Y_t.
+\int_0^1 \exp(\eta_{A, t}) K_{t - 1}^\alpha L_t^{1 - \alpha}\, dj & = \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} Y_t\, dj\\
+  \exp(\eta_{A, t})K_{t - 1}^\alpha L_t^{1 - \alpha} & = Y_t \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} \, dj = V_t^p Y_t.
 \end{align*}
 Re-arranging yields the output market-clearing condition
 \begin{align}\label{eq:output market clearing}
   C_t + X_t & = Y_t,\\
   \label{eq:aggregate supply}
-  Y_t & = \frac{A_t K_{t - 1}^{\alpha}L_t^{1 - \alpha}}{V_t^p}.
+  Y_t & = \frac{\exp(\eta_{A, t}) K_{t - 1}^{\alpha}L_t^{1 - \alpha}}{V_t^p}.
 \end{align}
 It can be shown that $V_t^p \geq 1$ by applying Jensen's inequality. For our purposes, because the dimensionality of our model is not too large, we add the auxiliary $Y_t$ variable, even though we could substitute it out of the system of equations.
 
@@ -483,7 +483,7 @@ All together, the full set of endogenous equilibrium conditions are
   \label{eq:capital asset pricing eqm}
   Q_t & = \E_t\left[M_{t + 1} \left(R_{K, t + 1} + Q_{t + 1}\left(1  - \delta + \Phi\left(\frac{X_{t + 1}}{K_t}\right) - \Phi'\left(\frac{X_{t + 1}}{K_t}\right)\frac{X_{t + 1}}{K_t}\right)\right)\right],\\
   \label{eq:mc soln eqm}
-  MC_t & =  \left(\frac{1}{1 - \alpha}\right)^{1 - \alpha}\left(\frac{1}{\alpha}\right)^{\alpha}\frac{W_t^{1 - \alpha}R_{K, t}^{\alpha}}{ A_t},\\
+  MC_t & =  \left(\frac{1}{1 - \alpha}\right)^{1 - \alpha}\left(\frac{1}{\alpha}\right)^{\alpha}\frac{W_t^{1 - \alpha}R_{K, t}^{\alpha}}{ \exp(\eta_{A, t})},\\
   \label{eq:optimal capital labor ratio eqm}
   \frac{K_{t - 1}}{L_t} & =\frac{\alpha}{1 - \alpha} \frac{W_t}{R_{K, t}},\\
   \label{eq:real optimal reset price eqm}
@@ -501,7 +501,7 @@ All together, the full set of endogenous equilibrium conditions are
   \label{eq:output market clearing eqm}
   C_t + X_t & = Y_t,\\
   \label{eq:aggregate supply eqm}
-  Y_t & = \frac{A_t K_{t - 1}^{\alpha}L_t^{1 - \alpha}}{V_t^p},
+  Y_t & = \frac{\exp(\eta_{A, t}) K_{t - 1}^{\alpha}L_t^{1 - \alpha}}{V_t^p},
 \end{align}
 as well as the law of motion for capital
 \begin{align}\label{eq:law of motion capital eqm}
