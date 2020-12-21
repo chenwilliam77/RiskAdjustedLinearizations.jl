@@ -784,14 +784,14 @@ Since $P_{Q, t}^{(n)}$ and $D_{Q, t}^{(n)}$ are time-$t$ conditional expectation
 
 For (\ref{eq:numerator recursion eqm}), observe that
 \begin{align*}
-  \tilde{S}_{1, t} & = MC_t Y_t + \theta\beta\E_t[M_{t + 1}\Pi_{t + 1}^\epsilon (MC_{t + 1}Y_{t + 1} + \theta\beta \E_{t + 1}[M_{ t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}])]\\
-                   & = MC_t Y_t + \theta\beta\E_t[M_{t + 1}\Pi_{t + 1}^\epsilon MC_{t + 1}Y_{t + 1} + \theta\beta M_{t + 1}\Pi_{t + 1}^\epsilon M_{ t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}]\\
-                   & =  MC_tY_t+ \E_t\left[\sum_{s = 1}^1 ((\theta\beta)^s \prod_{u = 1}^s (M_{t + u}\Pi_{t + u}^\epsilon)) MC_{t + s}Y_{t + s}\right] + \E_t\left[\prod_{s = 1}^2(\theta\beta M_{t + s} \Pi_{t + s}^\epsilon) \tilde{S}_{1, t + 2}\right].
+  \tilde{S}_{1, t} & = MC_t Y_t + \theta\E_t[M_{t + 1}\Pi_{t + 1}^\epsilon (MC_{t + 1}Y_{t + 1} + \theta \E_{t + 1}[M_{ t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}])]\\
+                   & = MC_t Y_t + \theta\E_t[M_{t + 1}\Pi_{t + 1}^\epsilon MC_{t + 1}Y_{t + 1} + \theta M_{t + 1}\Pi_{t + 1}^\epsilon M_{ t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}]\\
+                   & =  MC_tY_t+ \E_t\left[\sum_{s = 1}^1 (\theta^s \prod_{u = 1}^s (M_{t + u}\Pi_{t + u}^\epsilon)) MC_{t + s}Y_{t + s}\right] + \E_t\left[\prod_{s = 1}^2(\theta M_{t + s} \Pi_{t + s}^\epsilon) \tilde{S}_{1, t + 2}\right].
 \end{align*}
 Thus, define $D_{S1, t}^{(n)}$ and $P_{S1, t}^{(n)}$ as the recursions
 \begin{align*}
-  D_{S1, t}^{(n)} & = \E_t[\theta\beta M_{t + 1} \Pi_{t + 1}^\epsilon D_{S1, t + 1}^{(n - 1)}],\\
-  P_{S1, t}^{(n)} & = \E_t[\theta\beta M_{t + 1} \Pi_{t + 1}^\epsilon P_{S1, t + 1}^{(n - 1)}],
+  D_{S1, t}^{(n)} & = \E_t[\theta M_{t + 1} \Pi_{t + 1}^\epsilon D_{S1, t + 1}^{(n - 1)}],\\
+  P_{S1, t}^{(n)} & = \E_t[\theta M_{t + 1} \Pi_{t + 1}^\epsilon P_{S1, t + 1}^{(n - 1)}],
 \end{align*}
 with boundary conditions
 \begin{align*}
@@ -800,10 +800,10 @@ with boundary conditions
 \end{align*}
 Given these definitions, it follows that
 \begin{align*}
-  D_{S1, t}^{(1)} & = \E_t[\theta\beta M_{t + 1} \Pi_{t + 1}^\epsilon MC_{t + 1}Y_{t + 1}]\\
-  P_{S1, t}^{(1)} & = \E_t[\theta\beta M_{t + 1}\Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}]\\
-  P_{S1, t}^{(2)} & = \E_t[\theta\beta M_{t + 1}\Pi_{t + 1}^\epsilon\E_{t + 1}[\theta\beta M_{t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}]]\\
-                  & = \E_t[(\theta\beta)^2 M_{t + 1}\Pi_{t + 1}^\epsilon M_{t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}].
+  D_{S1, t}^{(1)} & = \E_t[\theta M_{t + 1} \Pi_{t + 1}^\epsilon MC_{t + 1}Y_{t + 1}]\\
+  P_{S1, t}^{(1)} & = \E_t[\theta M_{t + 1}\Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}]\\
+  P_{S1, t}^{(2)} & = \E_t[\theta M_{t + 1}\Pi_{t + 1}^\epsilon\E_{t + 1}[\theta M_{t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}]]\\
+                  & = \E_t[\theta^2 M_{t + 1}\Pi_{t + 1}^\epsilon M_{t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}].
 \end{align*}
 Thus, defining $d_{s1, t} = \log(D_{S1, t})$ and $p_{s1, t} = \log(P_{S1, t})$,
 the $N$-period ahead recursive form of (\ref{eq:numerator recursion eqm}) results in the $2N + 1$ equations
@@ -811,13 +811,13 @@ the $N$-period ahead recursive form of (\ref{eq:numerator recursion eqm}) result
   0 & = \log\E_t\left[\exp\left(\underbrace{s_{1, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s1, n, t}) + \exp(p_{s1, n, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - d_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1} + \epsilon \pi_{t + 1} + d_{s1, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - d_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1} + \epsilon \pi_{t + 1} + d_{s1, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
         \log\E_t\left[\exp\left(\underbrace{d_{s1, 0, t} - mc_t - y_t}_{\xi}\right)\right] & \text{if } n = 0.
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - p_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1} + \epsilon \pi_{t + 1} + p_{s1, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) + \log(\beta) - p_{s1, 1, t}}_{\xi} + \underbrace{m_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1.
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1} + \epsilon \pi_{t + 1} + p_{s1, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, 1, t}}_{\xi} + \underbrace{m_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1.
       \end{cases}
 \end{align}
 \\
