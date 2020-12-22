@@ -110,7 +110,7 @@ C = C0;
 W = varphi * L^nu / C^(-gamma);
 MC = (1 / (1 - alpha))^(1 - alpha) * (1 / alpha)^alpha * W^(1 - alpha) * RK^alpha;
 K = alpha / (1 - alpha) * W / RK * L;
-X = delta * K;
+X = Xbar * K;
 Y = K^alpha * L^(1 - alpha) / V;
 S1 = MC * Y / (1 - theta * Pi_ss^epsi);
 S2 = Y / (1 - theta * Pi_ss^(epsi - 1));
@@ -127,4 +127,3 @@ var eR = 1;
 end;
 
 steady;
-
