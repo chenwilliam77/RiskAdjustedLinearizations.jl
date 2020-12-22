@@ -17,7 +17,8 @@ The first vector equation comprise the transition equations of the state variabl
 The second vector equation comprise the model's expectational equations, which are typically
 the first-order conditions for the jump variables from agents' optimization problem.
 The exogenous shocks
-``\varepsilon_t \in\mathbb{R}^{n_\varepsilon}`` form a martingale difference sequence. Given some
+``\varepsilon_t \in\mathbb{R}^{n_\varepsilon}`` form a martingale difference sequence and can therefore
+be non-Gaussian. Given some
 differentiable mapping ``\alpha:\mathbb{R}^{n_z}\rightarrow\mathbb{R}^{n_\varepsilon}``,
 the random variable ``X_t = \alpha(z_t)^T \varepsilon_{t + 1}`` has the
 differentiable, conditional (on ``z_t``) cumulant generating function (ccgf)
@@ -37,8 +38,9 @@ The functions
 ```
 are differentiable. The first two functions characterize the effects of time ``t`` variables on the expectational and
 state transition equations. The function ``\Lambda`` characterizes heteroskedastic endogenous risk that depends on
-innovations in jump variables while the function ``\Sigma`` characterizes exogenous risk. These latter two functions
-can also depend on jump variables. Denote the jump-dependent versions as
+innovations in jump variables while the function ``\Sigma`` characterizes exogenous risk.
+Note that ``\Sigma`` is *not* the variance-covariance matrix of ``\varepsilon_t``.
+The functions ``\Lambda`` and ``\Sigma`` can also depend on jump variables. Denote the jump-dependent versions as
 ``\tilde{\Lambda}:\mathbb{R}^{n_z\times n_y} \rightarrow \mathbb{R}^{n_z \times n_y}``
 and ``\tilde{\Sigma}:\mathbb{R}^{n_z \times n_y}\ \rightarrow \mathbb{R}^{n_z\times n_\varepsilon}``.
 If there exists a mapping ``y_t = y(z_t)``, then we define ``\Lambda(z_t) = \tilde{\Lambda}(z_t, y(z_t))``
