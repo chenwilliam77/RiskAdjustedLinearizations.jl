@@ -1,4 +1,4 @@
-# This script actually solves the WachterDisasterRisk model with a risk-adjusted linearization
+# This script actually solves the TextbookNK model with a risk-adjusted linearization
 # and times the methods, if desired
 using RiskAdjustedLinearizations, JLD2, LinearAlgebra, Test
 include("textbook_nk.jl")

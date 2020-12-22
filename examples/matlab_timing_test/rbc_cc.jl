@@ -1,5 +1,3 @@
-# This script actually solves the WachterDisasterRisk model with a risk-adjusted linearization
-# and times the methods, if desired
 using BenchmarkTools, RiskAdjustedLinearizations, MATLAB
 include(joinpath(dirname(@__FILE__), "..", "rbc_cc", "rbc_cc.jl"))
 

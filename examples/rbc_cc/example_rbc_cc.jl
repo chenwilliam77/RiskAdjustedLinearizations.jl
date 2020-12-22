@@ -1,4 +1,4 @@
-# This script actually solves the WachterDisasterRisk model with a risk-adjusted linearization
+# This script actually solves the RBCCampbellCochrane model with a risk-adjusted linearization
 # and times the methods, if desired
 using BenchmarkTools, RiskAdjustedLinearizations, Test
 include("rbc_cc.jl")
