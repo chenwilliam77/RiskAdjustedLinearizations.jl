@@ -768,7 +768,7 @@ Similarly, for $D_{Q, t}$, I have
 \end{align*}
 Since $P_{Q, t}^{(n)}$ and $D_{Q, t}^{(n)}$ are time-$t$ conditional expectations, they are measurable at time $t$, so they are not forward-looking variables. Thus, to get this version of (\ref{eq:capital asset pricing eqm}) in the appropriate form, define $d_{q, n, t} = \log(D_{Q, t}^{(n)})$ and $p_{q, n, t} = \log(P_{Q, t}^{(n)})$, and use the following $2N + 1$ equations:
 \begin{align}
-  0 & = \log\E_t\left[\exp\left(\underbrace{q_t - \log\left(\sum_{n = 1}^{N}\exp(d_{q, n, t}) + \exp(p_{q, n, t})\right)}_{\xi}\right)\right]\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{q_t - \log\left(\sum_{n = 1}^{N}\exp(d_{q, n, t}) + \exp(p_{q, N, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
         \log\E_t\left[\exp\left(\underbrace{-d_{q, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + d_{q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
@@ -808,7 +808,7 @@ Given these definitions, it follows that
 Thus, defining $d_{s1, t} = \log(D_{S1, t})$ and $p_{s1, t} = \log(P_{S1, t})$,
 the $N$-period ahead recursive form of (\ref{eq:numerator recursion eqm}) results in the $2N + 1$ equations
 \begin{align}
-  0 & = \log\E_t\left[\exp\left(\underbrace{s_{1, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s1, n, t}) + \exp(p_{s1, n, t})\right)}_{\xi}\right)\right]\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{s_{1, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s1, n, t}) + \exp(p_{s1, N, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
         \log\E_t\left[\exp\left(\underbrace{\log(\theta) - d_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + d_{s1, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
@@ -824,7 +824,7 @@ the $N$-period ahead recursive form of (\ref{eq:numerator recursion eqm}) result
 
 It is straightforward to show that a similar recursive form applies to (\ref{eq:denominator recursion eqm}):
 \begin{align}
-  0 & = \log\E_t\left[\exp\left(\underbrace{s_{2, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s2, n, t}) + \exp(p_{s2, n, t})\right)}_{\xi}\right)\right]\\
+  0 & = \log\E_t\left[\exp\left(\underbrace{s_{2, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s2, n, t}) + \exp(p_{s2, N, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
         \log\E_t\left[\exp\left(\underbrace{\log(\theta) - d_{s2, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1) \pi_{t + 1} + d_{s2, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
