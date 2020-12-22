@@ -817,7 +817,7 @@ the $N$-period ahead recursive form of (\ref{eq:numerator recursion eqm}) result
   0 & =
       \begin{cases}
         \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + p_{s1, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{s_{1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1.
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1.
       \end{cases}
 \end{align}
 \\
@@ -833,7 +833,7 @@ It is straightforward to show that a similar recursive form applies to (\ref{eq:
   0 & =
       \begin{cases}
         \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s2, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1) \pi_{t + 1} + p_{s2, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s2, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{s_{2, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
+        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s2, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1)\pi_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
       \end{cases}
 \end{align}
 where terms and boundary conditions are analogously defined.
