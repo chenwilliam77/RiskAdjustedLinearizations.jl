@@ -141,4 +141,6 @@ the deterministic steady state as the initial guess.
 
 - [Coeurdacier, Rey, Winant (2011)](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/main/examples/crw/example_crw.jl): small-open economy model whose deterministic steady state does not exist. Example also provides a tutorial on calculating Euler equation errors.
 
+- [New Keynesian Model with Capital](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/blob/main/examples/textbook_nk/example_textbook_nk.jl): cashless limit of Gali (2015) textbook model with capital accumulation, capital adjustment costs, additional shocks, and a Taylor rule on both inflation and output growth. A Dynare script is also provided for comparison.
+
 - [MATLAB Timing Test](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/matlab_timing_test): compare speed of Julia to MATLAB for Jermann (1998) and Wachter (2013) examples

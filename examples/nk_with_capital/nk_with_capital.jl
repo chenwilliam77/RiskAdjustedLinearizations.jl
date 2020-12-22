@@ -1,4 +1,4 @@
-using UnPack, OrderedCollections, ForwardDiff, JLD2
+using UnPack, OrderedCollections, ForwardDiff, JLD2, NLsolve
 
 mutable struct NKCapital{T <: Real}
     β::T
@@ -29,12 +29,12 @@ mutable struct NKCapital{T <: Real}
     SH::OrderedDict{Symbol, Int}
 end
 
-function NKCapital(; β::T = .99, γ::T = 3.8, φ::T = 1., χ::T = 4.,
+function NKCapital(; β::T = .99, γ::T = 3.8, φ::T = 1., ν::T = 1., χ::T = 4.,
                    δ::T = 0.025, α::T = 0.33, ϵ::T = 10., θ::T = 0.7,
                    π_ss::T = 0., ϕ_r::T = 0.5,
                    ϕ_π::T = 1.3, ϕ_y::T = 0.25, ρ_β::T = 0.1,
                    ρ_l::T = 0.1, ρ_a::T = 0.9, ρ_r::T = 0.,
-                   σ_β::T = 0.01, σ_l::T = 0.01, σ_r::T = 0.01,
+                   σ_β::T = 0.01, σ_l::T = 0.01, σ_a::T = 0.01, σ_r::T = 0.01,
                    N_approx::Int = 1) where {T <: Real}
 
     @assert N_approx > 0 "N_approx must be at least 1."
@@ -48,7 +48,7 @@ function NKCapital(; β::T = .99, γ::T = 3.8, φ::T = 1., χ::T = 4.,
     J_init  = [:output, :c, :l, :w, :r, :π, :q, :x, :rk, :ω, :mc,
                :s₁, :s₂, :v] # Jump variables
     E_init  = [:wage, :euler, :tobin, :cap_ret,
-               :mc, :kl_ratio, :eq_s₁, :eq_s₂,
+               :eq_mc, :kl_ratio, :eq_s₁, :eq_s₂,
                :phillips_curve, :price_dispersion,
                :mp, :output_market_clear, :production] # Equations
     SH_init = [:ε_β, :ε_l, :ε_a, :ε_r] # Exogenous shocks
@@ -56,9 +56,9 @@ function NKCapital(; β::T = .99, γ::T = 3.8, φ::T = 1., χ::T = 4.,
     # Add approximations for forward-difference equations
     push!(E_init, :eq_omega)
     for var in [:q, :s₁, :s₂]
-        inds = var == :q ? 1:N_approx ? 0:(N_approx - 1)
-        push!(S_init, [Symbol(:d, var, "$(i)") for i in inds]...)
-        push!(S_init, [Symbol(:p, var, "$(i)") for i in 1:N_approx]...)
+        inds = (var == :q) ? (1:N_approx) : (0:(N_approx - 1))
+        push!(J_init, [Symbol(:d, var, "$(i)") for i in inds]...)
+        push!(J_init, [Symbol(:p, var, "$(i)") for i in 1:N_approx]...)
         push!(E_init, [Symbol(:eq_d, var, "$(i)") for i in inds]...)
         push!(E_init, [Symbol(:eq_p, var, "$(i)") for i in 1:N_approx]...)
     end
@@ -85,7 +85,7 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
     @unpack N_approx, S, J, E, SH = m
     @unpack k₋₁, v₋₁, r₋₁, output₋₁, η_β, η_l, η_a, η_r = S
     @unpack output, c, l, w, r, π, q, x, rk, ω, mc, s₁, s₂, v = J
-    @unpack wage, euler, tobin, cap_ret, mc, kl_ratio, eq_s₁, eq_s₂ = E
+    @unpack wage, euler, tobin, cap_ret, eq_mc, kl_ratio, eq_s₁, eq_s₂ = E
     @unpack phillips_curve, price_dispersion, mp = E
     @unpack output_market_clear, production, eq_omega = E
     @unpack ε_β, ε_l, ε_a, ε_r = SH
@@ -99,14 +99,14 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
     # Some helper functions
     _Φ(Xin, Kin)  = X̄ ^ (1. / χ) / (1. - 1. / χ) * (Xin / Kin) ^ (1. - 1. / χ) - X̄ / (χ * (χ - 1.))
     _Φ′(Xin, Kin) = X̄ ^ (1. / χ) * (Xin / Kin) ^ (- 1. / χ)
-    Φ(z, y)  = _Φ(exp(y[:x]), exp(z[:k₋₁]))
-    Φ′(z, y) = _Φ′(exp(y[:x]), exp(z[:k₋₁]))
+    Φ(z, y)  = _Φ(exp(y[x]), exp(z[k₋₁]))
+    Φ′(z, y) = _Φ′(exp(y[x]), exp(z[k₋₁]))
     m_ξ(z, y) = log(β) - z[η_β] + γ * y[c]
     function m_fwd!(i, Γ₅, Γ₆)
         Γ₅[i, η_β] = 1.
         Γ₆[i, c]   = -γ
     end
-    pstar(y) = log(ϵ / (ϵ - 1.)) + y[s1] - y[s2]
+    pstar(y) = log(ϵ / (ϵ - 1.)) + y[s₁] - y[s₂]
 
     function μ(F, z, y)
         F[k₋₁]      = log(1 + X̄ ^ (1. / χ) / (1. - 1. / χ) *
@@ -134,18 +134,18 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
         F[wage]                = log(φ) + z[η_l] + ν * y[l] - (-γ * y[c] + y[w])
         F[euler]               = y[r] + m_ξv
         F[tobin]               = y[q] + log(Φ′v)
-        F[mc]                  = (1. - α) * y[w] + α * y[rk] - z[a] -
-            (1.- α) * log(1. - α) - α * log(α) * y[mc]
+        F[eq_mc]               = (1. - α) * y[w] + α * y[rk] - z[η_a] -
+            (1. - α) * log(1. - α) - α * log(α) - y[mc]
         F[kl_ratio]            = z[k₋₁] - y[l] - log(α / (1. - α)) - (y[w] - y[rk])
         F[phillips_curve]      = (1. - ϵ) * y[π] - log((1. - θ) * exp((1. - ϵ) * (pstarv + y[π])) + θ)
         F[price_dispersion]    = y[v] - ϵ * y[π] - log((1. - θ) * exp(-ϵ * (pstarv + y[π])) + θ * exp(z[v₋₁]))
         F[mp]                  = ϕ_r * z[r₋₁] + (1. - ϕ_r) .* (y[r] + ϕ_π * (y[π] - π_ss) +
                                                                ϕ_y * (y[output] - z[output₋₁])) + z[η_r] - y[r]
         F[output_market_clear] = y[output] - log(exp(y[c]) + exp(y[x]))
-        F[production]          = z[a] + α * z[k₋₁] + (1. - α) * y[l] - y[v] - y[output]
+        F[production]          = z[η_a] + α * z[k₋₁] + (1. - α) * y[l] - y[v] - y[output]
 
         ## Forward-difference equations separately handled b/c recursions
-        F[eq_omega] = 1. - δ + Φv - Φ′v * exp(y[x] - z[k₋₁])
+        F[eq_omega] = 1. - δ + Φv - Φ′v * exp(y[x] - z[k₋₁]) - exp(y[ω])
         F[cap_ret]  = y[q] - log(sum([exp(y[J[Symbol("dq$(i)")]]) for i in 1:N_approx]) +
                                 exp(y[J[Symbol("pq$(N_approx)")]]))
         F[eq_s₁]    = y[s₁] - log(sum([exp(y[J[Symbol("ds₁$(i)")]]) for i in 0:(N_approx - 1)]) +
@@ -258,17 +258,26 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
     RK0 = 1. / β + X̄ - 1.
 
     # Guesses
-    L0 = 1.
+    L0 = .5548
     V0 = 1. # true if π_ss = 0, otherwise this is only a reasonable guess
 
     # Implied values given guesses
-    C0 = nlsolve(Cin -> Cin + X̄ * (α / (1. - α) * φ * L0 ^ ν / Cin ^ (-γ) / RK0 * L0) -
-                 (α / (1. - α) * φ * L0 ^ ν / Cin ^ (-γ) / RK0) ^ α * L0 / V0, 1.).zero[1]
+    C0_fnct = Cin -> Cin[1] + X̄ * (α / (1. - α) * φ * L0 ^ ν / Cin[1] ^ (-γ) / RK0 * L0) -
+        (α / (1. - α) * φ * L0 ^ ν / Cin[1] ^ (-γ) / RK0) ^ α * L0 / V0
+    C0_guess = NaN
+    for theguess in .5:.5:10.
+        try
+            C0_fnct([theguess])
+            C0_guess = theguess
+        catch e
+        end
+    end
+    C0 = nlsolve(C0_fnct, [C0_guess]).zero[1]
     W0 = φ * L0 ^ ν / C0 ^ (-γ)
-    MC0 = (1. / (1. - α)) ^ (1. - α) * (1. / α) ^ α * W0 ^ (1. - α) * RK ^ α
+    MC0 = (1. / (1. - α)) ^ (1. - α) * (1. / α) ^ α * W0 ^ (1. - α) * RK0 ^ α
     K0  = α / (1. - α) * W0 / RK0 * L0
-    X0  = X̄ * K
-    Y0  = K0 ^ α L0 ^ (1. - α) / V0
+    X0  = X̄ * K0
+    Y0  = K0 ^ α * L0 ^ (1. - α) / V0
     S₁0  = MC0 * Y0 / (1. - θ * exp(π_ss) ^ ϵ)
     S₂0  = Y0 / (1. - θ * exp(π_ss) ^ (ϵ - 1.))
     Π0  = exp(π_ss)
