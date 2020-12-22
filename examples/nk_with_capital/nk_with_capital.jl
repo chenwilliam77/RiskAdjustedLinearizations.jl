@@ -274,7 +274,7 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
     Π0  = exp(π_ss)
     R0  = exp(r_ss)
     Ω0  = 1. - δ + _Φ(X0, K0) - _Φ′(X0, K0) * X0 / K0
-
+    z .= [convert(T, x) for x in log.([K0, V0, R0, Y0, exp.([η_β0, η_l0, η_a0, η_r0])...])]
     y[1:14] = [convert(T, x) for x in log.([Y0, C0, L0, W0, R0, Π0, Q0, X0, RK0, Ω0, MC0, S₁0, S₂0, V0])]
 
     y[J[:dq1]] = convert(T, log(M0 * RK0))
@@ -285,30 +285,28 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
     y[J[:ps₂1]] = convert(T, log(θ * M0 * Π0^(ϵ - 1.) * S₂0))
 
     for i in 2:N_approx
-            F[E[Symbol("eq_dq$(i)")]]    = -y[J[Symbol("dq$(i)")]] + m_ξv
-            F[E[Symbol("eq_pq$(i)")]]    = -y[J[Symbol("pq$(i)")]] + m_ξv
-            F[E[Symbol("eq_ds₁$(i-1)")]] = log(θ) - y[J[Symbol("ds₁$(i-1)")]] + m_ξv
-            F[E[Symbol("eq_ps₁$(i)")]]   = log(θ) - y[J[Symbol("ps₁$(i)")]]   + m_ξv
-            F[E[Symbol("eq_ds₂$(i-1)")]] = log(θ) - y[J[Symbol("ds₂$(i-1)")]] + m_ξv
-            F[E[Symbol("eq_ps₂$(i)")]]   = log(θ) - y[J[Symbol("ps₂$(i)")]]   + m_ξv
+        y[J[Symbol("dq$(i)")]] = convert(T, log(M0) + log(Ω0) + y[J[Symbol("dq$(i-1)")]])
+        y[E[Symbol("pq$(i)")]] = convert(T, log(M0) + log(Ω0) + y[J[Symbol("pq$(i-1)")]])
+        y[J[Symbol("ds₁$(i-1)")]] = convert(T, log(θ) + log(M0) + ϵ * π_ss + y[J[Symbol("ds₁$(i-2)")]])
+        y[J[Symbol("ps₁$(i)")]] = convert(T, log(θ) + log(M0) + ϵ * π_ss + y[J[Symbol("ps₁$(i-1)")]])
+        y[J[Symbol("ds₂$(i-1)")]] = convert(T, log(θ) + log(M0) + (ϵ - 1.) * π_ss + y[J[Symbol("ds₂$(i-2)")]])
+        y[J[Symbol("ps₂$(i)")]] = convert(T, log(θ) + log(M0) + (ϵ - 1.) * π_ss + y[J[Symbol("ps₂$(i-1)")]])
     end
-
-    z .= [convert(T, x) for x in log.([K0, V0, R0, Y0, exp.([η_β0, η_l0, η_a0, η_r0])...])]
 
     return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε)
 end
 
-nk_cₜ(m, zₜ) = exp(m.y[1] + (m.Ψ * (zₜ - m.z))[1])
+nk_cₜ(m, zₜ) = exp(m.y[2] + (m.Ψ * (zₜ - m.z))[2])
 
 # Evaluates euler equation in log terms
 function nk_logSDFxR(m, zₜ, εₜ₊₁, Cₜ; β::T = .99, σ::T = 2.) where {T <: Real}
     yₜ = m.y + m.Ψ * (zₜ - m.z)
     zₜ₊₁, yₜ₊₁ = simulate(m, εₜ₊₁, zₜ)
-
-    return log(β) - σ * (yₜ₊₁[1] - log(Cₜ)) + yₜ[9] - yₜ₊₁[2]
+    error("Not implemented correctly yet")
+    return log(β) - σ * (yₜ₊₁[2] - log(Cₜ)) + yₜ[9] - yₜ₊₁[2]
 end
 
 # Calculate Euler equation via quadrature
-std_norm_mean = zeros(2)
-std_norm_sig  = ones(2)
+std_norm_mean = zeros(4)
+std_norm_sig  = ones(4)
 nk_𝔼_quadrature(f::Function) = gausshermite_expectation(f, std_norm_mean, std_norm_sig, 10)
