@@ -73,9 +73,9 @@ shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "crw_shock
     end
 
     @test out1 < 1e-10
-    @test out2 < 5e-3
-    @test out3 < 5e-3
-    @test out4 < 3e-5
+    @test out2 < 1e-6
+    @test out3 < 1e-6
+    @test out4 < 1e-4
     @test out5 < 1e-4
 
     c_ral, c_impl, endo_states_ral, endo_states_impl =
@@ -90,3 +90,5 @@ shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "crw_shock
     @test c_err == norm((c_ral - c_impl) ./ c_ral, Inf)
     @test endo_states_err == norm(vec(endo_states_ral - endo_states_impl) ./ vec(endo_states_ral), Inf)
 end
+
+nothing

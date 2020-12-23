@@ -69,14 +69,15 @@ function gausshermite_expectation(f::Function, μ::AbstractVector{S},
 
     for n_dim in 1:(d - 1)
         # Iteratively integrate out each dimension, i.e. law of iterated expectations
-        iter = CartesianIndices(Tuple(1:n for i in 1:(d - n_dim))) # Create CartesianIndices for all remaining dimensions
+        iter = CartesianIndices(tuple(Tuple(1:n for i in 1:(d - n_dim))...,
+                                      Tuple(1:1 for i in 1:n_dim)...)) # Create CartesianIndices for all remaining dimensions
         # ((1:n for i in 1:(d - n_dim + 1))..., (1 for i in 1:(n_dim - 1))...) creates a Tuple of 1:n for the dimensions
         # that are not to be integrated out and uses 1s for the remaining dimensions. We want to use each dimension of feval
         # from 1 to (d - n_dim) (inclusive). So on the first iteration, the tuple should be (1:n, 1:n).
         # We then assign it to the dimensions of feval from 1 to (d - n_dim - 1) (inclusive) to avoid allocations
-        feval[iter, 1] .= dropdims(sum(mapslices(fᵢ -> fᵢ .* w, (@view feval[((1:n for i in 1:(d - n_dim + 1))...,
-                                                                              (1 for i in 1:(n_dim - 1))...)...]),
-                                                 dims = (d - n_dim) + 1), dims = (d - n_dim) + 1), dims = (d - n_dim) + 1)
+        feval[iter] .= dropdims(sum(mapslices(fᵢ -> fᵢ .* w, (@view feval[((1:n for i in 1:(d - n_dim + 1))...,
+                                                                           (1 for i in 1:(n_dim - 1))...)...]),
+                                              dims = (d - n_dim) + 1), dims = (d - n_dim) + 1), dims = (d - n_dim) + 1)
     end
 
     # Handle final integration on its own
@@ -111,7 +112,8 @@ function gausshermite_expectation(f::Function, μ::AbstractVector{S},
 
     # Iteratively integrate out each dimension, i.e. law of iterated expectations
     for n_dim in 1:(d - 1)
-        iter = CartesianIndices(Tuple(1:ns[i] for i in 1:(d - n_dim)))
+        iter = CartesianIndices(tuple(Tuple(1:ns[i] for i in 1:(d - n_dim))...,
+                                      Tuple(1:1 for i in 1:n_dim)...))
         feval[iter, 1] .= dropdims(sum(mapslices(fᵢ -> fᵢ .* w[d - n_dim + 1], (@view feval[((1:ns[i] for i in 1:(d - n_dim + 1))...,
                                                                                              (1 for i in 1:(n_dim - 1))...)...]),
                                                  dims = (d - n_dim) + 1), dims = (d - n_dim) + 1), dims = (d - n_dim) + 1)
@@ -149,7 +151,8 @@ function gausshermite_expectation(f::Function, μ::AbstractVector{S},
 
     # Iteratively integrate out each dimension, i.e. law of iterated expectations
     for n_dim in 1:(d - 1)
-        iter = CartesianIndices(Tuple(1:ns[i] for i in 1:(d - n_dim)))
+        iter = CartesianIndices(tuple(Tuple(1:ns[i] for i in 1:(d - n_dim))...,
+                                      Tuple(1:1 for i in 1:n_dim)...))
         feval[iter, 1] .= dropdims(sum(mapslices(fᵢ -> fᵢ .* w[d - n_dim + 1], (@view feval[((1:ns[i] for i in 1:(d - n_dim + 1))...,
                                                                                              (1 for i in 1:(n_dim - 1))...)...]),
                                                  dims = (d - n_dim) + 1), dims = (d - n_dim) + 1), dims = (d - n_dim) + 1)

@@ -1,6 +1,6 @@
 using RiskAdjustedLinearizations, FastGaussQuadrature, Test
 
-@testset "Gauss-Hermite Quadrature for Expectations of Functions of Normally Distributed Random Variables/Vectors" begin
+@testset "Gauss-Hermite Quadrature for Expectations of Functions of Independent Normally Distributed Random Variables/Vectors" begin
     f(x) = x  # calculate the expected value
     g(x) = 1. # calculate the probability
 
@@ -30,9 +30,9 @@ using RiskAdjustedLinearizations, FastGaussQuadrature, Test
     prob2 = gausshermite_expectation(g, [5., -1.], [1., 1.], (5, 5))
     mean12 = gausshermite_expectation(h1, [.5, 5.], [1., 1.], (5, 5))
     mean22 = gausshermite_expectation(h2, [.5, 5.], [1., 1.], (5, 5))
-    prob3 = gausshermite_expectation(g, [5., -1.], [1., 1.], [5, 5])
-    mean13 = gausshermite_expectation(h1, [.5, 5.], [1., 1.], [5, 5])
-    mean23 = gausshermite_expectation(h2, [.5, 5.], [1., 1.], [5, 5])
+    prob3 = gausshermite_expectation(g, [5., -1., 2.], [1., 1., 2.], [5, 5, 3])
+    mean13 = gausshermite_expectation(h1, [.5, 5., 2.], [1., 1., 1.], [5, 5, 3])
+    mean23 = gausshermite_expectation(h2, [.5, 5., 2.], [1., 1., 1.], [5, 5, 3])
 
     @test prob1 ≈ prob2 ≈ prob3 ≈ 1.
     @test mean11 ≈ mean12 ≈ mean13 ≈ .5
