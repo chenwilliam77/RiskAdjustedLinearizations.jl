@@ -1,7 +1,7 @@
 """
 ```
-impulse_responses(m, horizon, shock_ind, shock_size, z₀)
-impulse_responses(m, horizon, shock_ind, shock_size)
+impulse_responses(m, horizon, shock_ind, shock_size, z₀; deviations = true)
+impulse_responses(m, horizon, shock_ind, shock_size; deviations = true)
 ```
 
 calculates impulse responses according to a risk-adjusted linearization,
@@ -15,12 +15,16 @@ The second method assumes that the initial state is the stochastic steady state.
 - `shock_ind::Int`: index of the shock that should be nonzero (other shocks are zero)
 - `shock_size::Number`: size of the shock (can be positive or negative)
 
+### Keywords
+- `deviations::Bool`: if true, the impulse responses are returned in deviations from steady state.
+
 ### Outputs
 - `states`: a matrix of the simulated path of states `z`, with type specified by the array type of `z₀`
 - `jumps`: a matrix of the simulated path of jump variables `y`, with type specified by the array type of `z₀`
 """
 function impulse_responses(m::RiskAdjustedLinearization, horizon::Int, shock_ind::Int,
-                           shock_size::Number, z₀::AbstractVector)
+                           shock_size::Number, z₀::AbstractVector;
+                           deviations::Bool = true)
 
     # Create shock vector and output matrices
     shock            = zeros(eltype(z₀), m.Nε, 1)
@@ -34,11 +38,16 @@ function impulse_responses(m::RiskAdjustedLinearization, horizon::Int, shock_ind
     # Simulate with no other shocks drawn
     states[:, 2:end], jumps[:, 2:end] = simulate(m, horizon - 1, (@view states[:, 1]))
 
-    return states, jumps
+    if deviations
+        return states .- m.z, jumps .- m.y
+    else
+        return states, jumps
+    end
 end
 
-function impulse_responses(m::RiskAdjustedLinearization, horizon::Int, shock_ind::Int, shock_size::Number)
+function impulse_responses(m::RiskAdjustedLinearization, horizon::Int, shock_ind::Int, shock_size::Number;
+                           deviations::Bool = true)
 
     # Calculate starting at stochastic steady state
-    return impulse_responses(m, horizon, shock_ind, shock_size, m.z)
+    return impulse_responses(m, horizon, shock_ind, shock_size, m.z; deviations = deviations)
 end

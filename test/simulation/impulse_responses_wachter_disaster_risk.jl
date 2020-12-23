@@ -12,9 +12,9 @@ horizon = 100
 
     # No shocks and start from steady state
     state1, jump1 = simulate(m, horizon)
-    state2, jump2 = impulse_responses(m, horizon, 1, 0.)
-    state3, jump3 = impulse_responses(m, horizon, 2, 0.)
-    state4, jump4 = impulse_responses(m, horizon, 3, 0.)
+    state2, jump2 = impulse_responses(m, horizon, 1, 0.; deviations = false)
+    state3, jump3 = impulse_responses(m, horizon, 2, 0.; deviations = false)
+    state4, jump4 = impulse_responses(m, horizon, 3, 0.; deviations = false)
 
     @test state1 ≈ state2
     @test state1 ≈ state3
@@ -27,9 +27,9 @@ horizon = 100
 
     # No shocks but perturb away from steady state
     state1, jump1 = simulate(m, horizon, 1.01 * m.z)
-    state2, jump2 = impulse_responses(m, horizon, 1, 0., 1.01 * m.z)
-    state3, jump3 = impulse_responses(m, horizon, 2, 0., 1.01 * m.z)
-    state4, jump4 = impulse_responses(m, horizon, 3, 0., 1.01 * m.z)
+    state2, jump2 = impulse_responses(m, horizon, 1, 0., 1.01 * m.z; deviations = false)
+    state3, jump3 = impulse_responses(m, horizon, 2, 0., 1.01 * m.z; deviations = false)
+    state4, jump4 = impulse_responses(m, horizon, 3, 0., 1.01 * m.z; deviations = false)
 
     @test state1 ≈ state2
     @test state1 ≈ state3
@@ -44,10 +44,10 @@ horizon = 100
     shocks = zeros(3, horizon)
     shocks[2] = -3.
 
-    state1, jump1 = impulse_responses(m, horizon, 2, -3.)
-    state2, jump2 = impulse_responses(m, horizon, 2, -3., m.z)
+    state1, jump1 = impulse_responses(m, horizon, 2, -3.; deviations = false)
+    state2, jump2 = impulse_responses(m, horizon, 2, -3., m.z; deviations = false)
     state3, jump3 = simulate(m, horizon, shocks)
-    state4, jump4 = impulse_responses(m, horizon, 1, -3)
+    state4, jump4 = impulse_responses(m, horizon, 1, -3; deviations = false)
 
     @test state1 ≈ state2
     @test state1 ≈ state3
