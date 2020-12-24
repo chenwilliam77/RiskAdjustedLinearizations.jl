@@ -295,7 +295,7 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
 
     for i in 2:N_approx
         y[J[Symbol("dq$(i)")]] = convert(T, log(M0) + log(Ω0) + y[J[Symbol("dq$(i-1)")]])
-        y[E[Symbol("pq$(i)")]] = convert(T, log(M0) + log(Ω0) + y[J[Symbol("pq$(i-1)")]])
+        y[J[Symbol("pq$(i)")]] = convert(T, log(M0) + log(Ω0) + y[J[Symbol("pq$(i-1)")]])
         y[J[Symbol("ds₁$(i-1)")]] = convert(T, log(θ) + log(M0) + ϵ * π_ss + y[J[Symbol("ds₁$(i-2)")]])
         y[J[Symbol("ps₁$(i)")]] = convert(T, log(θ) + log(M0) + ϵ * π_ss + y[J[Symbol("ps₁$(i-1)")]])
         y[J[Symbol("ds₂$(i-1)")]] = convert(T, log(θ) + log(M0) + (ϵ - 1.) * π_ss + y[J[Symbol("ds₂$(i-2)")]])
@@ -306,16 +306,111 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
 end
 
 nk_cₜ(m, zₜ) = exp(m.y[2] + (m.Ψ * (zₜ - m.z))[2])
+nk_qₜ(m, zₜ) = exp(m.y[7] + (m.Ψ * (zₜ - m.z))[7])
+nk_dqₜ(m, zₜ, i, J) = exp(m.y[J[Symbol("dq$(i)")]] + (m.Ψ * (zₜ - m.z))[J[Symbol("dq$(i)")]])
+nk_pqₜ(m, zₜ, i, J) = exp(m.y[J[Symbol("pq$(i)")]] + (m.Ψ * (zₜ - m.z))[J[Symbol("pq$(i)")]])
+nk_s₁ₜ(m, zₜ) = exp(m.y[12] + (m.Ψ * (zₜ - m.z))[12])
+nk_s₂ₜ(m, zₜ) = exp(m.y[13] + (m.Ψ * (zₜ - m.z))[13])
+nk_ds₁ₜ(m, zₜ, i, J) = exp(m.y[J[Symbol("ds₁$(i)")]] + (m.Ψ * (zₜ - m.z))[J[Symbol("ds₁$(i)")]])
+nk_ps₁ₜ(m, zₜ, i, J) = exp(m.y[J[Symbol("ps₁$(i)")]] + (m.Ψ * (zₜ - m.z))[J[Symbol("ps₁$(i)")]])
+nk_ds₂ₜ(m, zₜ, i, J) = exp(m.y[J[Symbol("ds₂$(i)")]] + (m.Ψ * (zₜ - m.z))[J[Symbol("ds₂$(i)")]])
+nk_ps₂ₜ(m, zₜ, i, J) = exp(m.y[J[Symbol("ps₂$(i)")]] + (m.Ψ * (zₜ - m.z))[J[Symbol("ps₂$(i)")]])
 
-# Evaluates euler equation in log terms
-function nk_logSDFxR(m, zₜ, εₜ₊₁, Cₜ; β::T = .99, σ::T = 2.) where {T <: Real}
+# Evaluates Euler equation errors in log terms
+function nk_log_euler(m, zₜ, εₜ₊₁, Cₜ; β::T = .99, γ::T = 3.8,
+                      J::AbstractDict = NKCapital().J, S::AbstractDict = NKCapital().S) where {T <: Real}
     yₜ = m.y + m.Ψ * (zₜ - m.z)
     zₜ₊₁, yₜ₊₁ = simulate(m, εₜ₊₁, zₜ)
-    error("Not implemented correctly yet")
-    return log(β) - σ * (yₜ₊₁[2] - log(Cₜ)) + yₜ[9] - yₜ₊₁[2]
+    return log(β) - γ * (yₜ₊₁[J[:c]] - log(Cₜ)) +
+        zₜ₊₁[S[:η_β]] - zₜ[S[:η_β]] + yₜ[J[:r]] - yₜ₊₁[J[:π]]
 end
+
+function nk_log_dq(m, zₜ, εₜ₊₁, DQₜ; β::T = .99, γ::T = 3.8,
+                   i::Int = 1, J::AbstractDict = NKCapital().J, S::AbstractDict = NKCapital().S) where {T <: Real}
+    yₜ = m.y + m.Ψ * (zₜ - m.z)
+    zₜ₊₁, yₜ₊₁ = simulate(m, εₜ₊₁, zₜ)
+    mₜ₊₁ = log(β) - γ * (yₜ₊₁[J[:c]] - yₜ[J[:c]]) +
+        zₜ₊₁[S[:η_β]] - zₜ[S[:η_β]]
+    @show DQₜ
+    if i == 1
+        return mₜ₊₁ + yₜ₊₁[J[:rk]] - log(DQₜ)
+    else
+        return yₜ₊₁[J[:ω]] + mₜ₊₁ + yₜ₊₁[J[Symbol("dq$(i-1)")]] - log(DQₜ)
+    end
+end
+
+function nk_log_pq(m, zₜ, εₜ₊₁, PQₜ; β::T = .99, γ::T = 3.8,
+                   i::Int = 1, J::AbstractDict = NKCapital().J, S::AbstractDict = NKCapital().S) where {T <: Real}
+    yₜ = m.y + m.Ψ * (zₜ - m.z)
+    zₜ₊₁, yₜ₊₁ = simulate(m, εₜ₊₁, zₜ)
+    mₜ₊₁ = log(β) - γ * (yₜ₊₁[J[:c]] - yₜ[J[:c]]) +
+        zₜ₊₁[S[:η_β]] - zₜ[S[:η_β]]
+    if i == 1
+        return yₜ₊₁[J[:ω]] + mₜ₊₁ + yₜ₊₁[J[:q]] - log(PQₜ)
+    else
+        return yₜ₊₁[J[:ω]] + mₜ₊₁ + yₜ₊₁[J[Symbol("pq$(i-1)")]] - log(PQₜ)
+    end
+end
+
+function nk_log_ds₁(m, zₜ, εₜ₊₁, DS₁ₜ; β::T = .99, γ::T = 3.8,
+                    θ::T = 0.7, ϵ::T = 10., i::Int = 0,
+                    J::AbstractDict = NKCapital().J, S::AbstractDict = NKCapital().S) where {T <: Real}
+    yₜ = m.y + m.Ψ * (zₜ - m.z)
+    zₜ₊₁, yₜ₊₁ = simulate(m, εₜ₊₁, zₜ)
+    mₜ₊₁ = log(β) - γ * (yₜ₊₁[J[:c]] - yₜ[J[:c]]) +
+        zₜ₊₁[S[:η_β]] - zₜ[S[:η_β]]
+    if i == 0
+        return yₜ[J[:mc]] + yₜ[J[:output]]
+    else
+        return log(θ) + mₜ₊₁ + ϵ * yₜ₊₁[J[:π]] + yₜ₊₁[J[Symbol("ds₁$(i-1)")]] - log(DS₁ₜ)
+    end
+end
+
+function nk_log_ps₁(m, zₜ, εₜ₊₁, PS₁ₜ; β::T = .99, γ::T = 3.8,
+                    θ::T = 0.7, ϵ::T = 10., i::Int = 0,
+                    J::AbstractDict = NKCapital().J, S::AbstractDict = NKCapital().S) where {T <: Real}
+    yₜ = m.y + m.Ψ * (zₜ - m.z)
+    zₜ₊₁, yₜ₊₁ = simulate(m, εₜ₊₁, zₜ)
+    mₜ₊₁ = log(β) - γ * (yₜ₊₁[J[:c]] - yₜ[J[:c]]) +
+        zₜ₊₁[S[:η_β]] - zₜ[S[:η_β]]
+    if i == 1
+        return log(θ) + mₜ₊₁ + ϵ * yₜ₊₁[J[:π]] + yₜ₊₁[J[:s₂]] - log(PS₁ₜ)
+    else
+        return log(θ) + mₜ₊₁ + ϵ * yₜ₊₁[J[:π]] + yₜ₊₁[J[Symbol("ps₁$(i-1)")]] - log(PS₁ₜ)
+    end
+end
+
+function nk_log_ds₂(m, zₜ, εₜ₊₁, DS₂ₜ; β::T = .99, γ::T = 3.8,
+                    θ::T = 0.7, ϵ::T = 10., i::Int = 0,
+                    J::AbstractDict = NKCapital().J, S::AbstractDict = NKCapital().S) where {T <: Real}
+    yₜ = m.y + m.Ψ * (zₜ - m.z)
+    zₜ₊₁, yₜ₊₁ = simulate(m, εₜ₊₁, zₜ)
+    mₜ₊₁ = log(β) - γ * (yₜ₊₁[J[:c]] - yₜ[J[:c]]) +
+        zₜ₊₁[S[:η_β]] - zₜ[S[:η_β]]
+    if i == 0
+        return yₜ[J[:output]]
+    else
+        return log(θ) + mₜ₊₁ + (ϵ - 1.) * yₜ₊₁[J[:π]] + yₜ₊₁[J[Symbol("ds₂$(i-1)")]] - log(DS₂ₜ)
+    end
+end
+
+function nk_log_ps₂(m, zₜ, εₜ₊₁, PS₂ₜ; β::T = .99, γ::T = 3.8,
+                    θ::T = 0.7, ϵ::T = 10., i::Int = 0,
+                    J::AbstractDict = NKCapital().J, S::AbstractDict = NKCapital().S) where {T <: Real}
+    yₜ = m.y + m.Ψ * (zₜ - m.z)
+    zₜ₊₁, yₜ₊₁ = simulate(m, εₜ₊₁, zₜ)
+    mₜ₊₁ = log(β) - γ * (yₜ₊₁[J[:c]] - yₜ[J[:c]]) +
+        zₜ₊₁[S[:η_β]] - zₜ[S[:η_β]]
+    if i == 1
+        return log(θ) + mₜ₊₁ + (ϵ - 1.) * yₜ₊₁[J[:π]] + yₜ₊₁[J[:s₂]] - log(PS₂ₜ)
+    else
+        return log(θ) + mₜ₊₁ + (ϵ - 1.) * yₜ₊₁[J[:π]] + yₜ₊₁[J[Symbol("ps₂$(i-1)")]] - log(PS₂ₜ)
+    end
+end
+
+# Evaluates n-period ahead Euler equation errors in log terms
 
 # Calculate Euler equation via quadrature
 std_norm_mean = zeros(4)
 std_norm_sig  = ones(4)
-nk_𝔼_quadrature(f::Function) = gausshermite_expectation(f, std_norm_mean, std_norm_sig, 10)
+nk_𝔼_quadrature(f::Function) = gausshermite_expectation(f, std_norm_mean, std_norm_sig, 5)
