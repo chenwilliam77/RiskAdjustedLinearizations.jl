@@ -58,10 +58,10 @@ horizon = 100
 
     @test state1 ≈ state2
     @test state1 ≈ state3
-    @test state1 ≈ state4 + m.z
-    @test state1 ≈ state5 + m.z
+    @test state1 ≈ state4 .+ m.z
+    @test state1 ≈ state5 .+ m.z
     @test jump1 ≈ jump2
     @test jump1 ≈ jump3
-    @test jump1 ≈ jump4 + m.z
-    @test jump1 ≈ jump5 + m.z
+    @test jump1 ≈ jump4 .+ m.y
+    @test jump1 ≈ jump5 .+ m.y
 end
