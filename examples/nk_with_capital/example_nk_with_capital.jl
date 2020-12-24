@@ -7,7 +7,7 @@ n_GH = 5
 include("nk_with_capital.jl")
 
 # Settings
-testing               = true         # check model's solution under default parameters against saved output
+testing               = false         # check model's solution under default parameters against saved output
 autodiff              = false
 algorithm             = :relaxation
 euler_equation_errors = false
@@ -74,20 +74,20 @@ end
 if euler_equation_errors
 
     # Load shocks. Using CRW ones b/c that model also has 2 standard normal random variables
-    shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "nk_with_capital_shocks.jld2"), "r")["shocks"]
+    shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "nk_with_capital_shocks.jld2"), "r")["shocks"][:, 1:50]
 
     # Calculate Euler equation for bonds
     @test abs(euler_equation_error(m, nk_cₜ, (a, b, c, d) -> nk_log_euler(a, b, c, d; β = m_nk.β, γ = m_nk.γ, J = m_nk.J),
                                    nk_𝔼_quadrature, shocks, summary_statistic = x -> norm(x, Inf))) ≈ 0.
 
     # Can calculate the Euler equation error for q, s₁, and s₂ as well by treating these variables as "consumption variables"
-    # but doing the Euler equation error calculation "semi-manually" b/c of the forward difference equations
+    # but need to do the Euler equation error calculation "semi-manually" b/c of the forward difference equations
     impl_output = Dict()
     for k in [:dq, :pq, :ds₁, :ps₁, :ds₂, :ps₂]
         impl_output[k] = Dict()
     end
 
-    _states, _jumps = simulate(m, 10, shocks[:, 1:10], m.z)
+    _states, _jumps = simulate(m, size(shocks, 2), shocks, m.z)
     q_ral  = _jumps[m_nk.J[:q], :]
     s₁_ral = _jumps[m_nk.J[:s₁], :]
     s₂_ral = _jumps[m_nk.J[:s₂], :]
@@ -96,42 +96,42 @@ if euler_equation_errors
         impl_output[:dq][i] = log.(euler_equation_error(m, (m, zₜ) -> nk_dqₜ(m, zₜ, i, m_nk.J),
                                                         (a, b, c, d) -> nk_log_dq(a, b, c, d; β = m_nk.β,
                                                                                   γ = m_nk.β, i = i, J = m_nk.J, S = m_nk.S),
-                                                        nk_𝔼_quadrature, shocks[:, 1:10], return_soln = true))
+                                                        nk_𝔼_quadrature, shocks, return_soln = true))
         impl_output[:pq][i] = log.(euler_equation_error(m, (m, zₜ) -> nk_pqₜ(m, zₜ, i, m_nk.J),
                                                         (a, b, c, d) -> nk_log_pq(a, b, c, d; β = m_nk.β,
                                                                                   γ = m_nk.β, i = i, J = m_nk.J, S = m_nk.S),
-                                                        nk_𝔼_quadrature, shocks[:, 1:10], return_soln = true))
+                                                        nk_𝔼_quadrature, shocks, return_soln = true))
         impl_output[:ds₁][i - 1] = log.((i == 1) ? [nk_ds₁ₜ(m, _states[:, t], i - 1, m_nk.J) for t in 1:size(_states, 2)] :
                                         euler_equation_error(m, (m, zₜ) -> nk_ds₁ₜ(m, zₜ, i - 1, m_nk.J),
                                                              (a, b, c, d) -> nk_log_ds₁(a, b, c, d; β = m_nk.β,
                                                                                         γ = m_nk.β, θ = m_nk.θ, ϵ = m_nk.ϵ,
                                                                                         i = i - 1, J = m_nk.J, S = m_nk.S),
-                                                             nk_𝔼_quadrature, shocks[:, 1:10], return_soln = true))
+                                                             nk_𝔼_quadrature, shocks, return_soln = true))
         impl_output[:ps₁][i] = log.(euler_equation_error(m, (m, zₜ) -> nk_ps₁ₜ(m, zₜ, i, m_nk.J),
                                                          (a, b, c, d) -> nk_log_ps₁(a, b, c, d; β = m_nk.β,
                                                                                     γ = m_nk.β, θ = m_nk.θ, ϵ = m_nk.ϵ,
                                                                                     i = i, J = m_nk.J, S = m_nk.S),
-                                                         nk_𝔼_quadrature, shocks[:, 1:10], return_soln = true))
+                                                         nk_𝔼_quadrature, shocks, return_soln = true))
         impl_output[:ds₂][i - 1] = log.((i == 1) ? [nk_ds₂ₜ(m, _states[:, t], i - 1, m_nk.J) for t in 1:size(_states, 2)] :
                                         euler_equation_error(m, (m, zₜ) -> nk_ds₂ₜ(m, zₜ, i - 1, m_nk.J),
                                                              (a, b, c, d) -> nk_log_ds₂(a, b, c, d; β = m_nk.β,
                                                                                         γ = m_nk.β, θ = m_nk.θ, ϵ = m_nk.ϵ,
                                                                                         i = i - 1, J = m_nk.J, S = m_nk.S),
-                                                             nk_𝔼_quadrature, shocks[:, 1:10], return_soln = true))
+                                                             nk_𝔼_quadrature, shocks, return_soln = true))
         impl_output[:ps₂][i] = log.(euler_equation_error(m, (m, zₜ) -> nk_ps₂ₜ(m, zₜ, i, m_nk.J),
                                                          (a, b, c, d) -> nk_log_ps₂(a, b, c, d; β = m_nk.β,
                                                                                     γ = m_nk.β, θ = m_nk.θ, ϵ = m_nk.ϵ,
                                                                                     i = i, J = m_nk.J, S = m_nk.S),
-                                                         nk_𝔼_quadrature, shocks[:, 1:10], return_soln = true))
+                                                         nk_𝔼_quadrature, shocks, return_soln = true))
     end
 
     q_impl = log.(sum([exp.(x) for x in collect(values(impl_output[:dq]))]) + exp.(impl_output[:pq][m_nk.N_approx]))
     s₁_impl = log.(sum([exp.(x) for x in collect(values(impl_output[:ds₁]))]) + exp.(impl_output[:ps₁][m_nk.N_approx]))
     s₂_impl = log.(sum([exp.(x) for x in collect(values(impl_output[:ds₂]))]) + exp.(impl_output[:ps₂][m_nk.N_approx]))
 
-    @show maximum(abs.((exp.(q_impl) - exp.(q_ral)) ./ exp.(q_ral)))
-    @show maximum(abs.((exp.(s₁_impl) - exp.(s₁_ral)) ./ exp.(s₁_ral)))
-    @show maximum(abs.((exp.(s₂_impl) - exp.(s₂_ral)) ./ exp.(s₂_ral)))
+    @test maximum(abs.((exp.(q_impl) - exp.(q_ral)) ./ exp.(q_ral))) < .1
+    @test maximum(abs.((exp.(s₁_impl) - exp.(s₁_ral)) ./ exp.(s₁_ral))) < .1
+    @test maximum(abs.((exp.(s₂_impl) - exp.(s₂_ral)) ./ exp.(s₂_ral))) < .1
 end
 
 if plot_irfs
