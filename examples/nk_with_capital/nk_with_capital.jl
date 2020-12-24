@@ -331,7 +331,6 @@ function nk_log_dq(m, zₜ, εₜ₊₁, DQₜ; β::T = .99, γ::T = 3.8,
     zₜ₊₁, yₜ₊₁ = simulate(m, εₜ₊₁, zₜ)
     mₜ₊₁ = log(β) - γ * (yₜ₊₁[J[:c]] - yₜ[J[:c]]) +
         zₜ₊₁[S[:η_β]] - zₜ[S[:η_β]]
-    @show DQₜ
     if i == 1
         return mₜ₊₁ + yₜ₊₁[J[:rk]] - log(DQₜ)
     else
@@ -413,4 +412,7 @@ end
 # Calculate Euler equation via quadrature
 std_norm_mean = zeros(4)
 std_norm_sig  = ones(4)
-nk_𝔼_quadrature(f::Function) = gausshermite_expectation(f, std_norm_mean, std_norm_sig, 5)
+if !isdefined(Main, :n_GH)
+    n_GH = 5
+end
+nk_𝔼_quadrature(f::Function) = gausshermite_expectation(f, std_norm_mean, std_norm_sig, n_GH)
