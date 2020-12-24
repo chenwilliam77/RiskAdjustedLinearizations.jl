@@ -56,19 +56,20 @@ shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "crw_shock
         catch e
             NaN, NaN, NaN, NaN, NaN
         end
+
         if !isnan(out1)
             break
         end
         if i == 100
             out1, out2, out3, out4, out5 = abs.(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature;
                                                                      c_init = m.y[1] * 1.1)),
-                abs.(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, m.z * 1.1; c_init = m.y[1] * 1.1)),
-                abs.(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, m.z * 1.1;
-                                          c_init = m.y[1] * 1.1, method = :newton)),
-                abs(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, shocks,
-                                         summary_statistic = x -> norm(x, Inf))),
-                abs(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, shocks,
-                                         summary_statistic = x -> norm(x, 2)))
+            abs.(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, m.z * 1.1; c_init = m.y[1] * 1.1)),
+            abs.(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, m.z * 1.1;
+                                      c_init = m.y[1] * 1.1, method = :newton)),
+            abs(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, shocks,
+                                     summary_statistic = x -> norm(x, Inf))),
+            abs(euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, shocks,
+                                     summary_statistic = x -> norm(x, 2)))
         end
     end
 
@@ -78,13 +79,22 @@ shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "crw_shock
     @test out4 < 1e-4
     @test out5 < 1e-4
 
+    out6 = euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, shocks,
+                                return_soln = true)
+    _states, _ = simulate(m, size(shocks, 2), shocks, m.z)
+    _impl_c = Vector{eltype(_states)}(undef, size(_states, 2))
+    for i in 1:length(_impl_c)
+        _impl_c[i] = crw_cₜ(m, (@view _states[:, i]))
+    end
+    @test abs.(maximum((out6 - _impl_c) ./ out6)) < 1e-4
+
     c_ral, c_impl, endo_states_ral, endo_states_impl =
         dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature, crw_endo_states, 1, shocks;
-                                     raw_output = true)
+                                     return_soln = true)
     c_err, endo_states_err = dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature,
-                                                          crw_endo_states, 1, shocks; raw_output = false)
+                                                          crw_endo_states, 1, shocks; return_soln = false)
     @test_throws DimensionMismatch dynamic_euler_equation_error(m, crw_cₜ, crw_logSDFxR, crw_𝔼_quadrature,
-                                                                crw_endo_states, 0, shocks; raw_output = false)
+                                                                crw_endo_states, 0, shocks; return_soln = false)
     @test c_err < 2e-5
     @test endo_states_err < 1e-3
     @test c_err == norm((c_ral - c_impl) ./ c_ral, Inf)

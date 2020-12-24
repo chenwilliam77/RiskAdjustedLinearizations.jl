@@ -1,9 +1,10 @@
 """
 ```
 euler_equation_error(m, cₜ, logSDFxR, 𝔼_quadrature, zₜ = m.z;
-    c_init = NaN, kwargs...)
-euler_equation_error(m, cₜ, logSDFxR, 𝔼_quadrature, shock_matrix, p, zₜ = m.z;
-    c_init = NaN, summary_statistic = x -> norm(x, Inf), burnin = 0, kwargs...)
+    c_init = NaN, return_soln = false, kwargs...)
+euler_equation_error(m, cₜ, logSDFxR, 𝔼_quadrature, shock_matrix, zₜ = m.z;
+    c_init = NaN, summary_statistic = x -> norm(x, Inf), burnin = 0,
+    return_soln = false, kwargs...)
 ```
 calculates standard Euler equation errors, as recommended by Judd (1992).
 The first method calculates the error at some state `zₜ`, which defaults
@@ -47,11 +48,13 @@ is the risk free rate.
 - `summary_statistic::Function`: a `Function` used to compute a summary statistic from the
     ergodic set of Euler equation errors. The default is the maximum absolute error.
 - `burnin::Int`: number of periods to drop as burn-in
+- `return_soln::Bool`: if true, return the solution to the nonlinear equation isntead of the error
 - `kwargs`: Any keyword arguments for `nlsolve` can be passed, too, e.g. `ftol` or `autodiff`
     since `nlsolve` is used to calculate the "true" consumption policy.
 """
 function euler_equation_error(m::RiskAdjustedLinearization, cₜ::Function, logSDFxR::Function, 𝔼_quadrature::Function,
-                              zₜ::AbstractVector = m.z; c_init::Number = NaN, kwargs...)
+                              zₜ::AbstractVector = m.z; c_init::Number = NaN,
+                              return_soln::Bool = false, kwargs...)
 
     # Compute expected consumption according to RAL
     c_ral = cₜ(m, zₜ)
@@ -67,12 +70,17 @@ function euler_equation_error(m::RiskAdjustedLinearization, cₜ::Function, logS
     end
 
     # Return error in unit-free terms
-    return (c_ral - c_impl) / c_ral
+    if return_soln
+        return c_impl
+    else
+        return (c_ral - c_impl) / c_ral
+    end
 end
 
 function euler_equation_error(m::RiskAdjustedLinearization, cₜ::Function, logSDFxR::Function, 𝔼_quadrature::Function,
                               shock_matrix::AbstractMatrix, zₜ::AbstractVector = m.z; c_init::Number = NaN,
-                              summary_statistic::Function = x -> norm(x, Inf), burnin::Int = 0, kwargs...)
+                              summary_statistic::Function = x -> norm(x, Inf), burnin::Int = 0,
+                              return_soln::Bool = false, kwargs...)
 
     # Set up
     T = size(shock_matrix, 2)
@@ -82,17 +90,48 @@ function euler_equation_error(m::RiskAdjustedLinearization, cₜ::Function, logS
 
     # Compute implied consumption according to the quadrature rule for each state
     # and expected consumption according to RAL
-    err = [euler_equation_error(m, cₜ, logSDFxR, 𝔼_quadrature, (@view states[:, t]); c_init = c_init, kwargs...) for t in (burnin + 1):T]
+    err = [euler_equation_error(m, cₜ, logSDFxR, 𝔼_quadrature, (@view states[:, t]); c_init = c_init,
+                                return_soln = return_soln, kwargs...) for t in (burnin + 1):T]
 
     # Return error in unit-free terms
-    return summary_statistic(err)
+    if return_soln
+        return err
+    else
+        return summary_statistic(err)
+    end
 end
+
+# n-period ahead euler equation error obtained by the
+# Compute cₜ⁽¹⁾ by solving
+# 0 = log Eₜ[exp(mₜ₊₁(cₜ₊₁⁽⁰⁾, cₜ⁽¹⁾) + rₜ)],
+# where cₜ₊₁⁽⁰⁾ is just the consumption function obtained from
+# an RAL evaluated at a state in t + 1 (i.e., given zₜ and a
+# a draw of shocks εₜ₊₁, one can calculate zₜ₊₁ and then
+# evaluate cₜ₊₁⁽⁰⁾ = c + Ψ (zₜ₊₁ - z)).
+# This approach implicitly defines a mapping cₜ⁽¹⁾ at every
+# state zₜ since the expectation must be calculated conditional
+# on the state zₜ. It follows that if cₜ⁽²⁾ solves
+# 0 = log Eₜ[exp(log(β) - γ * (cₜ₊₁⁽¹⁾ - cₜ⁽²⁾) + rₜ)],
+# then we calculate cₜ₊₁⁽¹⁾ by solving the first equation
+# given an initial state zₜ₊₁. Since solving the first equation
+# requires pushing the initial state forward by one period,
+# calculating cₜ₊₁⁽¹⁾ means solving
+# 0 = log Eₜ₊₁[exp(mₜ₊₂(cₜ₊₂⁽⁰⁾, cₜ₊₁⁽¹⁾) + rₜ₊₁)],
+# hence cₜ⁽²⁾ is indeed a 2-period ahead Euler equation error
+# b/c the recursion implicitly involves calculating what
+# expected consumption is 2 periods ahead. Since
+# we approximate the expectation with quadrature,
+# this approach is recursive in that, we select some
+# initial state zₜ, compute a set of {zₜ₊₁} implied
+# by zₜ and draws εₜ₊₁, compute a new set {zₜ₊₂} for each
+# zₜ₊₁ and draws εₜ₊₂ (for each zₜ₊₁), and so on until
+# we have computed zₜ₊ₙ
 
 """
 ```
 dynamic_euler_equation_error(m, cₜ, logSDFxR, 𝔼_quadrature, endo_states, n_aug,
     shock_matrix, zₜ = m.z; c_init = NaN, summary_statistic = x -> norm(x, Inf),
-    burnin = 0, raw_output = false, kwargs...)
+    burnin = 0, return_soln = false, kwargs...)
 ```
 calculates dynamic Euler equation errors, as proposed in Den Haan (2009).
 The Euler equation is
@@ -151,7 +190,7 @@ function dynamic_euler_equation_error(m::RiskAdjustedLinearization, cₜ::Functi
                                       𝔼_quadrature::Function, endo_states::Function, n_aug::Int,
                                       shock_matrix::AbstractMatrix, z₀::AbstractVector = m.z;
                                       c_init::Number = NaN, summary_statistic::Function = x -> norm(x, Inf),
-                                      burnin::Int = 0, raw_output::Bool = false, kwargs...)
+                                      burnin::Int = 0, return_soln::Bool = false, kwargs...)
 
     # Set up
     T = size(shock_matrix, 2)
@@ -191,7 +230,7 @@ function dynamic_euler_equation_error(m::RiskAdjustedLinearization, cₜ::Functi
     end
 
     # Calculate the errors
-    if raw_output
+    if return_soln
         return c_ral[(burnin + 1):end], c_impl[(burnin + 1):end], endo_states_ral[(burnin + 1):end], endo_states_impl[(burnin + 1):end]
     else
         return summary_statistic(((@view c_ral[(burnin + 1):end]) - (@view c_impl[(burnin + 1):end])) ./ (@view c_ral[(burnin + 1):end])), summary_statistic(vec((@view endo_states_ral[:, (burnin + 1):end]) - (@view endo_states_impl[:, (burnin + 1):end])) ./ vec((@view endo_states_ral[:, (burnin + 1):end])))
