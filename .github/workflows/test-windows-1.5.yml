@@ -1,4 +1,4 @@
-name: 'build-1.5'
+name: 'build-windows-1.5'
 on: [push, pull_request]
 
 jobs:
