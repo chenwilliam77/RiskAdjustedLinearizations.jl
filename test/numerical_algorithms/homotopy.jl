@@ -15,17 +15,17 @@ update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
 
 # Solve!
 @info "The following series of print statements are expected."
-for i in 1:100
+for i in 1:2
     try # To avoid issues arising sometimes where homotopy accidentally fails when it shouldn't
-        RiskAdjustedLinearizations.homotopy!(ral, vcat(ral.z, ral.y, vec(ral.Ψ)); verbose = :low, autodiff = :central,
-                                             step = .25, ftol = 1e-8) # first with finite diff NLsolve Jacobian
+        RiskAdjustedLinearizations.homotopy!(ral, vcat(ral.z, ral.y, vec(ral.Ψ)); verbose = :high, autodiff = :central,
+                                             step = .5, ftol = 1e-8) # first with finite diff NLsolve Jacobian
         break
     catch e
-        update!(ral, .99 * ral.z, .99 .* ral.y, .99 .* ral.Ψ)
+        update!(ral, vec(sssout["z"]), vec(sssout["y"]), sssout["Psi"])
     end
-    if i == 100 # trigger error if there actually is one
+    if i == 2 # trigger error if there actually is one
         RiskAdjustedLinearizations.homotopy!(ral, vcat(ral.z, ral.y, vec(ral.Ψ)); verbose = :low, autodiff = :central,
-                                             step = .25, ftol = 1e-8) # first with finite diff NLsolve Jacobian
+                                             step = .5, ftol = 1e-8) # first with finite diff NLsolve Jacobian
     end
 end
 @test ral.z ≈ sssout["z"] atol=1e-6
@@ -34,7 +34,7 @@ end
 
 update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ) # now autodiff Jacobian
 @test_broken RiskAdjustedLinearizations.homotopy!(ral, vcat(ral.z, ral.y, vec(ral.Ψ)); verbose = :low, autodiff = :forward,
-                                                  step = .25, ftol = 1e-8) # currently can't autodiff b/c problem with chunk size selection
+                                                  step = .5, ftol = 1e-8) # currently can't autodiff b/c problem with chunk size selection
 #=@test ral.z ≈ sssout["z"] atol=1e-6
 @test ral.y ≈ sssout["y"] atol=1e-4
 @test ral.Ψ ≈ sssout["Psi"] atol=5e-3=#

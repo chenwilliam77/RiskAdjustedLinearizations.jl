@@ -21,7 +21,7 @@ m.y .= 1.1 * m.y
 m.Ψ .= 1.1 * m.Ψ
 
 # Solve!
-solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy)
+solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, step = .5)
 
 # Only homotopy seems to work for this model. The relaxation algorithm
 # has trouble finding an answer with smaller error than 1e-3

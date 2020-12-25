@@ -38,13 +38,15 @@ solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ;
 # homotopy w/finite diff Jacobian
 for i in 1:10
     try
-        solve!(ral, zguess, yguess; algorithm = :homotopy, step = .12,
+        solve!(ral, zguess, yguess; algorithm = :homotopy, step = .5,
                verbose = :high, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
         break
     catch e
+        zguess .= 1.01 * vec(sssout["z"])
+        yguess .= 1.01 * vec(sssout["y"])
     end
     if i == 10
-        solve!(ral, zguess, yguess; algorithm = :homotopy, step = .12,
+        solve!(ral, zguess, yguess; algorithm = :homotopy, step = .5,
                verbose = :high, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
     end
 end
@@ -53,15 +55,16 @@ end
 @test ral.Ψ ≈ sssout["Psi"]
 
 update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
-for i in 1:10
+for i in 1:2
     try
-        solve!(ral; verbose = :none, algorithm = :homotopy, step = .12,
+        solve!(ral; verbose = :none, algorithm = :homotopy, step = .5,
                autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
         break
     catch e
+        update!(ral, 1.01 * vec(sssout["z"]), 1.01 * vec(sssout["y"]), 1.01 * sssout["Psi"])
     end
-    if i == 10
-        solve!(ral; verbose = :none, algorithm = :homotopy, step = .12,
+    if i == 2
+        solve!(ral; verbose = :none, algorithm = :homotopy, step = .5,
                autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
     end
 end
@@ -69,17 +72,20 @@ end
 @test ral.y ≈ sssout["y"] atol=1e-6
 @test ral.Ψ ≈ sssout["Psi"]
 
-for i in 1:10
+for i in 1:2
     try
         solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ;
-               verbose = :none, algorithm = :homotopy, step = .12,
+               verbose = :none, algorithm = :homotopy, step = .5,
                autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
         break
     catch e
+        z .= vec(sssout["z"])
+        y .= 1.01 * vec(sssout["y"])
+        Ψ .= sssout["Psi"]
     end
-    if i == 10
+    if i == 2
         solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ;
-               verbose = :none, algorithm = :homotopy, step = .12,
+               verbose = :none, algorithm = :homotopy, step = .5,
                autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
     end
 end

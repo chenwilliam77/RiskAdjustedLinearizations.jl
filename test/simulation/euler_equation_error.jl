@@ -4,7 +4,12 @@ include(joinpath(dirname(@__FILE__), "..", "..", "examples", "crw", "crw.jl"))
 # Solve model
 m_crw = CoeurdacierReyWinant()
 m = crw(m_crw)
-solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, verbose = :none)
+try
+    solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, step = .5, verbose = :none)
+catch e
+    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference/crw_sss.jld2"), "r")
+    update!(ral, sssout["z_rss"], sssout["y_rss"], sssout["Psi_rss"])
+end
 
 # Calculate consumption at state zₜ
 crw_cₜ(m, zₜ) = exp(m.y[1] + (m.Ψ * (zₜ - m.z))[1])

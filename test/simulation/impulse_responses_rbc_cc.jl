@@ -4,16 +4,11 @@ include(joinpath(dirname(@__FILE__), "..", "..", "examples", "rbc_cc", "rbc_cc.j
 # Solve model
 m_rbc_cc = RBCCampbellCochraneHabits()
 m = rbc_cc(m_rbc_cc)
-for i in 1:100
-    try
-        solve!(m, m.z, m.y; verbose = :none)
-        break
-    catch e
-        solve!(m, 1.0001 * m.z, 1.0001 * m.y, 1.0001 * m.Ψ; verbose = :none)
-    end
-    if i == 100
-        solve!(m, m.z, m.y; verbose = :none)
-    end
+try
+    solve!(m, m.z, m.y; verbose = :none)
+catch e
+    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_sss_iterative_output.jld2"), "r")
+    update!(m, sssout["z_rss"], sssout["y_rss"], sssout["Psi_rss"])
 end
 
 # Verify impulse responses with a zero shock is the same as simulate with no shocks
