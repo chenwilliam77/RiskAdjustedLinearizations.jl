@@ -56,7 +56,7 @@ if euler_equation_errors
     # Load shocks. Using CRW ones b/c that model also has 2 standard normal random variables
     shocks = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "crw_shocks.jld2"), "r")["shocks"]
 
-    # With this simple model, the Euler equation holds exactly
+    # With this simple model, the Euler equation for bonds holds exactly
     @test abs(euler_equation_error(m, nk_cₜ, (a, b, c, d) -> nk_logSDFxR(a, b, c, d; β = m_nk.β, σ = m_nk.σ),
                                    nk_𝔼_quadrature, shocks, summary_statistic = x -> norm(x, Inf))) ≈ 0.
 end
