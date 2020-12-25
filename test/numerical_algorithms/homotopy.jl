@@ -21,7 +21,7 @@ for i in 1:2
                                              step = .5, ftol = 1e-8) # first with finite diff NLsolve Jacobian
         break
     catch e
-        update!(ral, vec(sssout["z"]), vec(sssout["y"]), sssout["Psi"])
+        update!(ral, .99 * vec(sssout["z"]), .99 * vec(sssout["y"]), .99 * sssout["Psi"])
     end
     if i == 2 # trigger error if there actually is one
         RiskAdjustedLinearizations.homotopy!(ral, vcat(ral.z, ral.y, vec(ral.Ψ)); verbose = :low, autodiff = :central,

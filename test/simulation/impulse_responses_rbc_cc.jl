@@ -7,7 +7,7 @@ m = rbc_cc(m_rbc_cc)
 try
     solve!(m, m.z, m.y; verbose = :none)
 catch e
-    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_sss_iterative_output.jld2"), "r")
+    local sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_sss_iterative_output.jld2"), "r")
     update!(m, sssout["z_rss"], sssout["y_rss"], sssout["Psi_rss"])
 end
 

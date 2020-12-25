@@ -7,7 +7,7 @@ m = crw(m_crw)
 try
     solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, step = .5, verbose = :none)
 catch e
-    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference/crw_sss.jld2"), "r")
+    local sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference/crw_sss.jld2"), "r")
     update!(ral, sssout["z_rss"], sssout["y_rss"], sssout["Psi_rss"])
 end
 

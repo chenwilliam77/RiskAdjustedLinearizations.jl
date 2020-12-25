@@ -7,7 +7,7 @@ m = inplace_wachter_disaster_risk(m_wachter)
 try
     solve!(m, m.z, m.y; verbose = :none)
 catch e
-    sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "iterative_sss_output.jld2"), "r")
+    local sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "iterative_sss_output.jld2"), "r")
     update!(m, sssout["z"], sssout["y"], sssout["Psi"])
 end
 
