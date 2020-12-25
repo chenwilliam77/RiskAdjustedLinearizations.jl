@@ -7,7 +7,7 @@ n_GH = 5
 include("nk_with_capital.jl")
 
 # Settings
-testing               = false         # check model's solution under default parameters against saved output
+testing               = true         # check model's solution under default parameters against saved output
 autodiff              = false
 algorithm             = :relaxation
 euler_equation_errors = false
