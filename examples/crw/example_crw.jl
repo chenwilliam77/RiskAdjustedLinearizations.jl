@@ -21,11 +21,7 @@ m.y .= 1.1 * m.y
 m.Ψ .= 1.1 * m.Ψ
 
 # Solve!
-solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, testing = true)
-# Set testing = true b/c this script is part of runtests.jl but sometimes
-# fails to solve a homotopy step due to a spurious error in nlsolve. Most of the
-# the times, this spurious error will never occur, at least when this script
-# is tested on personal computers rather than the one used by GitHub Actions.
+solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy)
 
 # Only homotopy seems to work for this model. The relaxation algorithm
 # has trouble finding an answer with smaller error than 1e-3
