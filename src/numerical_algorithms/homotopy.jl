@@ -28,7 +28,7 @@ until ``q`` reaches 1 or passes 1 (in which case, we force ``q = 1``).
 function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
                    step::Float64 = .1, pnorm::Float64 = Inf,
                    verbose::Symbol = :none, autodiff::Symbol = :central,
-                   kwargs...) where {S1 <: Number}
+                   testing::Bool = false, kwargs...) where {S1 <: Number}
     # Set up
     nl = nonlinear_system(m)
     li = linearized_system(m)
@@ -38,7 +38,7 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
         qguesses = vcat(qguesses, 1.)
     end
     for (i, q) in enumerate(qguesses)
-        solve_steadystate!(m, getvecvalues(m), q; verbose = verbose, autodiff = autodiff, kwargs...)
+        solve_steadystate!(m, getvecvalues(m), q; verbose = verbose, autodiff = autodiff, testing = testing, kwargs...)
 
         if verbose == :high
             println("Success at iteration $(i) of $(length(qguesses))")
@@ -59,7 +59,8 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
 end
 
 function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, q::Float64;
-                            autodiff::Symbol = :central, verbose::Symbol = :none, kwargs...) where {S1 <: Real}
+                            autodiff::Symbol = :central, verbose::Symbol = :none,
+                            testing::Bool = false, kwargs...) where {S1 <: Real}
 
     # Set up system of equations
     N_zy = m.Nz + m.Ny
@@ -125,10 +126,16 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         m.z .= out.zero[1:m.Nz]
         m.y .= out.zero[(m.Nz + 1):N_zy]
         m.Ψ .= reshape(out.zero[(N_zy + 1):end], m.Ny, m.Nz)
+    elseif testing
+        println("A solution for (z, y, Ψ) to the state transition, expectational, " *
+                "and linearization equations could not be found when the embedding " *
+                "parameter q equals $(q). Testing is on, so no error will be triggered " *
+                "and homotopy will continue with the old guesses.")
     else
         if verbose == :high
             println(out)
         end
+
         throw(RALHomotopyError("A solution for (z, y, Ψ) to the state transition, expectational, " *
                                "and linearization equations could not be found when the embedding " *
                                "parameter q equals $(q)"))

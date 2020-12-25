@@ -4,17 +4,7 @@ include(joinpath(dirname(@__FILE__), "..", "..", "examples", "crw", "crw.jl"))
 # Solve model
 m_crw = CoeurdacierReyWinant()
 m = crw(m_crw)
-for i in 1:100
-    try
-        solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, verbose = :none)
-        break
-    catch e
-        update!(ral, 1.0001 * m.z, 1.0001 .* m.y, 1.0001 .* m.Ψ)
-    end
-    if i == 100
-        solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, verbose = :none)
-    end
-end
+solve!(m, m.z, m.y, m.Ψ; algorithm = :homotopy, verbose = :none, testing = true)
 
 # Verify impulse responses with a zero shock is the same as simulate with no shocks
 horizon = 100
