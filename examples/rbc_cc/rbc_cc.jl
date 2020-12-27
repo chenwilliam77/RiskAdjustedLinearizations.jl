@@ -87,7 +87,7 @@ function rbc_cc(m::RBCCampbellCochraneHabits{T}, n_strips::Int = 0) where {T <: 
     # The cache is initialized as zeros so we only need to fill non-zero elements
     function Λ(F, z)
         F_type = eltype(F)
-        F[s[:hats], SH[:εₐ]] = 1. / S * sqrt(1. - 2. * z[s[:hats]]) - 1.
+        F[s[:hats], J[:cₖ]] = 1. / S * sqrt(1. - 2. * z[s[:hats]]) - 1.
     end
 
     # The cache is initialized as zeros so we only need to fill non-zero elements
