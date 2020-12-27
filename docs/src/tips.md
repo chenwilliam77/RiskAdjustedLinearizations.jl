@@ -44,8 +44,12 @@ for the random vector ``A(z_t) \varepsilon_{t + 1}``. However, this is not actua
 Rather, `ccgf` should just return a vector of conditional cumulant-generating functions
 for the ``n_y`` random variables ``X_i = A_i(z_t)\varepsilon_{t + 1}``.
 
-Because the individual components of ``\varepsilon_{t + 1}`` are independent,
-the moment-generating function for ``X_i`` is ``\exp\left(\frac{1}{2}\left(\sum_{j = 1}^{n_\varepsilon} X_{ij} \varepsilon_{i, t + j}\right)\right)``, hence the ``i``th cumulant-generating function is ``\frac{1}{2}\left(\sum_{j = 1}^{n_\varepsilon} X_{ij} \varepsilon_{i, t + j}\right)``. This is precisely what the code above achieves.
+Because the individual components of ``\varepsilon_{t + 1}`` are independent and each $\varepsilon_{i, t}$ has
+a standard Normal distribution,
+the moment-generating function for ``X_i`` is ``\exp\left(\frac{1}{2}\left(\sum_{j = 1}^{n_\varepsilon} (t A_{ij})^2 / 2\right)\right)``, hence the ``i``th cumulant-generating function is ``\frac{1}{2}\left(\sum_{j = 1}^{n_\varepsilon} (t A_{ij})^2 / 2\right)``.
+For risk-adjusted linearizations, we evaluate at $t = 1$ since we want the
+conditional cumulant-generating function ``\log\mathbb{E}_t[\exp(A_i(z_t)\varepsilon_{t + 1})]``.
+This is precisely what the code above achieves.
 
 Second, let us consider a more complicated example. In the [Wachter (2013) Example](@ref example),
 the ccgf is
@@ -86,7 +90,7 @@ the conditional cumulant-generating function for the ``i``th row of the ``A(z_t)
 [section](@ref affine-theory) is
 ```math
 \begin{aligned}
-\kappa_i[A_i(z_t) \mid z_t] &  =  \log\mathbb{E}_t[\exp(A_{i1}(z_t) \varepsilon_{t + 1}^c)]  + \log\mathbb{E}_t[\exp(A_{i2}(z_t) \varepsilon_{t + 1}^p)] + \log\mathbb{E}_t[\exp(A_{i3}(z_t) \varepsilon_{t + 1}^\xi)].
+ccgf_i[A_i(z_t) \mid z_t] &  =  \log\mathbb{E}_t[\exp(A_{i1}(z_t) \varepsilon_{t + 1}^c)]  + \log\mathbb{E}_t[\exp(A_{i2}(z_t) \varepsilon_{t + 1}^p)] + \log\mathbb{E}_t[\exp(A_{i3}(z_t) \varepsilon_{t + 1}^\xi)].
 \end{aligned}
 ```
 The first two terms on the RHS are for normal random variables and simplify to ``(A_{i1}(z_t)^2 + A_{i2}(z_t)^2) / 2``.

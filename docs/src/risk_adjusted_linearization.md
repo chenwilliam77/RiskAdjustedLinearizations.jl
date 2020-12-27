@@ -21,11 +21,11 @@ The exogenous shocks
 be non-Gaussian. Given some
 differentiable mapping ``\alpha:\mathbb{R}^{n_z}\rightarrow\mathbb{R}^{n_\varepsilon}``,
 the random variable ``X_t = \alpha(z_t)^T \varepsilon_{t + 1}`` has the
-differentiable, conditional (on ``z_t``) cumulant generating function (ccgf)
+differentiable, conditional (on ``z_t``) cumulant generating function
 
 ```math
 \begin{aligned}
-\kappa[\alpha(z_t) \mid z_t] = \log\mathbb{E}_t[\exp(\alpha(z_t)^T \varepsilon_{t + 1})].
+ccgf[\alpha(z_t) \mid z_t] = \log\mathbb{E}_t[\exp(\alpha(z_t)^T \varepsilon_{t + 1})].
 \end{aligned}
 ```
 
@@ -112,10 +112,10 @@ Under an affine approximation, the entropy term is a nonnegative function
 ``\mathcal{V}:\mathbb{R}^{n_z} \rightarrow \mathbb{R}_+^{n_y}`` defined such that
 ```math
 \begin{aligned}
-\mathcal{V}(z_t) \equiv \mathcal{V}_t(\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})) = \vec{\kappa}[(\Gamma_5 + \Gamma_6 \Psi)(I_{n_z} - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t) \mid z_t]
+\mathcal{V}(z_t) \equiv \mathcal{V}_t(\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})) = \vec{ccgf}[(\Gamma_5 + \Gamma_6 \Psi)(I_{n_z} - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t) \mid z_t]
 \end{aligned}
 ```
-where the notation ``\vec{\kappa}`` means that each component ``\kappa_i[\cdot \mid \cdot]`` is a conditional cumulant-generating
+where the notation ``\vec{ccgf}`` means that each component ``ccgf_i[\cdot \mid \cdot]`` is a conditional cumulant-generating
 function. Explicitly, define
 ```math
 \begin{aligned}
@@ -123,19 +123,18 @@ A(z_t) = (\Gamma_5 + \Gamma_6 \Psi)(I_{n_z} - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t
 \end{aligned}
 ```
 Each ``A_i(z_t)`` is a mapping from ``z_t`` to the ``i``th row vector in ``A(z_t)``. Then
-``\kappa_i[\cdot \mid \cdot]`` is the ccgf
+``ccgf_i[\cdot \mid \cdot]`` is
 ```math
 \begin{aligned}
-\kappa_i[A_i(z_t)\mid z_t] = \log\mathbb{E}_t[\exp(A_i(z_t) \varepsilon_{t + 1})].
+ccgf_i[A_i(z_t)\mid z_t] = \log\mathbb{E}_t[\exp(A_i(z_t) \varepsilon_{t + 1})].
 \end{aligned}
 ```
-Every ``\kappa_i[\cdot \mid \cdot]`` corresponds to an expectational equation and thus
+Every ``ccgf_i[\cdot \mid \cdot]`` corresponds to an expectational equation and thus
 acts as a risk correction to each one. In the common case where the individual components of
-``\varepsilon_{t + 1}`` are independent, the
-ccgf simplifies to
+``\varepsilon_{t + 1}`` are independent, ``ccgf_i`` simplifies to
 ```math
 \begin{aligned}
-\kappa_i[A_i(z_t)\mid z_t] = \sum_{j = 1}^{n_\varepsilon}\log\mathbb{E}_t[\exp(A_{ij}(z_t) \varepsilon_{j, t + 1})],
+ccgf_i[A_i(z_t)\mid z_t] = \sum_{j = 1}^{n_\varepsilon}\log\mathbb{E}_t[\exp(A_{ij}(z_t) \varepsilon_{j, t + 1})],
 \end{aligned}
 ```
 i.e. it is the sum of the cumulant-generating functions for each shock ``\varepsilon_{j, t + 1}``.
