@@ -338,24 +338,24 @@ Therefore, (real) profits for an intermediate producer become
 In addition to the capital-labor choice, firms also have the chance to reset prices in every period with probability $1 - \theta$. This problem can be
 written as
 \begin{align*}
-  \max_{P_t(j)} \E_t\sum_{s = 0}^\infty(\beta \theta)^s\frac{\exp(\eta_{\beta, t + s})}{\exp(\eta_{\beta, t})}\frac{u'(C_{t + s})}{u'(C_t)}\left(\frac{P_t(j)}{P_{t + s}}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - mc_{t + s}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s}\right),
+  \max_{P_t(j)} \E_t\sum_{s = 0}^\infty(\beta \theta)^s\frac{\prod_{q = 1}^s \exp(\eta_{\beta, t + q})}{\exp(\eta_{\beta, t})}\frac{u'(C_{t + s})}{u'(C_t)}\left(\frac{P_t(j)}{P_{t + s}}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - MC_{t + s}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s}\right),
 \end{align*}
 where I have imposed that intermediate output equals demand. The first-order condition is
 \begin{align*}
-0 & =  (1 - \epsilon)P_t(j)^{-\epsilon}\E_t\sum_{s = 0}^\infty (\beta\theta)^s \frac{\exp(\eta_{\beta, t + s})}{\exp(\eta_{\beta, t})}\frac{u'(C_{t + s})}{u'(C_t)}(P_{t + s})^{-(1 - \epsilon)}Y_{t + s}\\
-  &\quad + \epsilon P_t(j)^{-\epsilon - 1}\E_t\sum_{s = 0}^\infty (\beta\theta)^s \frac{\exp(\eta_{\beta, t + s})}{\exp(\eta_{\beta, t})}\frac{u'(C_{t + s})}{u'(C_t)} mc_{t + s}P_{t + s}^{\epsilon}Y_{t + s}
+0 & =  (1 - \epsilon)P_t(j)^{-\epsilon}\E_t\sum_{s = 0}^\infty (\beta\theta)^s \frac{\prod_{q = 1}^s\exp(\eta_{\beta, t + q})}{\exp(\eta_{\beta, t})}\frac{u'(C_{t + s})}{u'(C_t)}(P_{t + s})^{-(1 - \epsilon)}Y_{t + s}\\
+  &\quad + \epsilon P_t(j)^{-\epsilon - 1}\E_t\sum_{s = 0}^\infty (\beta\theta)^s \frac{\prod_{q = 1}^s \exp(\eta_{\beta, t + q})}{\exp(\eta_{\beta, t})}\frac{u'(C_{t + s})}{u'(C_t)} MC_{t + s}P_{t + s}^{\epsilon}Y_{t + s}
 \end{align*}
 Divide by $P_t(j)^{-\epsilon} / (\exp(\eta_{\beta, t})u'(C_t))$, apply the abuse of notation that $\prod_{u = 1}^0 \Pi_{t + u} = 1$, and re-arrange to obtain
 \begin{align*}
-  P_t(j) & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s}) mc_{t + s}P_{t + s}^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s})P_{t + s}^{\epsilon - 1}Y_{t + s}}\\
-         & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s}) mc_{t + s}P_t^\epsilon\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s})P_t^{\epsilon - 1}\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon - 1}Y_{t + s}}\\
-  \frac{P_t(j)}{P_t} & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s}) mc_{t + s}\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s})\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon - 1}Y_{t + s}}.
+  P_t(j) & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \prod_{q = 1}^s \exp(\eta_{\beta, t + q})u'(C_{t + s}) MC_{t + s}P_{t + s}^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \prod_{q = 1}^s \exp(\eta_{\beta, t + q})u'(C_{t + s})P_{t + s}^{\epsilon - 1}Y_{t + s}}\\
+         & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \prod_{q = 1}^s \exp(\eta_{\beta, t + q})u'(C_{t + s}) MC_{t + s}P_t^\epsilon\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \prod_{q = 1}^s \exp(\eta_{\beta, t + q})u'(C_{t + s})P_t^{\epsilon - 1}\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon - 1}Y_{t + s}}\\
+  \frac{P_t(j)}{P_t} & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \prod_{q = 1}^s \exp(\eta_{\beta, t + q})u'(C_{t + s}) MC_{t + s}\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \prod_{q = 1}^s \exp(\eta_{\beta, t + q})u'(C_{t + s})\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon - 1}Y_{t + s}}.
 \end{align*}
 This expression gives the optimal (real) reset price $P_t^* \equiv P_t(j) / P_t $ (note that the RHS does not depend on $j$).
 Define
 \begin{align*}
-  S_{1, t} & = \E_t\sum_{s = 0}^\infty  (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s}) mc_{t + s}Y_{t + s}\left( \prod_{u = 1}^s\Pi_{t + s}\right)^{\epsilon},\\
-  S_{2, t}  & = \E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s})Y_{t + s}\left(\prod_{u = 1}^s\Pi_{t + s}\right)^{\epsilon - 1}.
+  S_{1, t} & = \E_t\sum_{s = 0}^\infty  (\beta\theta)^s \prod_{u = 1}^s \exp(\eta_{\beta, t + u})u'(C_{t + s}) MC_{t + s}Y_{t + s}\left( \prod_{u = 1}^s\Pi_{t + s}\right)^{\epsilon},\\
+  S_{2, t}  & = \E_t\sum_{s = 0}^\infty (\beta\theta)^s \prod_{u = 1}^s \exp(\eta_{\beta, t + u})u'(C_{t + s})Y_{t + s}\left(\prod_{u = 1}^s\Pi_{t + s}\right)^{\epsilon - 1}.
 \end{align*}
 Using these definitions, I may write the optimal reset price more compactly as
 \begin{align*}
@@ -549,7 +549,7 @@ Equation (\ref{eq:mc soln eqm}) remains as it is but with time subscripts remove
 \end{align*}
 From (\ref{eq:denominator recursion eqm}),
 \begin{align*}
-  \tilde{S}_2 & = Y + \theta\beta \Pi^{\epsilon - 1}\tilde{S}_2 \Rightarrow \tilde{S}_1 = \frac{Y}{1 - \theta\beta \Pi^{\epsilon - 1}}.
+  \tilde{S}_2 & = Y + \theta\beta \Pi^{\epsilon - 1}\tilde{S}_2 \Rightarrow \tilde{S}_2 = \frac{Y}{1 - \theta\beta \Pi^{\epsilon - 1}}.
 \end{align*}
 Thus,
 \begin{align*}
