@@ -98,7 +98,7 @@ To calculate the remaining term, note that ``\mathbb{E}_{t}\xi_{t + 1} = p_t`` i
 at ``z_t``, hence
 ```math
 \begin{aligned}
-\log\mathbb{E}_t[\exp(A_{i3}(z_t) \varepsilon_{t + 1}^\xi)] = \log\left[\frac{1}{\exp(A_{i3}(z_t) p_t)}\mathbb{E}_t\left[\exp(A_{i3}(z_t) \xi_t)\right]\right] = \log\mathbb{E}_t\left[\exp(A_{i3}(z_t) \xi_t)\right] - A_{i3}(z_t) p_t.
+\log\mathbb{E}_t[\exp(A_{i3}(z_t) \varepsilon_{t + 1}^\xi)] = \log\left[\frac{1}{\exp(A_{i3}(z_t) p_t)}\mathbb{E}_t\left[\exp(A_{i3}(z_t) \xi_{t + 1})\right]\right] = \log\mathbb{E}_t\left[\exp(A_{i3}(z_t) \xi_{t + 1})\right] - A_{i3}(z_t) p_t.
 \end{aligned}
 ```
 
@@ -136,7 +136,7 @@ M_{j_t}(s) = \exp((\exp(s) - 1) p_t).
 Thus, as desired,
 ```math
 \begin{aligned}
-\log\mathbb{E}_t\left[\exp(A_{i3}(z_t) \xi_t)\right] - A_{i3}(z_t) p_t & = (\exp(A_{i3}(z_t)  + A_{i3}(z_t)^2\delta^2) - 1)p_t - A_{i3}(z_t) p_t.
+\log\mathbb{E}_t\left[\exp(A_{i3}(z_t) \xi_{t + 1})\right] - A_{i3}(z_t) p_t & = (\exp(A_{i3}(z_t)  + A_{i3}(z_t)^2\delta^2) - 1)p_t - A_{i3}(z_t) p_t.
 \end{aligned}
 ```
 Computing this quantity for each expectational equation yields the `ccgf` used in the [Wachter (2013) Example](@ref example).
