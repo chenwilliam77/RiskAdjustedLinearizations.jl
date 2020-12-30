@@ -26,6 +26,7 @@
 \usepackage{xfrac}
 \usepackage{hyperref}
 \usepackage{bbm}
+\allowdisplaybreaks
 \let\oldemptyset\emptyset
 \let\emptyset\varnothing
 \newtheorem*{thm}{Theorem}
@@ -188,7 +189,6 @@
 \newcommand{\ra}{\rightarrow}
 \newcommand{\fd}{\vspace{2.5mm}}
 \newcommand{\ds}{\vspace{1mm}}
-\setlength{\parindent}{24pt}
 \begin{document}
 These notes present a representative agent New Keynesian model with Epstein-Zin preferences and disaster shocks and borrow from Fern{\'a}ndez-Villaverde and Levintal (2018) ``Solution Methods for Models with Rare Disasters'', Kekre and Lenel (2020) ``Monetary Policy, Redistribution, and Risk Premia'', and de Groot et al. (2020) ``Valuation Risk Revalued.''
 
@@ -208,9 +208,9 @@ the labor disutility function\footnote{This functional form is proposed by Shime
 where $\eta_{l, t}$ is a shock to labor disutility, $\overline{\nu}$ is the disutility of labor, $\nu$ is the inverse Frisch elasticity
 subject to the budget constraint
 \begin{align}\label{eq:hh budget constraint}
-  C_t + \frac{B_t}{P_t} + Q_tK_t & \leq W_t L_t + (R_{k, t} + (1 - \delta)Q_t)\exp(\eta_{k, t}) K_{t - 1} + R_{t - 1} \frac{B_{t - 1}}{P_t} + F_t + T_t.
+  C_t + \frac{B_t}{P_t} + Q_tK_t & \leq W_t L_t + (R_{k, t} + (1 - \delta +  R_{q, t})Q_t)\exp(\eta_{k, t}) K_{t - 1} + R_{t - 1} \frac{B_{t - 1}}{P_t} + F_t + T_t.
 \end{align}
-The quantity $P_t$ is the price of the final consumption good, $Q_t$ the real price of capital, $W_t$ the real wage, $R_{k, t}$ the gross real rental rate on capital, $\delta$ the rate of capital depreciation, $\eta_{k, t}$ a disaster shock,\footnote{I follow Kekre and Lenel (2020)'s specifications of the disaster shock, but I could also define an intermediate variable $\hat{K}_t$ and set $K_t = \hat{K}_t \exp(\eta_{k, t})$, following Fern{\'a}ndez-Villaverde and Levintal (2018).} $R_t$ the gross nominal interest rate on bonds, $F_t$ real profits from intermediate firms, and $T_t$ real lump-sum transfers from the government. The budget constraint (\ref{eq:hh budget constraint}) indicates that households can choose to consume, save in bonds, or invest in units of the capital stock from income through labor, capital, bonds, intermediate firms, and government transfers. Markets are assumed complete, but securities are in zero net supply. Because there is a representative agent, I may omit the Arrow securities from the budget constraint.
+The quantity $P_t$ is the price of the final consumption good, $Q_t$ the real price of capital, $W_t$ the real wage, $R_{k, t}$ the gross real rental rate on capital, $\delta$ the rate of capital depreciation, $\eta_{k, t}$ a disaster shock,\footnote{I follow Kekre and Lenel (2020)'s specifications of the disaster shock, but I could also define an intermediate variable $\hat{K}_t$ and set $K_t = \hat{K}_t \exp(\eta_{k, t})$, following Fern{\'a}ndez-Villaverde and Levintal (2018).} $R_{q, t}$ the returns from selling capital to capital producers, $R_t$ the gross nominal interest rate on bonds, $F_t$ real profits from intermediate firms, and $T_t$ real lump-sum transfers from the government. The budget constraint (\ref{eq:hh budget constraint}) indicates that households can choose to consume, save in bonds, or invest in units of the capital stock from income through labor, capital, bonds, intermediate firms, and government transfers. Markets are assumed complete, but securities are in zero net supply. Because there is a representative agent, I may omit the Arrow securities from the budget constraint.
 
 My notation treats $B_{t - 1}$ and $K_{t - 1}$ as the stocks of bonds and capital present at time $t$, while $B_t$ and $K_t$ are the chosen stocks of bonds and capital for the following period. I adopt this notation so that all time $t$ choices are dated at time $t$ rather than having to differentiate between the predetermined time-$t$ variables from the endogenous controls.
 
@@ -219,7 +219,7 @@ Solving the household's problem is the same as solving the maximization problem
 \begin{align}
   \begin{split}
   &V_t = \max_{C_t, L_t, B_t, K_t} \left((1 - \exp(\eta_{\beta, t})\beta)\left(C_t \calL(L_t)\right)^{1 - \psi} + \exp(\eta_{\beta, t})\beta \E_t\left[\left(V_{t + 1}\right)^{1 - \gamma}\right]^{\frac{1 - \psi}{1 - \gamma}}\right)^{\frac{1}{1 - \psi}}\\
-  & \quad + \lambda_t \left(W_t L_t + (R_{k, t} + (1 - \delta)Q_t)\exp(\eta_{k, t})K_{t - 1} + R_{t - 1} \frac{B_{t - 1}}{P_t} + F_t + T_t\right)\\
+  & \quad + \lambda_t \left(W_t L_t + (R_{k, t} + (1 - \delta + R_{q, t})Q_t)\exp(\eta_{k, t})K_{t - 1} + R_{t - 1} \frac{B_{t - 1}}{P_t} + F_t + T_t\right)\\
   &\quad - \lambda_t\left(C_t + \frac{B_t}{P_t} + Q_tK_t\right).
   \end{split}
 \end{align}
@@ -227,13 +227,13 @@ Define $\hat{V}_t = V_t^{1 - \psi}$, and conjecture that $V_t$ is a function of 
 \begin{align*}
   0 & = \frac{1}{1 - \psi}\hat{V}_t^{\frac{\psi}{1 - \psi}} (1 - \exp(\eta_{\beta, t})\beta) (1 - \psi)C_t^{-\psi} \calL(L_t)^{1 - \psi} - \lambda_t\\
   0 & = \frac{1}{1 - \psi}\hat{V}_t^{\frac{\psi}{1 - \psi}}(1 - \exp(\eta_{\beta, t})\beta)(1 - \psi)C_t^{1 - \psi}\calL(L_t)^{-\psi}\frac{\partial}{\partial L}\calL(L_t) + \lambda_tW_t\\
-  0 & = \frac{1}{1 - \psi}\hat{V}_t^{\frac{\psi}{1 - \psi}}\exp(\eta_{\beta, t})\beta \frac{1 - \psi}{1 - \gamma}\E_t[(V_{t + 1})^{1 - \gamma}]^{\frac{\gamma - \psi}{1 - \gamma}} (1 - \gamma)\E_t\left[V_{t + 1}^{ - \gamma}\frac{\partial V_{t + 1}}{\partial B_t}\right] - \frac{\lambda_t}{P_t},\\
-  0 & = \frac{1}{1 - \psi}\hat{V}_t^{\frac{\psi}{1 - \psi}}\exp(\eta_{\beta, t})\beta \frac{1 - \psi}{1 - \gamma}\E_t[(V_{t + 1})^{1 - \gamma}]^{\frac{\gamma - \psi}{1 - \gamma}} (1 - \gamma)\E_t\left[V_{t + 1}^{ - \gamma}\frac{\partial V_{t + 1}}{\partial K_t}\right] - \lambda_t Q_t.
+  0 & = \frac{1}{1 - \psi}\hat{V}_t^{\frac{\psi}{1 - \psi}}\exp(\eta_{\beta, t})\beta \frac{1 - \psi}{1 - \gamma}\E_t[V_{t + 1}^{1 - \gamma}]^{\frac{\gamma - \psi}{1 - \gamma}} (1 - \gamma)\E_t\left[V_{t + 1}^{ - \gamma}\frac{\partial V_{t + 1}}{\partial B_t}\right] - \frac{\lambda_t}{P_t},\\
+  0 & = \frac{1}{1 - \psi}\hat{V}_t^{\frac{\psi}{1 - \psi}}\exp(\eta_{\beta, t})\beta \frac{1 - \psi}{1 - \gamma}\E_t[V_{t + 1}^{1 - \gamma}]^{\frac{\gamma - \psi}{1 - \gamma}} (1 - \gamma)\E_t\left[V_{t + 1}^{ - \gamma}\frac{\partial V_{t + 1}}{\partial K_t}\right] - \lambda_t Q_t.
 \end{align*}
 The envelope conditions for  $B_{t - 1}$ and  $K_{t - 1}$ are
 \begin{align*}
   \frac{\partial V_t}{\partial B_{t - 1}} & = \lambda_t\frac{R_{t - 1}}{P_t},\\
-  \frac{\partial V_t}{\partial K_{t - 1}} & = \lambda_t(R_{k, t} + (1 - \delta)Q_t)\exp(\eta_{k, t}).
+  \frac{\partial V_t}{\partial K_{t - 1}} & = \lambda_t(R_{k, t} + (1 - \delta + R_{q, t})Q_t)\exp(\eta_{k, t}).
 \end{align*}
 The first two first-order conditions can be combined by isolating $\lambda_t$, which obtains the intratemporal consumption-labor condition
 \begin{align*}
@@ -296,34 +296,97 @@ Using these definitions, the Euler equation for bonds becomes
 \end{align}
 Households' asset pricing equation for capital can be obtained using similar steps and will take the familiar form from consumption-based asset pricing. Iterate the envelope condition for $K_{t - 1}$ forward by one period.
 \begin{align*}
-  \frac{\partial V_{t + 1}}{\partial K_t} = \lambda_{t + 1}(R_{K, t + 1} + (1 - \delta) Q_{t + 1})\exp(\eta_{k, t + 1}).
+  \frac{\partial V_{t + 1}}{\partial K_t} = \lambda_{t + 1}(R_{k, t + 1} + (1 - \delta + R_{q, t + 1}) Q_{t + 1})\exp(\eta_{k, t + 1}).
 \end{align*}
 Substitute this expression and other quantities derived previously into the fourth first-order condition.
 \begin{align*}
-  0 & = V_t^{\psi}\exp(\eta_{\beta, t})\beta \calC\calE_t^{\gamma - \psi}\E_t\left[V_{t + 1}^{-\gamma}\lambda_{t + 1}(R_{K, t + 1} + (1 - \delta) Q_{t + 1})\exp(\eta_{k, t + 1})\right] - \lambda_tQ_t.
+  0 & = V_t^{\psi}\exp(\eta_{\beta, t})\beta \calC\calE_t^{\gamma - \psi}\E_t\left[V_{t + 1}^{-\gamma}\lambda_{t + 1}(R_{k, t + 1} + (1 - \delta + R_{q, t + 1}) Q_{t + 1})\exp(\eta_{k, t + 1})\right] - \lambda_tQ_t.
 \end{align*}
 Divide by $\lambda_t$ and plug in $\lambda_{t + 1} / \lambda_t$.
 \begin{align*}
   0 & = V_t^{\psi}\exp(\eta_{\beta, t})\beta \calC\calE_t^{\gamma - \psi}\\
-    &\quad\times\E_t\left[\frac{V_{t + 1}^{\psi - \gamma} (1 - \exp(\eta_{\beta, t + 1})\beta)C_{t + 1}^{-\psi}\calL(L_{t + 1})^{1 - \psi}}{V_t^{\psi}(1 - \exp(\eta_{\beta, t})\beta)C_t^{-\psi} \calL(L_t)^{1 - \psi}}(R_{K, t + 1} + (1 - \delta) Q_{t + 1})\exp(\eta_{k, t + 1})\right] - Q_t\\
-    & = \E_t\left[M_{t, t + 1}(R_{K, t + 1} + (1 - \delta)Q_{t + 1})\exp(\eta_{k, t + 1})\right] - Q_t\\
-  Q_t & = \E_t\left[M_{t, t + 1}(R_{K, t + 1} + (1 - \delta)Q_{t + 1})\exp(\eta_{k, t + 1})\right].
+    &\quad\times\E_t\left[\frac{V_{t + 1}^{\psi - \gamma} (1 - \exp(\eta_{\beta, t + 1})\beta)C_{t + 1}^{-\psi}\calL(L_{t + 1})^{1 - \psi}}{V_t^{\psi}(1 - \exp(\eta_{\beta, t})\beta)C_t^{-\psi} \calL(L_t)^{1 - \psi}}(R_{k, t + 1} + (1 - \delta + R_{q, t + 1}) Q_{t + 1})\exp(\eta_{k, t + 1})\right] - Q_t\\
+    & = \E_t\left[M_{t, t + 1}(R_{k, t + 1} + (1 - \delta)Q_{t + 1})\exp(\eta_{k, t + 1})\right] - Q_t\\
+  Q_t & = \E_t\left[M_{t, t + 1}(R_{k, t + 1} + (1 - \delta)Q_{t + 1})\exp(\eta_{k, t + 1})\right].
 \end{align*}
+Finally, because $V_t$ is defined recursively, I can express households' preferences as a forward-looking difference equation. The value function $V_t$ is homogeneous of degree 1 in $C_t$ and $V_{t + 1}$. By Euler's Theorem,
+\begin{align}\label{eq:ez prefs euler theorem}
+  V_t & = \frac{\partial V_t}{\partial C_t}C_t + \E_t\left[\frac{\partial V_t}{\partial V_{t + 1}}V_{t + 1}\right].
+\end{align}
+The derivatives in this expression are, after simplification,
+\begin{align*}
+  \frac{\partial V_t}{\partial C_t} & = V_t^\psi(1 - \exp(\eta_{\beta, t})\beta) C_t^{-\psi}\calL(L_t)^{1 - \psi},\\
+  \frac{\partial V_t}{\partial V_{t + 1}} & = V_t^\psi\exp(\eta_{\beta, t})\beta \E_t[V_{t + 1}^{1 - \gamma}]^{\frac{\gamma - \psi}{1 - \gamma}}V_{t + 1}^{ - \gamma}.
+\end{align*}
+It is easy to verify this claim is true by direct calculation. Since $\E_t[V_{t + 1}^{1 - \gamma}]$ is $t$-measurable,
+\begin{align*}
+  \E_t\left[\frac{\partial V_t}{\partial V_{t + 1}}V_{t + 1}\right] & = \E_t\left[V_t^\psi\exp(\eta_{\beta, t})\beta \E_t[V_{t + 1}^{1 - \gamma}]^{\frac{\gamma - \psi}{1 - \gamma}} V_{t + 1}^{1 - \gamma}\right]\\
+                                                                    & = V_t^\psi\exp(\eta_{\beta, t})\beta \E_t[V_{t + 1}^{1 - \gamma}]^{\frac{\gamma - \psi}{1 - \gamma}}\E_t[V_{t + 1}^{1 - \gamma}]\\
+                                                                    & = V_t^\psi\exp(\eta_{\beta, t})\beta \E_t[V_{t + 1}^{1 - \gamma}]^{\frac{1 - \psi}{1 - \gamma}}.
+\end{align*}
+Further algebraic manipulation verifies the claim.
+
+To obtain a forward difference equation, define
+\begin{align}
+  \Omega_t & = \frac{V_t}{\partial V_t /\partial C_t}.
+\end{align}
+Given this definition, (\ref{eq:ez prefs euler theorem}) becomes
+\begin{align*}
+  \Omega_t & = C_t + \E_t\left[\frac{\partial V_t}{\partial V_{t + 1}}\frac{1}{\partial V_t / \partial C_t}V_{t + 1}\right]\\
+  & = C_t + \E_t\left[\frac{\partial V_{t + 1} / \partial C_{t + 1}}{\partial V_t / \partial C_t}\frac{\partial V_t}{\partial V_{t + 1}}\frac{V_{t + 1}}{\partial V_{t + 1} / \partial C_{t + 1}}\right].
+\end{align*}
+Notice that
+\begin{align*}
+  \frac{\partial V_{t + 1} / \partial C_{t + 1}}{\partial V_t / \partial C_t} \frac{\partial V_t}{\partial V_{t + 1}} & = \frac{V_{t + 1}^\psi (1 - \exp(\eta_{\beta, t + 1})\beta)C_{t + 1}^{ - \psi}\calL(L_{t + 1})^{1 - \psi}}{V_t^\psi(1 - \exp(\eta_{\beta, t})\beta) C_t^{-\psi}\calL(L_t)^{1 - \psi}} \\
+                                                                                                                      &\quad \times V_t^\psi\exp(\eta_{\beta, t})\beta \E_t[V_{t + 1}^{1 - \gamma}]^{\frac{\gamma - \psi}{1 - \gamma}}V_{t + 1}^{ - \gamma}\\
+                                                                                                                      & = \exp(\eta_{\beta, t})\beta\frac{ (1 - \exp(\eta_{\beta, t + 1})\beta)C_{t + 1}^{ - \psi}\calL(L_{t + 1})^{1 - \psi}}{(1 - \exp(\eta_{\beta, t})\beta) C_t^{-\psi}\calL(L_t)^{1 - \psi}}\left(\frac{V_{t + 1}}{\calC\calE_t}\right)^{\psi - \gamma}\\
+                                                                                                                      & = M_{t, t + 1}.
+\end{align*}
+Therefore, (\ref{eq:ez prefs euler theorem}) simplifies to
+\begin{align}\label{eq:ez prefs euler theorem forward difference}
+  \Omega_t & = C_t + \E_t[M_{t, t + 1} \Omega_{t + 1}],
+\end{align}
+which is a forward difference equation in $\Omega_t$. This expression also shows that $\Omega_t$ may be interpreted as wealth because it is the price of a claim to consumption.
+
+The equations defining the value function $V_t$ and certainty equivalent $\calC\calE_t$ can also be rewritten using $\Omega_t$. Observe that
+\begin{align*}
+  V_t^\psi \exp(\eta_{\beta, t})\beta \calC\calE_t^{1 - \psi} & = \E_t\left[\frac{\partial V_t}{\partial V_{t + 1}}V_{t + 1}\right] = V_t - \frac{\partial V_t}{\partial C_t}C_t = \frac{\partial V_t}{\partial C_t}(\Omega_t - C_t)\\
+                                                              & = V_t^\psi (1 - \exp(\eta_{\beta, t})\beta)C_t^{ - \psi}\calL(L_t)^{1 - \psi}(\Omega_t - C_t)\\
+  \calC\calE_t & = \left(\frac{1 - \exp(\eta_{\beta, t})\beta}{\exp(\eta_{\beta, t})\beta}(\calC_t\calL(L_t))^{1 - \psi}\left(\frac{\Omega_t}{C_t} - 1\right)\right)^{\frac{1}{1 - \psi}}.
+\end{align*}
+Plug this version of $\calC\calE_t$ into the definition of the value function to acquire
+\begin{align*}
+  V_t & = \left((1 - \exp(\eta_{\beta, t})\beta)(C_t\calL(L_t))^{1 - \psi} + \exp(\eta_{\beta, t})\beta \frac{1 - \exp(\eta_{\beta, t})\beta}{\exp(\eta_{\beta, t})\beta}(\calC_t\calL(L_t))^{1 - \psi}\left(\frac{\Omega_t}{C_t} - 1\right)\right)^{\frac{1}{1 - \psi}}\\
+      & = C_t \calL(L_t) \left((1 - \exp(\eta_{\beta, t})\beta)\frac{\Omega_t}{C_t}\right)^{\frac{1}{1 - \psi}}.
+\end{align*}
+In light of these formulas, it will be convenient to define
+\begin{align}
+  \tilde{V}_t & = \frac{V_t}{C_t\calL(L_t)}, \quad \tilde{\calC\calE}_t = \frac{\calC\calE_t}{C_t\calL(L_t)}, \quad \tilde{\Omega}_t = \frac{\Omega_t}{C_t}.
+\end{align}
+These transformations adjust the definition of the stochastic discount factor to become
+\begin{align*}
+  M_{t, t + 1} & = \exp(\eta_{\beta, t})\beta\frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{C_{t + 1}^{ - \psi} \calL(L_{t + 1})^{1 - \psi}}{C_t^{- \psi} \calL(L_t)^{1 - \psi}}\left(\frac{\tilde{V}_{t + 1} C_{t + 1}\calL(L_{t + 1})}{\tilde{\calC\calE}_t C_t\calL(L_t)}\right)^{ \psi - \gamma}\\
+               & = \exp(\eta_{\beta, t})\beta\frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{C_{t + 1}^{- \gamma } \calL(L_{t + 1})^{1 - \gamma}}{C_t^{-\gamma} \calL(L_t)^{1 - \gamma}}\left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{ \psi - \gamma}.
+\end{align*}
+
 In summary, households' optimality conditions are
 \begin{align}
-  \label{eq:epstein zin recursion}
-  V_t & = \left((1 - \exp(\eta_{\beta, t})\beta) (C_t\calL(L_t))^{1 - \psi} + \exp(\eta_{\beta, t})\beta \calC\calE_t^{1 - \psi}\right)^{\frac{1}{1 - \psi}}\\
-  \calC\calE_t & = \E_t[V_{t + 1}^{1 - \gamma}]^{\frac{1}{1 - \gamma}},\\
+  \label{eq:epstein zin defn}
+  \tilde{V}_t & = ((1 - \exp(\eta_{\beta, t})\beta)\tilde{\Omega}_t)^{\frac{1}{1 - \psi}},\\
+  \label{eq:certainty equivalent}
+  \tilde{\calC\calE}_t & = \left(\frac{1 - \exp(\eta_{\beta, t})\beta}{\exp(\eta_{\beta, t})\beta}(\tilde{\Omega}_t - 1)\right)^{\frac{1}{1 - \psi}},\\
+  \label{eq:epstein zin wealth recursion}
+  \tilde{\Omega}_t & = 1 + \E_t\left[M_{t, t + 1}\frac{C_{t + 1}}{C_t}\tilde{\Omega}_{t + 1}\right],\\
+  \label{eq:stochastic discount factor}
+  M_{t, t + 1} & = \exp(\eta_{\beta, t})\beta\frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{C_{t + 1}^{- \gamma } \calL(L_{t + 1})^{1 - \gamma}}{C_t^{-\gamma} \calL(L_t)^{1 - \gamma}}\left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{ \psi - \gamma},\\
   \label{eq:intratemporal consumption labor}
-  W_t & = \frac{\psi \exp(\eta_{l, t})\overline{\nu} C_t L_t^\nu}{\calL(L_t)^{\frac{\psi - 1}{\psi}}},\\
+  W_t & = \frac{\psi \exp(\eta_{l, t})\overline{\nu} C_t L_t^\nu}{\calL(L_t)^{\frac{1 - \psi}{\psi}}},\\
   \label{eq:labor disutility function}
   \calL(L_t) & = \left(1 + (\psi - 1)\exp(\eta_{l, t})\overline{\nu}\frac{L_t^{1 + \nu}}{1 + \nu}\right)^{\frac{\psi}{1-\psi}},\\
-  \label{eq:stochastic discount factor}
-  M_{t, t + 1} & = \exp(\eta_{\beta, t})\beta\frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta}\frac{C_{t + 1}^{-\psi}\calL(L_{t + 1})^{1 - \psi}}{C_t^{-\psi}\calL(L_t)^{1 - \psi}}\left(\frac{V_{t + 1}}{\calC\calE_t}\right)^{\psi - \gamma},\\
   \label{eq:euler eqn}
   1 & = \E_t\left[M_{t, t + 1}\frac{R_t}{\Pi_{t + 1}}\right],\\
   \label{eq:capital asset pricing}
-  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{K, t + 1} + (1 - \delta)Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right].
+  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{k, t + 1} + (1 - \delta + R_{q, t + 1})Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right].
 \end{align}
 
 
@@ -406,48 +469,45 @@ It follows that
 \end{align*}
 Therefore, (real) profits for an intermediate producer become
 \begin{align}
-  F_t(j) = \frac{P_t(j)}{P_t}Y_t(j) - MC_t Y_t(j) - \kappa_y \exp(\eta_{a, t}).
+  \frac{P_t(j)}{P_t}Y_t(j) - MC_t Y_t(j) - \kappa_y \exp(\eta_{a, t}).
 \end{align}
 In addition to the capital-labor choice, firms also have the chance to reset prices in every period with probability $1 - \theta$. This problem can be
 written as
 \begin{align}
   \begin{split}
-  &\max_{P_t(j)} \E_t\sum_{s = 0}^\infty(\beta \theta)^s\frac{\exp(\eta_{\beta, t + s})}{\exp(\eta_{\beta, t})}\frac{u'(C_{t + s})}{u'(C_t)}\\
-&\quad \times\left(\frac{P_t(j)}{P_{t + s}}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - mc_{t + s}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - \kappa_y\exp(\eta_{a, t})\right),
+  &\max_{P_t(j)} \E_t\sum_{s = 0}^\infty\theta^sM_{t, t + s}\left(\frac{P_t(j)}{P_{t + s}}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - MC_{t + s}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - \kappa_y\exp(\eta_{a, t})\right),
   \end{split}
 \end{align}
-where I have imposed that intermediate output equals demand. The first-order condition is
+where I have imposed that intermediate output equals demand. The quantity $M_{t, t + s}$ is the stochastic discount factor between periods $t$ and $t + s$ and is given by
+\begin{align}
+  M_{t, t + s} & = \frac{\beta^s \prod_{u = 1}^s\exp(\eta_{\beta, t + u})}{\exp(\eta_{\beta, t})}\frac{\partial V_{t + u} / \partial C_{t + s}}{\partial V_t / \partial C_t} \prod_{u = 1}^s \frac{\partial V_{t + u - 1}}{\partial V_{t + u}},
+\end{align}
+with the boundary condition $M_{t, t} = 1$. The first-order condition is
 \begin{align*}
-0 & =  (1 - \epsilon)P_t(j)^{-\epsilon}\E_t\sum_{s = 0}^\infty (\beta\theta)^s \frac{\exp(\eta_{\beta, t + s})}{\exp(\eta_{\beta, t})}\frac{u'(C_{t + s})}{u'(C_t)}(P_{t + s})^{-(1 - \epsilon)}Y_{t + s}\\
-  &\quad + \epsilon P_t(j)^{-\epsilon - 1}\E_t\sum_{s = 0}^\infty (\beta\theta)^s \frac{\exp(\eta_{\beta, t + s})}{\exp(\eta_{\beta, t})}\frac{u'(C_{t + s})}{u'(C_t)} mc_{t + s}P_{t + s}^{\epsilon}Y_{t + s}
+0 & =  (1 - \epsilon)P_t(j)^{-\epsilon}\E_t\sum_{s = 0}^\infty \theta^s M_{t, t + s}(P_{t + s})^{-(1 - \epsilon)}Y_{t + s}\\
+  &\quad + \epsilon P_t(j)^{-\epsilon - 1}\E_t\sum_{s = 0}^\infty \theta^s M_{t, t + s} MC_{t + s}P_{t + s}^{\epsilon}Y_{t + s}
 \end{align*}
-Divide by $P_t(j)^{-\epsilon} / (\exp(\eta_{\beta, t})u'(C_t))$, apply the abuse of notation that $\prod_{u = 1}^0 \Pi_{t + u} = 1$, and re-arrange to obtain
+Divide by $P_t(j)^{-\epsilon}$, apply the abuse of notation that $\prod_{u = 1}^0 \Pi_{t + u} = 1$, and re-arrange to obtain
 \begin{align*}
-  P_t(j) & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s}) mc_{t + s}P_{t + s}^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s})P_{t + s}^{\epsilon - 1}Y_{t + s}}\\
-         & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s}) mc_{t + s}P_t^\epsilon\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s})P_t^{\epsilon - 1}\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon - 1}Y_{t + s}}\\
-  \frac{P_t(j)}{P_t} & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s}) mc_{t + s}\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s})\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon - 1}Y_{t + s}}.
+  P_t(j) & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty\theta^s M_{t, t + s} MC_{t + s}P_{t + s}^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty \theta^s M_{t, t + s} P_{t + s}^{\epsilon - 1}Y_{t + s}}\\
+         & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty \theta^s M_{t, t + s} MC_{t + s}P_t^\epsilon\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty \theta^s M_{t, t + s}P_t^{\epsilon - 1}\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon - 1}Y_{t + s}}\\
+  \frac{P_t(j)}{P_t} & = \frac{\epsilon}{\epsilon - 1}\frac{\E_t\sum_{s = 0}^\infty \theta^s M_{t, t + s} MC_{t + s}\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon}Y_{t + s}}{\E_t\sum_{s = 0}^\infty \theta^s M_{t, t + s}\left(\prod_{u = 1}^s\Pi_{t + u}\right)^{\epsilon - 1}Y_{t + s}}.
 \end{align*}
 This expression gives the optimal (real) reset price $P_t^* \equiv P_t(j) / P_t $ (note that the RHS does not depend on $j$).
 Define
 \begin{align}
-  \overline{S}_{1, t} & = \E_t\sum_{s = 0}^\infty  (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s}) mc_{t + s}Y_{t + s}\left( \prod_{u = 1}^s\Pi_{t + s}\right)^{\epsilon},\\
-  \overline{S}_{2, t}  & = \E_t\sum_{s = 0}^\infty (\beta\theta)^s \exp(\eta_{\beta, t + s})u'(C_{t + s})Y_{t + s}\left(\prod_{u = 1}^s\Pi_{t + s}\right)^{\epsilon - 1}.
+  S_{1, t} & = \E_t\sum_{s = 0}^\infty  \theta^s M_{t, t + s} MC_{t + s}Y_{t + s}\left( \prod_{u = 1}^s\Pi_{t + s}\right)^{\epsilon},\\
+  S_{2, t}  & = \E_t\sum_{s = 0}^\infty \theta^s M_{t, t + s}Y_{t + s}\left(\prod_{u = 1}^s\Pi_{t + s}\right)^{\epsilon - 1}.
 \end{align}
 Using these definitions, I may write the optimal reset price more compactly as
 \begin{align}
-  P_t^* & = \frac{\epsilon}{\epsilon - 1}\frac{\overline{S}_{1, t}}{\overline{S}_{2, t}}
+  P_t^* & = \frac{\epsilon}{\epsilon - 1}\frac{S_{1, t}}{S_{2, t}}
 \end{align}
-where $\overline{S}_{1, t}$ and $\overline{S}_{2, t}$ satisfy the recursions
-\begin{align*}
-  \overline{S}_{1, t} & = \exp(\eta_{\beta, t})u'(C_t) MC_t Y_t + \theta \beta \E_t\Pi_{t + s}^\epsilon \overline{S}_{1, t + 1}\\
-  \overline{S}_{2, t} & = \exp(\eta_{\beta, t})u'(C_t) Y_t + \theta \beta \E_t \Pi_{t + s}^{\epsilon - 1}\overline{S}_{2, t + 1}.
-\end{align*}
-These recursions can be further rewritten as
-\begin{align*}
-  \frac{\overline{S}_{1, t}}{\exp(\eta_{\beta, t})u'(C_t)} & =  MC_t Y_t + \theta \beta \E_t\left[\frac{\exp(\eta_{\beta, t + 1}) u'(C_{t + 1})}{\exp(\eta_{\beta, t}) u'(C_t)}\Pi_{t + s}^\epsilon \frac{\overline{S}_{1, t + 1}}{\exp(\eta_{\beta, t + 1})u'(C_{t + 1})}\right]\\
-  \frac{\overline{S}_{2, t}}{\exp(\eta_{\beta, t})u'(C_t)} & =  Y_t + \theta \beta \E_t\left[\frac{\exp(\eta_{\beta, t + 1}) u'(C_{t + 1})}{\exp(\eta_{\beta, t}) u'(C_t)}\Pi_{t + s}^{\epsilon - 1} \frac{\overline{S}_{2, t + 1}}{\exp(\eta_{\beta, t + 1})u'(C_{t + 1})}\right],
-\end{align*}
-By defining $S_{1, t} \equiv \overline{S}_{1, t}/ (\exp(\eta_{\beta, t})u'(C_t))$ and $S_{2, t} \equiv \overline{S}_{2, t}/ (\exp(\eta_{\beta, t})u'(C_t))$, I can simplify these recursions into the form I use for the numerical solution.\\
+where $S_{1, t}$ and $S_{2, t}$ satisfy the recursions
+\begin{align}
+  S_{1, t} & = MC_t Y_t + \theta \E_t M_{t, t + 1}\Pi_{t + s}^\epsilon S_{1, t + 1},\\
+  S_{2, t} & = Y_t + \theta \E_t M_{t, t + 1} \Pi_{t + s}^{\epsilon - 1}S_{2, t + 1}.
+\end{align}
 
 From this section, we obtain the following five equilibrium conditions:
 \begin{align}
@@ -465,22 +525,29 @@ From this section, we obtain the following five equilibrium conditions:
 
 \paragraph{Capital Producers}
 For expositional clarity, I model capital production as its own sector.\footnote{I could subsume capital production within the household problem by adding as an additional constraint $K_t = \Phi(X_t/\hat{K}_t)\hat{K}_t$.}
-After intermediate firms finish using the time $t$ stock of capital $\hat{K}_t = \exp(\eta_{k, t})K_{t - 1}$,  households sell their capital holdings to capital producers, who solve the problem
+After intermediate firms finish using the time $t$ stock of capital $\hat{K}_t = \exp(\eta_{k, t})K_{t - 1}$,  households trade their capital holdings to capital producers in exchange for claims to profits from capital production. Each producer solves the problem
 \begin{align}
-  \max_{X_t} \left(\Phi\left(\frac{X_t}{\hat{K}_t}\right) - 1\right)Q_t\hat{K}_t - X_t.
+  \max_{X_t} \Phi\left(\frac{X_t}{\hat{K}_t}\right))Q_t\hat{K}_t - X_t.
 \end{align}
-In other words, capital producers maximize the static profits from producing new capital since it costs them $Q_t\hat{K}_t$ to purchase $\hat{K}_t$ units of capital and $X_t$ in investment to produce $\Phi(X_t / \hat{K}_t)Q_t \hat{K}_t$ in revenue.
+In other words, capital producers maximize the static profits from producing new capital since it costs them $X_t$ in investment to produce $\Phi(X_t / \hat{K}_t)Q_t \hat{K}_t$ in revenue.\footnote{The cost of buying the initial stock of capital $\hat{K}_t$ is offset by selling $\hat{K}_t$ at the same price after production.}
 The solution to this problem yields the Tobin's Q equation
 \begin{align}\label{eq:tobins q}
   1 & = \Phi'\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) Q_t.
 \end{align}
-After households purchase capital back from capital producers, a fraction of the capital depreciates. Thus, the evolution of the aggregate capital stock is
+After production, capital producers return the initial investment of capital $\hat{K}_t$ to their owners and pay profits to households in proportion to the invested capital, hence the return from financing capital production is
+\begin{align*}
+  R_{q, t} & = \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) - \frac{X_t}{Q_t \exp(\eta_{k, t})K_{t- 1}}.
+\end{align*}
+From (\ref{eq:tobins q}), this expression can be re-written as
+\begin{align}\label{eq:Rq defn}
+  R_{q, t} & = \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}.
+\end{align}
+Although capital producers return the initial investment of capital, a fraction $\delta$ depreciates, so the evolution of the aggregate capital stock is
 \begin{align}
     \label{eq:capital accumulation equation}
   K_t & = \left(1 - \delta + \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\right)\exp(\eta_{k, t})K_{t - 1},
 \end{align}
 where $\delta$ is the rate of depreciation and $\Phi(\cdot)$ is an investment technology satisfying standard conditions.\footnote{$\Phi'(\cdot) > 0$, $\Phi''(\cdot) < 0$, $\Phi(X_{ss}/K_{ss}) = \delta$, where $X_{ss} / K_{ss}$ is the steady state investment rate.}
-
 
 \subsection{Monetary Policy}
 I specify the monetary policy rule as the following Taylor rule
@@ -509,17 +576,17 @@ Dividing by $P_{t - 1}^{1 - \epsilon}$ implies
 \end{align}
 The price dispersion term can similarly be re-written in terms of aggregates by distinguishing which firms get to change prices.
 \begin{align*}
-  V_t^p & = \int_0^{1 - \theta}\left(P_t^*\right)^{ - \epsilon}\, dj + \int_{1 - \theta}^1 \left(\frac{P_{t - 1}(j)}{P_t}\right)^{ - \epsilon}\, dj\\
+  \Delta_t & = \int_0^{1 - \theta}\left(P_t^*\right)^{ - \epsilon}\, dj + \int_{1 - \theta}^1 \left(\frac{P_{t - 1}(j)}{P_t}\right)^{ - \epsilon}\, dj\\
       & = \int_0^{1 - \theta}\left(P_t^*\Pi_t\right)^{ - \epsilon}\left(\frac{1}{\Pi_t}\right)^{ - \epsilon}\, dj + \int_{1 - \theta}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\left(\frac{P_{t - 1}}{P_t}\right)^{ - \epsilon}\, dj\\
       & = (1 - \theta) (P_t^*\Pi_t)^{-\epsilon} \Pi_t^{\epsilon}  + \Pi_t^{\epsilon} \int_{1 - \theta}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj.
 \end{align*}
 By invoking the law of large assumptions applied to any positive measure subset of firms, we must have
 \begin{align*}
-  \int_{1 - \theta}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj & = \theta\int_0^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj = \theta V_{t - 1}^p.
+  \int_{1 - \theta}^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj & = \theta\int_0^1 \left(\frac{P_{t - 1}(j)}{P_{t - 1}}\right)^{ - \epsilon}\,dj = \theta \Delta_{t - 1}^p.
 \end{align*}
 Thus, we acquire
 \begin{align}\label{eq:price dispersion evol}
-  V_t^p & = \Pi_t^{\epsilon}((1 - \theta) (P_t^* \Pi_t)^{-\epsilon} + \theta V_{t - 1}^p)
+  \Delta_t & = \Pi_t^{\epsilon}((1 - \theta) (P_t^* \Pi_t)^{-\epsilon} + \theta \Delta_{t - 1}^p)
 \end{align}
 
 
@@ -531,46 +598,52 @@ Following Jermann (1998), I assume the investment function takes the concave for
 \begin{align}\label{eq:invst fnct}
   \Phi\left(\frac{X_t}{\hat{K}_t}\right) = \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} - \frac{\overline{X}}{\chi(\chi - 1)}
 \end{align}
-where $\overline{X} = \delta \chi / (\chi + 1)$ is the steady-state investment rate (per unit of capital). The first derivative of $\Phi(\cdot)$ w.r.t. $X_t / \hat{K}_t$ is
+where
+\begin{align}\label{eq:steady state invst rate defn}
+\overline{X} = \frac{\delta \chi}{\chi + 1} + \chi(\chi - 1)\left(1 - \frac{1}{\exp(\E[\eta_{k, t}])}\right)
+\end{align}
+is the steady-state investment rate (per unit of capital). The expectation $\exp(\E[\eta_{k, t}])$ is the unconditional expected value of the disaster shock and is necessary to guarantee the (stochastic) steady-state investment rate is indeed $\overline{X}$. The first derivative of $\Phi(\cdot)$ w.r.t. $X_t / \hat{K}_t$ is
 \begin{align}\label{eq:invst fnct first deriv}
     \Phi'\left(\frac{X_t}{\hat{K}_t}\right) & = \overline{X}^{1/\chi}\left(\frac{X_t}{ \hat{K}_t}\right)^{-1/\chi}.
 \end{align}
 This functional form implies the law of motion
 \begin{align*}
   K_t & = \left(1 - \delta + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} - \frac{\overline{X}}{\chi(\chi - 1)}\right)\hat{K}_t\\
-      & = \left(1 + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\delta \left(1 +  \frac{1}{(\chi - 1)(\chi + 1)}\right)\right)\hat{K}_t\\
-      & = \left(1 + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\delta \left(\frac{\chi^2}{(\chi - 1)(\chi + 1)}\right)\right)\hat{K}_t\\
-      & = \left(1 + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\frac{\delta\chi^2}{\chi^2(1 - 1 / \chi)(1 + 1 / \chi)}\right)\hat{K}_t\\
-      & = \left(1 + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\frac{\overline{X}}{1 - 1 / \chi}\right)\hat{K}_t.
+      & = \left(1 + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\delta \left(1 +  \frac{1}{(\chi - 1)(\chi + 1)}\right) - \frac{\chi(\chi - 1)(1 - 1 / \exp(\E[\eta_{k, t}]))}{\chi(\chi - 1)}\right)\hat{K}_t\\
+      & = \left(1 + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\delta \left(\frac{\chi^2}{(\chi - 1)(\chi + 1)}\right) - 1 + \frac{1}{\exp(\E[\eta_{k, t}])} \right)\hat{K}_t\\
+      & = \left(\frac{1}{\exp(\E[\eta_{k, t}])} + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\frac{\delta\chi^2}{\chi^2(1 - 1 / \chi)(1 + 1 / \chi)}\right)\hat{K}_t\\
+      & = \left(\frac{1}{\exp(\E[\eta_{k, t}])} + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\frac{\overline{X}}{1 - 1 / \chi}\right)\hat{K}_t.
 \end{align*}
-If $K_t = \hat{K}_t = K_{ss}$ and $X_{ss} / K_{ss} = \overline{X}$, then
+To verify that $\overline{X}$ is indeed the steady-state investment rate, suppose $K_{ss}$ is some steady-state capital stock, and suppose $\eta_{k, t} = \eta_k = \E[\eta_{k, t}]$, i.e. $\eta_{k, t}$ obtains its value consistent with a deterministic or stochastic steady state. Then
 \begin{align*}
-  1 + \frac{\overline{X}^{1 / \chi}}{1 - 1 / \chi}\overline{X}^{1 - 1 / \chi} - \frac{\overline{X}}{1 - 1 / \chi} =   1 + \frac{\overline{X}}{1 - 1 / \chi} - \frac{\overline{X}}{1 - 1 / \chi} = 1,
+  K_{ss} & = \left(\frac{1}{\exp(\E[\eta_{k, t}])} + \frac{\overline{X}^{1 / \chi}}{1 - 1 / \chi}\left(\overline{X}\right)^{1 - 1 / \chi} - \frac{\overline{\chi}}{1 - 1 / \chi}\right)\exp(\eta_k)K_{ss}\\
+  \RA 1 & = \frac{\exp(\eta_k)}{\exp(\E[\eta_{k, t}])} = 1,
 \end{align*}
-thus verifying the original conjecture that $\overline{X}$ represents the steady-state investment rate.
+as desired.
 
 
 \subsubsection{Exogenous Shocks}\label{sec:exog shocks}
 There are five shocks in the model: $\eta_{a, t}$, $\eta_{k, t}$, $\eta_{\beta, t}$, $\eta_{l, t}$, and $\eta_{r, t}$. The first shock has been specified as an AR(1) with a disaster component. I specify $\eta_{k, t}$ below. Without loss of generality, I assume the last three shocks follow AR(1) processes with persistence $\rho_i$ and standard deviation $\sigma_i$.
 
-There are multiple ways to model the disaster shock. The simplest approach is the approach taken by Kekre and Lenel (2020). The shock $\eta_{k, t}$ equals $\underline{\eta}_k < 0$ with probability $p_t$ and zero with probability $1 - p_t$. The probability of a disaster varies according to a two-state Markov process, which takes values $\underline{p}$ and $\overline{p}$, with $\underline{p} < \overline{p}$. The transition probability away from $\underline{p}$ ($\overline{p}$) toward $\overline{p}$ ($\underline{p}$) is $\overline{\rho}_p$ ($\underline{\rho}_p$). The values and transition probabilities of the Markov chain are restricted by the requirement that the unconditional mean of the Markov chain must be $p$, i.e.
+There are multiple ways to model the disaster shock. The simplest approach borrows from Kekre and Lenel (2020). The shock $\eta_{k, t}$ equals $\underline{\eta}_k < 0$ with probability $p_{t - 1}$ and zero with probability $1 - p_{t - 1}$.\footnote{A direct translation of Kekre and Lenel (2020) sets $\eta_{k, t}$ equal to $\underline{\eta}_k$ with probability $p_t$ so that $\eta_{k, t}$ is represented by a four-state process. This approach is feasible, but, absent an empirical rationale, I do not see any advantage from assuming randomness in both size and probability for the disaster.} The probability of a disaster varies according to a two-state Markov process, which takes values $\underline{p}$ and $\overline{p}$, with $\underline{p} < \overline{p}$. The probability of remaining in state $\underline{p}$ ($\overline{p}$) is $\underline{\rho}_p$ ($\overline{\rho}_p$). The values and transition probabilities of the Markov chain are restricted by the requirement that the unconditional mean of the Markov chain must be $p$, i.e.
 \begin{align*}
   \frac{\underline{\rho}_p\underline{p} + \overline{\rho}_p \overline{p}}{\underline{\rho}_p + \overline{\rho}_p} = p.
 \end{align*}
 In this case, I construct martingale difference sequences for $\eta_{k, t}$ and $p_t$ by defining $\varepsilon_{k, t} = \eta_{k, t} - \E_{t - 1}[\eta_{k, t}]$ and $\varepsilon_{p, t} = p_t - \E_{t- 1}[p_t]$. Then
 \begin{align}
   \eta_{k, t + 1} & = \underline{\eta}_k p_t + \varepsilon_{k, t + 1},\\
-  \eta_{p, t + 1} & = \begin{cases}
-    \underline{\rho}_p \underline{p} + (1 - \underline{\rho}_p) \overline{p} & \text{if } p_t = \underline{p}\\
-    \overline{\rho}_p \overline{p} + (1 - \overline{\rho}_p) \underline{p} & \text{if } p_t = \overline{p}
-  \end{cases} + \varepsilon_{p, t + 1}.
+  p_{t + 1} & = \varepsilon_{p, t + 1} + \begin{cases}
+    \underline{\rho}_p \underline{p} + (1 - \underline{\rho}_p) \overline{p} & \text{if } p_t = \underline{p},\\
+    \overline{\rho}_p \overline{p} + (1 - \overline{\rho}_p) \underline{p} & \text{if } p_t = \overline{p}.
+  \end{cases}
 \end{align}
 
 The second approach models the time variation in $p_t$ as a discrete-time Cox-Ingersoll-Ross process:
 \begin{align}
   p_{t + 1} & = (1 - \rho_p) p + \rho_p p_t + \sqrt{p_t}\sigma_p \varepsilon_{p, t + 1}.
 \end{align}
-In this case, $\varepsilon_{p, t + 1} \sim N(0, 1)$. The disaster shock $\eta_{k, t}$ still follows the martingale difference sequence $\tilde{\eta}_{k, t}$. The disadvantage of this approach is that $p_{t + 1}$ can move outside $[0, 1]$, given a sufficiently large shock.
+In this case, $\varepsilon_{p, t + 1} \sim N(0, 1)$. The disaster shock $\eta_{k, t}$ still follows the martingale difference sequence $\tilde{\eta}_{k, t}$. The disadvantage of this approach is that $p_{t + 1}$ can move outside $[0, 1]$, given a sufficiently large shock. To address this problem,
+the shock $\varepsilon_{p, t + 1}$ could be a truncated normal random variable with lower bound $-((1 - \rho_p)p + \rho_p p_t) / (\sqrt{p_t}\sigma_p)$. The variance of $\varepsilon_{p, t + 1}$ before truncation will be one, but the mean will change over time to guarantee $\E_t[p_{t + 1}] = (1 - \rho_p + \rho_p p_t$. The sequence $\varepsilon_{p, t + 1}$ remains a martingale difference sequence because the mean is chosen to satisfy $\E_t[p_{t + 1}] = 0$.
 
 The third approach models the time variation in $p_t$ in logs to avoid $p_t$ moving below zero:
 \begin{align}
@@ -584,40 +657,50 @@ The fifth approach uses time variation in the size of the shock rather than the 
 \begin{align}
   \eta_{k, t} = \hat{\eta}_{k, t} p_t,
 \end{align}
-where $\tilde{\eta}_{k, t}$ is modeled as either a Bernoulli or an Exponential random variable and $p_t$ evolves either according to the Cox-Ingersoll-Ross process or in logs.
+where $\hat{\eta}_{k, t}$ is modeled as a Bernoulli random variable and $p_t$ evolves according to a Markov chain, the Cox-Ingersoll-Ross process, or in logs.
+
+The sixth approach allows time variation in the size and probability of the shock through a mixture model. The disaster risk $\eta_{k, t}$ is distributed according to a Gamma distribution with shape $j_t$  and scale $\tilde{j}$; an exponential distribution shifted by $-j_t$ and intensity $\tilde{j}$; or a Normal distribution with mean $-j_t$ and variance $j_t\tilde{j}^2$. The parameter $j_t$ is distributed according to a $\text{Bernoulli}(p_{t - 1})$ with low and high values of $\underline{j}$ and $\overline{j}$, $\text{HyperPoisson}(p_{t - 1}, \overline{p})$,\footnote{See \url{https://www.jstor.org/stable/2283992?seq=1\#metadata_info_tab_contents}.}
+ or $\text{Exponential}(p_{t - 1})$. The probability varies over time according to a Markov chain, the Cox-Ingersoll-Ross process, or in logs.
+
+The seventh approach models disaster risk as a ``risk-on risk-off'' phenomenon. The size of the disaster shock $\eta_{k, t}$ is still modeled according to one of the ways described above. However, the probability of a diasster $p_t$ now depends on an additional two-state Markov chain denoted by $d_t$. The Markov chain $d_t$ equals either zero or one. When $d_t$ equals one, $p_t$ varies according to one of the ways described above, hence $d_t = 1$ represents ``risk-on'' periods or ``disaster'' times. When $d_t$ equals zero, $p_t = 0$ so that disasters never realize, hence $d_t = 0$ represents ``risk-off'' periods or ``normal'' times.
+
+
+
 
 \subsubsection{Market Clearing}
 Markets must clear for capital, labor, bonds, final goods, and intermediate goods. The first three markets clear as a consequence of optimality conditions and the assumption that bonds have zero net supply. To clear the market for final goods, we set the sum of aggregate consumption demand $C_t$ and investment demand $X_t$ equal to aggregate supply $Y_t$ net of fixed costs, which satisfies
 \begin{align*}
 \int_0^1( \hat{K}_t^\alpha (L_t\exp(\eta_{a, t}))^{1 - \alpha} - \kappa_y \exp(\eta_{a, t}))\, dj & = \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} Y_t\, dj\\
-  \hat{K}_t^\alpha (\exp(\eta_{a, t})L_t)^{1 - \alpha} - \kappa_y\exp(\eta_{a, t}) & = Y_t \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} \, dj = V_t^p Y_t.
+  \hat{K}_t^\alpha (\exp(\eta_{a, t})L_t)^{1 - \alpha} - \kappa_y\exp(\eta_{a, t}) & = Y_t \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} \, dj = \Delta_t Y_t.
 \end{align*}
 Re-arranging yields the output market-clearing condition
 \begin{align}\label{eq:output market clearing}
   C_t + X_t & = Y_t,\\
   \label{eq:aggregate supply}
-  Y_t & = \frac{(\exp(\eta_{k, t}) K_{t - 1})^{\alpha}(\exp(\eta_{a, t})L_t)^{1 - \alpha} - \kappa_y \exp(\eta_{a, t})}{V_t^p}.
+  Y_t & = \frac{(\exp(\eta_{k, t}) K_{t - 1})^{\alpha}(\exp(\eta_{a, t})L_t)^{1 - \alpha} - \kappa_y \exp(\eta_{a, t})}{\Delta_t}.
 \end{align}
-It can be shown that $V_t^p \geq 1$ by applying Jensen's inequality. For our purposes, because the dimensionality of our model is not too large, we add the auxiliary $Y_t$ variable, even though we could substitute it out of the system of equations.
+It can be shown that $\Delta_t \geq 1$ by applying Jensen's inequality. For our purposes, because the dimensionality of our model is not too large, we add the auxiliary $Y_t$ variable, even though we could substitute it out of the system of equations.
 
 
 \subsubsection{Equilibrium Conditions}
-All together, the full set of equilibrium conditions are
+All together, the equilibrium conditions are
 \begin{align}
-  \label{eq:epstein zin recursion eqm}
-  V_t & = \left((1 - \exp(\eta_{\beta, t})\beta )(C_t\calL(L_t))^{1 - \psi} + \exp(\eta_{\beta, t})\beta \calC\calE_t^{1 - \psi}\right)^{\frac{1}{1 - \psi}}\\
+  \label{eq:epstein zin defn eqm}
+  \tilde{V}_t & = ((1 - \exp(\eta_{\beta, t})\beta)\tilde{\Omega}_t)^{\frac{1}{1 - \psi}},\\
   \label{eq:certainty equivalent eqm}
-  \calC\calE_t & = \E_t[V_{t + 1}^{1 - \gamma}]^{\frac{1}{1 - \gamma}},\\
+  \tilde{\calC\calE}_t & = \left(\frac{1 - \exp(\eta_{\beta, t})\beta}{\exp(\eta_{\beta, t})\beta}(\tilde{\Omega}_t - 1)\right)^{\frac{1}{1 - \psi}},\\
+  \label{eq:epstein zin wealth recursion eqm}
+  \tilde{\Omega}_t & = 1 + \E_t\left[M_{t, t + 1}\frac{C_{t + 1}}{C_t}\tilde{\Omega}_{t + 1}\right],\\
+  \label{eq:stochastic discount factor eqm}
+  M_{t, t + 1} & = \exp(\eta_{\beta, t})\beta\frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{C_{t + 1}^{- \gamma } \calL(L_{t + 1})^{1 - \gamma}}{C_t^{-\gamma} \calL(L_t)^{1 - \gamma}}\left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{ \psi - \gamma},\\
   \label{eq:intratemporal consumption labor eqm}
-  W_t & = \frac{\psi \exp(\eta_{l, t})\overline{\nu} C_t L_t^\nu}{\calL(L_t)^{\frac{\psi - 1}{\psi}}},\\
+  W_t & = \frac{\psi \exp(\eta_{l, t})\overline{\nu} C_t L_t^\nu}{\calL(L_t)^{\frac{1 - \psi}{\psi}}},\\
   \label{eq:labor disutility function eqm}
   \calL(L_t) & = \left(1 + (\psi - 1)\exp(\eta_{l, t})\overline{\nu}\frac{L_t^{1 + \nu}}{1 + \nu}\right)^{\frac{\psi}{1-\psi}},\\
-  \label{eq:stochastic discount factor eqm}
-  M_{t, t + 1} & = \exp(\eta_{\beta, t})\beta\frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta}\frac{C_{t + 1}^{-\psi}\calL(L_{t + 1})^{1 - \psi}}{C_t^{-\psi}\calL(L_t)^{1 - \psi}}\left(\frac{V_{t + 1}}{\calC\calE_t}\right)^{\psi - \gamma},\\
   \label{eq:euler eqn eqm}
   1 & = \E_t\left[M_{t, t + 1}\frac{R_t}{\Pi_{t + 1}}\right],\\
   \label{eq:capital asset pricing eqm}
-  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{K, t + 1} + (1 - \delta)Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right],\\
+  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{k, t + 1} + (1 - \delta + R_{q, t + 1})Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right],\\
   \label{eq:mc soln eqm}
   MC_t & =  \left(\frac{1}{1 - \alpha}\right)^{1 - \alpha}\left(\frac{1}{\alpha}\right)^{\alpha}\frac{W_t^{1 - \alpha}R_{k, t}^{\alpha}}{ \exp(\eta_{a, t})^{1 - \alpha}},\\
   \label{eq:optimal capital labor ratio eqm}
@@ -630,26 +713,28 @@ All together, the full set of equilibrium conditions are
   S_{2, t} & =  Y_t + \theta\E_t[M_{t, t + 1} \Pi_{t + 1}^{\epsilon - 1} S_{2, t + 1}],\\
   \label{eq:tobins q eqm}
   1 & = \Phi'\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) Q_t,\\
+  \label{eq:Rq defn eqm}
+  R_{q, t} & = \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}},\\
   \label{eq:law of motion capital eqm}
   K_t & = \left(1 - \delta + \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\right)\exp(\eta_{k, t})K_{t - 1},\\
   \label{eq:inflation from optimal reset price eqm}
   \Pi_t^{ 1 - \epsilon} & = (1 - \theta) (P_t^*\Pi_t)^{1 - \epsilon} + \theta,\\
   \label{eq:price dispersion evol eqm}
-  V_t^p & = \Pi_t^{\epsilon}((1 - \theta) (P_t^* \Pi_t)^{-\epsilon} + \theta V_{t - 1}^p),\\
+  \Delta_t & = \Pi_t^{\epsilon}((1 - \theta) (P_t^* \Pi_t)^{-\epsilon} + \theta \Delta_{t - 1}^p),\\
   \label{eq:taylor rule eqm}
   \frac{R_t}{R} & =  \left(\frac{R_{t - 1}}{R}\right)^{\phi_r}\left(\left(\frac{\Pi_t}{\Pi}\right)^{\phi_\pi}\left(\frac{Y_t}{Y_{t - 1}}\exp(-\mu_a)\right)^{\phi_y}\right)^{1 - \phi_r}\exp(\eta_{r, t}),\\
   \label{eq:output market clearing eqm}
   C_t + X_t & = Y_t,\\
   \label{eq:aggregate supply eqm}
-  Y_t & = \frac{(\exp(\eta_{k, t}) K_{t - 1})^{\alpha}(\exp(\eta_{a, t})L_t)^{1 - \alpha} - \kappa_y \exp(\eta_{a, t})}{V_t^p},
+  Y_t & = \frac{(\exp(\eta_{k, t}) K_{t - 1})^{\alpha}(\exp(\eta_{a, t})L_t)^{1 - \alpha} - \kappa_y \exp(\eta_{a, t})}{\Delta_t},
 \end{align}
 the three exogenous processes
 \begin{align}
   \label{eq:ar1 beta}
   \eta_{\beta, t + 1} & = \rho_\beta\eta_{\beta, t} + \sigma_\beta \varepsilon_{\beta, t + 1},\\
-  \eta_{l, t + 1} & = \rho_L\eta_{l, t} + \sigma_L \varepsilon_{L, t + 1},\\
+  \eta_{l, t + 1} & = \rho_l\eta_{l, t} + \sigma_l \varepsilon_{L, t + 1},\\
   \label{eq:ar1 R}
-  \eta_{r, t + 1} & = \rho_R\eta_{r, t} + \sigma_R \varepsilon_{R, t + 1},
+  \eta_{r, t + 1} & = \rho_r\eta_{r, t} + \sigma_r \varepsilon_{R, t + 1},
 \end{align}
 the process for productivity
 \begin{align}
@@ -660,32 +745,24 @@ and one of the proposed disaster processes in Section \ref{sec:exog shocks}.
 
 \subsubsection{Stationary Equilibrium Conditions}
 Because of the unit root in $\eta_{a, t}$, the model is non-stationary. To obtain a stationary representation, define the transformations
-\begin{align*}
-  \tilde{C}_t & = \frac{C_t}{\exp(\eta_{a, t})}, \quad \tilde{V}_t = \frac{V_t}{\exp(\eta_{a, t})}, \quad \tilde{\calC\calE}_t = \frac{\calC\calE_t}{\exp(\eta_{a, t})}, \quad \tilde{K}_t = \frac{K_t}{\exp(\eta_{a, t})},\\
-  \tilde{K}_{t - 1} & = \frac{K_{t - 1}}{\exp(\eta_{a, t})}, \quad \tilde{W}_t = \frac{W_t}{\exp(\eta_{a, t})}, \quad \tilde{X}_t = \frac{X_t}{\exp(\eta_{a, t})}, \quad \tilde{Y}_t = \frac{Y_t}{\exp(\eta_{a, t})},\\
+\begin{align}
+  \tilde{C}_t & = \frac{C_t}{\exp(\eta_{a, t})}, \quad \tilde{K}_t = \frac{K_t}{\exp(\eta_{a, t})}, \quad  \tilde{K}_{t - 1} = \frac{K_{t - 1}}{\exp(\eta_{a, t})}, \quad \tilde{W}_t = \frac{W_t}{\exp(\eta_{a, t})},\\
+\tilde{X}_t & = \frac{X_t}{\exp(\eta_{a, t})}, \quad \tilde{S}_{1, t} = \frac{S_{1, t}}{\exp(\eta_{a, t})}, \quad \tilde{S}_{2, t} = \frac{S_{2, t}}{\exp(\eta_{a, t})}, \quad \tilde{Y}_t = \frac{Y_t}{\exp(\eta_{a, t})},\\
   A_t & = \exp(\eta_{a, t} - \eta_{a, t - 1} - \mu_a) = \exp(\sigma_a\varepsilon_{a, t} + \kappa_a\eta_{k, t}).
-\end{align*}
+\end{align}
 Most of the calculations for the stationary representation are straightforward, so I only show the work for the more complicated cases.
-
-Substituting the transformations in the recursion for preferences (\ref{eq:epstein zin recursion eqm}) implies
-\begin{align*}
-  \exp(\eta_{a, t})\tilde{V}_t & = \left((1 - \exp(\eta_{\beta, })\beta)\beta \exp(\eta_{a, t})^{1 - \psi}(\tilde{C}_t\calL(L_t))^{1 - \psi} + \exp(\eta_{\beta, t}) \beta \exp(\eta_{a, t})^{1 - \psi}\tilde{\calC\calE}_t^{1 - \psi}\right)^{\frac{1}{1 - \psi}}\\
-& = \exp(\eta_{a, t}) \left((1 - \exp(\eta_{\beta, })\beta)\beta(\tilde{C}_t\calL(L_t))^{1 - \psi} + \exp(\eta_{\beta, t})\beta \tilde{\calC\calE}_t^{1 - \psi}\right)^{\frac{1}{1 - \psi}}.
-\end{align*}
-
-The certainty equivalent definition (\ref{eq:certainty equivalent eqm}) becomes
-\begin{align*}
-  \exp(\eta_{a, t})\tilde{\calC\calE}_t & = \E_t[\tilde{V}_{t + 1}^{1 - \gamma} \eta_{a, t + 1}^{1 - \gamma}]^{\frac{1}{1 - \gamma}}\\
-                                        & =   \E_t\left[\tilde{V}_{t + 1}^{1 - \gamma} \exp(\eta_{a, t + 1})^{1 - \gamma}\frac{\exp(\eta_{a, t})^{1 - \gamma}}{\exp(\eta_{a, t})^{1 - \gamma}}\right]^{\frac{1}{1 - \gamma}}\\                                                          & =   \exp(\eta_{a, t})\E_t\left[\tilde{V}_{t + 1}^{1 - \gamma} \left(\frac{\exp(\eta_{a, t + 1})}{\exp(\eta_{a, t})}\right)^{1 - \gamma}\right]^{\frac{1}{1 - \gamma}}\\
-  \tilde{\calC\calE}_t & = \exp(\mu_a)\E_t\left[A_{t + 1}\tilde{V}_{t + 1}^{1 - \gamma}\right]^{\frac{1}{1 - \gamma}}.
-\end{align*}
 
 The stochastic discount factor (\ref{eq:stochastic discount factor eqm}) becomes
 \begin{align*}
-  M_{t, t + 1} & = \exp(\eta_{\beta, t})\beta \frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{\tilde{C}_{t + 1}^{ - \psi}}{\tilde{C}_t^{ - \psi}}\left(\frac{\exp(\eta_{a, t + 1})}{\exp(\eta_{a, t})}\right)^\psi \\
-               &\quad\times\frac{\calL(L_{t + 1})^{1 - \psi}}{\calL(L_t)^{1 - \psi}}\left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{\psi - \gamma}\left(\frac{\exp(\eta_{a, t + 1})}{\exp(\eta_{a, t})}\right)^{-(\psi - \gamma)}\\
-               & = \exp(\eta_{\beta, t})\beta \frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{\tilde{C}_{t + 1}^{ - \psi}}{\tilde{C}_t^{ - \psi}}\frac{\calL(L_{t + 1})^{1 - \psi}}{\calL(L_t)^{1 - \psi}}\left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{\psi - \gamma}\left(\frac{\exp(\eta_{a, t + 1})}{\exp(\eta_{a, t})}\right)^{\gamma}\\
-               & = \exp(\eta_{\beta, t})\beta \frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{\tilde{C}_{t + 1}^{ - \psi}}{\tilde{C}_t^{ - \psi}}\frac{\calL(L_{t + 1})^{1 - \psi}}{\calL(L_t)^{1 - \psi}}\left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{\psi - \gamma}(A_{t + 1}\exp(\mu_a))^\gamma
+  M_{t, t + 1} & = \exp(\eta_{\beta, t})\beta\frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{C_{t + 1}^{- \gamma } \calL(L_{t + 1})^{1 - \gamma}}{C_t^{-\gamma} \calL(L_t)^{1 - \gamma}}\left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{ \psi - \gamma},\\
+               & = \exp(\eta_{\beta, t})\beta\frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{\tilde{C}_{t + 1}^{- \gamma } \calL(L_{t + 1})^{1 - \gamma}}{\tilde{C}_t^{-\gamma} \calL(L_t)^{1 - \gamma}}\left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{ \psi - \gamma}\left(\frac{\exp(\eta_{a, t + 1})}{\exp(\eta_{a, t})}\right)^{-\gamma},\\
+               & = \exp(\eta_{\beta, t})\beta\frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{\tilde{C}_{t + 1}^{- \gamma } \calL(L_{t + 1})^{1 - \gamma}}{\tilde{C}_t^{-\gamma} \calL(L_t)^{1 - \gamma}}\left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{ \psi - \gamma}\left(A_{t + 1}\exp(\mu_a)\right)^{-\gamma}.
+\end{align*}
+
+The forward difference equation for $\tilde{\Omega}_t$ (\ref{eq:epstein zin wealth recursion eqm}) becomes
+\begin{align*}
+  \tilde{\Omega}_t & = 1 + \E_t \left[M_{t, t + 1}\frac{\tilde{C}_{t + 1}\exp(\eta_{a, t + 1})}{\tilde{C}_t\exp(\eta_{a, t})}\tilde{\Omega}_t\right]\\
+                  & = 1 + \exp(\mu_a)\E_t \left[M_{t, t + 1}\frac{\tilde{C}_{t + 1}}{\tilde{C}_t}A_{t + 1}\tilde{\Omega}_t\right]
 \end{align*}
 
 The recursions for the optimal price resetting problem become
@@ -696,26 +773,33 @@ The recursions for the optimal price resetting problem become
 \tilde{S}_{2, t} & = \tilde{Y}_t + \exp(\mu_a)\theta\E_t[M_{t, t + 1}A_{t + 1}\Pi_{t + 1}^{\epsilon - 1} \tilde{S}_{2, t + 1}].
 \end{align*}
 
+Finally, instead of $\eta_{a, t}$, the relevant productivity process is
+\begin{align*}
+  \log(A_t) & = \sigma_a\varepsilon_{a, t} + \kappa_a \eta_{k, t}.
+\end{align*}
 
-Then the stationary equilibrium conditions are
+
+In summary, the stationary equilibrium conditions (excluding the exogenous shocks) are
 \begin{align}
-  \label{eq:epstein zin recursion eqm stat}
-  \tilde{V}_t & = \left((1 - \exp(\eta_{\beta, })\beta)\beta(\tilde{C}_t\calL(L_t))^{1 - \psi} + \exp(\eta_{\beta, t})\beta \tilde{\calC\calE}_t^{1 - \psi}\right)^{\frac{1}{1 - \psi}},\\
+  \label{eq:epstein zin defn eqm stat}
+  \tilde{V}_t & = ((1 - \exp(\eta_{\beta, t})\beta)\tilde{\Omega}_t)^{\frac{1}{1 - \psi}},\\
   \label{eq:certainty equivalent eqm stat}
-  \tilde{\calC\calE}_t & = \exp(\mu_a)\E_t[A_{t + 1}\tilde{V}_{t + 1}^{1 - \gamma}]^{\frac{1}{1 - \gamma}},\\
-  \label{eq:intratemporal consumption labor eqm stat}
-  \tilde{W}_t & = \frac{\psi \exp(\eta_{l, t})\overline{\nu} \tilde{C}_t L_t^\nu}{\calL(L_t)^{\frac{\psi - 1}{\psi}}},\\
-  \label{eq:labor disutility function eqm stat}
-  \calL(L_t) & = \left(1 + (\psi - 1)\exp(\eta_{l, t})\overline{\nu}\frac{L_t^{1 + \nu}}{1 + \nu}\right)^{\frac{\psi}{1-\psi}},\\
+  \tilde{\calC\calE}_t & = \left(\frac{1 - \exp(\eta_{\beta, t})\beta}{\exp(\eta_{\beta, t})\beta}(\tilde{\Omega}_t - 1)\right)^{\frac{1}{1 - \psi}},\\
+  \label{eq:epstein zin wealth recursion eqm stat}
+  \tilde{\Omega}_t & = 1 + \exp(\mu_a)\E_t\left[M_{t, t + 1}\frac{\tilde{C}_{t + 1}}{\tilde{C}_t}A_{t + 1}\tilde{\Omega}_{t + 1}\right],\\
   \label{eq:stochastic discount factor eqm stat}
   \begin{split}
-  M_{t, t + 1} & = \exp(\eta_{\beta, t})\beta \frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{\tilde{C}_{t + 1}^{ - \psi}}{\tilde{C}_t^{ - \psi}}\frac{\calL(L_{t + 1})^{1 - \psi}}{\calL(L_t)^{1 - \psi}}\\
-  &\quad\times \left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{\psi - \gamma}(A_{t + 1}\exp(\mu_a))^\gamma,
+  M_{t, t + 1} & = \exp(\eta_{\beta, t})\beta\frac{1 - \exp(\eta_{\beta, t + 1})\beta}{1 - \exp(\eta_{\beta, t})\beta} \frac{\tilde{C}_{t + 1}^{- \gamma } \calL(L_{t + 1})^{1 - \gamma}}{\tilde{C}_t^{-\gamma} \calL(L_t)^{1 - \gamma}}\\
+  &\quad \times\left(\frac{\tilde{V}_{t + 1}}{\tilde{\calC\calE}_t}\right)^{ \psi - \gamma}\left(A_{t + 1}\exp(\mu_a)\right)^{-\gamma},
   \end{split}\\
+  \label{eq:intratemporal consumption labor eqm stat}
+  \tilde{W}_t & = \frac{\psi \exp(\eta_{l, t})\overline{\nu} \tilde{C}_t L_t^\nu}{\calL(L_t)^{\frac{1 - \psi}{\psi}}},\\
+  \label{eq:labor disutility function eqm stat}
+  \calL(L_t) & = \left(1 + (\psi - 1)\exp(\eta_{l, t})\overline{\nu}\frac{L_t^{1 + \nu}}{1 + \nu}\right)^{\frac{\psi}{1-\psi}},\\
   \label{eq:euler eqn eqm stat}
   1 & = \E_t\left[M_{t, t + 1}\frac{R_t}{\Pi_{t + 1}}\right],\\
   \label{eq:capital asset pricing eqm stat}
-  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{K, t + 1} + (1 - \delta)Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right],\\
+  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{k, t + 1} + (1 - \delta + R_{q, t + 1})Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right],\\
   \label{eq:mc soln eqm stat}
   MC_t & =  \left(\frac{1}{1 - \alpha}\right)^{1 - \alpha}\left(\frac{1}{\alpha}\right)^{\alpha}\tilde{W}_t^{1 - \alpha}R_{k, t}^{\alpha},\\
   \label{eq:optimal capital labor ratio eqm stat}
@@ -726,104 +810,111 @@ Then the stationary equilibrium conditions are
   \tilde{S}_{1, t} & = MC_t \tilde{Y}_t + \exp(\mu_a)\theta\E_t[M_{t, t + 1}A_{t + 1}\Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}],\\
   \label{eq:denominator recursion eqm stat}
   \tilde{S}_{2, t} & = \tilde{Y}_t + \exp(\mu_a)\theta\E_t[M_{t, t + 1}A_{t + 1}\Pi_{t + 1}^{\epsilon - 1} \tilde{S}_{2, t + 1}],\\
-  \label{eq:tobins q}
+  \label{eq:tobins q eqm stat}
   1 & = \Phi'\left(\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}}\right) Q_t,\\
+  \label{eq:Rq defn eqm stat}
+  R_{q, t} & = \Phi\left(\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}}\right) - \Phi'\left(\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}}\right)\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}},\\
   \label{eq:law of motion capital eqm stat}
   \tilde{K}_t & = \left(1 - \delta + \Phi\left(\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}}\right)\right)\exp(\eta_{k, t})\tilde{K}_{t - 1},\\
   \label{eq:inflation from optimal reset price eqm stat}
   \Pi_t^{ 1 - \epsilon} & = (1 - \theta) (P_t^*\Pi_t)^{1 - \epsilon} + \theta,\\
   \label{eq:price dispersion evol eqm stat}
-  V_t^p & = \Pi_t^{\epsilon}((1 - \theta) (P_t^* \Pi_t)^{-\epsilon} + \theta V_{t - 1}^p),\\
+  \Delta_t & = \Pi_t^{\epsilon}((1 - \theta) (P_t^* \Pi_t)^{-\epsilon} + \theta \Delta_{t - 1}^p),\\
   \label{eq:taylor rule eqm stat}
   \frac{R_t}{R} & =  \left(\frac{R_{t - 1}}{R}\right)^{\phi_r}\left(\left(\frac{\Pi_t}{\Pi}\right)^{\phi_\pi}\left(\frac{\tilde{Y}_t}{\tilde{Y}_{t - 1}} A_t\right)^{\phi_y}\right)^{1 - \phi_r}\exp(\eta_{r, t}),\\
   \label{eq:output market clearing eqm stat}
   \tilde{C}_t + \tilde{X}_t & = \tilde{Y}_t,\\
   \label{eq:aggregate supply eqm stat}
-  \tilde{Y}_t & = \frac{(\exp(\eta_{k, t}) \tilde{K}_{t - 1})^{\alpha}(L_t)^{1 - \alpha} - \kappa_y}{V_t^p},
+  \tilde{Y}_t & = \frac{(\exp(\eta_{k, t}) \tilde{K}_{t - 1})^{\alpha}(L_t)^{1 - \alpha} - \kappa_y}{\Delta_t}.
 \end{align}
 
 \subsection{Deterministic Steady State}
 To provide an initial guess for the risk-adjusted linearization and to provide a verification that the model is coded correctly, I determine some reasonable guesses for the deterministic steady state.
 
-Within this subsection, I denote the deterministic steady state values by an absence of a time subscript. The exogenous processes, by construction, have steady states of 0, i.e. $\eta_\beta = \eta_L = \eta_A = \eta_R = 0$. Further, $A = 1$.
+Within this subsection, I denote the deterministic steady state values by an absence of a time subscript or tilde. By construction, $\eta_\beta = \eta_l = \eta_r = 0$ in a deterministic steady state. Since $\eta_{k, t}$ may not be continuous, the correct notion of a deterministic steady state is not obvious. For example, if a deterministic steady state should feature zero aggregate disaster risk, then the disaster component could be either zero to model the absence of any disaster or some nonzero constant so that some fraction of capital deterministically rather than stochastically depreciates every period due to disasters.  However, I am not particularly interested in the model's properties in a specific deterministic steady state, so I will define the deterministic steady state for $\eta_{k, t}$ to be $\eta_k \equiv \E_{t - 1}[\eta_{k, t}]$, i.e. the mean with aggregate risk, because it is computationally convenient. For example, in the case where $\eta_{k, t}\sim \text{Bernoulli}(p_t)$ and $p_t$ follows the discrete-time Cox-Ingersoll-Ross process, $\eta_k = p$ where $p$ is the steady state value for $p_t$. This assumption also implies that $A = \exp(\kappa_a \eta_k)$.
 
-Focusing now on the endogenous equilibrium conditions, from (\ref{eq:intratemporal consumption labor eqm}),
+Focusing now on the equilibrium conditions, from (\ref{eq:epstein zin defn eqm stat}) and (\ref{eq:certainty equivalent eqm stat})
 \begin{align*}
-  W & = \frac{\varphi L^\nu}{C^{-\gamma}}.
+  \tilde{V} & = ((1 - \beta) \tilde{\Omega})^{\frac{1}{1 - \psi}},\quad \tilde{\calC\calE} = \left(\frac{1 - \beta}{\beta} (\tilde{\Omega} - 1)\right)^{\frac{1}{1 - \psi}}\\
+  \RA \frac{\tilde{V}}{\tilde{\calC\calE}} & = \left(\frac{(1 - \beta)\tilde{\Omega}}{\frac{1 - \beta}{\beta} (\tilde{\Omega} - 1)}\right)^{\frac{1}{1 - \psi}} = \left(\beta\frac{\tilde{\Omega}}{\tilde{\Omega} - 1}\right)^{\frac{1}{1 - \psi}}.
 \end{align*}
-From (\ref{eq:stochastic discount factor}),
+From (\ref{eq:stochastic discount factor eqm stat}) and (\ref{eq:epstein zin wealth recursion eqm stat}),
 \begin{align*}
-  M = \beta.
+  M & = \beta\left(\frac{\tilde{V}}{\tilde{\calC\calE}}\right)^{\psi - \gamma}(A\exp(\mu_a))^{ - \gamma} = \beta\left(\beta\frac{\tilde{\Omega}}{\tilde{\Omega} - 1}\right)^{\frac{\psi - \gamma}{1 - \psi}}(A\exp(\mu_a))^{ - \gamma}\\
+  \tilde{\Omega} & = 1 + \exp(\mu_a)M A \tilde{\Omega}\\
+    & = 1 + \exp(\mu_a)\beta\left(\beta\frac{\tilde{\Omega}}{\tilde{\Omega} - 1}\right)^{\frac{\psi - \gamma}{1 - \psi}}(A\exp(\mu_a))^{ - \gamma} A \tilde{\Omega}\\
+    & = 1 +\beta^{\frac{\psi - \gamma + (1 - \psi)}{1 - \psi}}\left(\beta\frac{\tilde{\Omega}}{\tilde{\Omega} - 1}\right)^{\frac{\psi - \gamma}{1 - \psi}}(A\exp(\mu_a))^{1 - \gamma} \tilde{\Omega}\\
+  1 & =  \left(\beta A \exp(\mu_a)\left(\frac{\tilde{\Omega}}{\tilde{\Omega} - 1}\right)^{\frac{1}{1 - \psi}}\right)^{1 - \gamma}\\
+  \tilde{\Omega} - 1 & = (\beta A \exp(\mu_a))^{1 - \psi} \tilde{\Omega}\\
+  \tilde{\Omega} & = \frac{1}{1 - (\beta A \exp(\mu_a))^{1 - \psi}}.
 \end{align*}
-From (\ref{eq:tobins q eqm}), the fact that $\overline{X}$ is the steady-state investment rate, and the fact that $\Phi'(\overline{X}) = 1$,
+Since $A$ can be determined directly from parameters, this is a closed form formula for $\tilde{\Omega}$, which also determines the values of $\tilde{V}$, $\tilde{\calC\calE}$, and $M$ in the deterministic steady state.
+
+Skipping over the intratemporal consumption-labor condition (\ref{eq:intratemporal consumption labor eqm}) and the labor disutility function (\ref{eq:labor disutility function eqm stat}), the monetary policy rule (\ref{eq:taylor rule eqm stat}), the target inflation rate $\Pi$, and the Euler equation (\ref{eq:euler eqn eqm stat}) require $R$ to satisfy
+\begin{align}
+  R & = \frac{\Pi}{M}.
+\end{align}
+
+To pin down the steady state values of the model's supply block, I begin with the steady state investment rate. From (\ref{eq:tobins q eqm stat}), the fact that $\overline{X}$ is the steady-state investment rate, and the fact that $\Phi'(\overline{X}) = 1$,
 \begin{align*}
   Q = 1.
 \end{align*}
-From (\ref{eq:capital asset pricing eqm}), first observing that,
+From (\ref{eq:capital asset pricing eqm stat}),
+ first observing that,
 \begin{align*}
   \Phi(\overline{X}) = \frac{\overline{X}\chi}{\chi - 1} - \frac{\overline{X}}{\chi (\chi - 1)} = \overline{X}\frac{\chi^2 - 1}{\chi(\chi - 1)} = \overline{X}\frac{(\chi - 1)(\chi + 1)}{\chi (\chi - 1)} = \frac{\delta\chi}{\chi + 1}\frac{\chi + 1}{\chi} = \delta,
 \end{align*}
-which ensures that $K$ does indeed remain at steady state, it must be the cast that
+which ensures that $K$ does indeed remain at steady state, it must be the case that
 \begin{align*}
-  1 & = \beta(R_K + (1 - \delta + \Phi(\overline{X}) - \overline{X})\\
-  R_K & = \frac{1}{\beta} + \overline{X} - 1.
+  R_q & =  \Phi(\overline{X}) - \overline{X}\\
+  1 & = M(R_k + (1 - \delta + R_q))\exp(\eta_k)\\
+      & = M(R_k + 1 - \overline{X}) \exp(\eta_k)\\
+  R_k & = \frac{1}{M \exp(\eta_k)} + \overline{X} - 1.
 \end{align*}
-Equation (\ref{eq:mc soln eqm}) remains as it is but with time subscripts removed. From (\ref{eq:numerator recursion eqm}),
+Equation (\ref{eq:mc soln eqm stat}) remains as it is but with time subscripts removed. From (\ref{eq:numerator recursion eqm stat}),
 \begin{align*}
-  \tilde{S}_1 & = MC \cdot Y + \theta \beta \Pi^\epsilon \tilde{S}_1 \Rightarrow \tilde{S}_1 = \frac{MC\cdot Y}{1 - \theta\beta \Pi^\epsilon}.
+  S_1 & = MC \cdot Y + \exp(\mu_a)\theta M A \Pi^\epsilon S_1 \Rightarrow S_1 = \frac{MC\cdot Y}{1 - \exp(\mu_a)\theta M A \Pi^\epsilon}.
 \end{align*}
-From (\ref{eq:denominator recursion eqm}),
+From (\ref{eq:denominator recursion eqm stat}),
 \begin{align*}
-  \tilde{S}_2 & = Y + \theta\beta \Pi^{\epsilon - 1}\tilde{S}_2 \Rightarrow \tilde{S}_1 = \frac{Y}{1 - \theta\beta \Pi^{\epsilon - 1}}.
+  S_2 & = Y + \exp(\mu_a)\theta M A \Pi^{\epsilon - 1}S_2 \Rightarrow S_2 = \frac{Y}{1 - \exp(\mu_a)\theta M A \Pi^{\epsilon - 1}}.
 \end{align*}
-Thus,
+Given $S_1$ and $S_2$, $P^*$ can be calculated.
+From (\ref{eq:price dispersion evol eqm stat}),
 \begin{align*}
-  P^* & = \frac{\epsilon}{\epsilon - 1}MC \frac{1 - \theta \Pi^{\epsilon - 1}}{1 - \theta \Pi^{\epsilon}}.
+  \Delta & = \Pi^\epsilon\left((1 - \theta)(P^* \Pi)^{-\epsilon} + \theta \Delta\right)\\
+  \Delta & = \frac{(1 - \theta)(P^* \Pi)^{-\epsilon}}{\Pi^{-\epsilon} - \theta} = \frac{(1- \theta)(P^*)^{-\epsilon}}{1 - \theta \Pi^{\epsilon}}.
 \end{align*}
-From (\ref{eq:inflation from optimal reset price eqm}),
-\begin{align*}
-  \Pi^{1 - \epsilon} & = ( 1- \theta) \left(P^* \Pi\right)^{1 - \epsilon} + \theta
-\end{align*}
-Note that $P^*$ depends on $MC$ and fundamental parameters, hence the above equation pins down $MC$, which then pins down the ratio of $K$ to $L$.
-From (\ref{eq:price dispersion evol eqm}),
-\begin{align*}
-  V^p & = \Pi^\epsilon\left((1 - \theta)(P^* \Pi)^{-\epsilon} + \theta V^p\right)\\
-  V^p & = \frac{(1 - \theta)(P^* \Pi)^{-\epsilon}}{\Pi^{-\epsilon} - \theta} = \frac{(1- \theta)(P^*)^{-\epsilon}}{1 - \theta \Pi^{\epsilon}}.
-\end{align*}
-From the Taylor rule (\ref{eq:taylor rule eqm}), the steady state interest and inflation rates are $R$ and $\Pi$, respectively, and from the Euler equation (\ref{eq:euler eqn eqm}), $R$ must satisfy
-\begin{align*}
-  R = \frac{\Pi}{\beta}.
-\end{align*}
-From (\ref{eq:output market clearing eqm}),
+Thus, the marginal cost $MC$, $S_1$, $S_2$, optimal real reset price $P^*$, and $\Delta$ can be calculated once the wage $W$ is known.
+
+To finish, I show that the deterministic steady state's solution reduces to solving a nonlinear equation in $L$.
+From (\ref{eq:output market clearing eqm stat}),
 \begin{align*}
   C + X = Y.
 \end{align*}
-From (\ref{eq:aggregate supply eqm}),
+From (\ref{eq:aggregate supply eqm stat}),
 \begin{align*}
-  Y & = \frac{K^\alpha L^{1 - \alpha}}{V^p}.
+  Y & = \frac{(\exp(\eta_k)K)^\alpha L^{1 - \alpha} - \kappa_y}{\Delta}.
 \end{align*}
 As shown previously, the steady-state investment rate is $\overline{X}$, hence
 \begin{align*}
-  X = \overline{X}K
+  X = \overline{X}\exp(\eta_k)K.
 \end{align*}
-Finally, I claim that the deterministic steady state reduces to a nonlinear equation in $L$. Using the aggregate supply and capital accumulation equations,
+Using the aggregate supply and capital accumulation equations,
 \begin{align*}
-  C + \overline{X} K = \frac{K^\alpha L^{1 - \alpha}}{V^p}.
+  C + \overline{X} \exp(\eta_k)K = \frac{(\exp(\eta_k)K)^\alpha L^{1 - \alpha} - \kappa_y}{\Delta}.
 \end{align*}
-The optimal capital-labor ratio implies
+The optimal capital-labor ratio (\ref{eq:optimal capital labor ratio eqm stat}) implies
 \begin{align*}
-  K & = \frac{\alpha}{1 - \alpha}\frac{W}{R_K}L,\\
-  C + \overline{X} K & = \left(\frac{\alpha}{1 - \alpha}\right)^{\alpha} \left(\frac{W}{R_K}\right)^\alpha\frac{L}{V^p}.
+  \exp(\eta_k)K & = \frac{\alpha}{1 - \alpha}\frac{W}{R_K}L,\\
+  C + \overline{X} \exp(\eta_k) K & = \left(\left(\frac{\alpha}{1 - \alpha}\right)^{\alpha} \left(\frac{W}{R_K}\right)^\alpha L - \kappa_y\right)\Delta^{ - 1}.
 \end{align*}
-The intratemporal condition for consumption and labor implies
+Let $\calL(L)$ denote the steady state labor disutility given by (\ref{eq:labor disutility function eqm stat}). The intratemporal condition for consumption and labor (\ref{eq:intratemporal consumption labor eqm stat}) implies
 \begin{align*}
-  K & = \frac{\alpha}{1 - \alpha}\frac{\varphi L^\nu}{C^{-\gamma} R_K} L,\\
-  C + \delta K & = \left(\frac{\alpha}{1 - \alpha}\right)^{\alpha} \left(\frac{\varphi L^\nu}{C^{-\gamma}R_K }\right)^\alpha\frac{L}{V^p}.
+  \exp(\eta_k) K & = \frac{\alpha}{1 - \alpha}\frac{\psi \overline{\nu} C L^\nu }{ \calL(L) R_k} L ,\\
+  C + \overline{X}\exp(\eta_k) K & = \left(\left(\frac{\alpha}{1 - \alpha}\right)^{\alpha} \left(\frac{\psi \overline{\nu} C L^\nu}{\calL(L)R_k }\right)^\alpha L - \kappa_y\right)\Delta^{ - 1}
 \end{align*}
-Given a guess for $L$, I can compute $C$ using these two equations. Given $C$, I can compute $W$. Given the wage $W$, I can compute $K$ and $MC$. Given the marginal cost $MC$, I can compute the inflation-related terms.
-
-
-
+Given a guess for $L$, I can compute $C$ using these two equations. Given $C$, I can compute $W$. Given the wage $W$, I can compute $K$ and $MC$. Given the marginal cost $MC$, I can compute the remaining terms in the supply block.
 
 \section{Risk-Adjusted Linearization}\label{sec:ral}
 
@@ -833,128 +924,241 @@ We now proceed to converting the equilibrium conditions into a suitable form for
   z_{t + 1} & = \mu(z_t, y_t) + \Lambda(z_t, y_t) (y_{t + 1} - \E_t y_{t + 1}) + \Sigma(z_t, y_t) \varepsilon_{t + 1},
 \end{align*}
 where $z_t$ are (predetermined) state variables and $y_t$ are (nondetermined) jump variables.
+For the remainder of this section, lower case variables are generally the logs of previously upper case variables, whether or not they had tildes. The exceptions are as follows. The price dispersion $\Delta_t$ will remain in levels to avoid confusion with the depreciation rate $\delta$. The lowercase equivalent of the certainty equivalent $\calC\calE_t$ will be the plain lowercase letters $ce_t$. The lowercase equivalent of the labor disutility function $\calL(L_t)$ will be $\ell_t$.
 
-For the remainder of this section, lower case variables are the logs of previously upper case variables, and with a small abuse of notation, let $s_{1, t} = \log(S_{1, t})$ and $s_{2, t} = \log(S_{2, t})$. Additionally, let $r_{k, t} = \log(R_{K, t})$ and $v_t = \log(V_t^p)$.
-
-\fd
-
+\subsection{Endogenous Equilibrium Conditions}
+Equation (\ref{eq:epstein zin defn eqm stat}) becomes
+\begin{align*}
+  0 & = \frac{1}{1 - \psi}(\log((1 - \exp(\eta_{\beta, t})\beta)) + \omega_t) - v_t.
+\end{align*}
+Equation (\ref{eq:certainty equivalent eqm stat}) becomes
+\begin{align*}
+  0 & = \frac{1}{1 - \psi}(\log(1 - \exp(\eta_{\beta, t})\beta) - (\eta_{\beta, t} + \log(\beta)) + (\exp(\omega_t) - 1)) - ce_t
+\end{align*}
+Equation (\ref{eq:epstein zin wealth recursion eqm stat}) will be handled later because it is a forward difference equation. Equation (\ref{eq:stochastic discount factor eqm stat}) will be directly substituted rather than used as an equilibrium condition. Using the transformations for a risk-adjusted linearization, the stochastic discount factor becomes
+\begin{align*}
+  m_{t, t + 1} & = \eta_{\beta, t} + \log(\beta)  + \log(1 - \exp(\eta_{\beta, t + 1})) - \log(1 - \exp(\eta_{\beta, t})) - \gamma (c_{t + 1} - c_t) \\
+               &\quad + (1 - \gamma)(\ell_{t + 1} - \ell_t) + (\psi - \gamma)(v_{t + 1} - ce_t) - \gamma(a_{t + 1} + \mu_a)\\
+               & = \underbrace{\eta_{\beta, t} + \log(\beta) - \log(1 - \exp(\eta_{\beta, t})) + \gamma c_t - (1 - \gamma) \ell_t - (\psi - \gamma) ce_t - \gamma \mu_a}_{\xi} \\
+               &\quad + \underbrace{\log(1 - \exp(\eta_{\beta, t + 1})) - \gamma c_{t + 1} + (1 - \gamma) \ell_{t + 1} + (\psi - \gamma) v_{t + 1} - \gamma a_{t + 1}}_{\text{forward}}.
+\end{align*}
+Equation (\ref{eq:intratemporal consumption labor eqm stat}) becomes
+\begin{align*}
+  0 & = \log(\psi) + \eta_{l, t} + \log(\overline{\nu} + c_t + \nu l_t - \frac{1 - \psi}{\psi}\ell_t - w_t
+\end{align*}
+Equation (\ref{eq:labor disutility function eqm stat}) becomes
+\begin{align*}
+  0 & = \frac{\psi}{1 - \psi}\log\left(1 + (\psi - 1)\exp(\eta_{l, t})\overline{\nu}\frac{\exp((1 + \nu)l_t)}{1 + \nu}\right) - \ell_t.
+\end{align*}
+Equation (\ref{eq:euler eqn eqm stat}) becomes
+\begin{align*}
+  0 & = \E_t\left[\underbrace{r_t}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} - \underbrace{\pi_{t + 1}}_{\text{forward}}\right].
+\end{align*}
+Equation (\ref{eq:capital asset pricing eqm}) will be handled below because it is a forward difference equation. Equation (\ref{eq:mc soln eqm stat}) becomes
+\begin{align*}
+  mc_t & = -(1 - \alpha)\log(1 - \alpha) - \alpha \log(\alpha) + (1 - \alpha)w_t + \alpha r_{k, t}\\
+  0 & = (1 - \alpha)(w_t - \log(1 - \alpha)) + \alpha(r_{k, t} - \log(\alpha)) - mc_t.
+\end{align*}
+Equation (\ref{eq:optimal capital labor ratio eqm})
+becomes
+\begin{align*}
+  0 & = \log(\alpha) - \log(1 - \alpha) + w_t - r_{k, t} - (\eta_{k, t} + k_{t - 1} - l_t).
+\end{align*}
+Equation (\ref{eq:real optimal reset price eqm stat}) will be directly substituted rather than used as an equilibrium condition. Using the transformations for a risk-adjusted linearization, the real optimal reset price becomes
+\begin{align*}
+  p_t^* & = \log(\epsilon) - \log(\epsilon - 1) + s_{1, t} - s_{2, t}.
+\end{align*}
+Equations (\ref{eq:numerator recursion eqm stat}) and (\ref{eq:denominator recursion eqm stat}) will be handled below because they are forward difference equations. Equation (\ref{eq:tobins q eqm stat}) becomes
+\begin{align*}
+  0 & = \frac{1}{\chi} \log(\overline{X}) - \frac{1}{\chi}(x_t - \eta_{k, t} - k_{t - 1}) + q_t.
+\end{align*}
+Equation (\ref{eq:Rq defn eqm stat}) becomes
+\begin{align*}
+  r_{q, t} & = \log\left(\Phi\left(\exp(x_t - \eta_{k, t} - k_{t - 1})\right) - \Phi'\left(\exp(x_t - \eta_{k, t} - k_{t - 1})\right)\exp(x_t - \eta_{k, t} - k_{t - 1})\right)\\
+  r_{q, t} & = \log\left(\frac{\overline{X}^{1 / \chi}}{1 - 1 / \chi}\exp((1 - 1 / \chi)(x_t - \eta_{k, t} - k_{t - 1})) - \frac{\overline{X}}{\chi (\chi - 1)} - \overline{X}^{1 / \chi}\exp((1 -1 / \chi) (x_t - \eta_{k, t} - k_{t - 1}))\right)\\
+  0 & = \log\left(\frac{\overline{X}^{1 / \chi}}{\chi - 1}\exp((1 - 1 / \chi)(x_t -\eta_{k, t} - k_{t - 1})) - \frac{\overline{X}}{\chi(\chi - 1)}\right) - r_{q, t}
+\end{align*}
+Equation (\ref{eq:law of motion capital eqm stat}) becomes
+\begin{align*}
+  k_{(t - 1) + 1} & = \log\left(1 - \delta + \frac{\overline{X}^{1 / \chi}}{1 - 1 / \chi}\exp((1 - 1 / \chi)(x_t - \eta_{k, t} - k_{t - 1}))\right) + \eta_{k, t} + k_{t - 1}.
+\end{align*}
+Equation (\ref{eq:inflation from optimal reset price eqm stat}) becomes
+\begin{align*}
+  0 & = \log\left((1 - \theta)\exp((1 - \epsilon)(\pi_t^* + \pi_t)) + \theta\right) - (1 - \epsilon)\pi_t.
+\end{align*}
+Equation (\ref{eq:price dispersion evol eqm stat}) becomes
+\begin{align*}
+  0 & = \epsilon \pi_t + \log((1 - \theta) \exp(-\epsilon(p_t^* + \pi_t)) + \theta \Delta_{t - 1}) - \log(\Delta_t).
+\end{align*}
+Equation (\ref{eq:taylor rule eqm}) becomes
+\begin{align*}
+  0 & = \phi_r r_{t - 1} + (1 - \phi_r)r + (1 - \phi_r)(\phi_\pi(\pi_t - \pi) + \phi_y(y_t - y_{t - 1} + a_t)) + \eta_{r, t} - r_t.
+\end{align*}
+Equation (\ref{eq:output market clearing eqm stat}) becomes
+\begin{align*}
+  0 & = \log(\exp(c_t) + \exp(x_t)) - y_t.
+\end{align*}
+Equation (\ref{eq:aggregate supply eqm stat}) becomes
+\begin{align*}
+  0 & = \log(\exp(\alpha(\eta_{k, t} + k_{t - 1}) + (1 - \alpha) l_t) - \kappa_y) - \log(\Delta_t) - y_t.
+\end{align*}
 Equation (\ref{eq:intratemporal consumption labor eqm}) becomes
 \begin{align*}
   1 & = \varphi \exp(\eta_{l, t})\frac{L_t^\nu}{C_t^{-\gamma}W_t}\\
   0 & = \log \E_t\left[\exp\left(\underbrace{\log(\varphi) + \eta_{l, t} + \nu l_t - (- \gamma c_t + w_t)}_{\xi}\right)\right].
 \end{align*}
 
-Equation (\ref{eq:stochastic discount factor}) will not be used in the system of equations for the risk-adjusted linearization,
-but it simplifies the other equations. Taking logs and re-arranging yields
+\subsection{Exogenous Shocks}
+The autoregressive processes (\ref{eq:ar1 beta}) to (\ref{eq:ar1 R}) remain as they are. The productivity process becomes
 \begin{align*}
-  0 & =  \log(\beta) + \eta_{\beta, t + 1} + (-\gamma c_{t + 1}) - \eta_{\beta, t} - (-\gamma c_t) - m_{t + 1}\\
-  m_{t + 1}  & = \underbrace{\log(\beta) -\eta_{\beta, t} + \gamma c_t}_{\xi} + \underbrace{\eta_{\beta, t + 1} - \gamma c_{t + 1}}_{\text{forward-looking}}.
+  a_{t + 1} & = \sigma_a \varepsilon_{a, t + 1} + \kappa_a \eta_{k, t + 1}.
 \end{align*}
 
-Equation (\ref{eq:euler eqn eqm}) becomes
-\begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{r_t}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} - \underbrace{\pi_{t + 1}}_{\text{forward-looking}}  \right)\right].
-\end{align*}
+The disaster shock can be modeled in multiple ways, and the conditional cumulant generating function (ccgf) will be different depending on the specification. I shall derive the various ccgfs for the proposed models of the disaster shock.
 
-Equation (\ref{eq:tobins q eqm}) becomes
-\begin{align*}
-  0 & = \log\E_t\left[\exp\left(q_t + \log\left(\Phi'\left(\exp(x_t - k_{t - 1})\right)\right)\right)\right].
-\end{align*}
-
-For equation (\ref{eq:capital asset pricing eqm}), observe that the RHS is not log-linear in the forward-looking variables. To handle this case, I define the new variable
-\begin{align}\label{eq:Omega defn}
-  \Omega_t & = R_{K, t} + Q_t\left(1 - \delta + \Phi\left(\frac{X_t}{K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{K_{t - 1}}\right)\frac{X_t}{K_{t - 1}}\right).
+As stated previously, the first approach models the disaster shock as
+\begin{align}
+  \eta_{k, t + 1} & = \underline{\eta}_k p_t + \varepsilon_{k, t + 1},\\
+  p_{t + 1} & = \varepsilon_{p, t + 1} + \begin{cases}
+    \underline{\rho}_p \underline{p} + (1 - \underline{\rho}_p) \overline{p} & \text{if } p_t = \underline{p}\\
+    \overline{\rho}_p \overline{p} + (1 - \overline{\rho}_p) \underline{p} & \text{if } p_t = \overline{p},
+  \end{cases}\\
+  \varepsilon_{k, t} & = \eta_{k, t} - \E_{t- 1}[\eta_{k, t}],\\
+  \varepsilon_{p, t} & = \eta_{p, t} - \E_{t - 1}[\eta_{p, t}],
 \end{align}
-Then (\ref{eq:capital asset pricing eqm}) can be written as
+where $\eta_{k, t}$ takes the value $\underline{\eta}_k$ in a disaster with probability $p_{t - 1}$ and zero with probability $1 - p_{t - 1}$, and $p_t$ evolves according to a two-state Markov process with unconditional mean $p$; states $\underline{p}$ and $\overline{p}$; and persistence probabilities $\underline{\rho}_p$ and $\overline{\rho}_p$. The conditional moment-generating function for $\varepsilon_{k, t + 1}$ is
 \begin{align*}
-  1 & = \E_t\left[\frac{M_{t, t + 1} \Omega_{t + 1}}{Q_t}\right]\\
-  0 & = \log\E_t\left[\exp(m_{t + 1} + \omega_{t + 1} - q_t)\right].
+  M_{\varepsilon_{k, t + 1}}(s) & = \E_t[\exp(s (\eta_{k, t + 1} - \E_t[\eta_{k, t + 1}]))] = \E_t[\exp(s (\eta_{k, t + 1} - \underline{\eta}_k p_t))] = \frac{\E_t[\exp(s \eta_{k, t + 1})]}{\exp(\underline{\eta}_kp_t)}.
+\end{align*}
+Since $\eta_{k, t + 1} \mid p_t$ has a $\text{Bernoulli}(p_t)$ distribution and $p_t$ belongs to the time-$t$ information set,
+\begin{align*}
+  \E_t[\exp(s\eta_{k, t + 1})] = \exp(s \underline{\eta}_k)p_t + \exp(0)(1 - p_t) = 1 - p_t + p_t\exp(s \underline{\eta}_k).
+\end{align*}
+Thus, the ccgf for $\varepsilon_{k, t + 1}$ is
+\begin{align}\label{eq:ccgf bernoulli disaster indicator}
+  ccgf_{\varepsilon_{k, t + 1}}(s) = \log(1 - p_t + p_t \exp(s \underline{\eta}_k)) - \underline{\eta}_k - p_t.
+\end{align}
+
+The conditional moment-generating function for $\varepsilon_{p, t + 1}$ is
+\begin{align*}
+  M_{\varepsilon_{p, t + 1}}(s) & = \E_t[\exp(s (p_{t + 1} - \E_t[p_{t + 1}]))] = \frac{\E_t[\exp(s p_{t + 1})]}{\E_t[p_{t + 1}]},
+\end{align*}
+where
+\begin{align*}
+  \E_t[p_{t + 1}] =
+  \begin{cases}
+    \underline{\rho}_p \underline{p} + (1 - \underline{\rho}_p) \overline{p} & \text{if } p_t = \underline{p}\\
+    \overline{\rho}_p \overline{p} + (1 - \overline{\rho}_p) \underline{p} & \text{if } p_t = \overline{p}.
+  \end{cases}
+\end{align*}
+Since $p_t$ is part of the time-$t$ information set, the ccgf of $p_{t + 1}$ is also Bernoulli:
+\begin{align}\label{eq:ccgf bernoulli disaster probability}
+  ccgf_{\varepsilon_{p, t + 1}}(s) & =
+                                     \begin{cases}
+                                       \log((1 - \underline{\rho}_p) \exp(s \overline{p}) + \underline{\rho}_p\exp(s \underline{p}))  - \log(\E_t[p_{t + 1}]) & \text{if } p_t = \underline{p}\\
+                                       \log((1 - \overline{\rho}_p) \exp(s \underline{p}) + \overline{\rho}_p\exp(s \overline{p}))  - \log(\E_t[p_{t + 1}]) & \text{if } p_t = \overline{p}.
+                                     \end{cases}
+\end{align}
+
+
+The second approach models the time variation in $p_t$ as a discrete-time Cox-Ingersoll-Ross process. The disaster shock $\eta_{k, t}$ still follows the martingale difference sequence $\tilde{\eta}_{k, t}$. Since $p_t$ is still part of the time-$t$ information set, the ccgf for $\varepsilon_{k, t + 1}$ remains the same. If $\varepsilon_{p, t + 1}$ is a truncated normal, then the moment-generating function will be\footnote{See \url{http://web.ist.utl.pt/~ist11038/compute/qc/,truncG/lecture4k.pdf}.}
+\begin{align*}
+  M_{\varepsilon_{p, t + 1}}(s) & = \exp\left( \mu(p_t) s + \frac{s^2}{2}\right)\left(1 - \Phi\left(-\left(\frac{(1 - \rho_p)p + \rho_p p_t}{\sqrt{p_t} \sigma_p}\right) - (s + \mu(p_t))\right)\right),
+\end{align*}
+where $\mu(p_t)$ computes the mean necessary to ensure $\E_t[\varepsilon_{p, t + 1}] = 0$ and $\Phi(\cdot)$ in this equation refers to the CDF of the standard normal distribution. Thus, the ccgf is
+\begin{align}
+  ccgf_{\varepsilon_{p, t + 1}}(s) & =  \mu(p_t) s + \frac{s^2}{2} + \log\left(1 - \Phi\left(-\left(\frac{(1 - \rho_p)p + \rho_p p_t}{\sqrt{p_t} \sigma_p}\right) - (s + \mu(p_t))\right)\right).
+\end{align}
+
+The third approach models the time variation in $p_t$ in logs to avoid $p_t$ moving below zero:
+\begin{align}
+  \log(p_{t + 1}) & = (1 - \rho_p) \log(p) + \rho_p \log(p_t) + \sigma_p \varepsilon_{p, t + 1}.
+\end{align}
+In this case, $\log(p_t)$ is the state variable instead of $p_t$. If $p_{t + 1}$ enters in any of the equilibrium conditions, e.g. if the probability of $\eta_{k, t} = \underline{\eta}_k$ is $p_t$ rather than $p_{t - 1}$, then $p_t$ needs to be added as a jump variable with the additional equilibrium condition
+\begin{align}
+  0 & = \exp(\log(p_t)) - p_t.
+\end{align}
+To achieve a better approximation, I could also add consistency conditions for forward expectations. Let $\hat{p}_{t, t + 1} = \E_t[p_{t + 1}]$. Then Markov rational expectations require
+\begin{align*}
+  1 & = \E_t\left[\frac{p_{t + 1}}{\hat{p}_{t, t + 1}}\right].
+\end{align*}
+Now let $\hat{p}_{t, t + s} = \E_t[p_{t + s}]$. Then Markov rational expectations also require
+\begin{align*}
+  1 & = \E_t\left[\frac{\hat{p}_{t + 1, (t + s - 1) + 1}}{\hat{p}_{t, t + s}}\right].
 \end{align*}
 
-Equation (\ref{eq:mc soln eqm}) becomes
+The fourth approach models the disaster shock as an exponentially distributed shock $\eta_{k, t} \sim \text{Exponential}(p_{t - 1})$, where $p_t$ is now the intensity of the exponential distribution. The evolution of $p_t$ can be modeled in the three ways described previously. The conditional moment generating function for $\varepsilon_{k, t + 1}$ is
 \begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{(1 - \alpha)w_t + \alpha r_{k, t} - a_t -(1 - \alpha)\log(1 - \alpha) - \alpha \log(\alpha) - mc_t}_{\xi} \right)\right].
+  M_{\varepsilon_{k, t + 1}}(s) & = \E_t[\exp(s (\eta_{k, t + 1} - \E_t[\eta_{k, t + 1}]))] = \frac{\E_t[\exp(s \eta_{k, t + 1})]}{\exp(p_t)},
+\end{align*}
+hence the ccgf for $\eta_{k, t + 1}$ is
+\begin{align}
+  ccgf_{\eta_{k, t + 1}}(s) & = \log\left(\frac{p_t}{p_t - s}\right) - p_t.
+\end{align}
+
+The fifth approach uses time variation in the size of the shock rather than the probability. The disaster shock $\eta_{k, t}$ takes the form
+\begin{align}
+  \eta_{k, t} = \hat{\eta}_{k, t} p_t,
+\end{align}
+where $\hat{\eta}_{k, t}$ is modeled as a Bernoulli random variable and $p_t$ evolves according to a Markov chain, the Cox-Ingersoll-Ross process, or in logs. Let the probability that $\hat{\eta}_{k, t}$ equals one be $j$. The moment-generating function for $\eta_{k, t}$ is
+\begin{align*}
+  M_{\eta_{k, t}}(s) = \E_t[\exp(s \eta_{k, t})] & = \E_t[\E_t[\exp(s \eta_{k, t}) \mid p_t]]\\
+                                                 & = \E_t[\exp(0)(1 - j) + j \exp( s p_t)]\\
+                                                 & = 1 - j + j\E_t[\exp(s p_t)]\\
+                                                 & = 1 - j + j M_{p_t}(s),
+\end{align*}
+where $M_{p_t}(s)$ is the conditional moment-generating function for $p_t$.\footnote{For example, if $\log(p_t)$ follows an AR(1) process, then $p_t$ will be log-normally distributed with a mean depending on $p_{t - 1}$.}
+
+The sixth approach allows time variation in the size and probability of the shock through a mixture model. As discussed \href{https://chenwilliam77.github.io/RiskAdjustedLinearizations.jl/stable/tips/\#ccgf-tips-1}{in these notes}, if $X$ and $Y$ are random variables, and the moment-generating function of the conditional random variable $X\mid Y$ can be written as
+\begin{align*}
+  M_{X \mid Y}(s) = C_1(s) \exp(C_2(s) Y),
+\end{align*}
+then the moment-generating function of $X$ is
+\begin{align*}
+  M_X(s) & = C_1(s) M_Y(C_2(s)).
+\end{align*}
+Thus, the primary problem in deriving the ccgf of a mixture model for the disaster risk is finding $C_1(s)$ and $C_2(s)$ for the size of the disaster shock. If $-\eta_{k, t} \sim \text{Gamma}(j_t, \tilde{j})$, then
+\begin{align*}
+  M_{-\eta_{k, t} \mid j_t}(s) & = (1 - \tilde{j} s)^{-j_t} = \exp(-j_t\log(1 - \tilde{j} s)) = \exp(-\log(1 - \tilde{j} s) j_t)\\
+\RA  C_1(s) & = 1,\quad \quad C_2(s) = -\log(1 - \tilde{j} s).
+\end{align*}
+If $-\eta_{k, t} \sim \text{ShiftedExponential}(\tilde{j}, j_t)$,\footnote{The pdf is $f(x) = \tilde{j} \exp( - \tilde{j}(x - j_t))$.} then
+\begin{align*}
+  M_{-\eta_{k, t} \mid j_t}(s) & = \tilde{j}\int_{j_t}^\infty \exp(s x)\exp(-\tilde{j}(x - j_t)\, dx = \tilde{j} \exp(\tilde{j}j_t)\int_{j_t}^\infty \exp(-(\tilde{j} - s)x)\, dx\\
+                               & = \tilde{j} \exp(\tilde{j} j_t)\left(\frac{-\exp(-(\tilde{j} - s) \infty)}{\tilde{j} - s} + \frac{\exp(-(\tilde{j} - s) j_t)}{\tilde{j} - s}\right)\\
+                               & = \frac{\tilde{j} \exp(s j_t)}{\tilde{j} - s}\\
+  \RA C_1(s) & = \frac{\tilde{j}}{\tilde{j} - s}, \quad\quad C_2(s) = s.
+\end{align*}
+If $\eta_{k, t} \sim N(-j_t, j_t \tilde{j}^2)$, then
+\begin{align*}
+  M_{\eta_{k, t} \mid j_t}(s) & = \exp(-j_t  s + j_t \tilde{j}^2 s^2  / 2) = \exp((-s + \tilde{j}^2 s^2 / 2) j_t)\\
+  \RA C_1(s) & = 1, \quad\quad C_2(s) = -s + \frac{\tilde{j}^2\tilde{s}^2}{2}.
 \end{align*}
 
-Equation (\ref{eq:optimal capital labor ratio eqm}) becomes
-\begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{k_{t - 1} - l_t - \log\left(\frac{\alpha}{1 - \alpha}\right) - (w_t - r_{k, t})}_{\xi} \right)\right].
-\end{align*}
+The seventh approach models disaster risk as a ``risk-on risk-off'' phenomenon. This case requires the disaster shock to take on at least two possible states in the future. Let $d_t = 1$ denote ``risk-on'' or ``disaster times'', $d_t = 0$ denote ``risk-off'' or ``normal times'', and  $\rho_{d, i, t}$ be the persistence of remaining in state $i \in \{0, 1\}$. If $d_t= 1$, then $\eta_{k, t}$ either realizes a disaster shock with probability $\rho_{d, 1, t}$ or equals zero with probability $1 - \rho_{d, 1, t}$. Applying tower property yields the ccgf for $\eta_{k, t}$.
 
-Like the stochastic discount factor, equation (\ref{eq:real optimal reset price eqm}) will not be used in the system of equations, but it will be useful to simplify other equations. Taking logs yields
-\begin{align*}
-  p_t^* & = \log\left(\frac{\epsilon}{\epsilon - 1}\right) + s_{1, t} - s_{2, t}.
-\end{align*}
+\subsection{Forward Difference Equations}
 
-Equation (\ref{eq:numerator recursion eqm}) becomes
-\begin{align*}
-  & S_{1, t} - MC_t Y_t\\
-   & = \E_t\left[\exp\left(\log(\theta) + m_{t + 1} + \epsilon \pi_{t + 1} + s_{1, t + 1}\right)\right]\\
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\theta) - \log(\exp(s_{1, t}) - \exp(mc_t)\exp(y_t))}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right]
-\end{align*}
-and equation (\ref{eq:denominator recursion eqm}) becomes
-\begin{align*}
-  0 & = \log\E_t\left[\exp\left(\underbrace{\log(\theta) - \log(\exp(s_{2, t}) - \exp(y_t))}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1) \pi_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right].
-\end{align*}
-
-Equation (\ref{eq:inflation from optimal reset price eqm}) becomes
-\begin{align*}
-  1 & = \frac{\Pi_t^{1 - \epsilon}}{(1 - \theta)(P_t^*\Pi_t)^{1 - \epsilon} + \theta}\\
-  0 & = \log\E_t\left[\exp\left((1 - \epsilon)\pi_t - \log((1 - \theta) \exp((1 - \epsilon)(p_t^* + \pi_t)) + \theta)\right)\right].
-\end{align*}
-
-Equation (\ref{eq:price dispersion evol eqm}) becomes
-\begin{align*}
-  1 & = \frac{V_t^p}{\Pi_t^\epsilon((1 - \theta) (P_t^*\Pi_t)^{-\epsilon} + \theta V_{t - 1}^p)}\\
-  0 & = \log\E_t\left[\exp\left(v_t - \epsilon \pi_t - \log((1 - \theta) \exp(-\epsilon(p_t^* + \pi_t)) + \theta \exp(v_{t - 1}))\right)\right].
-\end{align*}
-
-Equation (\ref{eq:taylor rule eqm}) becomes
-\begin{align*}
-  0 & = \log\E_t\left[\exp\left(\phi_r r_{t - 1} + (1 - \phi_r)r + (1 - \phi_r)(\phi_\pi(\pi_t - \pi) + \phi_y(y_t - y_{t - 1})) + \eta_{r, t} - r_t\right)\right].
-\end{align*}
-
-Equation (\ref{eq:output market clearing eqm}) becomes
-\begin{align*}
-  0 & = \log\E_t\left[\exp(y_t - \log(\exp(c_t) + \exp(x_t)))\right].
-\end{align*}
-
-Equation (\ref{eq:aggregate supply eqm}) becomes
-\begin{align*}
-  0 & = \log\E_t\left[\exp(a_t + \alpha k_{t - 1} + (1 - \alpha)l_t - v_t - y_t)\right].
-\end{align*}
-
-Equation (\ref{eq:law of motion capital eqm}) becomes
-\begin{align*}
-  k_t & = \log\left(1 + \frac{\overline{X}^{1 / \chi}}{1 - 1 / \chi}(\exp(x_t - k_{t - 1}))^{1 - 1 / \chi} - \frac{\overline{X}}{1 - 1 / \chi} \right) + k_{t - 1}.
-\end{align*}
-
-The autoregressive processes (\ref{eq:ar1 beta}) to (\ref{eq:ar1 R}) remain as they are.\\
-
-The jump variables are $y_t$, $c_t$, $l_t$, $w_t$, $r_t$, $\pi_t$, $q_t$, $x_t$, $r_{k, t}$, $\omega_t$, $mc_t$, $s_{1, t}$, $s_{2, t}$, and $v_t$.
-The state variables are $k_{t - 1}$, $v_{t - 1}$, $r_{t - 1}$, $y_{t - 1}$, and the autoregressive processes. The equations defining the evolution of the lags $v_{t - 1}$, $r_{t - 1}$, and $y_{t - 1}$ are obtained by the formula $z_{(t - 1) + 1} = z_t$.
-
-
-This system has three forward difference equations (\ref{eq:capital asset pricing eqm}), (\ref{eq:numerator recursion eqm}), and
-(\ref{eq:denominator recursion eqm}). To ensure accuracy of the risk-adjusted linearization, I derive $N$-period
+This system has four forward difference equations (\ref{eq:epstein zin wealth recursion eqm stat}), (\ref{eq:capital asset pricing eqm stat}), (\ref{eq:numerator recursion eqm stat}), and
+(\ref{eq:denominator recursion eqm stat}). To ensure accuracy of the risk-adjusted linearization, I derive $N$-period
 ahead forward difference equations for all three.\\
 
-First, redefine $\Omega_t$ as
+ First, redefine $\Omega_t$ as
 \begin{align*}
   \Omega_t = 1 - \delta + \Phi\left(\frac{X_t}{K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{K_{t - 1}}\right) \frac{X_t}{K_{t - 1}}.
 \end{align*}
 Then we can write (\ref{eq:capital asset pricing eqm}) recursively as
 \begin{align*}
-  Q_t & = \E_t[M_{t, t + 1} (R_{K, t + 1} + Q_{t + 1}\Omega_{t + 1})]\\
-      & = \E_t[M_{t, t + 1}R_{K, t + 1} + \Omega_{t + 1}M_{t, t + 1}\E_{t + 1}[M_{t, t + 2}(R_{K, t + 2} + Q_{t  + 2}\Omega_{t + 1})]]\\
-      & = \E_t[M_{t, t + 1}R_{K, t + 1}] + \Omega_{t + 1}\E_t\E_{t + 1}[M_{t, t + 1}M_{t, t + 2}(R_{K, t + 2} + Q_{t  + 2}\Omega_{t + 2})].
+  Q_t & = \E_t[M_{t, t + 1} (R_{k, t + 1} + Q_{t + 1}\Omega_{t + 1})]\\
+      & = \E_t[M_{t, t + 1}R_{k, t + 1} + \Omega_{t + 1}M_{t, t + 1}\E_{t + 1}[M_{t, t + 2}(R_{k, t + 2} + Q_{t  + 2}\Omega_{t + 1})]]\\
+      & = \E_t[M_{t, t + 1}R_{k, t + 1}] + \Omega_{t + 1}\E_t\E_{t + 1}[M_{t, t + 1}M_{t, t + 2}(R_{k, t + 2} + Q_{t  + 2}\Omega_{t + 2})].
 \end{align*}
 By the tower property,
 \begin{align*}
-  Q_t & = \E_t[M_{t, t + 1}R_{K, t + 1}] + \Omega_{t + 1}\E_t[M_{t, t + 1}M_{t, t + 2}(R_{K, t + 2} + Q_{t  + 2}\Omega_{t + 2})]\\
-      & = \E_t\left[\left(\sum_{s = 1}^2 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right) \left(\prod_{u = 1}^sM_{t, t + u}\right)R_{K, t + s}\right) + M_{t, t + 1}M_{t, t + 2}Q_{t + 2}\Omega_{t + 1}\Omega_{t + 2}\right]\\
-      & = \E_t\left[\left(\sum_{s = 1}^2 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right)\left(\prod_{u = 1}^sM_{t, t + u}\right)R_{K, t + s}\right) + \prod_{s = 1}^2 (M_{t, t + s}\Omega_{t + s})\E_{t + 2}[M_{t, t + 3}(R_{K, t + 3} + Q_{t + 3}\Omega_{t + 3})]\right]\\
-      & = \E_t\left[\left(\sum_{s = 1}^3 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right)\left(\prod_{u = 1}^sM_{t, t + u}\right) R_{K, t + s}\right) + \prod_{s = 1}^3(M_{t, t + s}\Omega_{t + s})Q_{t + 3}\right]
+  Q_t & = \E_t[M_{t, t + 1}R_{k, t + 1}] + \Omega_{t + 1}\E_t[M_{t, t + 1}M_{t, t + 2}(R_{k, t + 2} + Q_{t  + 2}\Omega_{t + 2})]\\
+      & = \E_t\left[\left(\sum_{s = 1}^2 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right) \left(\prod_{u = 1}^sM_{t, t + u}\right)R_{k, t + s}\right) + M_{t, t + 1}M_{t, t + 2}Q_{t + 2}\Omega_{t + 1}\Omega_{t + 2}\right]\\
+      & = \E_t\left[\left(\sum_{s = 1}^2 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right)\left(\prod_{u = 1}^sM_{t, t + u}\right)R_{k, t + s}\right) + \prod_{s = 1}^2 (M_{t, t + s}\Omega_{t + s})\E_{t + 2}[M_{t, t + 3}(R_{k, t + 3} + Q_{t + 3}\Omega_{t + 3})]\right]\\
+      & = \E_t\left[\left(\sum_{s = 1}^3 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right)\left(\prod_{u = 1}^sM_{t, t + u}\right) R_{k, t + s}\right) + \prod_{s = 1}^3(M_{t, t + s}\Omega_{t + s})Q_{t + 3}\right]
 \end{align*}
 and so on, with the abuse of notation that $\prod_{u = 1}^0 \Omega_{t + u} = 1$. Given this recursive structure, define $D_{Q, t}^{(n)}$ and $P_{Q, t}^{(n)}$ as
 \begin{align*}
@@ -963,7 +1167,7 @@ and so on, with the abuse of notation that $\prod_{u = 1}^0 \Omega_{t + u} = 1$.
 \end{align*}
 with boundary conditions
 \begin{align*}
-  D_{Q, t}^{(0)} & = \frac{R_{K, t}}{\Omega_t}\\
+  D_{Q, t}^{(0)} & = \frac{R_{k, t}}{\Omega_t}\\
   P_{Q, t}^{(0)} & = Q_.
 \end{align*}
 Then I may write the $N$-period ahead recursive form of equation (\ref{eq:capital asset pricing eqm}) as
@@ -985,11 +1189,11 @@ therefore be moved insided the conditional expectation $\E_{t + 1}[\cdot]$. Cont
 \end{align*}
 Similarly, for $D_{Q, t}$, I have
 \begin{align*}
-  D_{Q, t}^{(1)} & = \E_t\left[\Omega_{t + 1}M_{t, t + 1}\frac{R_{K, t + 1}}{\Omega_{t + 1}}\right] = \E_t[M_{t, t + 1} R_{K, t + 1}]\\
-  D_{Q, t}^{(2)} & = \E_t[\Omega_{t + 1}M_{t, t + 1}\E_{t + 1}[M_{t, t + 2}R_{K, t + 2}]]\\
-                 & = \E_t[\Omega_{t + 1}M_{t, t + 1}M_{t, t + 2}R_{K, t + 2}]\\
-  D_{Q, t}^{(3)} & = \E_t[\Omega_{t + 1}M_{t, t + 1}\E_{t + 1}[\Omega_{t + 2}M_{t, t + 2}M_{t, t + 3}R_{K, t + 3}]]\\
-                 & = \E_t[\Omega_{t + 1}\Omega_{t + 2}M_{t, t + 1}M_{t, t + 2}M_{t, t + 3}R_{K, t + 3}].
+  D_{Q, t}^{(1)} & = \E_t\left[\Omega_{t + 1}M_{t, t + 1}\frac{R_{k, t + 1}}{\Omega_{t + 1}}\right] = \E_t[M_{t, t + 1} R_{k, t + 1}]\\
+  D_{Q, t}^{(2)} & = \E_t[\Omega_{t + 1}M_{t, t + 1}\E_{t + 1}[M_{t, t + 2}R_{k, t + 2}]]\\
+                 & = \E_t[\Omega_{t + 1}M_{t, t + 1}M_{t, t + 2}R_{k, t + 2}]\\
+  D_{Q, t}^{(3)} & = \E_t[\Omega_{t + 1}M_{t, t + 1}\E_{t + 1}[\Omega_{t + 2}M_{t, t + 2}M_{t, t + 3}R_{k, t + 3}]]\\
+                 & = \E_t[\Omega_{t + 1}\Omega_{t + 2}M_{t, t + 1}M_{t, t + 2}M_{t, t + 3}R_{k, t + 3}].
 \end{align*}
 Since $P_{Q, t}^{(n)}$ and $D_{Q, t}^{(n)}$ are time-$t$ conditional expectations, they are measurable at time $t$, so they are not forward-looking variables. Thus, to get this version of (\ref{eq:capital asset pricing eqm}) in the appropriate form, define $d_{q, n, t} = \log(D_{Q, t}^{(n)})$ and $p_{q, n, t} = \log(P_{Q, t}^{(n)})$, and use the following $2N + 1$ equations:
 \begin{align}
@@ -1062,6 +1266,10 @@ It is straightforward to show that a similar recursive form applies to (\ref{eq:
       \end{cases}
 \end{align}
 where terms and boundary conditions are analogously defined.
+
+The jump variables are $y_t$, $c_t$, $l_t$, $w_t$, $r_t$, $\pi_t$, $q_t$, $x_t$, $r_{k, t}$, $r_{q, t}$, $mc_t$, $s_{1, t}$, $s_{2, t}$, and $\log(\Delta_t)$.
+The state variables are $k_{t - 1}$, $\log(\Delta_{t - 1})$, $r_{t - 1}$, $y_{t - 1}$, and the autoregressive processes. The equations defining the evolution of the lags $v_{t - 1}$, $r_{t - 1}$, and $y_{t - 1}$ are obtained by the formula $z_{(t - 1) + 1} = z_t$.
+
 
 
 
