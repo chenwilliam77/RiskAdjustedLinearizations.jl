@@ -102,7 +102,8 @@ at ``z_t``, hence
 \end{aligned}
 ```
 
-To calculate the cumulant-generating function of ``\xi_t``, we use the results for mixture distributions in
+To calculate the cumulant-generating function of ``\xi_t``, aside from direct calculation,
+we can also use the results for mixture distributions in
 [Villa and Escobr (2006)](https://www.jstor.org/stable/27643733?seq=2#metadata_info_tab_contents) or
 [Bagui et al. (2020)](https://www.atlantis-press.com/journals/jsta/125944282/view).
 Given random variables ``X`` and ``Y``, assume the conditional distribution ``X\mid Y`` and the
