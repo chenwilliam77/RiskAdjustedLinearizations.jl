@@ -1,12 +1,12 @@
-# This script actually solves the WachterDisasterRisk model with a risk-adjusted linearization
-# and times the methods, if desired
+# This script solves the NKCapital model with a risk-adjusted linearization.
+# Note that, under default parameters, forward difference equations can be
+# approximated up to four periods ahead. A five-period ahead
+# approximation does not yield a saddle-path stable
+# deterministic or stochastic steady state.
 using RiskAdjustedLinearizations, JLD2, LinearAlgebra, Test
 
-# Number of quadrature points
-n_GH = 5
-include("nk_with_capital.jl")
-
 # Settings
+define_functions      = true
 testing               = true         # check model's solution under default parameters against saved output
 autodiff              = false
 algorithm             = :relaxation
@@ -14,7 +14,12 @@ euler_equation_errors = false
 test_price_dispersion = false        # check if price dispersion in steady state is always bounded below by 1
 plot_irfs             = false
 horizon               = 40    # horizon for IRFs
-N_approx              = 5     # Number of periods ahead used for forward-difference equations
+N_approx              = 4     # Number of periods ahead used for forward-difference equations
+n_GH                  = 5     # number of nodes for Gauss-Hermite quadrature
+
+if define_functions
+    include("nk_with_capital.jl")
+end
 
 # Set up
 m_nk = NKCapital(; N_approx = N_approx) # create parameters
@@ -31,6 +36,9 @@ if testing
     test_m = nk_capital(test_m_nk) # instantiate risk-adjusted linearization
 
     solve!(test_m; algorithm = :deterministic, verbose = :none)
+    zdet = copy(test_m.z)
+    ydet = copy(test_m.y)
+    Psidet = copy(test_m.Ψ)
     @test test_m.z ≈ out["z_det"]
     @test test_m.y ≈ out["y_det"]
     @test test_m.Ψ ≈ out["Psi_det"]
@@ -40,12 +48,12 @@ if testing
     @test test_m.y ≈ out["y"]
     @test test_m.Ψ ≈ out["Psi"]
 
-    test_5_m_nk = NKCapital(; N_approx = 5) # create parameters
-    test_5_m = nk_capital(test_5_m_nk) # instantiate risk-adjusted linearization
-    solve!(test_5_m; algorithm = :relaxation, verbose = :none)
-    @test test_5_m.z ≈ out["z_5"]
-    @test test_5_m.y ≈ out["y_5"]
-    @test test_5_m.Ψ ≈ out["Psi_5"]
+    test_4_m_nk = NKCapital(; N_approx = 4) # create parameters
+    test_4_m = nk_capital(test_4_m_nk) # instantiate risk-adjusted linearization
+    solve!(test_4_m; algorithm = :relaxation, verbose = :none)
+    @test test_4_m.z ≈ out["z_4"]
+    @test test_4_m.y ≈ out["y_4"]
+    @test test_4_m.Ψ ≈ out["Psi_4"]
 end
 
 if test_price_dispersion
@@ -177,9 +185,11 @@ if plot_irfs
         EₜRₖₜ₊₁ = exp.(y_irfs[k][m_nk.J[:rk], 2:end] .+ m.y[m_nk.J[:rk]])
         EₜQₜ₊₁ = exp.(y_irfs[k][m_nk.J[:q], 2:end] .+ m.y[m_nk.J[:q]])
         EₜΩₜ₊₁ = exp.(y_irfs[k][m_nk.J[:ω], 2:end] .+ m.y[m_nk.J[:ω]])
-        exc_ret = (EₜRₖₜ₊₁ + EₜQₜ₊₁ .* EₜΩₜ₊₁) ./ exp.(y_irfs[k][m_nk.J[:q], 1:end - 1] .+ m.y[m_nk.J[:q]]) -
-            exp.(y_irfs[k][m_nk.J[:r], 1:end - 1] - y_irfs[k][m_nk.J[:π], 1:end - 1] .+ (m.y[m_nk.J[:r]] - m.y[m_nk.J[:π]])) .-
-            (exp.(m.y[m_nk.J[:rk]]) + exp.(m.y[m_nk.J[:q]] + m.y[m_nk.J[:ω]])) / exp.(m.y[m_nk.J[:q]])
+        exc_ret = ((EₜRₖₜ₊₁ + EₜQₜ₊₁ .* EₜΩₜ₊₁) ./ exp.(y_irfs[k][m_nk.J[:q], 1:end - 1] .+ m.y[m_nk.J[:q]])) -
+            (exp.(y_irfs[k][m_nk.J[:r], 1:end - 1] - y_irfs[k][m_nk.J[:π], 1:end - 1] .+
+                  (m.y[m_nk.J[:r]] - m.y[m_nk.J[:π]]))) .-
+            (((exp(m.y[m_nk.J[:rk]]) + exp.(m.y[m_nk.J[:q]] + m.y[m_nk.J[:ω]])) / exp.(m.y[m_nk.J[:q]])) -
+             exp(m.y[m_nk.J[:r]] - m.y[m_nk.J[:π]]))
         plot_dicts[k][:real_excess_ret] = plot(1:(horizon - 1), exc_ret, label = "Real Excess Returns",
                                                linewidth = 3, color = :black)
     end

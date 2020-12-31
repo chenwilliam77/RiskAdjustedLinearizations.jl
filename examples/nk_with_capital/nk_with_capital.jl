@@ -45,8 +45,8 @@ function NKCapital(; β::T = .99, γ::T = 3.8, φ::T = 1., ν::T = 1., χ::T = 4
     # state variables, instead of e.g. η_L and η_A, I use η_l and η_a
     # since the uppercase variable will not appear in the jumps/states.
     S_init  = [:k₋₁, :v₋₁, :r₋₁, :output₋₁, :η_β, :η_l, :η_a, :η_r] # State Variables
-    J_init  = [:output, :c, :l, :w, :r, :π, :q, :x, :rk, :ω, :mc,
-               :s₁, :s₂, :v] # Jump variables
+    J_init  = [:output, :c, :l, :w, :r, :π, :q, :x, :rk, :mc,
+               :s₁, :s₂, :v, :ω] # Jump variables
     E_init  = [:wage, :euler, :tobin, :cap_ret,
                :eq_mc, :kl_ratio, :eq_s₁, :eq_s₂,
                :phillips_curve, :price_dispersion,
@@ -139,13 +139,13 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
         F[kl_ratio]            = z[k₋₁] - y[l] - log(α / (1. - α)) - (y[w] - y[rk])
         F[phillips_curve]      = (1. - ϵ) * y[π] - log((1. - θ) * exp((1. - ϵ) * (pstarv + y[π])) + θ)
         F[price_dispersion]    = y[v] - ϵ * y[π] - log((1. - θ) * exp(-ϵ * (pstarv + y[π])) + θ * exp(z[v₋₁]))
-        F[mp]                  = ϕ_r * z[r₋₁] + (1. - ϕ_r) .* (y[r] + ϕ_π * (y[π] - π_ss) +
-                                                               ϕ_y * (y[output] - z[output₋₁])) + z[η_r] - y[r]
+        F[mp]                  = (1. - ϕ_r) * r_ss + ϕ_r * z[r₋₁] + (1. - ϕ_r) .*
+            (ϕ_π * (y[π] - π_ss) + ϕ_y * (y[output] - z[output₋₁])) + z[η_r] - y[r]
         F[output_market_clear] = y[output] - log(exp(y[c]) + exp(y[x]))
         F[production]          = z[η_a] + α * z[k₋₁] + (1. - α) * y[l] - y[v] - y[output]
 
         ## Forward-difference equations separately handled b/c recursions
-        F[eq_omega] = 1. - δ + Φv - Φ′v * exp(y[x] - z[k₋₁]) - exp(y[ω])
+        F[eq_omega] = log(1. - δ + Φv - Φ′v * exp(y[x] - z[k₋₁])) - y[ω]
         F[cap_ret]  = y[q] - log(sum([exp(y[J[Symbol("dq$(i)")]]) for i in 1:N_approx]) +
                                 exp(y[J[Symbol("pq$(N_approx)")]]))
         F[eq_s₁]    = y[s₁] - log(sum([exp(y[J[Symbol("ds₁$(i)")]]) for i in 0:(N_approx - 1)]) +
@@ -258,7 +258,7 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
     RK0 = 1. / β + X̄ - 1.
 
     # Guesses
-    L0 = .5548
+    L0 = .5548429
     V0 = 1. # true if π_ss = 0, otherwise this is only a reasonable guess
 
     # Implied values given guesses
