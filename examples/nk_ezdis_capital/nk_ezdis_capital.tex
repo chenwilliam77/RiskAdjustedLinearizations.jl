@@ -208,9 +208,9 @@ the labor disutility function\footnote{This functional form is proposed by Shime
 where $\eta_{l, t}$ is a shock to labor disutility, $\overline{\nu}$ is the disutility of labor, $\nu$ is the inverse Frisch elasticity
 subject to the budget constraint
 \begin{align}\label{eq:hh budget constraint}
-  C_t + \frac{B_t}{P_t} + Q_tK_t & \leq W_t L_t + (R_{k, t} + (1 - \delta +  R_{q, t})Q_t)\exp(\eta_{k, t}) K_{t - 1} + R_{t - 1} \frac{B_{t - 1}}{P_t} + F_t + T_t.
+  C_t + \frac{B_t}{P_t} + Q_tK_t & \leq W_t L_t + (R_{k, t} + R_{q, t}Q_t)\exp(\eta_{k, t}) K_{t - 1} + R_{t - 1} \frac{B_{t - 1}}{P_t} + F_t + T_t.
 \end{align}
-The quantity $P_t$ is the price of the final consumption good, $Q_t$ the real price of capital, $W_t$ the real wage, $R_{k, t}$ the gross real rental rate on capital, $\delta$ the rate of capital depreciation, $\eta_{k, t}$ a disaster shock,\footnote{I follow Kekre and Lenel (2020)'s specifications of the disaster shock, but I could also define an intermediate variable $\hat{K}_t$ and set $K_t = \hat{K}_t \exp(\eta_{k, t})$, following Fern{\'a}ndez-Villaverde and Levintal (2018).} $R_{q, t}$ the returns from selling capital to capital producers, $R_t$ the gross nominal interest rate on bonds, $F_t$ real profits from intermediate firms, and $T_t$ real lump-sum transfers from the government. The budget constraint (\ref{eq:hh budget constraint}) indicates that households can choose to consume, save in bonds, or invest in units of the capital stock from income through labor, capital, bonds, intermediate firms, and government transfers. Markets are assumed complete, but securities are in zero net supply. Because there is a representative agent, I may omit the Arrow securities from the budget constraint.
+The quantity $P_t$ is the price of the final consumption good, $Q_t$ the real price of capital, $W_t$ the real wage, $R_{k, t}$ the gross real rental rate on capital, $\eta_{k, t}$ a disaster shock,\footnote{I follow Kekre and Lenel (2020)'s specifications of the disaster shock, but I could also define an intermediate variable $\hat{K}_t$ and set $K_t = \hat{K}_t \exp(\eta_{k, t})$, following Fern{\'a}ndez-Villaverde and Levintal (2018).} $R_{q, t}$ the returns from capital gains on the capital stock, $R_t$ the gross nominal interest rate on bonds, $F_t$ real profits from intermediate firms, and $T_t$ real lump-sum transfers from the government. The budget constraint (\ref{eq:hh budget constraint}) indicates that households can choose to consume, save in bonds, or invest in units of the capital stock from income through labor, capital, bonds, intermediate firms, and government transfers. Markets are assumed complete, but securities are in zero net supply. Because there is a representative agent, I may omit the Arrow securities from the budget constraint.
 
 My notation treats $B_{t - 1}$ and $K_{t - 1}$ as the stocks of bonds and capital present at time $t$, while $B_t$ and $K_t$ are the chosen stocks of bonds and capital for the following period. I adopt this notation so that all time $t$ choices are dated at time $t$ rather than having to differentiate between the predetermined time-$t$ variables from the endogenous controls.
 
@@ -219,7 +219,7 @@ Solving the household's problem is the same as solving the maximization problem
 \begin{align}
   \begin{split}
   &V_t = \max_{C_t, L_t, B_t, K_t} \left((1 - \exp(\eta_{\beta, t})\beta)\left(C_t \calL(L_t)\right)^{1 - \psi} + \exp(\eta_{\beta, t})\beta \E_t\left[\left(V_{t + 1}\right)^{1 - \gamma}\right]^{\frac{1 - \psi}{1 - \gamma}}\right)^{\frac{1}{1 - \psi}}\\
-  & \quad + \lambda_t \left(W_t L_t + (R_{k, t} + (1 - \delta + R_{q, t})Q_t)\exp(\eta_{k, t})K_{t - 1} + R_{t - 1} \frac{B_{t - 1}}{P_t} + F_t + T_t\right)\\
+  & \quad + \lambda_t \left(W_t L_t + (R_{k, t} + R_{q, t}Q_t)\exp(\eta_{k, t})K_{t - 1} + R_{t - 1} \frac{B_{t - 1}}{P_t} + F_t + T_t\right)\\
   &\quad - \lambda_t\left(C_t + \frac{B_t}{P_t} + Q_tK_t\right).
   \end{split}
 \end{align}
@@ -233,7 +233,7 @@ Define $\hat{V}_t = V_t^{1 - \psi}$, and conjecture that $V_t$ is a function of 
 The envelope conditions for  $B_{t - 1}$ and  $K_{t - 1}$ are
 \begin{align*}
   \frac{\partial V_t}{\partial B_{t - 1}} & = \lambda_t\frac{R_{t - 1}}{P_t},\\
-  \frac{\partial V_t}{\partial K_{t - 1}} & = \lambda_t(R_{k, t} + (1 - \delta + R_{q, t})Q_t)\exp(\eta_{k, t}).
+  \frac{\partial V_t}{\partial K_{t - 1}} & = \lambda_t(R_{k, t} + R_{q, t}Q_t)\exp(\eta_{k, t}).
 \end{align*}
 The first two first-order conditions can be combined by isolating $\lambda_t$, which obtains the intratemporal consumption-labor condition
 \begin{align*}
@@ -296,18 +296,18 @@ Using these definitions, the Euler equation for bonds becomes
 \end{align}
 Households' asset pricing equation for capital can be obtained using similar steps and will take the familiar form from consumption-based asset pricing. Iterate the envelope condition for $K_{t - 1}$ forward by one period.
 \begin{align*}
-  \frac{\partial V_{t + 1}}{\partial K_t} = \lambda_{t + 1}(R_{k, t + 1} + (1 - \delta + R_{q, t + 1}) Q_{t + 1})\exp(\eta_{k, t + 1}).
+  \frac{\partial V_{t + 1}}{\partial K_t} = \lambda_{t + 1}(R_{k, t + 1} + R_{q, t + 1} Q_{t + 1})\exp(\eta_{k, t + 1}).
 \end{align*}
 Substitute this expression and other quantities derived previously into the fourth first-order condition.
 \begin{align*}
-  0 & = V_t^{\psi}\exp(\eta_{\beta, t})\beta \calC\calE_t^{\gamma - \psi}\E_t\left[V_{t + 1}^{-\gamma}\lambda_{t + 1}(R_{k, t + 1} + (1 - \delta + R_{q, t + 1}) Q_{t + 1})\exp(\eta_{k, t + 1})\right] - \lambda_tQ_t.
+  0 & = V_t^{\psi}\exp(\eta_{\beta, t})\beta \calC\calE_t^{\gamma - \psi}\E_t\left[V_{t + 1}^{-\gamma}\lambda_{t + 1}(R_{k, t + 1} + R_{q, t + 1} Q_{t + 1})\exp(\eta_{k, t + 1})\right] - \lambda_tQ_t.
 \end{align*}
 Divide by $\lambda_t$ and plug in $\lambda_{t + 1} / \lambda_t$.
 \begin{align*}
   0 & = V_t^{\psi}\exp(\eta_{\beta, t})\beta \calC\calE_t^{\gamma - \psi}\\
-    &\quad\times\E_t\left[\frac{V_{t + 1}^{\psi - \gamma} (1 - \exp(\eta_{\beta, t + 1})\beta)C_{t + 1}^{-\psi}\calL(L_{t + 1})^{1 - \psi}}{V_t^{\psi}(1 - \exp(\eta_{\beta, t})\beta)C_t^{-\psi} \calL(L_t)^{1 - \psi}}(R_{k, t + 1} + (1 - \delta + R_{q, t + 1}) Q_{t + 1})\exp(\eta_{k, t + 1})\right] - Q_t\\
-    & = \E_t\left[M_{t, t + 1}(R_{k, t + 1} + (1 - \delta)Q_{t + 1})\exp(\eta_{k, t + 1})\right] - Q_t\\
-  Q_t & = \E_t\left[M_{t, t + 1}(R_{k, t + 1} + (1 - \delta)Q_{t + 1})\exp(\eta_{k, t + 1})\right].
+    &\quad\times\E_t\left[\frac{V_{t + 1}^{\psi - \gamma} (1 - \exp(\eta_{\beta, t + 1})\beta)C_{t + 1}^{-\psi}\calL(L_{t + 1})^{1 - \psi}}{V_t^{\psi}(1 - \exp(\eta_{\beta, t})\beta)C_t^{-\psi} \calL(L_t)^{1 - \psi}}(R_{k, t + 1} + R_{q, t + 1} Q_{t + 1})\exp(\eta_{k, t + 1})\right] - Q_t\\
+    & = \E_t\left[M_{t, t + 1}(R_{k, t + 1} + R_{q, t + 1}Q_{t + 1})\exp(\eta_{k, t + 1})\right] - Q_t\\
+  Q_t & = \E_t\left[M_{t, t + 1}(R_{k, t + 1} + R_{q, t + 1}Q_{t + 1})\exp(\eta_{k, t + 1})\right].
 \end{align*}
 Finally, because $V_t$ is defined recursively, I can express households' preferences as a forward-looking difference equation. The value function $V_t$ is homogeneous of degree 1 in $C_t$ and $V_{t + 1}$. By Euler's Theorem,
 \begin{align}\label{eq:ez prefs euler theorem}
@@ -386,7 +386,7 @@ In summary, households' optimality conditions are
   \label{eq:euler eqn}
   1 & = \E_t\left[M_{t, t + 1}\frac{R_t}{\Pi_{t + 1}}\right],\\
   \label{eq:capital asset pricing}
-  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{k, t + 1} + (1 - \delta + R_{q, t + 1})Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right].
+  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{k, t + 1} + R_{q, t + 1}Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right].
 \end{align}
 
 
@@ -534,20 +534,19 @@ The solution to this problem yields the Tobin's Q equation
 \begin{align}\label{eq:tobins q}
   1 & = \Phi'\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) Q_t.
 \end{align}
-After production, capital producers return the initial investment of capital $\hat{K}_t$ to their owners and pay profits to households in proportion to the invested capital, hence the return from financing capital production is
+After production, capital producers return the initial investment of capital $\hat{K}_t$ to their owners and pay profits to households in proportion to the invested capital. A fraction $\delta$ of the initial investment then deprecaites. Thus, the return from capital gains on $\hat{K}_t$ for households is
 \begin{align*}
-  R_{q, t} & = \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) - \frac{X_t}{Q_t \exp(\eta_{k, t})K_{t- 1}}.
+  R_{q, t} & = 1 - \delta + \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) - \frac{X_t}{Q_t \exp(\eta_{k, t})K_{t- 1}}.
 \end{align*}
 From (\ref{eq:tobins q}), this expression can be re-written as
 \begin{align}\label{eq:Rq defn}
-  R_{q, t} & = \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}.
+  R_{q, t} & = 1 - \delta \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}.
 \end{align}
-Although capital producers return the initial investment of capital, a fraction $\delta$ depreciates, so the evolution of the aggregate capital stock is
+Further, the evolution of the aggregate capital stock is
 \begin{align}
     \label{eq:capital accumulation equation}
-  K_t & = \left(1 - \delta + \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\right)\exp(\eta_{k, t})K_{t - 1},
+  K_t & = \left(1 - \delta + \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\right)\exp(\eta_{k, t})K_{t - 1}.
 \end{align}
-where $\delta$ is the rate of depreciation and $\Phi(\cdot)$ is an investment technology satisfying standard conditions.\footnote{$\Phi'(\cdot) > 0$, $\Phi''(\cdot) < 0$, $\Phi(X_{ss}/K_{ss}) = \delta$, where $X_{ss} / K_{ss}$ is the steady state investment rate.}
 
 \subsection{Monetary Policy}
 I specify the monetary policy rule as the following Taylor rule
@@ -700,7 +699,7 @@ All together, the equilibrium conditions are
   \label{eq:euler eqn eqm}
   1 & = \E_t\left[M_{t, t + 1}\frac{R_t}{\Pi_{t + 1}}\right],\\
   \label{eq:capital asset pricing eqm}
-  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{k, t + 1} + (1 - \delta + R_{q, t + 1})Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right],\\
+  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{k, t + 1} + R_{q, t + 1}Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right],\\
   \label{eq:mc soln eqm}
   MC_t & =  \left(\frac{1}{1 - \alpha}\right)^{1 - \alpha}\left(\frac{1}{\alpha}\right)^{\alpha}\frac{W_t^{1 - \alpha}R_{k, t}^{\alpha}}{ \exp(\eta_{a, t})^{1 - \alpha}},\\
   \label{eq:optimal capital labor ratio eqm}
@@ -714,7 +713,7 @@ All together, the equilibrium conditions are
   \label{eq:tobins q eqm}
   1 & = \Phi'\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) Q_t,\\
   \label{eq:Rq defn eqm}
-  R_{q, t} & = \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}},\\
+  R_{q, t} & = 1 - \delta + \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}},\\
   \label{eq:law of motion capital eqm}
   K_t & = \left(1 - \delta + \Phi\left(\frac{X_t}{\exp(\eta_{k, t})K_{t - 1}}\right)\right)\exp(\eta_{k, t})K_{t - 1},\\
   \label{eq:inflation from optimal reset price eqm}
@@ -799,7 +798,7 @@ In summary, the stationary equilibrium conditions (excluding the exogenous shock
   \label{eq:euler eqn eqm stat}
   1 & = \E_t\left[M_{t, t + 1}\frac{R_t}{\Pi_{t + 1}}\right],\\
   \label{eq:capital asset pricing eqm stat}
-  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{k, t + 1} + (1 - \delta + R_{q, t + 1})Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right],\\
+  Q_t & = \E_t\left[M_{t, t + 1} \left(R_{k, t + 1} + R_{q, t + 1}Q_{t + 1}\right)\exp(\eta_{k, t + 1})\right],\\
   \label{eq:mc soln eqm stat}
   MC_t & =  \left(\frac{1}{1 - \alpha}\right)^{1 - \alpha}\left(\frac{1}{\alpha}\right)^{\alpha}\tilde{W}_t^{1 - \alpha}R_{k, t}^{\alpha},\\
   \label{eq:optimal capital labor ratio eqm stat}
@@ -813,7 +812,7 @@ In summary, the stationary equilibrium conditions (excluding the exogenous shock
   \label{eq:tobins q eqm stat}
   1 & = \Phi'\left(\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}}\right) Q_t,\\
   \label{eq:Rq defn eqm stat}
-  R_{q, t} & = \Phi\left(\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}}\right) - \Phi'\left(\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}}\right)\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}},\\
+  R_{q, t} & = 1 - \delta + \Phi\left(\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}}\right) - \Phi'\left(\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}}\right)\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}},\\
   \label{eq:law of motion capital eqm stat}
   \tilde{K}_t & = \left(1 - \delta + \Phi\left(\frac{\tilde{X}_t}{\exp(\eta_{k, t})\tilde{K}_{t - 1}}\right)\right)\exp(\eta_{k, t})\tilde{K}_{t - 1},\\
   \label{eq:inflation from optimal reset price eqm stat}
@@ -1140,34 +1139,29 @@ The seventh approach models disaster risk as a ``risk-on risk-off'' phenomenon. 
 \subsection{Forward Difference Equations}
 
 This system has four forward difference equations (\ref{eq:epstein zin wealth recursion eqm stat}), (\ref{eq:capital asset pricing eqm stat}), (\ref{eq:numerator recursion eqm stat}), and
-(\ref{eq:denominator recursion eqm stat}). To ensure accuracy of the risk-adjusted linearization, I derive $N$-period
-ahead forward difference equations for all three.\\
+(\ref{eq:denominator recursion eqm stat}). To ensure accuracy of the risk-adjusted linearization, I derive $N$-period ahead forward difference equations for all four.\\
 
- First, redefine $\Omega_t$ as
+To start, I begin with (\ref{eq:capital asset pricing eqm stat}) because it does not have any terms outside the expectation. The equation can be recursively written as
 \begin{align*}
-  \Omega_t = 1 - \delta + \Phi\left(\frac{X_t}{K_{t - 1}}\right) - \Phi'\left(\frac{X_t}{K_{t - 1}}\right) \frac{X_t}{K_{t - 1}}.
-\end{align*}
-Then we can write (\ref{eq:capital asset pricing eqm}) recursively as
-\begin{align*}
-  Q_t & = \E_t[M_{t, t + 1} (R_{k, t + 1} + Q_{t + 1}\Omega_{t + 1})]\\
-      & = \E_t[M_{t, t + 1}R_{k, t + 1} + \Omega_{t + 1}M_{t, t + 1}\E_{t + 1}[M_{t, t + 2}(R_{k, t + 2} + Q_{t  + 2}\Omega_{t + 1})]]\\
-      & = \E_t[M_{t, t + 1}R_{k, t + 1}] + \Omega_{t + 1}\E_t\E_{t + 1}[M_{t, t + 1}M_{t, t + 2}(R_{k, t + 2} + Q_{t  + 2}\Omega_{t + 2})].
+  Q_t & = \E_t[M_{t, t + 1} (R_{k, t + 1} + Q_{t + 1}R_{q, t + 1})]\\
+      & = \E_t[M_{t, t + 1}R_{k, t + 1} + R_{q, t + 1}M_{t, t + 1}\E_{t + 1}[M_{t + 1, t + 2}(R_{k, t + 2} + Q_{t  + 2}R_{q, t + 1})]]\\
+      & = \E_t[M_{t, t + 1}R_{k, t + 1}] + R_{q, t + 1}\E_t\E_{t + 1}[M_{t, t + 1}M_{t + 1, t + 2}(R_{k, t + 2} + Q_{t  + 2}R_{q, t + 2})].
 \end{align*}
 By the tower property,
 \begin{align*}
-  Q_t & = \E_t[M_{t, t + 1}R_{k, t + 1}] + \Omega_{t + 1}\E_t[M_{t, t + 1}M_{t, t + 2}(R_{k, t + 2} + Q_{t  + 2}\Omega_{t + 2})]\\
-      & = \E_t\left[\left(\sum_{s = 1}^2 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right) \left(\prod_{u = 1}^sM_{t, t + u}\right)R_{k, t + s}\right) + M_{t, t + 1}M_{t, t + 2}Q_{t + 2}\Omega_{t + 1}\Omega_{t + 2}\right]\\
-      & = \E_t\left[\left(\sum_{s = 1}^2 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right)\left(\prod_{u = 1}^sM_{t, t + u}\right)R_{k, t + s}\right) + \prod_{s = 1}^2 (M_{t, t + s}\Omega_{t + s})\E_{t + 2}[M_{t, t + 3}(R_{k, t + 3} + Q_{t + 3}\Omega_{t + 3})]\right]\\
-      & = \E_t\left[\left(\sum_{s = 1}^3 \left(\prod_{u = 1}^{s - 1} \Omega_{t + u}\right)\left(\prod_{u = 1}^sM_{t, t + u}\right) R_{k, t + s}\right) + \prod_{s = 1}^3(M_{t, t + s}\Omega_{t + s})Q_{t + 3}\right]
+  Q_t & = \E_t[M_{t, t + 1}R_{k, t + 1}] + R_{q, t + 1}\E_t[M_{t, t + 1}M_{t + 1, t + 2}(R_{k, t + 2} + Q_{t  + 2}R_{q, t + 2})]\\
+      & = \E_t\left[\left(\sum_{s = 1}^2 \left(\prod_{u = 1}^{s - 1} R_{q, t + u}\right) \left(\prod_{u = 1}^sM_{t + u - 1, t + u}\right)R_{k, t + s}\right) + M_{t, t + 1}M_{t + 1, t + 2}Q_{t + 2}R_{q, t + 1}R_{q, t + 2}\right]\\
+      & = \E_t\left[\left(\sum_{s = 1}^2 \left(\prod_{u = 1}^{s - 1} R_{q, t + u}\right)\left(\prod_{u = 1}^sM_{t + u - 1, t + u}\right)R_{k, t + s}\right) + \prod_{s = 1}^2 (M_{t + s - 1, t + s}R_{q, t + s})\E_{t + 2}[M_{t + 2, t + 3}(R_{k, t + 3} + Q_{t + 3}R_{q, t + 3})]\right]\\
+      & = \E_t\left[\left(\sum_{s = 1}^3 \left(\prod_{u = 1}^{s - 1} R_{q, t + u}\right)\left(\prod_{u = 1}^sM_{t + u - 1, t + u}\right) R_{k, t + s}\right) + \prod_{s = 1}^3(M_{t + s - 1, t + s}R_{q, t + s})Q_{t + 3}\right]
 \end{align*}
-and so on, with the abuse of notation that $\prod_{u = 1}^0 \Omega_{t + u} = 1$. Given this recursive structure, define $D_{Q, t}^{(n)}$ and $P_{Q, t}^{(n)}$ as
+and so on, with the abuse of notation that $\prod_{u = 1}^0 R_{q, t + u} = 1$. Given this recursive structure, define $D_{Q, t}^{(n)}$ and $P_{Q, t}^{(n)}$ as
 \begin{align*}
-  D_{Q, t}^{(n)} & = \E_t\left[\Omega_{t + 1}M_{t, t + 1}D_{Q, t + 1}^{(n - 1)}\right]\\
-  P_{Q, t}^{(n)} & = \E_t\left[\Omega_{t + 1}M_{t, t + 1} P_{Q, t + 1}^{(n - 1)}\right]
+  D_{Q, t}^{(n)} & = \E_t\left[R_{q, t + 1}M_{t, t + 1}D_{Q, t + 1}^{(n - 1)}\right]\\
+  P_{Q, t}^{(n)} & = \E_t\left[R_{q, t + 1}M_{t, t + 1} P_{Q, t + 1}^{(n - 1)}\right]
 \end{align*}
 with boundary conditions
 \begin{align*}
-  D_{Q, t}^{(0)} & = \frac{R_{k, t}}{\Omega_t}\\
+  D_{Q, t}^{(0)} & = \frac{R_{k, t}}{R_{q, t}}\\
   P_{Q, t}^{(0)} & = Q_.
 \end{align*}
 Then I may write the $N$-period ahead recursive form of equation (\ref{eq:capital asset pricing eqm}) as
@@ -1176,99 +1170,115 @@ Then I may write the $N$-period ahead recursive form of equation (\ref{eq:capita
 \end{align*}
 To see why this recursion works, it is simpler to first verify that $P_{Q, t}^{(3)}$ is correct:
 \begin{align*}
-  P_{Q, t}^{(1)} & = \E_t\left[\Omega_{t + 1}M_{t, t + 1} Q_{t + 1}\right]\\
-  P_{Q, t}^{(2)} & = \E_t\left[\Omega_{t + 1}M_{t, t + 1} (\E_{t + 1}[\Omega_{t + 2}M_{t, t + 2} Q_{t + 2}])\right]\\
-                 & = \E_t\left[\E_{t + 1}\left[\prod_{s = 1}^2(\Omega_{t + s}M_{t, t + s}) Q_{t + 2}\right]\right]\\
-                 & = \E_t\left[\prod_{s = 1}^2(\Omega_{t + s}M_{t, t + s}) Q_{t + 2}\right].
+  P_{Q, t}^{(1)} & = \E_t\left[R_{q, t + 1}M_{t, t + 1} Q_{t + 1}\right]\\
+  P_{Q, t}^{(2)} & = \E_t\left[R_{q, t + 1}M_{t, t + 1} (\E_{t + 1}[R_{q, t + 2}M_{t + 1, t + 2} Q_{t + 2}])\right]\\
+                 & = \E_t\left[\E_{t + 1}\left[\prod_{s = 1}^2(R_{q, t + s}M_{t + s - 1, t + s}) Q_{t + 2}\right]\right]\\
+                 & = \E_t\left[\prod_{s = 1}^2(R_{q, t + s}M_{t + s - 1, t + s}) Q_{t + 2}\right].
 \end{align*}
 where the second equality for $P_{Q, t}^{(2)}$ follows from the fact that $M_{t, t + 1}$ is measurable with respect to the information set at time $t + 1$ and can
 therefore be moved insided the conditional expectation $\E_{t + 1}[\cdot]$. Continuing for one more recursion, I have
 \begin{align*}
-  P_{Q, t}^{(3)} & = \E_t\left[\Omega_{t + 1}M_{t, t + 1}\E_{t + 1}\left[\prod_{s = 1}^2(\Omega_{t + 1 + s}M_{t, t + 1 + s}) Q_{t + 3}\right]\right]\\
-                 & = \E_t\left[\prod_{s = 1}^3(\Omega_{t + s}M_{t, t + s}) Q_{t + 3}\right].
+  P_{Q, t}^{(3)} & = \E_t\left[R_{q, t + 1}M_{t, t + 1}\E_{t + 1}\left[\prod_{s = 1}^2(R_{q, t + 1 + s}M_{t, t + 1 + s}) Q_{t + 3}\right]\right]\\
+                 & = \E_t\left[\prod_{s = 1}^3(R_{q, t + s}M_{t + s - 1, t + s}) Q_{t + 3}\right].
 \end{align*}
 Similarly, for $D_{Q, t}$, I have
 \begin{align*}
-  D_{Q, t}^{(1)} & = \E_t\left[\Omega_{t + 1}M_{t, t + 1}\frac{R_{k, t + 1}}{\Omega_{t + 1}}\right] = \E_t[M_{t, t + 1} R_{k, t + 1}]\\
-  D_{Q, t}^{(2)} & = \E_t[\Omega_{t + 1}M_{t, t + 1}\E_{t + 1}[M_{t, t + 2}R_{k, t + 2}]]\\
-                 & = \E_t[\Omega_{t + 1}M_{t, t + 1}M_{t, t + 2}R_{k, t + 2}]\\
-  D_{Q, t}^{(3)} & = \E_t[\Omega_{t + 1}M_{t, t + 1}\E_{t + 1}[\Omega_{t + 2}M_{t, t + 2}M_{t, t + 3}R_{k, t + 3}]]\\
-                 & = \E_t[\Omega_{t + 1}\Omega_{t + 2}M_{t, t + 1}M_{t, t + 2}M_{t, t + 3}R_{k, t + 3}].
+  D_{Q, t}^{(1)} & = \E_t\left[R_{q, t + 1}M_{t, t + 1}\frac{R_{k, t + 1}}{R_{q, t + 1}}\right] = \E_t[M_{t, t + 1} R_{k, t + 1}]\\
+  D_{Q, t}^{(2)} & = \E_t[R_{q, t + 1}M_{t, t + 1}\E_{t + 1}[M_{t + 1, t + 2}R_{k, t + 2}]]\\
+                 & = \E_t[R_{q, t + 1}M_{t, t + 1}M_{t + 1, t + 2}R_{k, t + 2}]\\
+  D_{Q, t}^{(3)} & = \E_t[R_{q, t + 1}M_{t, t + 1}\E_{t + 1}[R_{q, t + 2}M_{t + 1, t + 2}M_{t + 2, t + 3}R_{k, t + 3}]]\\
+                 & = \E_t[R_{q, t + 1}R_{q, t + 2}M_{t, t + 1}M_{t + 1, t + 2}M_{t + 2, t + 3}R_{k, t + 3}].
 \end{align*}
 Since $P_{Q, t}^{(n)}$ and $D_{Q, t}^{(n)}$ are time-$t$ conditional expectations, they are measurable at time $t$, so they are not forward-looking variables. Thus, to get this version of (\ref{eq:capital asset pricing eqm}) in the appropriate form, define $d_{q, n, t} = \log(D_{Q, t}^{(n)})$ and $p_{q, n, t} = \log(P_{Q, t}^{(n)})$, and use the following $2N + 1$ equations:
 \begin{align}
   0 & = \log\E_t\left[\exp\left(\underbrace{q_t - \log\left(\sum_{n = 1}^{N}\exp(d_{q, n, t}) + \exp(p_{q, N, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{-d_{q, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + d_{q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{- d_{q, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{r_{k, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
+        \log\E_t\left[\exp\left(\underbrace{-d_{q, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + d_{q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{- d_{q, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{r_{k, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{-p_{q, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + p_{q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{-p_{q, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
+        \log\E_t\left[\exp\left(\underbrace{-p_{q, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + p_{q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{-p_{q, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
       \end{cases}
 \end{align}
 
-
-For (\ref{eq:numerator recursion eqm}), observe that
+For (\ref{eq:numerator recursion eqm stat}), observe that
 \begin{align*}
-  S_{1, t} & = MC_t Y_t + \theta\E_t[M_{t, t + 1}\Pi_{t + 1}^\epsilon (MC_{t + 1}Y_{t + 1} + \theta \E_{t + 1}[M_{ t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}])]\\
-                   & = MC_t Y_t + \theta\E_t[M_{t, t + 1}\Pi_{t + 1}^\epsilon MC_{t + 1}Y_{t + 1} + \theta M_{t, t + 1}\Pi_{t + 1}^\epsilon M_{ t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}]\\
-                   & =  MC_tY_t+ \E_t\left[\sum_{s = 1}^1 (\theta^s \prod_{u = 1}^s (M_{t, t + u}\Pi_{t + u}^\epsilon)) MC_{t + s}Y_{t + s}\right] + \E_t\left[\prod_{s = 1}^2(\theta M_{t, t + s} \Pi_{t + s}^\epsilon) \tilde{S}_{1, t + 2}\right].
+  \tilde{S}_{1, t} & = MC_t \tilde{Y}_t + \exp(\mu_a)\theta\E_t[M_{t, t + 1}A_{t + 1} \Pi_{t + 1}^\epsilon (MC_{t + 1}\tilde{Y}_{t + 1} + \exp(\mu_a)\theta \E_{t + 1}[M_{ t + 2}A_{t + 2} \Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}])]\\
+                   & = MC_t \tilde{Y}_t + \exp(\mu_a)\theta\E_t[M_{t, t + 1}A_{t + 1} \Pi_{t + 1}^\epsilon MC_{t + 1}\tilde{Y}_{t + 1} + \exp(\mu_a)\theta M_{t, t + 1}A_{t + 1} \Pi_{t + 1}^\epsilon M_{ t + 2}A_{t + 2} \Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}]\\
+                   & =  MC_t\tilde{Y}_t+ \E_t\left[\sum_{s = 1}^1 (\exp(\mu_a)\theta^s \prod_{u = 1}^s (M_{t + u - 1, t + u}A_{t + u} \Pi_{t + u}^\epsilon)) MC_{t + s}\tilde{Y}_{t + s}\right]\\
+                   &\quad + \E_t\left[\prod_{s = 1}^2(\exp(\mu_a)\theta M_{t + s - 1, t + s} A_{t + s} \Pi_{t + s}^\epsilon) \tilde{S}_{1, t + 2}\right].
 \end{align*}
 Thus, define $D_{S1, t}^{(n)}$ and $P_{S1, t}^{(n)}$ as the recursions
 \begin{align*}
-  D_{S1, t}^{(n)} & = \E_t[\theta M_{t, t + 1} \Pi_{t + 1}^\epsilon D_{S1, t + 1}^{(n - 1)}],\\
-  P_{S1, t}^{(n)} & = \E_t[\theta M_{t, t + 1} \Pi_{t + 1}^\epsilon P_{S1, t + 1}^{(n - 1)}],
+  D_{S1, t}^{(n)} & = \E_t[\exp(\mu_a)\theta M_{t, t + 1} A_{t + 1} \Pi_{t + 1}^\epsilon D_{S1, t + 1}^{(n - 1)}],\\
+  P_{S1, t}^{(n)} & = \E_t[\exp(\mu_a)\theta M_{t, t + 1} A_{t + 1} \Pi_{t + 1}^\epsilon P_{S1, t + 1}^{(n - 1)}],
 \end{align*}
 with boundary conditions
 \begin{align*}
-  D_{S1, t}^{(0)} & = MC_t Y_t\\
-  P_{S1, t}^{(0)} & = S_{1, t}.
+  D_{S1, t}^{(0)} & = MC_t \tilde{Y}_t\\
+  P_{S1, t}^{(0)} & = \tilde{S}_{1, t}.
 \end{align*}
 Given these definitions, it follows that
 \begin{align*}
-  D_{S1, t}^{(1)} & = \E_t[\theta M_{t, t + 1} \Pi_{t + 1}^\epsilon MC_{t + 1}Y_{t + 1}]\\
-  P_{S1, t}^{(1)} & = \E_t[\theta M_{t, t + 1}\Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}]\\
-  P_{S1, t}^{(2)} & = \E_t[\theta M_{t, t + 1}\Pi_{t + 1}^\epsilon\E_{t + 1}[\theta M_{t, t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}]]\\
-                  & = \E_t[\theta^2 M_{t, t + 1}\Pi_{t + 1}^\epsilon M_{t, t + 2}\Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}].
+  D_{S1, t}^{(1)} & = \E_t[\exp(\mu_a)\theta M_{t, t + 1} A_{t + 1} \Pi_{t + 1}^\epsilon MC_{t + 1}\tilde{Y}_{t + 1}]\\
+  P_{S1, t}^{(1)} & = \E_t[\exp(\mu_a)\theta M_{t, t + 1}A_{t + 1} \Pi_{t + 1}^\epsilon \tilde{S}_{1, t + 1}]\\
+  P_{S1, t}^{(2)} & = \E_t[\exp(\mu_a)\theta M_{t, t + 1}A_{t + 1} \Pi_{t + 1}^\epsilon\E_{t + 1}[\exp(\mu_a)\theta M_{t + 1, t + 2}A_{t + 2} \Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}]]\\
+                  & = \E_t[(\exp(\mu_a)\theta)^2 M_{t, t + 1}A_{t + 1} \Pi_{t + 1}^\epsilon M_{t + 1, t + 2}A_{t + 2} \Pi_{t + 2}^\epsilon \tilde{S}_{1, t + 2}].
 \end{align*}
 Thus, defining $d_{s1, t} = \log(D_{S1, t})$ and $p_{s1, t} = \log(P_{S1, t})$,
-the $N$-period ahead recursive form of (\ref{eq:numerator recursion eqm}) results in the $2N + 1$ equations
+the $N$-period ahead recursive form of (\ref{eq:numerator recursion eqm stat}) results in the $2N + 1$ equations
 \begin{align}
   0 & = \log\E_t\left[\exp\left(\underbrace{s_{1, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s1, n, t}) + \exp(p_{s1, N, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - d_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + d_{s1, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
+        \log\E_t\left[\exp\left(\underbrace{\log(\exp(\mu_a)\theta) - d_{s1, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{a_{t + 1} + \epsilon \pi_{t + 1} + d_{s1, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
         \log\E_t\left[\exp\left(\underbrace{d_{s1, 0, t} - mc_t - y_t}_{\xi}\right)\right] & \text{if } n = 0.
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + p_{s1, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s1, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1.
+        \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - p_{s1, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + p_{s1, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - p_{s1, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{a_{t + 1} + \epsilon \pi_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1.
       \end{cases}
 \end{align}
 \\
 
-It is straightforward to show that a similar recursive form applies to (\ref{eq:denominator recursion eqm}):
+It is straightforward to show that a similar recursive form applies to (\ref{eq:denominator recursion eqm stat}):
 \begin{align}
   0 & = \log\E_t\left[\exp\left(\underbrace{s_{2, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s2, n, t}) + \exp(p_{s2, N, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - d_{s2, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1) \pi_{t + 1} + d_{s2, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
+        \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - d_{s2, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{a_{t + 1} + (\epsilon - 1) \pi_{t + 1} + d_{s2, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
         \log\E_t\left[\exp\left(\underbrace{d_{s2, 0, t} - y_t}_{\xi}\right)\right] & \text{if } n = 0.
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s2, n, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1) \pi_{t + 1} + p_{s2, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\log(\theta) - p_{s2, 1, t}}_{\xi} + \underbrace{m_{t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1)\pi_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
+        \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - p_{s2, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{a_{t + 1} + (\epsilon - 1) \pi_{t + 1} + p_{s2, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - p_{s2, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1)\pi_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
       \end{cases}
 \end{align}
 where terms and boundary conditions are analogously defined.
 
-The jump variables are $y_t$, $c_t$, $l_t$, $w_t$, $r_t$, $\pi_t$, $q_t$, $x_t$, $r_{k, t}$, $r_{q, t}$, $mc_t$, $s_{1, t}$, $s_{2, t}$, and $\log(\Delta_t)$.
-The state variables are $k_{t - 1}$, $\log(\Delta_{t - 1})$, $r_{t - 1}$, $y_{t - 1}$, and the autoregressive processes. The equations defining the evolution of the lags $v_{t - 1}$, $r_{t - 1}$, and $y_{t - 1}$ are obtained by the formula $z_{(t - 1) + 1} = z_t$.
+Similarly, (\ref{eq:epstein zin wealth recursion eqm stat}) yields the recursion
+\begin{align}
+  0 & = \log\E_t\left[\exp\left(\underbrace{\omega_t - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{\omega, n, t}) + \exp(p_{\omega, N, t})\right)}_{\xi}\right)\right]\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\mu_a - c_t - d_{\omega, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{c_{t + 1} + a_{t + 1} + d_{\omega, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
+        \log\E_t\left[\exp\left(\underbrace{d_{\omega, 0, t}}_{\xi}\right)\right] & \text{if } n = 0.
+      \end{cases}\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\mu_a - c_t - p_{\omega, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{c_{t + 1} + a_{t + 1} + p_{\omega, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\mu_a - c_t - p_{\omega, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{c_{t + 1} + a_{t + 1} + \omega_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
+      \end{cases}
+\end{align}
+where terms and boundary conditions are analogously defined.
+
+The jump variables are $y_t$, $c_t$, $l_t$, $v_t$, $ce_t$, $\omega_t$, $\ell_t$, $w_t$, $r_t$, $\pi_t$, $q_t$, $x_t$, $r_{k, t}$, $r_{q, t}$, $mc_t$, $s_{1, t}$, $s_{2, t}$, and $\log(\Delta_t)$.
+The state variables are $k_{t - 1}$, $\log(\Delta_{t - 1})$, $r_{t - 1}$, $y_{t - 1}$, and the autoregressive processes. The equations defining the evolution of the lags $\log(\Delta_{t - 1})$, $r_{t - 1}$, and $y_{t - 1}$ are obtained by the formula $z_{(t - 1) + 1} = z_t$.
 
 
 
