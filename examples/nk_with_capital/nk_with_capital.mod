@@ -1,4 +1,4 @@
-var C W L M Q X K RK MC Pstar S1 S2 Y Pi R V etabeta etaL etaA etaR;
+var Y C L W R Pi Q X RK MC S1 S2 V M Pstar K etabeta etaL etaA etaR;
 
 varexo ebeta eL eA eR;
 
