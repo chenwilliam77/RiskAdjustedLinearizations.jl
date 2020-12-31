@@ -428,7 +428,7 @@ and simplifying yields the price index
 
 Intermediate goods are producing according to the Cobb-Douglas technology
 \begin{align}\label{eq:intermediate goods production function}
-  Y_t(j) =  \hat{K}_t^\alpha(j)(\exp(\eta_{a, t})L_t)^{1 - \alpha}(j) - \kappa_y\exp(\eta_{A, t}),
+  Y_t(j) =  \hat{K}_t^\alpha(j)(\exp(\eta_{a, t})L_t)^{1 - \alpha}(j) - \chi_y\exp(\eta_{A, t}),
 \end{align}
 where $\hat{K}_t = \exp(\eta_{k, t})K_{t - 1}$ and productivity $\exp(\eta{a, t})$ follows the unit root process
 \begin{align}\label{eq:productivity process}
@@ -438,13 +438,13 @@ Intermediate producers minimize cost subject to the constraint of meeting demand
 \begin{align}
   \begin{split}
     & \quad\quad\min_{\hat{K}_t(j), L_t(j)} R_{k, t} \hat{K}_t(j) + W_t L_t(j)\\
-    &\text{s.t.}\quad  \hat{K}_t^\alpha(j) (\exp(\eta_{a, t})L_t)^{1 - \alpha}(j) - \kappa_y\exp(\eta_{a, t}) \geq \left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}Y_t.
+    &\text{s.t.}\quad  \hat{K}_t^\alpha(j) (\exp(\eta_{a, t})L_t)^{1 - \alpha}(j) - \chi_y\exp(\eta_{a, t}) \geq \left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}Y_t.
   \end{split}
 \end{align}
 The RHS of the inequality constraint is the demand from final goods producers for intermediate $j$. The Lagrangian is
 \begin{align*}
   \calH & = R_{k, t} \hat{K}_t(j) + W_t L_t(j)\\
-        &\quad +  MC_t(j)\left(\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}Y_t - \hat{K}_t^\alpha(j) (\exp(\eta_{a, t})L_t)^{1 - \alpha}(j) + \kappa_y\exp(\eta_{a, t})\right),
+        &\quad +  MC_t(j)\left(\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon}Y_t - \hat{K}_t^\alpha(j) (\exp(\eta_{a, t})L_t)^{1 - \alpha}(j) + \chi_y\exp(\eta_{a, t})\right),
 \end{align*}
 so the first-order conditions are
 \begin{align*}
@@ -469,13 +469,13 @@ It follows that
 \end{align*}
 Therefore, (real) profits for an intermediate producer become
 \begin{align}
-  \frac{P_t(j)}{P_t}Y_t(j) - MC_t Y_t(j) - \kappa_y \exp(\eta_{a, t}).
+  \frac{P_t(j)}{P_t}Y_t(j) - MC_t Y_t(j) - \chi_y \exp(\eta_{a, t}).
 \end{align}
 In addition to the capital-labor choice, firms also have the chance to reset prices in every period with probability $1 - \theta$. This problem can be
 written as
 \begin{align}
   \begin{split}
-  &\max_{P_t(j)} \E_t\sum_{s = 0}^\infty\theta^sM_{t, t + s}\left(\frac{P_t(j)}{P_{t + s}}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - MC_{t + s}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - \kappa_y\exp(\eta_{a, t})\right),
+  &\max_{P_t(j)} \E_t\sum_{s = 0}^\infty\theta^sM_{t, t + s}\left(\frac{P_t(j)}{P_{t + s}}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - MC_{t + s}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - \chi_y\exp(\eta_{a, t})\right),
   \end{split}
 \end{align}
 where I have imposed that intermediate output equals demand. The quantity $M_{t, t + s}$ is the stochastic discount factor between periods $t$ and $t + s$ and is given by
@@ -669,14 +669,14 @@ The seventh approach models disaster risk as a ``risk-on risk-off'' phenomenon. 
 \subsubsection{Market Clearing}
 Markets must clear for capital, labor, bonds, final goods, and intermediate goods. The first three markets clear as a consequence of optimality conditions and the assumption that bonds have zero net supply. To clear the market for final goods, we set the sum of aggregate consumption demand $C_t$ and investment demand $X_t$ equal to aggregate supply $Y_t$ net of fixed costs, which satisfies
 \begin{align*}
-\int_0^1( \hat{K}_t^\alpha (L_t\exp(\eta_{a, t}))^{1 - \alpha} - \kappa_y \exp(\eta_{a, t}))\, dj & = \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} Y_t\, dj\\
-  \hat{K}_t^\alpha (\exp(\eta_{a, t})L_t)^{1 - \alpha} - \kappa_y\exp(\eta_{a, t}) & = Y_t \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} \, dj = \Delta_t Y_t.
+\int_0^1( \hat{K}_t^\alpha (L_t\exp(\eta_{a, t}))^{1 - \alpha} - \chi_y \exp(\eta_{a, t}))\, dj & = \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} Y_t\, dj\\
+  \hat{K}_t^\alpha (\exp(\eta_{a, t})L_t)^{1 - \alpha} - \chi_y\exp(\eta_{a, t}) & = Y_t \int_0^1\left(\frac{P_t(j)}{P_t}\right)^{-\epsilon} \, dj = \Delta_t Y_t.
 \end{align*}
 Re-arranging yields the output market-clearing condition
 \begin{align}\label{eq:output market clearing}
   C_t + X_t & = Y_t,\\
   \label{eq:aggregate supply}
-  Y_t & = \frac{(\exp(\eta_{k, t}) K_{t - 1})^{\alpha}(\exp(\eta_{a, t})L_t)^{1 - \alpha} - \kappa_y \exp(\eta_{a, t})}{\Delta_t}.
+  Y_t & = \frac{(\exp(\eta_{k, t}) K_{t - 1})^{\alpha}(\exp(\eta_{a, t})L_t)^{1 - \alpha} - \chi_y \exp(\eta_{a, t})}{\Delta_t}.
 \end{align}
 It can be shown that $\Delta_t \geq 1$ by applying Jensen's inequality. For our purposes, because the dimensionality of our model is not too large, we add the auxiliary $Y_t$ variable, even though we could substitute it out of the system of equations.
 
@@ -725,7 +725,7 @@ All together, the equilibrium conditions are
   \label{eq:output market clearing eqm}
   C_t + X_t & = Y_t,\\
   \label{eq:aggregate supply eqm}
-  Y_t & = \frac{(\exp(\eta_{k, t}) K_{t - 1})^{\alpha}(\exp(\eta_{a, t})L_t)^{1 - \alpha} - \kappa_y \exp(\eta_{a, t})}{\Delta_t},
+  Y_t & = \frac{(\exp(\eta_{k, t}) K_{t - 1})^{\alpha}(\exp(\eta_{a, t})L_t)^{1 - \alpha} - \chi_y \exp(\eta_{a, t})}{\Delta_t},
 \end{align}
 the three exogenous processes
 \begin{align}
@@ -824,7 +824,7 @@ In summary, the stationary equilibrium conditions (excluding the exogenous shock
   \label{eq:output market clearing eqm stat}
   \tilde{C}_t + \tilde{X}_t & = \tilde{Y}_t,\\
   \label{eq:aggregate supply eqm stat}
-  \tilde{Y}_t & = \frac{(\exp(\eta_{k, t}) \tilde{K}_{t - 1})^{\alpha}(L_t)^{1 - \alpha} - \kappa_y}{\Delta_t}.
+  \tilde{Y}_t & = \frac{(\exp(\eta_{k, t}) \tilde{K}_{t - 1})^{\alpha}(L_t)^{1 - \alpha} - \chi_y}{\Delta_t}.
 \end{align}
 
 \subsection{Deterministic Steady State}
@@ -893,7 +893,7 @@ From (\ref{eq:output market clearing eqm stat}),
 \end{align*}
 From (\ref{eq:aggregate supply eqm stat}),
 \begin{align*}
-  Y & = \frac{(\exp(\eta_k)K)^\alpha L^{1 - \alpha} - \kappa_y}{\Delta}.
+  Y & = \frac{(\exp(\eta_k)K)^\alpha L^{1 - \alpha} - \chi_y}{\Delta}.
 \end{align*}
 As shown previously, the steady-state investment rate is $\overline{X}$, hence
 \begin{align*}
@@ -901,17 +901,17 @@ As shown previously, the steady-state investment rate is $\overline{X}$, hence
 \end{align*}
 Using the aggregate supply and capital accumulation equations,
 \begin{align*}
-  C + \overline{X} \exp(\eta_k)K = \frac{(\exp(\eta_k)K)^\alpha L^{1 - \alpha} - \kappa_y}{\Delta}.
+  C + \overline{X} \exp(\eta_k)K = \frac{(\exp(\eta_k)K)^\alpha L^{1 - \alpha} - \chi_y}{\Delta}.
 \end{align*}
 The optimal capital-labor ratio (\ref{eq:optimal capital labor ratio eqm stat}) implies
 \begin{align*}
   \exp(\eta_k)K & = \frac{\alpha}{1 - \alpha}\frac{W}{R_K}L,\\
-  C + \overline{X} \exp(\eta_k) K & = \left(\left(\frac{\alpha}{1 - \alpha}\right)^{\alpha} \left(\frac{W}{R_K}\right)^\alpha L - \kappa_y\right)\Delta^{ - 1}.
+  C + \overline{X} \exp(\eta_k) K & = \left(\left(\frac{\alpha}{1 - \alpha}\right)^{\alpha} \left(\frac{W}{R_K}\right)^\alpha L - \chi_y\right)\Delta^{ - 1}.
 \end{align*}
 Let $\calL(L)$ denote the steady state labor disutility given by (\ref{eq:labor disutility function eqm stat}). The intratemporal condition for consumption and labor (\ref{eq:intratemporal consumption labor eqm stat}) implies
 \begin{align*}
   \exp(\eta_k) K & = \frac{\alpha}{1 - \alpha}\frac{\psi \overline{\nu} C L^\nu }{ \calL(L) R_k} L ,\\
-  C + \overline{X}\exp(\eta_k) K & = \left(\left(\frac{\alpha}{1 - \alpha}\right)^{\alpha} \left(\frac{\psi \overline{\nu} C L^\nu}{\calL(L)R_k }\right)^\alpha L - \kappa_y\right)\Delta^{ - 1}
+  C + \overline{X}\exp(\eta_k) K & = \left(\left(\frac{\alpha}{1 - \alpha}\right)^{\alpha} \left(\frac{\psi \overline{\nu} C L^\nu}{\calL(L)R_k }\right)^\alpha L - \chi_y\right)\Delta^{ - 1}
 \end{align*}
 Given a guess for $L$, I can compute $C$ using these two equations. Given $C$, I can compute $W$. Given the wage $W$, I can compute $K$ and $MC$. Given the marginal cost $MC$, I can compute the remaining terms in the supply block.
 
@@ -999,7 +999,7 @@ Equation (\ref{eq:output market clearing eqm stat}) becomes
 \end{align*}
 Equation (\ref{eq:aggregate supply eqm stat}) becomes
 \begin{align*}
-  0 & = \log(\exp(\alpha(\eta_{k, t} + k_{t - 1}) + (1 - \alpha) l_t) - \kappa_y) - \log(\Delta_t) - y_t.
+  0 & = \log(\exp(\alpha(\eta_{k, t} + k_{t - 1}) + (1 - \alpha) l_t) - \chi_y) - \log(\Delta_t) - y_t.
 \end{align*}
 Equation (\ref{eq:intratemporal consumption labor eqm}) becomes
 \begin{align*}
