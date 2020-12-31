@@ -635,7 +635,7 @@ Since this process for $\tilde{\eta}_{\beta, t}$ occurs in logs, $\beta \exp(\et
 
 There are multiple ways to model the disaster shock. The simplest approach borrows from Kekre and Lenel (2020). The shock $\eta_{k, t}$ equals $\underline{\eta}_k < 0$ with probability $p_{t - 1}$ and zero with probability $1 - p_{t - 1}$.\footnote{A direct translation of Kekre and Lenel (2020) sets $\eta_{k, t}$ equal to $\underline{\eta}_k$ with probability $p_t$ so that $\eta_{k, t}$ is represented by a four-state process. This approach is feasible, but, absent an empirical rationale, I do not see any advantage from assuming randomness in both size and probability for the disaster.} The probability of a disaster varies according to a two-state Markov process, which takes values $\underline{p}$ and $\overline{p}$, with $\underline{p} < \overline{p}$. The probability of remaining in state $\underline{p}$ ($\overline{p}$) is $\underline{\rho}_p$ ($\overline{\rho}_p$). The values and transition probabilities of the Markov chain are restricted by the requirement that the unconditional mean of the Markov chain must be $p$, i.e.
 \begin{align*}
-  \frac{\underline{\rho}_p\underline{p} + \overline{\rho}_p \overline{p}}{\underline{\rho}_p + \overline{\rho}_p} = p.
+  \frac{(1 - \overline{\rho}_p)\underline{p} + (1 - \underline{\rho}_p) \overline{p}}{2 - (\underline{\rho}_p + \overline{\rho}_p)} = p.
 \end{align*}
 In this case, I construct martingale difference sequences for $\eta_{k, t}$ and $p_t$ by defining $\varepsilon_{k, t} = \eta_{k, t} - \E_{t - 1}[\eta_{k, t}]$ and $\varepsilon_{p, t} = p_t - \E_{t- 1}[p_t]$. Then
 \begin{align}
