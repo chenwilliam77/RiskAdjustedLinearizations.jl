@@ -622,7 +622,16 @@ as desired.
 
 
 \subsubsection{Exogenous Shocks}\label{sec:exog shocks}
-There are five shocks in the model: $\eta_{a, t}$, $\eta_{k, t}$, $\eta_{\beta, t}$, $\eta_{l, t}$, and $\eta_{r, t}$. The first shock has been specified as an AR(1) with a disaster component. I specify $\eta_{k, t}$ below. Without loss of generality, I assume the last three shocks follow AR(1) processes with persistence $\rho_i$ and standard deviation $\sigma_i$.
+There are five shocks in the model: $\eta_{a, t}$, $\eta_{k, t}$, $\eta_{\beta, t}$, $\eta_{l, t}$, and $\eta_{r, t}$. The first shock has been specified as an AR(1) with a disaster component. I specify $\eta_{k, t}$ below. Without loss of generality, I assume the last three shocks follow AR(1) processes with persistence $\rho_i$ and standard deviation $\sigma_i$. Shocks to the time preference rate should ideally satisfy $\beta \exp(\eta_{\beta, t}) < 1$ for all $t$. To ensure this property is satisfied \emph{most} of the time, I add the restriction
+\begin{align}
+  \sigma_\beta^2 & = \left(\frac{\log(\beta)}{n_\beta}\right)^2(1 - \rho_\beta^2)
+\end{align}
+where $n_\beta$ parameterizes the number of standard deviations above zero that should correspond to the event $\beta\exp(\eta_{\beta, t}) \geq 1$. For example, $n_\beta = 4$ implies a violation of the property $\beta\exp(\eta_{\beta, t}) < 1$ is a 4 standard deviation above zero event.
+I could alternatively assume $\eta_{\beta, t}$ follows a Markov chain with all values strictly below $-\log(\beta)$ or specify the shock to $\eta_{\beta, t}$ using an auxiliary variable $\tilde{\eta}_{\beta, t} \equiv 1 - \beta \exp(\eta_{\beta, t})$ such that
+\begin{align}
+  \log(\tilde{\eta}_{\beta, t + 1}) & = (1 - \rho_\beta)\log(\tilde{\eta}_\beta) + \rho_\beta \log(\tilde{\eta}_{\beta, t}) + \sigma_\beta \varepsilon_{\beta, t + 1}.
+\end{align}
+Since this process for $\tilde{\eta}_{\beta, t}$ occurs in logs, $\beta \exp(\eta_{\beta, t}) < 1$ for all $t$.
 
 There are multiple ways to model the disaster shock. The simplest approach borrows from Kekre and Lenel (2020). The shock $\eta_{k, t}$ equals $\underline{\eta}_k < 0$ with probability $p_{t - 1}$ and zero with probability $1 - p_{t - 1}$.\footnote{A direct translation of Kekre and Lenel (2020) sets $\eta_{k, t}$ equal to $\underline{\eta}_k$ with probability $p_t$ so that $\eta_{k, t}$ is represented by a four-state process. This approach is feasible, but, absent an empirical rationale, I do not see any advantage from assuming randomness in both size and probability for the disaster.} The probability of a disaster varies according to a two-state Markov process, which takes values $\underline{p}$ and $\overline{p}$, with $\underline{p} < \overline{p}$. The probability of remaining in state $\underline{p}$ ($\overline{p}$) is $\underline{\rho}_p$ ($\overline{\rho}_p$). The values and transition probabilities of the Markov chain are restricted by the requirement that the unconditional mean of the Markov chain must be $p$, i.e.
 \begin{align*}
