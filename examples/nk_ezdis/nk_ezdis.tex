@@ -935,21 +935,34 @@ where $z_t$ are (predetermined) state variables and $y_t$ are (nondetermined) ju
 For the remainder of this section, lower case variables are generally the logs of previously upper case variables, whether or not they had tildes. The exceptions are as follows. The price dispersion $\Delta_t$ will remain in levels to avoid confusion with the depreciation rate $\delta$. The lowercase equivalent of the certainty equivalent $\calC\calE_t$ will be the plain lowercase letters $ce_t$. The lowercase equivalent of the labor disutility function $\calL(L_t)$ will be $\ell_t$.
 
 \subsection{Endogenous Equilibrium Conditions}
+First, I define the auxiliary variable
+\begin{align}
+  \overline{\beta}_t & = \log(1 - \exp(\eta_{\beta, t})).
+\end{align}
+This auxiliary variable is necessary if shocks to the time preference rate occur because $1 - \eta_{\beta, t + 1}$ appears in some equilibrium conditions like the stochastic discount factor, but a risk-adjusted linearization requires forward-looking variables be linear.
+
 Equation (\ref{eq:epstein zin defn eqm stat}) becomes
 \begin{align*}
-  0 & = \frac{1}{1 - \psi}(\log((1 - \exp(\eta_{\beta, t})\beta)) + \omega_t) - v_t.
+  0 & = \frac{1}{1 - \psi}(\overline{\beta}_t + \omega_t) - v_t.
 \end{align*}
 Equation (\ref{eq:certainty equivalent eqm stat}) becomes
 \begin{align*}
-  0 & = \frac{1}{1 - \psi}(\log(1 - \exp(\eta_{\beta, t})\beta) - (\eta_{\beta, t} + \log(\beta)) + (\exp(\omega_t) - 1)) - ce_t
+  0 & = \frac{1}{1 - \psi}(\overline{\beta}_t - (\eta_{\beta, t} + \log(\beta)) + (\exp(\omega_t) - 1)) - ce_t
 \end{align*}
 Equation (\ref{eq:epstein zin wealth recursion eqm stat}) will be handled later because it is a forward difference equation. Equation (\ref{eq:stochastic discount factor eqm stat}) will be directly substituted rather than used as an equilibrium condition. Using the transformations for a risk-adjusted linearization, the stochastic discount factor becomes
 \begin{align*}
-  m_{t, t + 1} & = \eta_{\beta, t} + \log(\beta)  + \log(1 - \exp(\eta_{\beta, t + 1})) - \log(1 - \exp(\eta_{\beta, t})) - \gamma (c_{t + 1} - c_t) \\
+  m_{t, t + 1} & = \eta_{\beta, t} + \log(\beta)  + \log(1 - \exp(\eta_{\beta, t + 1})\beta) - \log(1 - \exp(\eta_{\beta, t}) \beta) - \gamma (c_{t + 1} - c_t) \\
                &\quad + (1 - \gamma)(\ell_{t + 1} - \ell_t) + (\psi - \gamma)(v_{t + 1} - ce_t) - \gamma(a_{t + 1} + \mu_a)\\
-               & = \underbrace{\eta_{\beta, t} + \log(\beta) - \log(1 - \exp(\eta_{\beta, t})) + \gamma c_t - (1 - \gamma) \ell_t - (\psi - \gamma) ce_t - \gamma \mu_a}_{\xi} \\
-               &\quad + \underbrace{\log(1 - \exp(\eta_{\beta, t + 1})) - \gamma c_{t + 1} + (1 - \gamma) \ell_{t + 1} + (\psi - \gamma) v_{t + 1} - \gamma a_{t + 1}}_{\text{forward}}.
+               & = \underbrace{\eta_{\beta, t} + \log(\beta) - \overline{\beta}_t + \gamma c_t - (1 - \gamma) \ell_t - (\psi - \gamma) ce_t - \gamma \mu_a}_{\xi} \\
+               &\quad + \underbrace{\overline{\beta}_{t + 1} - \gamma c_{t + 1} + (1 - \gamma) \ell_{t + 1} + (\psi - \gamma) v_{t + 1} - \gamma a_{t + 1}}_{\text{forward}}.
 \end{align*}
+Note that the forward-looking portion is not linear yet due to the $1 - \exp(\eta_{\beta, t + 1})$ term.
+hence the stochastic discount factor becomes
+\begin{align*}
+  m_{t, t + 1} & = \underbrace{\eta_{\beta, t} + \log(\beta) - \overline{\beta}_t + \gamma c_t - (1 - \gamma) \ell_t - (\psi - \gamma) ce_t - \gamma \mu_a}_{\xi} \\
+               &\quad + \underbrace{\overline{\beta}_{t + 1} - \gamma c_{t + 1} + (1 - \gamma) \ell_{t + 1} + (\psi - \gamma) v_{t + 1} - \gamma a_{t + 1}}_{\text{forward}}.
+\end{align*}
+
 Equation (\ref{eq:intratemporal consumption labor eqm stat}) becomes
 \begin{align*}
   0 & = \log(\psi) + \eta_{l, t} + \log(\overline{\nu} + c_t + \nu l_t - \frac{1 - \psi}{\psi}\ell_t - w_t
@@ -1019,7 +1032,9 @@ Equation (\ref{eq:intratemporal consumption labor eqm}) becomes
 \subsection{Exogenous Shocks}
 The autoregressive processes (\ref{eq:ar1 beta}) to (\ref{eq:ar1 R}) remain as they are. The productivity process becomes
 \begin{align*}
-  a_{t + 1} & = \sigma_a \varepsilon_{a, t + 1} + \kappa_a \eta_{k, t + 1}.
+  a_{t + 1} & = \sigma_a \varepsilon_{a, t + 1} + \kappa_a \eta_{k, t + 1}\\
+            & = \sigma_a\varepsilon_{a, t + 1} + \kappa_a (\E_t[\eta_{k, t + 1}] + \varepsilon_{k, t + 1})\\
+            & = \kappa_a\E_t[\eta_{k, t + 1}] + \sigma_a\varepsilon_{a, t + 1} + \kappa_a \varepsilon_{k, t + 1}.
 \end{align*}
 
 The disaster shock can be modeled in multiple ways, and the conditional cumulant generating function (ccgf) will be different depending on the specification. I shall derive the various ccgfs for the proposed models of the disaster shock.
@@ -1032,7 +1047,7 @@ As stated previously, the first approach models the disaster shock as
     \overline{\rho}_p \overline{p} + (1 - \overline{\rho}_p) \underline{p} & \text{if } p_t = \overline{p},
   \end{cases}\\
   \varepsilon_{k, t} & = \eta_{k, t} - \E_{t- 1}[\eta_{k, t}],\\
-  \varepsilon_{p, t} & = \eta_{p, t} - \E_{t - 1}[\eta_{p, t}],
+  \varepsilon_{p, t} & = p_t - \E_{t - 1}[p_t],
 \end{align}
 where $\eta_{k, t}$ takes the value $\underline{\eta}_k$ in a disaster with probability $p_{t - 1}$ and zero with probability $1 - p_{t - 1}$, and $p_t$ evolves according to a two-state Markov process with unconditional mean $p$; states $\underline{p}$ and $\overline{p}$; and persistence probabilities $\underline{\rho}_p$ and $\overline{\rho}_p$. The conditional moment-generating function for $\varepsilon_{k, t + 1}$ is
 \begin{align*}
@@ -1286,7 +1301,7 @@ Similarly, (\ref{eq:epstein zin wealth recursion eqm stat}) yields the recursion
 \end{align}
 where terms and boundary conditions are analogously defined.
 
-The jump variables are $y_t$, $c_t$, $l_t$, $v_t$, $ce_t$, $\omega_t$, $\ell_t$, $w_t$, $r_t$, $\pi_t$, $q_t$, $x_t$, $r_{k, t}$, $r_{q, t}$, $mc_t$, $s_{1, t}$, $s_{2, t}$, and $\log(\Delta_t)$.
+The jump variables are $y_t$, $c_t$, $l_t$, $v_t$, $ce_t$, $\omega_t$, $\overline{\beta}_t$, $\ell_t$, $w_t$, $r_t$, $\pi_t$, $q_t$, $x_t$, $r_{k, t}$, $r_{q, t}$, $mc_t$, $s_{1, t}$, $s_{2, t}$, and $\log(\Delta_t)$.
 The state variables are $k_{t - 1}$, $\log(\Delta_{t - 1})$, $r_{t - 1}$, $y_{t - 1}$, and the autoregressive processes. The equations defining the evolution of the lags $\log(\Delta_{t - 1})$, $r_{t - 1}$, and $y_{t - 1}$ are obtained by the formula $z_{(t - 1) + 1} = z_t$.
 
 
