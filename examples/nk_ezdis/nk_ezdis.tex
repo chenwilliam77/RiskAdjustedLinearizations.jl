@@ -1051,7 +1051,7 @@ As stated previously, the first approach models the disaster shock as
 \end{align}
 where $\eta_{k, t}$ takes the value $\underline{\eta}_k$ in a disaster with probability $p_{t - 1}$ and zero with probability $1 - p_{t - 1}$, and $p_t$ evolves according to a two-state Markov process with unconditional mean $p$; states $\underline{p}$ and $\overline{p}$; and persistence probabilities $\underline{\rho}_p$ and $\overline{\rho}_p$. The conditional moment-generating function for $\varepsilon_{k, t + 1}$ is
 \begin{align*}
-  M_{\varepsilon_{k, t + 1}}(s) & = \E_t[\exp(s (\eta_{k, t + 1} - \E_t[\eta_{k, t + 1}]))] = \E_t[\exp(s (\eta_{k, t + 1} - \underline{\eta}_k p_t))] = \frac{\E_t[\exp(s \eta_{k, t + 1})]}{\exp(\underline{\eta}_kp_t)}.
+  M_{\varepsilon_{k, t + 1}}(s) & = \E_t[\exp(s (\eta_{k, t + 1} - \E_t[\eta_{k, t + 1}]))] = \E_t[\exp(s (\eta_{k, t + 1} - \underline{\eta}_k p_t))] = \frac{\E_t[\exp(s \eta_{k, t + 1})]}{\exp(s\underline{\eta}_kp_t)}.
 \end{align*}
 Since $\eta_{k, t + 1} \mid p_t$ has a $\text{Bernoulli}(p_t)$ distribution and $p_t$ belongs to the time-$t$ information set,
 \begin{align*}
@@ -1059,12 +1059,12 @@ Since $\eta_{k, t + 1} \mid p_t$ has a $\text{Bernoulli}(p_t)$ distribution and 
 \end{align*}
 Thus, the ccgf for $\varepsilon_{k, t + 1}$ is
 \begin{align}\label{eq:ccgf bernoulli disaster indicator}
-  ccgf_{\varepsilon_{k, t + 1}}(s) = \log(1 - p_t + p_t \exp(s \underline{\eta}_k)) - \underline{\eta}_k - p_t.
+  ccgf_{\varepsilon_{k, t + 1}}(s) = \log(1 - p_t + p_t \exp(s \underline{\eta}_k)) - s\underline{\eta}_k p_t.
 \end{align}
 
 The conditional moment-generating function for $\varepsilon_{p, t + 1}$ is
 \begin{align*}
-  M_{\varepsilon_{p, t + 1}}(s) & = \E_t[\exp(s (p_{t + 1} - \E_t[p_{t + 1}]))] = \frac{\E_t[\exp(s p_{t + 1})]}{\E_t[p_{t + 1}]},
+  M_{\varepsilon_{p, t + 1}}(s) & = \E_t[\exp(s (p_{t + 1} - \E_t[p_{t + 1}]))] = \frac{\E_t[\exp(s p_{t + 1})]}{\exp(s\E_t[p_{t + 1}])},
 \end{align*}
 where
 \begin{align}
@@ -1078,8 +1078,8 @@ Since $p_t$ is part of the time-$t$ information set, the ccgf of $p_{t + 1}$ is 
 \begin{align}\label{eq:ccgf bernoulli disaster probability}
   ccgf_{\varepsilon_{p, t + 1}}(s) & =
                                      \begin{cases}
-                                       \log((1 - \underline{\rho}_p) \exp(s \overline{p}) + \underline{\rho}_p\exp(s \underline{p}))  - \log(\E_t[p_{t + 1}]) & \text{if } p_t = \underline{p}\\
-                                       \log((1 - \overline{\rho}_p) \exp(s \underline{p}) + \overline{\rho}_p\exp(s \overline{p}))  - \log(\E_t[p_{t + 1}]) & \text{if } p_t = \overline{p}.
+                                       \log((1 - \underline{\rho}_p) \exp(s \overline{p}) + \underline{\rho}_p\exp(s \underline{p}))  - \E_t[s p_{t + 1}] & \text{if } p_t = \underline{p}\\
+                                       \log((1 - \overline{\rho}_p) \exp(s \underline{p}) + \overline{\rho}_p\exp(s \overline{p}))  - \E_t[s p_{t + 1}] & \text{if } p_t = \overline{p}.
                                      \end{cases}
 \end{align}
 
@@ -1112,7 +1112,7 @@ Now let $\hat{p}_{t, t + s} = \E_t[p_{t + s}]$. Then Markov rational expectation
 
 The fourth approach models the disaster shock as an exponentially distributed shock $\eta_{k, t} \sim \text{Exponential}(p_{t - 1})$, where $p_t$ is now the intensity of the exponential distribution. The evolution of $p_t$ can be modeled in the three ways described previously. The conditional moment generating function for $\varepsilon_{k, t + 1}$ is
 \begin{align*}
-  M_{\varepsilon_{k, t + 1}}(s) & = \E_t[\exp(s (\eta_{k, t + 1} - \E_t[\eta_{k, t + 1}]))] = \frac{\E_t[\exp(s \eta_{k, t + 1})]}{\exp(p_t)},
+  M_{\varepsilon_{k, t + 1}}(s) & = \E_t[\exp(s (\eta_{k, t + 1} - \E_t[\eta_{k, t + 1}]))] = \frac{\E_t[\exp(s \eta_{k, t + 1})]}{\exp(s p_t)},
 \end{align*}
 hence the ccgf for $\eta_{k, t + 1}$ is
 \begin{align}
@@ -1140,14 +1140,14 @@ then the moment-generating function of $X$ is
 \begin{align*}
   M_X(s) & = C_1(s) M_Y(C_2(s)).
 \end{align*}
-Thus, the primary problem in deriving the ccgf of a mixture model for the disaster risk is finding $C_1(s)$ and $C_2(s)$ for the size of the disaster shock. If $-\eta_{k, t} \sim \text{Gamma}(j_t, \sigma_k)$, then
+Thus, the primary problem in deriving the ccgf of a mixture model for the disaster risk is finding $C_1(s)$ and $C_2(s)$ for the ``intensity'' of the disaster shock. If $-\eta_{k, t} \sim \text{Gamma}(j_t, \sigma_k)$, then
 \begin{align*}
   M_{-\eta_{k, t} \mid j_t}(s) & = (1 - \sigma_k s)^{-j_t} = \exp(-j_t\log(1 - \sigma_k s)) = \exp(-\log(1 - \sigma_k s) j_t)\\
 \RA  C_1(s) & = 1,\quad \quad C_2(s) = -\log(1 - \sigma_k s).
 \end{align*}
 If $-\eta_{k, t} \sim \text{ShiftedExponential}(\sigma_k, j_t)$,\footnote{The pdf is $f(x) = \sigma_k \exp( - \sigma_k(x - j_t))$.} then
 \begin{align*}
-  M_{-\eta_{k, t} \mid j_t}(s) & = \sigma_k\int_{j_t}^\infty \exp(s x)\exp(-\sigma_k(x - j_t)\, dx = \sigma_k \exp(\sigma_kj_t)\int_{j_t}^\infty \exp(-(\sigma_k - s)x)\, dx\\
+  M_{-\eta_{k, t} \mid j_t}(s) & = \sigma_k\int_{j_t}^\infty \exp(s x)\exp(-\sigma_k(x - j_t))\, dx = \sigma_k \exp(\sigma_kj_t)\int_{j_t}^\infty \exp(-(\sigma_k - s)x)\, dx\\
                                & = \sigma_k \exp(\sigma_k j_t)\left(\frac{-\exp(-(\sigma_k - s) \infty)}{\sigma_k - s} + \frac{\exp(-(\sigma_k - s) j_t)}{\sigma_k - s}\right)\\
                                & = \frac{\sigma_k \exp(s j_t)}{\sigma_k - s}\\
   \RA C_1(s) & = \frac{\sigma_k}{\sigma_k - s}, \quad\quad C_2(s) = s.
@@ -1157,6 +1157,23 @@ If $\eta_{k, t} \sim N(-j_t, j_t \sigma_k^2)$, then
   M_{\eta_{k, t} \mid j_t}(s) & = \exp(-j_t  s + j_t \sigma_k^2 s^2  / 2) = \exp((-s + \sigma_k^2 s^2 / 2) j_t)\\
   \RA C_1(s) & = 1, \quad\quad C_2(s) = -s + \frac{\sigma_k^2\tilde{s}^2}{2}.
 \end{align*}
+The ccgf is then given by
+\begin{align*}
+  \log(\E_t[\exp(s (\eta_{k, t + 1} - \E_t[\eta_{k, t + 1}]))]) & = \log(\E_t[\exp(s \eta_{k, t + 1})]) - \E_t[s\eta_{k, t + 1}].
+\end{align*}
+If $-\eta_{k, t + 1}$ has the conditional Gamma distribution, then
+\begin{align*}
+\E_t[-s \eta_{k, t + 1}] = -s\E_t[\sigma_k j_{t + 1}] = -s\sigma_k \E_t[j_{t + 1}].
+\end{align*}
+If $\eta_{k, t + 1}$ has the conditional Shifted Exponential distribution, then
+\begin{align*}
+\E_t[-s \eta_{k, t + 1}] = -s \E_t[\sigma_k - j_{t + 1}] = -s(\sigma_k - \E_t[j_{t + 1}]).
+\end{align*}
+If $\eta_{k, t + 1}$ has the conditional Normal distribution, then
+\begin{align*}
+\E_t[s\eta_{k, t + 1}] = s \E_t[(-j_{t + 1})] = -s\E_t[j_{t + 1}].
+\end{align*}
+
 
 The seventh approach models disaster risk as a ``risk-on risk-off'' phenomenon. This case requires the disaster shock to take on at least two possible states in the future. Let $d_t = 1$ denote ``risk-on'' or ``disaster times'', $d_t = 0$ denote ``risk-off'' or ``normal times'', and  $\rho_{d, i, t}$ be the persistence of remaining in state $i \in \{0, 1\}$. If $d_t= 1$, then $\eta_{k, t}$ either realizes a disaster shock with probability $\rho_{d, 1, t}$ or equals zero with probability $1 - \rho_{d, 1, t}$. Applying tower property yields the ccgf for $\eta_{k, t}$.
 
