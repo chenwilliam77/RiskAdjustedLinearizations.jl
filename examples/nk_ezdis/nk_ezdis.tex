@@ -1067,13 +1067,13 @@ The conditional moment-generating function for $\varepsilon_{p, t + 1}$ is
   M_{\varepsilon_{p, t + 1}}(s) & = \E_t[\exp(s (p_{t + 1} - \E_t[p_{t + 1}]))] = \frac{\E_t[\exp(s p_{t + 1})]}{\E_t[p_{t + 1}]},
 \end{align*}
 where
-\begin{align*}
+\begin{align}
   \E_t[p_{t + 1}] =
   \begin{cases}
     \underline{\rho}_p \underline{p} + (1 - \underline{\rho}_p) \overline{p} & \text{if } p_t = \underline{p}\\
     \overline{\rho}_p \overline{p} + (1 - \overline{\rho}_p) \underline{p} & \text{if } p_t = \overline{p}.
   \end{cases}
-\end{align*}
+\end{align}
 Since $p_t$ is part of the time-$t$ information set, the ccgf of $p_{t + 1}$ is also Bernoulli:
 \begin{align}\label{eq:ccgf bernoulli disaster probability}
   ccgf_{\varepsilon_{p, t + 1}}(s) & =
@@ -1140,22 +1140,22 @@ then the moment-generating function of $X$ is
 \begin{align*}
   M_X(s) & = C_1(s) M_Y(C_2(s)).
 \end{align*}
-Thus, the primary problem in deriving the ccgf of a mixture model for the disaster risk is finding $C_1(s)$ and $C_2(s)$ for the size of the disaster shock. If $-\eta_{k, t} \sim \text{Gamma}(j_t, \tilde{j})$, then
+Thus, the primary problem in deriving the ccgf of a mixture model for the disaster risk is finding $C_1(s)$ and $C_2(s)$ for the size of the disaster shock. If $-\eta_{k, t} \sim \text{Gamma}(j_t, \sigma_k)$, then
 \begin{align*}
-  M_{-\eta_{k, t} \mid j_t}(s) & = (1 - \tilde{j} s)^{-j_t} = \exp(-j_t\log(1 - \tilde{j} s)) = \exp(-\log(1 - \tilde{j} s) j_t)\\
-\RA  C_1(s) & = 1,\quad \quad C_2(s) = -\log(1 - \tilde{j} s).
+  M_{-\eta_{k, t} \mid j_t}(s) & = (1 - \sigma_k s)^{-j_t} = \exp(-j_t\log(1 - \sigma_k s)) = \exp(-\log(1 - \sigma_k s) j_t)\\
+\RA  C_1(s) & = 1,\quad \quad C_2(s) = -\log(1 - \sigma_k s).
 \end{align*}
-If $-\eta_{k, t} \sim \text{ShiftedExponential}(\tilde{j}, j_t)$,\footnote{The pdf is $f(x) = \tilde{j} \exp( - \tilde{j}(x - j_t))$.} then
+If $-\eta_{k, t} \sim \text{ShiftedExponential}(\sigma_k, j_t)$,\footnote{The pdf is $f(x) = \sigma_k \exp( - \sigma_k(x - j_t))$.} then
 \begin{align*}
-  M_{-\eta_{k, t} \mid j_t}(s) & = \tilde{j}\int_{j_t}^\infty \exp(s x)\exp(-\tilde{j}(x - j_t)\, dx = \tilde{j} \exp(\tilde{j}j_t)\int_{j_t}^\infty \exp(-(\tilde{j} - s)x)\, dx\\
-                               & = \tilde{j} \exp(\tilde{j} j_t)\left(\frac{-\exp(-(\tilde{j} - s) \infty)}{\tilde{j} - s} + \frac{\exp(-(\tilde{j} - s) j_t)}{\tilde{j} - s}\right)\\
-                               & = \frac{\tilde{j} \exp(s j_t)}{\tilde{j} - s}\\
-  \RA C_1(s) & = \frac{\tilde{j}}{\tilde{j} - s}, \quad\quad C_2(s) = s.
+  M_{-\eta_{k, t} \mid j_t}(s) & = \sigma_k\int_{j_t}^\infty \exp(s x)\exp(-\sigma_k(x - j_t)\, dx = \sigma_k \exp(\sigma_kj_t)\int_{j_t}^\infty \exp(-(\sigma_k - s)x)\, dx\\
+                               & = \sigma_k \exp(\sigma_k j_t)\left(\frac{-\exp(-(\sigma_k - s) \infty)}{\sigma_k - s} + \frac{\exp(-(\sigma_k - s) j_t)}{\sigma_k - s}\right)\\
+                               & = \frac{\sigma_k \exp(s j_t)}{\sigma_k - s}\\
+  \RA C_1(s) & = \frac{\sigma_k}{\sigma_k - s}, \quad\quad C_2(s) = s.
 \end{align*}
-If $\eta_{k, t} \sim N(-j_t, j_t \tilde{j}^2)$, then
+If $\eta_{k, t} \sim N(-j_t, j_t \sigma_k^2)$, then
 \begin{align*}
-  M_{\eta_{k, t} \mid j_t}(s) & = \exp(-j_t  s + j_t \tilde{j}^2 s^2  / 2) = \exp((-s + \tilde{j}^2 s^2 / 2) j_t)\\
-  \RA C_1(s) & = 1, \quad\quad C_2(s) = -s + \frac{\tilde{j}^2\tilde{s}^2}{2}.
+  M_{\eta_{k, t} \mid j_t}(s) & = \exp(-j_t  s + j_t \sigma_k^2 s^2  / 2) = \exp((-s + \sigma_k^2 s^2 / 2) j_t)\\
+  \RA C_1(s) & = 1, \quad\quad C_2(s) = -s + \frac{\sigma_k^2\tilde{s}^2}{2}.
 \end{align*}
 
 The seventh approach models disaster risk as a ``risk-on risk-off'' phenomenon. This case requires the disaster shock to take on at least two possible states in the future. Let $d_t = 1$ denote ``risk-on'' or ``disaster times'', $d_t = 0$ denote ``risk-off'' or ``normal times'', and  $\rho_{d, i, t}$ be the persistence of remaining in state $i \in \{0, 1\}$. If $d_t= 1$, then $\eta_{k, t}$ either realizes a disaster shock with probability $\rho_{d, 1, t}$ or equals zero with probability $1 - \rho_{d, 1, t}$. Applying tower property yields the ccgf for $\eta_{k, t}$.
