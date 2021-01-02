@@ -956,16 +956,9 @@ Equation (\ref{eq:epstein zin wealth recursion eqm stat}) will be handled later 
                & = \underbrace{\eta_{\beta, t} + \log(\beta) - \overline{\beta}_t + \gamma c_t - (1 - \gamma) \ell_t - (\psi - \gamma) ce_t - \gamma \mu_a}_{\xi} \\
                &\quad + \underbrace{\overline{\beta}_{t + 1} - \gamma c_{t + 1} + (1 - \gamma) \ell_{t + 1} + (\psi - \gamma) v_{t + 1} - \gamma a_{t + 1}}_{\text{forward}}.
 \end{align*}
-Note that the forward-looking portion is not linear yet due to the $1 - \exp(\eta_{\beta, t + 1})$ term.
-hence the stochastic discount factor becomes
-\begin{align*}
-  m_{t, t + 1} & = \underbrace{\eta_{\beta, t} + \log(\beta) - \overline{\beta}_t + \gamma c_t - (1 - \gamma) \ell_t - (\psi - \gamma) ce_t - \gamma \mu_a}_{\xi} \\
-               &\quad + \underbrace{\overline{\beta}_{t + 1} - \gamma c_{t + 1} + (1 - \gamma) \ell_{t + 1} + (\psi - \gamma) v_{t + 1} - \gamma a_{t + 1}}_{\text{forward}}.
-\end{align*}
-
 Equation (\ref{eq:intratemporal consumption labor eqm stat}) becomes
 \begin{align*}
-  0 & = \log(\psi) + \eta_{l, t} + \log(\overline{\nu} + c_t + \nu l_t - \frac{1 - \psi}{\psi}\ell_t - w_t
+  0 & = \log(\psi) + \eta_{l, t} + \log(\overline{\nu}) + c_t + \nu l_t - \frac{1 - \psi}{\psi}\ell_t - w_t
 \end{align*}
 Equation (\ref{eq:labor disutility function eqm stat}) becomes
 \begin{align*}
@@ -991,17 +984,16 @@ Equation (\ref{eq:real optimal reset price eqm stat}) will be directly substitut
 \end{align*}
 Equations (\ref{eq:numerator recursion eqm stat}) and (\ref{eq:denominator recursion eqm stat}) will be handled below because they are forward difference equations. Equation (\ref{eq:tobins q eqm stat}) becomes
 \begin{align*}
-  0 & = \frac{1}{\chi} \log(\overline{X}) - \frac{1}{\chi}(x_t - \eta_{k, t} - k_{t - 1}) + q_t.
+  0 & = \log(\Phi'(\exp(x_t - \eta_{k, t} - k_{t - 1}))) + q_t.
 \end{align*}
 Equation (\ref{eq:Rq defn eqm stat}) becomes
 \begin{align*}
-  r_{q, t} & = \log\left(\Phi\left(\exp(x_t - \eta_{k, t} - k_{t - 1})\right) - \Phi'\left(\exp(x_t - \eta_{k, t} - k_{t - 1})\right)\exp(x_t - \eta_{k, t} - k_{t - 1})\right)\\
-  r_{q, t} & = \log\left(\frac{\overline{X}^{1 / \chi}}{1 - 1 / \chi}\exp((1 - 1 / \chi)(x_t - \eta_{k, t} - k_{t - 1})) - \frac{\overline{X}}{\chi (\chi - 1)} - \overline{X}^{1 / \chi}\exp((1 -1 / \chi) (x_t - \eta_{k, t} - k_{t - 1}))\right)\\
-  0 & = \log\left(\frac{\overline{X}^{1 / \chi}}{\chi - 1}\exp((1 - 1 / \chi)(x_t -\eta_{k, t} - k_{t - 1})) - \frac{\overline{X}}{\chi(\chi - 1)}\right) - r_{q, t}
+  r_{q, t} & = \log\left(1 - \delta + \Phi\left(\exp(x_t - \eta_{k, t} - k_{t - 1})\right) - \Phi'\left(\exp(x_t - \eta_{k, t} - k_{t - 1})\right)\exp(x_t - \eta_{k, t} - k_{t - 1})\right)\\
+  0 & = \log\left(1 - \delta + \Phi\left(\exp(x_t - \eta_{k, t} - k_{t - 1})\right) - \Phi'\left(\exp(x_t - \eta_{k, t} - k_{t - 1})\right)\exp(x_t - \eta_{k, t} - k_{t - 1})\right) - r_{q, t}
 \end{align*}
 Equation (\ref{eq:law of motion capital eqm stat}) becomes
 \begin{align*}
-  k_{(t - 1) + 1} & = \log\left(1 - \delta + \frac{\overline{X}^{1 / \chi}}{1 - 1 / \chi}\exp((1 - 1 / \chi)(x_t - \eta_{k, t} - k_{t - 1}))\right) + \eta_{k, t} + k_{t - 1}.
+  k_{(t - 1) + 1} & = \log\left(1 - \delta + \Phi(\exp(x_t - \eta_{k, t} - k_{t - 1}))\right) + \eta_{k, t} + k_{t - 1}.
 \end{align*}
 Equation (\ref{eq:inflation from optimal reset price eqm stat}) becomes
 \begin{align*}
@@ -1009,7 +1001,7 @@ Equation (\ref{eq:inflation from optimal reset price eqm stat}) becomes
 \end{align*}
 Equation (\ref{eq:price dispersion evol eqm stat}) becomes
 \begin{align*}
-  0 & = \epsilon \pi_t + \log((1 - \theta) \exp(-\epsilon(p_t^* + \pi_t)) + \theta \Delta_{t - 1}) - \log(\Delta_t).
+  0 & = \epsilon \pi_t + \log((1 - \theta) \exp(-\epsilon(p_t^* + \pi_t)) + \theta \exp(\log(\Delta_{t - 1}))) - \log(\Delta_t).
 \end{align*}
 Equation (\ref{eq:taylor rule eqm}) becomes
 \begin{align*}

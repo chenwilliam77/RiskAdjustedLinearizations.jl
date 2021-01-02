@@ -148,7 +148,7 @@ observe that
                              & = \log\left(\frac{\mathbb{E}_t[\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})]}{\exp(\mathbb{E}_t[(\Gamma_5 + \Gamma_6 \Psi)z_{t + 1}])}\right).
 \end{aligned}
 ```
-Since ``\mathbb{E}_t[(\Gamma_5 + \Gamma_6 \Psi)z_{t + 1}]`` is a conditional expectation, it is measurable with respect to the time-``t`` information set. Therefore, we can move the denominator inside the conditional expectation in the numerator.
+Since ``\mathbb{E}_t[(\Gamma_5 + \Gamma_6 \Psi)z_{t + 1}]`` is a conditional expectation, it is measurable with respect to the time-``t`` information set. Therefore, we can move the denominator of the fraction within the logarithm inside the numerator's conditional expectation.
 ```math
 \begin{aligned}
 \mathcal{V}_t(\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})) & = \log\mathbb{E}_t\left[\exp\left((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1} - \mathbb{E}_t[(\Gamma_5 + \Gamma_6 \Psi)z_{t + 1}]\right)\right]\\
