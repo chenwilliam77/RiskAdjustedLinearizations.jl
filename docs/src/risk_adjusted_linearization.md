@@ -139,6 +139,43 @@ ccgf_i[A_i(z_t)\mid z_t] = \sum_{j = 1}^{n_\varepsilon}\log\mathbb{E}_t[\exp(A_{
 ```
 i.e. it is the sum of the cumulant-generating functions for each shock ``\varepsilon_{j, t + 1}``.
 
+To see why ``\mathcal{V}_t(\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1}))`` can be expressed as the conditional
+cumulant-generating function of ``(\Gamma_5 + \Gamma_6 \Psi)(I_{n_z} - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t)``,
+observe that
+```math
+\begin{aligned}
+\mathcal{V}_t(\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})) & = \log\mathbb{E}_t[\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})] - \mathbb{E}_t[(\Gamma_5 + \Gamma_6 \Psi)z_{t + 1}]\\
+                             & = \log\left(\frac{\mathbb{E}_t[\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})]}{\exp(\mathbb{E}_t[(\Gamma_5 + \Gamma_6 \Psi)z_{t + 1}])}\right).
+\end{aligned}
+```
+Since ``\mathbb{E}_t[(\Gamma_5 + \Gamma_6 \Psi)z_{t + 1}]`` is a conditional expectation, it is measurable with respect to the time-``t`` information set. Therefore, we can move the denominator inside the conditional expectation in the numerator.
+```math
+\begin{aligned}
+\mathcal{V}_t(\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})) & = \log\mathbb{E}_t\left[\exp\left((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1} - \mathbb{E}_t[(\Gamma_5 + \Gamma_6 \Psi)z_{t + 1}]\right)\right]\\
+& = \log\mathbb{E}_t\left[\exp\left((\Gamma_5 + \Gamma_6 \Psi)(z_{t + 1} - \mathbb{E}_t[z_{t + 1}])\right)\right].
+\end{aligned}
+```
+Using the postulated law of motion for states,
+```math
+\begin{aligned}
+z_{t + 1} - \mathbb{E}_t[z_{t + 1}] & = \mu(z_t, y_t) + \Lambda(z_t)(y_{t + 1} - \mathbb{E}_t[y_{t + 1}]) + \Sigma(z_t) \varepsilon_{t + 1} - \mu(z_t, y_t)\\
+& =  \Lambda(z_t) \Psi  (z_{t + 1} - \mathbb{E}_t[z_{t + 1}]) + \Sigma(z_t) \varepsilon_{t + 1}\\
+(I - \Lambda(z_t) \Psi) (z_{t + 1} - \mathbb{E}_t[z_{t + 1}])  & = \Sigma(z_t) \varepsilon_{t + 1}.
+\end{aligned}
+```
+Therefore, the entropy term ``\mathcal{V}_t(\cdot)`` becomes
+```
+\begin{aligned}
+\mathcal{V}_t(\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})) & = \log\mathbb{E}_t\left[\exp\left((\Gamma_5 + \Gamma_6 \Psi)(I - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t) \varepsilon_{t + 1}\right)\right].
+\end{aligned}
+```
+The RHS is a vector of logarithms of expected values of linear combinations of the shocks ``\varepsilon_{t, + 1}``
+with coefficients given by the rows of ``(\Gamma_5 + \Gamma_6 \Psi)(I - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t)``.
+Thus, each element of ``\mathcal{V}_t(\cdot)`` is the conditional cumulant-generating function
+of the random vector ``\varepsilon_{t, + 1}`` evaluated at one of the rows of
+``(\Gamma_5 + \Gamma_6 \Psi)(I - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t)``, as claimed.
+
+
 Refer to [Lopez et al. (2018) "Risk-Adjusted Linearizations of Dynamic Equilibrium Models"](https://ideas.repec.org/p/bfr/banfra/702.html) for more details about the theory justifying this approximation approach.
 See [Deriving the conditional cumulant generating function](@ref ccgf-tips) for some guidance on calculating the ccgf, which
 many users may not have seen before.
@@ -161,6 +198,8 @@ accessible through Julia.
 3. Functions provided by the user will be converted into in-place functions with pre-allocated caches.
 
 4. (Coming in the future) Calculation of Jacobians with automatic differentiation is accelerated by exploiting sparsity with SparseDiffTools.jl
+
+5. (Coming in the future) Usage of sparse arrays when reasonable
 
 See the [Example](@ref example) for how to use the type. To compare this package's speed with the original MATLAB code,
 run the [wac_disaster.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/matlab_timing_test/wac_disaster.jl) or [rbc_cc.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/matlab_timing_test/rbc_cc.jl)
