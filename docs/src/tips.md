@@ -180,3 +180,23 @@ Computing this quantity for each expectational equation yields the `ccgf` used i
    does this equation define the risk-free interest rate?). For small models, this disadvantage is generally not a problem.
    See the definition of the out-of-place expected state transition function `μ` in
   [examples/wachter\_disaster\_risk/wachter.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations/tree/main/examples/wachter_disaster_risk/wachter.jl).
+
+- **Exponentiate all terms to write conditions in levels.**
+
+Automatic differentiation will be faster if the equilibrium conditions are written in the form
+```math
+\begin{aligned}
+0 & = \log(F(x)),
+\end{aligned}
+```
+instead of in levels
+```math
+\begin{aligned}
+1 & = F(x).
+\end{aligned}
+```
+However, it may be easier and/or less error prone to write the equilibrium conditions
+in levels. This approach can be easily accomplished by (1) exponentiating all input
+arguments at the beginning of the function to convert inputs from logs to levels;
+(2) writing all equilibrium conditions in the form ``1 = F(x)``; and
+(3) returning the output as ``\log(F(x))``.
