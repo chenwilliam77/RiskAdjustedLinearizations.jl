@@ -28,7 +28,7 @@ mutable struct NKEZDisaster{T <: Real, S, N}
     disaster_occur_spec::Symbol
     disaster_intensity_spec::Symbol
     disaster_para::NamedTuple{S, NTuple{N, T}}
-    N_approx::Int
+    N_approx::NamedTuple{(:q, :s₁, :s₂, :ω), NTuple{4, Int}}
     S::OrderedDict{Symbol, Int}
     J::OrderedDict{Symbol, Int}
     E::OrderedDict{Symbol, Int}
@@ -51,9 +51,10 @@ function NKEZDisaster(disaster_occur_spec::Symbol = :PoissonNormalMixture,
                       σ_β::T = sqrt((log(β) / 4.)^2 * (1. - ρ_β^2)),
                       σ_l::T = 0.01, σ_r::T = 0.01, μ_a::T = 0.0125,
                       σ_a::T = 0.01, κ_a::T = 1.,
-                      N_approx::Int = 1) where {T <: Real, S1, N1}
+                      N_approx::NamedTuple{(:q, :s₁, :s₂, :ω), NTuple{4, Int}} =
+                      (q = 1, s₁ = 1, s₂ = 1, ω = 1)) where {T <: Real, S1, N1}
 
-    @assert N_approx > 0 "N_approx must be at least 1."
+    @assert all(N_approx[k] > 0 for k in keys(N_approx)) "N_approx must be at least 1 for all variables."
 
     ## Create Indexing dictionaries.
 
@@ -63,7 +64,7 @@ function NKEZDisaster(disaster_occur_spec::Symbol = :PoissonNormalMixture,
     S_init  = [:k₋₁, :logΔ₋₁, :r₋₁, :output₋₁, :η_β, :η_l, :η_r, :a, :η_k] # State Variables
     J_init  = [:output, :c, :l, :v, :ce, :ω, :ℓ, :β̅, :w, :r, :π, :q, :x,
                :rk, :rq, :mc, :s₁, :s₂, :logΔ] # Jump variables
-    E_init  = [:value_fnct, :certainty_equivalent, :ez_fwd_diff,
+    E_init  = [:value_fnct, :certainty_equiv, :ez_fwd_diff,
                :eq_β̅, :wage, :labor_disutility, :euler, :cap_ret,
                :eq_mc, :kl_ratio, :eq_s₁, :eq_s₂,
                :tobin,, :eq_rq, :phillips_curve, :price_dispersion,
@@ -72,11 +73,11 @@ function NKEZDisaster(disaster_occur_spec::Symbol = :PoissonNormalMixture,
 
     # Add approximations for forward-difference equations
     for var in [:q, :s₁, :s₂, :ω]
-        inds = (var == :q) ? (1:N_approx) : (0:(N_approx - 1))
+        inds = (var == :q) ? (1:N_approx[var]) : (0:(N_approx[var] - 1))
         push!(J_init, [Symbol(:d, var, "$(i)") for i in inds]...)
-        push!(J_init, [Symbol(:p, var, "$(i)") for i in 1:N_approx]...)
+        push!(J_init, [Symbol(:p, var, "$(i)") for i in 1:N_approx[var]]...)
         push!(E_init, [Symbol(:eq_d, var, "$(i)") for i in inds]...)
-        push!(E_init, [Symbol(:eq_p, var, "$(i)") for i in 1:N_approx]...)
+        push!(E_init, [Symbol(:eq_p, var, "$(i)") for i in 1:N_approx[var]]...)
     end
 
     # Specify random process(es) for whether a disaster occurs or not
@@ -111,18 +112,19 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
     @unpack disaster_occur_spec, disaster_intensity_spec, disaster_para = m
     r_ss = infer_r_ss(m)
     X̅    = infer_X̅(m)
+    𝔼η_k = infer_𝔼η_k(m)
 
     # Unpack indexing dictionaries
     @unpack N_approx, S, J, E, SH = m
     @unpack k₋₁, logΔ₋₁, r₋₁, output₋₁, η_β, η_l, η_r, a, η_k = S
     @unpack output, c, l, v, ce, ω, ℓ, β̅, w, r = J
     @unpack π, q, x, rk, rq, mc, s₁, s₂, logΔ  = J
-    @unpack value_fnct, certainty_equivalent, ez_fwd_diff = E
+    @unpack value_fnct, certainty_equiv, ez_fwd_diff = E
     @unpack eq_β̅, wage, labor_disutility, euler, cap_ret, eq_mc = E
     @unpack kl_ratio, eq_s₁, eq_s₂, tobin, eq_rq = E
     @unpack phillips_curve, price_dispersion, mp = E
     @unpack output_market_clear, production = E
-    @unpack ε_β, ε_l, ε_r, ε_k, ε_p = SH
+    @unpack ε_β, ε_l, ε_r, ε_a, ε_k, ε_p = SH
 
     if disaster_intensity_spec in [:CoxIngersollRoss, :TwoStateMarkovChain,
                                    :TruncatedCoxIngersollRoss]
@@ -142,12 +144,17 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
     # Some helper functions
     _Φ(Xin, Kin)  = X̅ ^ (1. / χ) / (1. - 1. / χ) * (Xin / Kin) ^ (1. - 1. / χ) - X̅ / (χ * (χ - 1.))
     _Φ′(Xin, Kin) = X̅ ^ (1. / χ) * (Xin / Kin) ^ (- 1. / χ)
-    Φ(z, y)  = _Φ(exp(y[x]), exp(z[k₋₁]))
-    Φ′(z, y) = _Φ′(exp(y[x]), exp(z[k₋₁]))
-    m_ξ(z, y) = log(β) + z[η_β] - + γ * y[c]
+    Φ(z, y)  = _Φ(exp(y[x]), exp(z[η_k] + z[k₋₁]))
+    Φ′(z, y) = _Φ′(exp(y[x]), exp(z[η_k] + z[k₋₁]))
+    m_ξ(z, y) = z[η_β] + log(β) - y[β̅] + γ * y[c] -
+        (1. - γ) * y[ℓ] - (ψ - γ) * y[ce] - γ * μ_a
+    μ_y_bgp(z, y) = μ_a + κ_a * 𝔼η_k # calculate growth rate of output along balanced growth path
     function m_fwd!(i, Γ₅, Γ₆)
-        Γ₅[i, η_β] = 1.
-        Γ₆[i, c]   = -γ
+        Γ₅[i, β̅] = 1.
+        Γ₅[i, a] = -γ
+        Γ₆[i, c] = -γ
+        Γ₆[i, ℓ] = (1. - γ)
+        Γ₆[i, v] = (ψ  - γ)
     end
     pstar(y) = log(ϵ / (ϵ - 1.)) + y[s₁] - y[s₂]
     μ_η_k    = infer_μ_disaster_occur(m)
@@ -157,9 +164,7 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
         # Expected value of η_k conditional on time t
         μ_η_k_v     = μ_η_k(z, y)
 
-        F[k₋₁]      = log(1. + X̅ ^ (1. / χ) / (1. - 1. / χ) *
-            (exp(y[x] - z[k₋₁])) ^ (1. - 1. / χ) -
-            X̅ / (1. - 1. / χ)) + z[k₋₁]
+        F[k₋₁]      = log(1. - δ + Φ(z, y)) + z[η_k] + z[k₋₁]
         F[v₋₁]      = y[v]
         F[r₋₁]      = y[r]
         F[output₋₁] = y[output]
@@ -181,27 +186,35 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
         m_ξv   = m_ξ(z, y)
 
         ## Non-forward-difference equations
-        F[wage]                = log(φ) + z[η_l] + ν * y[l] - (-γ * y[c] + y[w])
+        F[value_fnct]          = 1. / (1. - ψ) * (y[β̅] + y[ω]) - y[v]
+        F[certainty_equiv]     = 1. / (1. - ψ) * (y[β̅] - (z[η_β] + log(β)) + (exp(y[ω]) - 1.)) - y[ce]
+        F[wage]                = log(ψ) + z[η_l] + log(ν̅) + y[c] + ν * y[l] - (1. - ψ) / ψ * y[ℓ] - y[w]
+        F[labor_disutility]    = ψ / (1. - ψ) * log(1. + (ψ - 1.) * exp(z[η_l]) * ν̅ *
+                                                    exp((1. + ν) * y[l]) / (1. + ν)) - y[ℓ]
         F[euler]               = y[r] + m_ξv
-        F[tobin]               = y[q] + log(Φ′v)
-        F[eq_mc]               = (1. - α) * y[w] + α * y[rk] - z[η_a] -
-            (1. - α) * log(1. - α) - α * log(α) - y[mc]
-        F[kl_ratio]            = z[k₋₁] - y[l] - log(α / (1. - α)) - (y[w] - y[rk])
+        F[eq_mc]               = (1. - α) * (y[w] - log(1. - α)) + α * (y[rk] - log(α)) - y[mc]
+        F[kl_ratio]            = log(α) - log(1. - α) + y[w] - y[rk] - (z[η_k] + z[k₋₁] - y[l])
+        F[tobin]               = log(Φ′v) + y[q]
+        F[eq_rq]               = log(1. - δ + Φv - Φ′v * exp(y[x] - (z[η_k] + z[k₋₁]))) - y[rq]
         F[phillips_curve]      = (1. - ϵ) * y[π] - log((1. - θ) * exp((1. - ϵ) * (pstarv + y[π])) + θ)
-        F[price_dispersion]    = y[v] - ϵ * y[π] - log((1. - θ) * exp(-ϵ * (pstarv + y[π])) + θ * exp(z[v₋₁]))
+        F[price_dispersion]    = y[logΔ] - ϵ * y[π] - log((1. - θ) * exp(-ϵ * (pstarv + y[π])) + θ * exp(z[logΔ₋₁]))
+
         F[mp]                  = (1. - ϕ_r) * r_ss + ϕ_r * z[r₋₁] +
-            (1. - ϕ_r) .* (ϕ_π * (y[π] - π_ss) + ϕ_y * (y[output] - z[output₋₁])) + z[η_r] - y[r]
+            (1. - ϕ_r) .* (ϕ_π * (y[π] - π_ss) + ϕ_y *
+                           (y[output] - z[output₋₁] + (μ_a + z[a] - mp_μ_y_bgp(z, y)))) + z[η_r] - y[r]
         F[output_market_clear] = y[output] - log(exp(y[c]) + exp(y[x]))
-        F[production]          = z[η_a] + α * z[k₋₁] + (1. - α) * y[l] - y[v] - y[output]
+        F[production]          = log(exp(α * z[k₋₁] + (1. - α) * y[l]) - χ_y) - y[logΔ] - y[output]
+        F[eq_β̅]                = log(1. - exp(z[η_β])) - y[β̅]
 
         ## Forward-difference equations separately handled b/c recursions
-        F[eq_omega] = 1. - δ + Φv - Φ′v * exp(y[x] - z[k₋₁]) - exp(y[ω])
-        F[cap_ret]  = y[q] - log(sum([exp(y[J[Symbol("dq$(i)")]]) for i in 1:N_approx]) +
-                                exp(y[J[Symbol("pq$(N_approx)")]]))
-        F[eq_s₁]    = y[s₁] - log(sum([exp(y[J[Symbol("ds₁$(i)")]]) for i in 0:(N_approx - 1)]) +
-                               exp(y[J[Symbol("ps₁$(N_approx)")]]))
-        F[eq_s₂]    = y[s₂] - log(sum([exp(y[J[Symbol("ds₂$(i)")]]) for i in 0:(N_approx - 1)]) +
-                               exp(y[J[Symbol("ps₂$(N_approx)")]]))
+        F[cap_ret]     = y[q]  - log(sum([exp(y[J[Symbol("dq$(i)")]]) for i in 1:N_approx[:q]]) +
+                                     exp(y[J[Symbol("pq$(N_approx[:q])")]]))
+        F[eq_s₁]       = y[s₁] - log(sum([exp(y[J[Symbol("ds₁$(i)")]]) for i in 0:(N_approx[:s₁] - 1)]) +
+                                      exp(y[J[Symbol("ps₁$(N_approx[:s₁])")]]))
+        F[eq_s₂]       = y[s₂] - log(sum([exp(y[J[Symbol("ds₂$(i)")]]) for i in 0:(N_approx[:s₂] - 1)]) +
+                                      exp(y[J[Symbol("ps₂$(N_approx[:s₂])")]]))
+        F[ez_fwd_diff] = y[ω]  - log(sum([exp(y[J[Symbol("dω$(i)")]]) for i in 0:(N_approx[:ω] - 1)]) +
+                                     exp(y[J[Symbol("pω$(N_approx[:ω])")]]))
 
         # Set initial boundary conditions
         F[E[:eq_dq1]]  = -y[J[:dq1]] + m_ξv
@@ -210,15 +223,25 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
         F[E[:eq_ps₁1]] = log(θ) - y[J[:ps₁1]] + m_ξv
         F[E[:eq_ds₂0]] = y[J[:ds₂0]] - y[output]
         F[E[:eq_ps₂1]] = log(θ) - y[J[:ps₂1]] + m_ξv
+        F[E[:eq_dω0]]  = y[J[:dω0]]
+        F[E[:eq_pω1]]  = μ_a - y[c] - y[J[:pω1]] + m_ξv
 
         # Recursions for forward-difference equations
-        for i in 2:N_approx
+        for i in 2:N_approx[:q]
             F[E[Symbol("eq_dq$(i)")]]    = -y[J[Symbol("dq$(i)")]] + m_ξv
             F[E[Symbol("eq_pq$(i)")]]    = -y[J[Symbol("pq$(i)")]] + m_ξv
+        end
+        for i in 2:N_approx[:s₁]
             F[E[Symbol("eq_ds₁$(i-1)")]] = log(θ) - y[J[Symbol("ds₁$(i-1)")]] + m_ξv
             F[E[Symbol("eq_ps₁$(i)")]]   = log(θ) - y[J[Symbol("ps₁$(i)")]]   + m_ξv
+        end
+        for i in 2:N_approx[:s₂]
             F[E[Symbol("eq_ds₂$(i-1)")]] = log(θ) - y[J[Symbol("ds₂$(i-1)")]] + m_ξv
             F[E[Symbol("eq_ps₂$(i)")]]   = log(θ) - y[J[Symbol("ps₂$(i)")]]   + m_ξv
+        end
+        for i in 2:N_approx[:ω]
+            F[E[Symbol("eq_dω$(i-1)")]] = μ_a - y[c] - y[J[Symbol("dω$(i-1)")]] + m_ξv
+            F[E[Symbol("eq_pω$(i)")]]   = μ_a - y[c] - y[J[Symbol("pω$(i)")]]   + m_ξv
         end
     end
 
@@ -269,8 +292,13 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
     m_fwd!(E[:eq_ps₂1], Γ₅, Γ₆)
     Γ₆[E[:eq_ps₂1], s₂] = one(T)
 
+    m_fwd!(E[:eq_pω1], Γ₅, Γ₆)
+    Γ₆[E[:eq_pω1], c] = one(T)
+    Γ₅[E[:eq_pω₁], a] = one(T)
+    Γ₆[E[:eq_pω1], ω] = one(T)
+
     # Forward difference equations: recursions
-    for i in 2:N_approx
+    for i in 2:N_approx[:q]
         m_fwd!(E[Symbol("eq_dq$(i)")], Γ₅, Γ₆)
         Γ₆[E[Symbol("eq_dq$(i)")], ω] = one(T)
         Γ₆[E[Symbol("eq_dq$(i)")], J[Symbol("dq$(i-1)")]] = one(T)
@@ -278,7 +306,9 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
         m_fwd!(E[Symbol("eq_pq$(i)")], Γ₅, Γ₆)
         Γ₆[E[Symbol("eq_pq$(i)")], ω] = one(T)
         Γ₆[E[Symbol("eq_pq$(i)")], J[Symbol("pq$(i-1)")]] = one(T)
+    end
 
+    for i in 2:N_approx[:s₁]
         m_fwd!(E[Symbol("eq_ds₁$(i-1)")], Γ₅, Γ₆)
         Γ₆[E[Symbol("eq_ds₁$(i-1)")], π] = convert(T, ϵ)
         Γ₆[E[Symbol("eq_ds₁$(i-1)")], J[Symbol("ds₁$(i-2)")]] = one(T)
@@ -286,14 +316,28 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
         m_fwd!(E[Symbol("eq_ps₁$(i)")], Γ₅, Γ₆)
         Γ₆[E[Symbol("eq_ps₁$(i)")], π] = convert(T, ϵ)
         Γ₆[E[Symbol("eq_ps₁$(i)")], J[Symbol("ps₁$(i-1)")]] = one(T)
+    end
 
+    for i in 2:N_approx[:s₂]
         m_fwd!(E[Symbol("eq_ds₂$(i-1)")], Γ₅, Γ₆)
-        Γ₆[E[Symbol("eq_ds₁$(i-1)")], π] = convert(T, ϵ) - one(T)
-        Γ₆[E[Symbol("eq_ds₁$(i-1)")], J[Symbol("ds₁$(i-2)")]] = one(T)
+        Γ₆[E[Symbol("eq_ds₂$(i-1)")], π] = convert(T, ϵ) - one(T)
+        Γ₆[E[Symbol("eq_ds₂$(i-1)")], J[Symbol("ds₂$(i-2)")]] = one(T)
 
         m_fwd!(E[Symbol("eq_ps₂$(i)")], Γ₅, Γ₆)
         Γ₆[E[Symbol("eq_ps₂$(i)")], π] = convert(T, ϵ) - one(T)
         Γ₆[E[Symbol("eq_ps₂$(i)")], J[Symbol("ps₂$(i-1)")]] = one(T)
+    end
+
+    for i in 2:N_approx[:ω]
+        m_fwd!(E[Symbol("eq_dω$(i-1)")], Γ₅, Γ₆)
+        Γ₆[E[Symbol("eq_dω$(i-1)")], c] = one(T)
+        Γ₅[E[Symbol("eq_dω$(i-1)")], a] = one(T)
+        Γ₆[E[Symbol("eq_dω$(i-1)")], J[Symbol("dω$(i-2)")]] = one(T)
+
+        m_fwd!(E[Symbol("eq_pω$(i)")], Γ₅, Γ₆)
+        Γ₆[E[Symbol("eq_pω$(i)")], c] = one(T)
+        Γ₅[E[Symbol("eq_pω$(i)")], a] = one(T)
+        Γ₆[E[Symbol("eq_pω$(i)")], J[Symbol("pω$(i-1)")]] = one(T)
     end
 
     ## Mapping from states to jump variables
@@ -493,7 +537,7 @@ function infer_Σ_disaster_intensity(m::NKEZDisaster)
         @inline _Σ_p_2mc(z) = one(eltype(z))
     elseif mdisi == :LogAR1
         state_i = m.S[:logp]
-        @inline _Σ_p_logar1(z, y) = d[:σ_p]
+        @inline _Σ_p_logar1(z) = d[:σ_p]
     end
 
     return Σ_p
