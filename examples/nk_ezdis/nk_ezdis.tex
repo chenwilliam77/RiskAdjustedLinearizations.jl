@@ -600,7 +600,7 @@ Following Jermann (1998), I assume the investment function takes the concave for
 \end{align}
 where
 \begin{align}\label{eq:steady state invst rate defn}
-\overline{X} = \frac{\delta \chi}{\chi + 1} + \chi(\chi - 1)\left(1 - \frac{1}{\exp(\E[\eta_{k, t}])}\right)
+\overline{X} = \frac{\chi}{\chi + 1}\left(\frac{1}{\exp(\E[\eta_{k, t}])} + \delta - 1\right)
 \end{align}
 is the steady-state investment rate (per unit of capital). The expectation $\exp(\E[\eta_{k, t}])$ is the unconditional expected value of the disaster shock and is necessary to guarantee the (stochastic) steady-state investment rate is indeed $\overline{X}$. The first derivative of $\Phi(\cdot)$ w.r.t. $X_t / \hat{K}_t$ is
 \begin{align}\label{eq:invst fnct first deriv}
@@ -609,9 +609,10 @@ is the steady-state investment rate (per unit of capital). The expectation $\exp
 This functional form implies the law of motion
 \begin{align*}
   K_t & = \left(1 - \delta + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} - \frac{\overline{X}}{\chi(\chi - 1)}\right)\hat{K}_t\\
-      & = \left(1 + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\delta \left(1 +  \frac{1}{(\chi - 1)(\chi + 1)}\right) - \frac{\chi(\chi - 1)(1 - 1 / \exp(\E[\eta_{k, t}]))}{\chi(\chi - 1)}\right)\hat{K}_t\\
-      & = \left(1 + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\delta \left(\frac{\chi^2}{(\chi - 1)(\chi + 1)}\right) - 1 + \frac{1}{\exp(\E[\eta_{k, t}])} \right)\hat{K}_t\\
-      & = \left(\frac{1}{\exp(\E[\eta_{k, t}])} + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\frac{\delta\chi^2}{\chi^2(1 - 1 / \chi)(1 + 1 / \chi)}\right)\hat{K}_t\\
+ & = \left(\frac{1}{\exp(\E[\eta_{k, t}])} - \left(\frac{1}{\exp(\E[\eta_{k, t}])} + \delta - 1\right) + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} - \frac{\overline{X}}{\chi(\chi - 1)}\right)\hat{K}_t\\
+      & = \left(\frac{1}{\exp(\E[\eta_{k, t}])} + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} - \left(1 +  \frac{1}{(\chi - 1)(\chi + 1)}\right)\left(\frac{1}{\exp(\E[\eta_{k, t}])} + \delta - 1\right) \right)\hat{K}_t \\
+      & = \left(\frac{1}{\exp(\E[\eta_{k, t}])} + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} - \frac{\chi^2}{(\chi - 1)(\chi + 1)}\left(\frac{1}{\exp(\E[\eta_{k, t}])} + \delta - 1\right) \right)\hat{K}_t \\
+      & = \left(\frac{1}{\exp(\E[\eta_{k, t}])} + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} - \frac{1}{(1 - 1 / \chi)(1 + 1 / \chi)}\left(\frac{1}{\exp(\E[\eta_{k, t}])} + \delta - 1\right) \right)\hat{K}_t \\
       & = \left(\frac{1}{\exp(\E[\eta_{k, t}])} + \frac{\overline{X}^{1/\chi}}{1 - 1/\chi}\left(\frac{X_t}{\hat{K}_t}\right)^{1 - 1/\chi} -\frac{\overline{X}}{1 - 1 / \chi}\right)\hat{K}_t.
 \end{align*}
 To verify that $\overline{X}$ is indeed the steady-state investment rate, suppose $K_{ss}$ is some steady-state capital stock, and suppose $\eta_{k, t} = \eta_k = \E[\eta_{k, t}]$, i.e. $\eta_{k, t}$ obtains its value consistent with a deterministic or stochastic steady state. Then
@@ -867,16 +868,14 @@ To pin down the steady state values of the model's supply block, I begin with th
   Q = 1.
 \end{align*}
 From (\ref{eq:capital asset pricing eqm stat}),
- first observing that,
 \begin{align*}
-  \Phi(\overline{X}) = \frac{\overline{X}\chi}{\chi - 1} - \frac{\overline{X}}{\chi (\chi - 1)} = \overline{X}\frac{\chi^2 - 1}{\chi(\chi - 1)} = \overline{X}\frac{(\chi - 1)(\chi + 1)}{\chi (\chi - 1)} = \frac{\delta\chi}{\chi + 1}\frac{\chi + 1}{\chi} = \delta,
+  1 & = M(R_k + R_q)\exp(\eta_k)\\
+  R_k & = \frac{1}{M \exp(\eta_k)} - R_q.
 \end{align*}
-which ensures that $K$ does indeed remain at steady state, it must be the case that
+From (\ref{eq:Rq defn eqm stat}),
 \begin{align*}
-  R_q & =  \Phi(\overline{X}) - \overline{X}\\
-  1 & = M(R_k + (1 - \delta + R_q))\exp(\eta_k)\\
-      & = M(R_k + 1 - \overline{X}) \exp(\eta_k)\\
-  R_k & = \frac{1}{M \exp(\eta_k)} + \overline{X} - 1.
+  R_q & = 1 - \delta + \Phi(\overline{X}) - \Phi'(\overline{X})\overline{X}\\
+      & = \frac{1}{\exp(\eta_k)} - \overline{X}.
 \end{align*}
 Equation (\ref{eq:mc soln eqm stat}) remains as it is but with time subscripts removed. From (\ref{eq:numerator recursion eqm stat}),
 \begin{align*}
