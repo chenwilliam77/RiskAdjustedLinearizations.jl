@@ -231,8 +231,8 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
         Γ₆[E[Symbol("eq_ps₁$(i)")], J[Symbol("ps₁$(i-1)")]] = one(T)
 
         m_fwd!(E[Symbol("eq_ds₂$(i-1)")], Γ₅, Γ₆)
-        Γ₆[E[Symbol("eq_ds₁$(i-1)")], π] = convert(T, ϵ) - one(T)
-        Γ₆[E[Symbol("eq_ds₁$(i-1)")], J[Symbol("ds₁$(i-2)")]] = one(T)
+        Γ₆[E[Symbol("eq_ds₂$(i-1)")], π] = convert(T, ϵ) - one(T)
+        Γ₆[E[Symbol("eq_ds₂$(i-1)")], J[Symbol("ds₂$(i-2)")]] = one(T)
 
         m_fwd!(E[Symbol("eq_ps₂$(i)")], Γ₅, Γ₆)
         Γ₆[E[Symbol("eq_ps₂$(i)")], π] = convert(T, ϵ) - one(T)

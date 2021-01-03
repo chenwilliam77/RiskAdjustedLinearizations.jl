@@ -1,8 +1,4 @@
 # This script solves the NKCapital model with a risk-adjusted linearization.
-# Note that, under default parameters, forward difference equations can be
-# approximated up to four periods ahead. A five-period ahead
-# approximation does not yield a saddle-path stable
-# deterministic or stochastic steady state.
 using RiskAdjustedLinearizations, JLD2, LinearAlgebra, Test
 
 # Settings
@@ -14,7 +10,7 @@ euler_equation_errors = false
 test_price_dispersion = false        # check if price dispersion in steady state is always bounded below by 1
 plot_irfs             = false
 horizon               = 40    # horizon for IRFs
-N_approx              = 4     # Number of periods ahead used for forward-difference equations
+N_approx              = 5     # Number of periods ahead used for forward-difference equations
 n_GH                  = 5     # number of nodes for Gauss-Hermite quadrature
 
 if define_functions
@@ -48,12 +44,12 @@ if testing
     @test test_m.y ≈ out["y"]
     @test test_m.Ψ ≈ out["Psi"]
 
-    test_4_m_nk = NKCapital(; N_approx = 4) # create parameters
-    test_4_m = nk_capital(test_4_m_nk) # instantiate risk-adjusted linearization
-    solve!(test_4_m; algorithm = :relaxation, verbose = :none)
-    @test test_4_m.z ≈ out["z_4"]
-    @test test_4_m.y ≈ out["y_4"]
-    @test test_4_m.Ψ ≈ out["Psi_4"]
+    test_5_m_nk = NKCapital(; N_approx = 5) # create parameters
+    test_5_m = nk_capital(test_5_m_nk) # instantiate risk-adjusted linearization
+    solve!(test_5_m; algorithm = :relaxation, verbose = :none)
+    @test test_5_m.z ≈ out["z_5"]
+    @test test_5_m.y ≈ out["y_5"]
+    @test test_5_m.Ψ ≈ out["Psi_5"]
 end
 
 if test_price_dispersion
