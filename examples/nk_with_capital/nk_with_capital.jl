@@ -207,9 +207,11 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
     Γ₆[E[:eq_pq1], ω] = one(T)
 
     m_fwd!(E[:eq_ps₁1], Γ₅, Γ₆)
+    Γ₆[E[:eq_ps₁1], π]  = convert(T, ϵ)
     Γ₆[E[:eq_ps₁1], s₁] = one(T)
 
     m_fwd!(E[:eq_ps₂1], Γ₅, Γ₆)
+    Γ₆[E[:eq_ps₂1], π]  = convert(T, ϵ) - one(T)
     Γ₆[E[:eq_ps₂1], s₂] = one(T)
 
     # Forward difference equations: recursions
