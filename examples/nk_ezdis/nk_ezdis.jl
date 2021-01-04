@@ -220,9 +220,9 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
         F[E[:eq_dq1]]  = -y[J[:dq1]] + m_ξv
         F[E[:eq_pq1]]  = -y[J[:pq1]] + m_ξv
         F[E[:eq_ds₁0]] = y[J[:ds₁0]] - y[mc] - y[output]
-        F[E[:eq_ps₁1]] = log(θ) - y[J[:ps₁1]] + m_ξv
+        F[E[:eq_ps₁1]] = μ_a + log(θ) - y[J[:ps₁1]] + m_ξv
         F[E[:eq_ds₂0]] = y[J[:ds₂0]] - y[output]
-        F[E[:eq_ps₂1]] = log(θ) - y[J[:ps₂1]] + m_ξv
+        F[E[:eq_ps₂1]] = μ_a + log(θ) - y[J[:ps₂1]] + m_ξv
         F[E[:eq_dω0]]  = y[J[:dω0]]
         F[E[:eq_pω1]]  = μ_a - y[c] - y[J[:pω1]] + m_ξv
 
@@ -232,12 +232,12 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
             F[E[Symbol("eq_pq$(i)")]]    = -y[J[Symbol("pq$(i)")]] + m_ξv
         end
         for i in 2:N_approx[:s₁]
-            F[E[Symbol("eq_ds₁$(i-1)")]] = log(θ) - y[J[Symbol("ds₁$(i-1)")]] + m_ξv
-            F[E[Symbol("eq_ps₁$(i)")]]   = log(θ) - y[J[Symbol("ps₁$(i)")]]   + m_ξv
+            F[E[Symbol("eq_ds₁$(i-1)")]] = μ_a + log(θ) - y[J[Symbol("ds₁$(i-1)")]] + m_ξv
+            F[E[Symbol("eq_ps₁$(i)")]]   = μ_a + log(θ) - y[J[Symbol("ps₁$(i)")]]   + m_ξv
         end
         for i in 2:N_approx[:s₂]
-            F[E[Symbol("eq_ds₂$(i-1)")]] = log(θ) - y[J[Symbol("ds₂$(i-1)")]] + m_ξv
-            F[E[Symbol("eq_ps₂$(i)")]]   = log(θ) - y[J[Symbol("ps₂$(i)")]]   + m_ξv
+            F[E[Symbol("eq_ds₂$(i-1)")]] = μ_a + log(θ) - y[J[Symbol("ds₂$(i-1)")]] + m_ξv
+            F[E[Symbol("eq_ps₂$(i)")]]   = μ_a + log(θ) - y[J[Symbol("ps₂$(i)")]]   + m_ξv
         end
         for i in 2:N_approx[:ω]
             F[E[Symbol("eq_dω$(i-1)")]] = μ_a - y[c] - y[J[Symbol("dω$(i-1)")]] + m_ξv
@@ -280,16 +280,22 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
 
     # Forward difference equations: boundary conditions
     m_fwd!(E[:eq_dq1], Γ₅, Γ₆)
-    Γ₆[E[:eq_dq1], rk] = one(T)
+    Γ₅[E[:eq_dq1], η_k] = one(T)
+    Γ₆[E[:eq_dq1], rk]  = one(T)
 
     m_fwd!(E[:eq_pq1], Γ₅, Γ₆)
-    Γ₆[E[:eq_pq1], q] = one(T)
-    Γ₆[E[:eq_pq1], ω] = one(T)
+    Γ₅[E[:eq_pq1], η_k] = one(T)
+    Γ₆[E[:eq_pq1], q]   = one(T)
+    Γ₆[E[:eq_pq1], rq]  = one(T)
 
     m_fwd!(E[:eq_ps₁1], Γ₅, Γ₆)
+    Γ₅[E[:eq_ps₁1], a]  = one(T)
+    Γ₆[E[:eq_ps₁1], π]  = convert(T, ϵ)
     Γ₆[E[:eq_ps₁1], s₁] = one(T)
 
     m_fwd!(E[:eq_ps₂1], Γ₅, Γ₆)
+    Γ₅[E[:eq_ps₂1], a]  = one(T)
+    Γ₆[E[:eq_ps₂1], π]  = convert(T, ϵ - 1.)
     Γ₆[E[:eq_ps₂1], s₂] = one(T)
 
     m_fwd!(E[:eq_pω1], Γ₅, Γ₆)
@@ -300,30 +306,36 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
     # Forward difference equations: recursions
     for i in 2:N_approx[:q]
         m_fwd!(E[Symbol("eq_dq$(i)")], Γ₅, Γ₆)
-        Γ₆[E[Symbol("eq_dq$(i)")], ω] = one(T)
+        Γ₅[E[Symbol("eq_dq$(i)")], η_k] = one(T)
+        Γ₆[E[Symbol("eq_dq$(i)")], rq] = one(T)
         Γ₆[E[Symbol("eq_dq$(i)")], J[Symbol("dq$(i-1)")]] = one(T)
 
         m_fwd!(E[Symbol("eq_pq$(i)")], Γ₅, Γ₆)
-        Γ₆[E[Symbol("eq_pq$(i)")], ω] = one(T)
+        Γ₅[E[Symbol("eq_pq$(i)")], η_k] = one(T)
+        Γ₆[E[Symbol("eq_pq$(i)")], rq] = one(T)
         Γ₆[E[Symbol("eq_pq$(i)")], J[Symbol("pq$(i-1)")]] = one(T)
     end
 
     for i in 2:N_approx[:s₁]
         m_fwd!(E[Symbol("eq_ds₁$(i-1)")], Γ₅, Γ₆)
+        Γ₅[E[Symbol("eq_ds₁$(i-1)")], a] = one(T)
         Γ₆[E[Symbol("eq_ds₁$(i-1)")], π] = convert(T, ϵ)
         Γ₆[E[Symbol("eq_ds₁$(i-1)")], J[Symbol("ds₁$(i-2)")]] = one(T)
 
         m_fwd!(E[Symbol("eq_ps₁$(i)")], Γ₅, Γ₆)
+        Γ₅[E[Symbol("eq_ps₁$(i)")], a] = one(T)
         Γ₆[E[Symbol("eq_ps₁$(i)")], π] = convert(T, ϵ)
         Γ₆[E[Symbol("eq_ps₁$(i)")], J[Symbol("ps₁$(i-1)")]] = one(T)
     end
 
     for i in 2:N_approx[:s₂]
         m_fwd!(E[Symbol("eq_ds₂$(i-1)")], Γ₅, Γ₆)
+        Γ₅[E[Symbol("eq_ds₂$(i-1)")], a] = one(T)
         Γ₆[E[Symbol("eq_ds₂$(i-1)")], π] = convert(T, ϵ) - one(T)
         Γ₆[E[Symbol("eq_ds₂$(i-1)")], J[Symbol("ds₂$(i-2)")]] = one(T)
 
         m_fwd!(E[Symbol("eq_ps₂$(i)")], Γ₅, Γ₆)
+        Γ₅[E[Symbol("eq_ps₂$(i)")], a] = one(T)
         Γ₆[E[Symbol("eq_ps₂$(i)")], π] = convert(T, ϵ) - one(T)
         Γ₆[E[Symbol("eq_ps₂$(i)")], J[Symbol("ps₂$(i-1)")]] = one(T)
     end
@@ -344,27 +356,62 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
     Ψ = zeros(T, Ny, Nz)
 
     ## Deterministic steady state as initial guess
+    z, y = create_deterministic_ss_guess(m)
+
+    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε)
+end
+
+function create_deterministic_ss_guess(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK}
+
+    ## Set up
+
+    # Get parameters
+    @unpack β, γ, ψ, ν, ν̅, χ, δ, α, ϵ, θ, π_ss, ϕ_r, ϕ_π, ϕ_y = m
+    @unpack χ_y, ρ_β, ρ_l, ρ_r, σ_β, σ_l, σ_r, μ_a, σ_a, κ_a = m
+    @unpack disaster_occur_spec, disaster_intensity_spec, disaster_para = m
+    r_ss = infer_r_ss(m)
+    X̅    = infer_X̅(m)
+    𝔼η_k = infer_𝔼η_k(m)
+
+    # Unpack indexing dictionaries
+    @unpack N_approx, S, J, E, SH = m
+    @unpack k₋₁, logΔ₋₁, r₋₁, output₋₁, η_β, η_l, η_r, a, η_k = S
+    @unpack output, c, l, v, ce, ω, ℓ, β̅, w, r = J
+    @unpack π, q, x, rk, rq, mc, s₁, s₂, logΔ  = J
+
+    ## Create guesses for deterministic steady state
     z = Vector{T}(undef, Nz)
     y = Vector{T}(undef, Ny)
 
     # AR(1) start at 0
     η_β0 = 0.
     η_l0 = 0.
-    η_a0 = 0.
     η_r0 = 0.
 
+    # Disaster shock assumed to occur deterministically
+    # and equals the unconditional expected value
+    η_k0 = 𝔼η_k
+    A0   = exp(κ_a * η_k0)
+
     # Variables known outright
-    M0 = β
-    Q0 = 1.
-    RK0 = 1. / β + X̅ - 1.
+    Ω0  = 1. / (1. - (β * A0 * exp(μ_a)) ^ (1. - ψ))
+    V0  = ((1. - β) * Ω0) ^ (1. / (1. - ψ))
+    𝒞ℰ0 = ((1. - β) / β * (Ω0 - 1.)) ^ (1. / (1. - ψ))
+    M0  = β * (β * Ω0 / (Ω0 - 1.)) ^ ((ψ - γ) / (1. - ψ)) * (A0 * exp(μ_a)) ^ (-γ)
+    R0  = exp(r_ss)
+    Q0  = 1.
+    Rq0 = 1 / η_k0 - X̅
+    Rk0 = 1. / (M * exp(η_k0)) - Rq0
+    expβ̅ = 1. - exp(η_β0) * β
 
     # Guesses
     L0 = .5548
-    V0 = 1. # true if π_ss = 0, otherwise this is only a reasonable guess
+    Δ0 = 1. # true if π_ss = 0, otherwise this is only a reasonable guess
+    ℒ0 = (1. + (ψ - 1.) * exp(η_l0) * ν̅ * L0^(1. + ν) / (1. + ν))^(ψ / (1. - ψ))
 
     # Implied values given guesses
-    C0_fnct = Cin -> Cin[1] + X̅ * (α / (1. - α) * φ * L0 ^ ν / Cin[1] ^ (-γ) / RK0 * L0) -
-        (α / (1. - α) * φ * L0 ^ ν / Cin[1] ^ (-γ) / RK0) ^ α * L0 / V0
+    C0_fnct = Cin -> Cin[1] + X̅ * (α / (1. - α) * ψ * ν̅ * C0 * L0^ν / ℒ0 / RK0 * L0) -
+        ((α / (1. - α) * * ψ * ν̅ * C0 * L0^ν / ℒ0 / RK0) ^ α * L0 - χ_y) / Δ0
     C0_guess = NaN
     for theguess in .5:.5:10.
         try
@@ -374,36 +421,33 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
         end
     end
     C0 = nlsolve(C0_fnct, [C0_guess]).zero[1]
-    W0 = φ * L0 ^ ν / C0 ^ (-γ)
+    W0 = ψ * exp(η_l0) * ν̅ * C0 * L0^ν / ℒ0^((1. - ψ) / ψ)
     MC0 = (1. / (1. - α)) ^ (1. - α) * (1. / α) ^ α * W0 ^ (1. - α) * RK0 ^ α
-    K0  = α / (1. - α) * W0 / RK0 * L0
-    X0  = X̅ * K0
-    Y0  = K0 ^ α * L0 ^ (1. - α) / V0
-    S₁0  = MC0 * Y0 / (1. - θ * exp(π_ss) ^ ϵ)
-    S₂0  = Y0 / (1. - θ * exp(π_ss) ^ (ϵ - 1.))
+    K0  = (α / (1. - α) * W0 / RK0 * L0) / η_k0
+    X0  = X̅ * η_k0 * K0
+    Y0  = ((η_k0 * K0) ^ α * L0 ^ (1. - α) - χ_y) / Δ0
     Π0  = exp(π_ss)
-    R0  = exp(r_ss)
-    Ω0  = 1. - δ + _Φ(X0, K0) - _Φ′(X0, K0) * X0 / K0
-    z .= [convert(T, x) for x in log.([K0, V0, R0, Y0, exp.([η_β0, η_l0, η_a0, η_r0])...])]
-    y[1:14] = [convert(T, x) for x in log.([Y0, C0, L0, W0, R0, Π0, Q0, X0, RK0, Ω0, MC0, S₁0, S₂0, V0])]
+    S₁0 = MC0 * Y0 / (1. - exp(μ_a) * θ * M0 * A0 * Π0 ^ ϵ)
+    S₂0 = Y0 / (1. - exp(μ_a) * θ * M0 * A0 * Π0 ^ (ϵ - 1.))
+    z .= [convert(T, x) for x in log.([K0, Δ0, R0, Y0, exp.([η_β0, η_l0, η_r0, log(A0), η_k0])...])]
+    y[1:19] = [convert(T, x) for x in log.([Y0, C0, L0, V0, 𝒞ℰ0, Ω0, ℒ0, expβ̅, W0, R0, Π0, Q0, X0, Rk0, Rq0,
+                                            MC0, S₁0, S₂0, Δ0])]
 
-    y[J[:dq1]] = convert(T, log(M0 * RK0))
-    y[J[:pq1]] = convert(T, log(Ω0 * M0 * Q0))
+    y[J[:dq1]] = convert(T, log(M0 * Rk0))
+    y[J[:pq1]] = convert(T, log(Rq0 * M0 * Q0))
     y[J[:ds₁0]] = convert(T, log(MC0 * Y0))
-    y[J[:ps₁1]] = convert(T, log(θ * M0 * Π0^ϵ * S₁0))
+    y[J[:ps₁1]] = convert(T, log(exp(μ_a) * θ * M0 * A0 * Π0^ϵ * S₁0))
     y[J[:ds₂0]] = convert(T, log(Y0))
-    y[J[:ps₂1]] = convert(T, log(θ * M0 * Π0^(ϵ - 1.) * S₂0))
+    y[J[:ps₂1]] = convert(T, log(exp(μ_a) * θ * M0 * A0 * Π0^(ϵ - 1.) * S₂0))
 
     for i in 2:N_approx
-        y[J[Symbol("dq$(i)")]] = convert(T, log(M0) + log(Ω0) + y[J[Symbol("dq$(i-1)")]])
-        y[J[Symbol("pq$(i)")]] = convert(T, log(M0) + log(Ω0) + y[J[Symbol("pq$(i-1)")]])
-        y[J[Symbol("ds₁$(i-1)")]] = convert(T, log(θ) + log(M0) + ϵ * π_ss + y[J[Symbol("ds₁$(i-2)")]])
-        y[J[Symbol("ps₁$(i)")]] = convert(T, log(θ) + log(M0) + ϵ * π_ss + y[J[Symbol("ps₁$(i-1)")]])
-        y[J[Symbol("ds₂$(i-1)")]] = convert(T, log(θ) + log(M0) + (ϵ - 1.) * π_ss + y[J[Symbol("ds₂$(i-2)")]])
-        y[J[Symbol("ps₂$(i)")]] = convert(T, log(θ) + log(M0) + (ϵ - 1.) * π_ss + y[J[Symbol("ps₂$(i-1)")]])
+        y[J[Symbol("dq$(i)")]] = convert(T, log(M0) + η_k0 + log(Rq0) + y[J[Symbol("dq$(i-1)")]])
+        y[J[Symbol("pq$(i)")]] = convert(T, log(M0) + η_k0 + log(Rq0) + y[J[Symbol("pq$(i-1)")]])
+        y[J[Symbol("ds₁$(i-1)")]] = convert(T, μ_a + log(θ) + log(M0) + log(A0) + ϵ * π_ss + y[J[Symbol("ds₁$(i-2)")]])
+        y[J[Symbol("ps₁$(i)")]] = convert(T, μ_a + log(θ) + log(M0) + log(A0) + ϵ * π_ss + y[J[Symbol("ps₁$(i-1)")]])
+        y[J[Symbol("ds₂$(i-1)")]] = convert(T, μ_a + log(θ) + log(M0) + log(A0) + (ϵ - 1.) * π_ss + y[J[Symbol("ds₂$(i-2)")]])
+        y[J[Symbol("ps₂$(i)")]] = convert(T, μ_a + log(θ) + log(M0) + log(A0) + (ϵ - 1.) * π_ss + y[J[Symbol("ps₂$(i-1)")]])
     end
-
-    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε)
 end
 
 # Infer the value of η_k in the stochastic steady state
@@ -443,7 +487,7 @@ end
 
 # Infer steady state investment rate given the disaster shock specification
 function infer_X̅(m::NKEZDisaster)
-    return m.δ * m.χ / (m.χ + 1.) + m.χ * (m.χ - 1.) * (1. - 1. / exp(infer_𝔼η_k(m)))
+    return m.χ / (m.χ + 1.) * (1. / exp(infer_𝔼η_k(m)) + m.δ - 1.)
 end
 
 # Figure out the steady state interest rate
