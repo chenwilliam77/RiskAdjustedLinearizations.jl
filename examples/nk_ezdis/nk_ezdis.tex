@@ -434,7 +434,7 @@ where $\hat{K}_t = \exp(\eta_{k, t})K_{t - 1}$ and productivity $\exp(\eta{a, t}
 \begin{align}\label{eq:productivity process}
   \eta_{a, t} & = \mu_a + \eta_{a, t - 1} + \sigma_a \varepsilon_{a, t} + \kappa_a\eta_{k, t}.
 \end{align}
-Intermediate producers minimize cost subject to the constraint of meeting demand and Calvo price rigidities. Formally,
+Intermediate producers minimize cost subject to the constraint of meeting demand. Formally,
 \begin{align}
   \begin{split}
     & \quad\quad\min_{\hat{K}_t(j), L_t(j)} R_{k, t} \hat{K}_t(j) + W_t L_t(j)\\
@@ -471,16 +471,16 @@ Therefore, (real) profits for an intermediate producer become
 \begin{align}
   \frac{P_t(j)}{P_t}Y_t(j) - MC_t Y_t(j) - \chi_y \exp(\eta_{a, t}).
 \end{align}
-In addition to the capital-labor choice, firms also have the chance to reset prices in every period with probability $1 - \theta$. This problem can be
+In addition to the capital-labor choice, firms face Calvo pricing rigidities and have the chance to reset prices in every period with probability $1 - \theta$. See Appendix \ref{sec:rotemberg} for guidance on how to implement nominal rigidities using Rotemberg pricing. This problem can be
 written as
 \begin{align}
   \begin{split}
-  &\max_{P_t(j)} \E_t\sum_{s = 0}^\infty\theta^sM_{t, t + s}\left(\frac{P_t(j)}{P_{t + s}}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - MC_{t + s}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - \chi_y\exp(\eta_{a, t})\right),
+  &\max_{P_t(j)} \E_t\sum_{s = 0}^\infty\theta^sM_{t, t + s}\left(\frac{P_t(j)}{P_{t + s}}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - MC_{t + s}\left(\frac{P_t(j)}{P_{t + s}}\right)^{-\epsilon}Y_{t + s} - \chi_y\exp(\eta_{a, t + s})\right),
   \end{split}
 \end{align}
 where I have imposed that intermediate output equals demand. The quantity $M_{t, t + s}$ is the stochastic discount factor between periods $t$ and $t + s$ and is given by
 \begin{align}
-  M_{t, t + s} & = \frac{\beta^s \prod_{u = 1}^s\exp(\eta_{\beta, t + u})}{\exp(\eta_{\beta, t})}\frac{\partial V_{t + u} / \partial C_{t + s}}{\partial V_t / \partial C_t} \prod_{u = 1}^s \frac{\partial V_{t + u - 1}}{\partial V_{t + u}},
+  M_{t, t + s} & = \frac{\partial V_{t + s} / \partial C_{t + s}}{\partial V_t / \partial C_t} \prod_{u = 1}^s \frac{\partial V_{t + u - 1}}{\partial V_{t + u}},
 \end{align}
 with the boundary condition $M_{t, t} = 1$. The first-order condition is
 \begin{align*}
@@ -1099,7 +1099,7 @@ The seventh approach models disaster risk as a ``risk-on risk-off'' phenomenon. 
 \subsection{Endogenous Equilibrium Conditions}
 First, I define the auxiliary variable
 \begin{align}
-  \overline{\beta}_t & = \log(1 - \exp(\eta_{\beta, t})).
+  \overline{\beta}_t & = \log(1 - \exp(\eta_{\beta, t})\beta).
 \end{align}
 This auxiliary variable is necessary if shocks to the time preference rate occur because $1 - \eta_{\beta, t + 1}$ appears in some equilibrium conditions like the stochastic discount factor, but a risk-adjusted linearization requires forward-looking variables be linear.
 
@@ -1184,7 +1184,7 @@ Equation (\ref{eq:aggregate supply eqm stat}) becomes
 This system has four forward difference equations (\ref{eq:epstein zin wealth recursion eqm stat}), (\ref{eq:capital asset pricing eqm stat}), (\ref{eq:numerator recursion eqm stat}), and
 (\ref{eq:denominator recursion eqm stat}). To ensure accuracy of the risk-adjusted linearization, I derive $N$-period ahead forward difference equations for all four.\\
 
-To start, I begin with (\ref{eq:capital asset pricing eqm stat}) because it does not have any terms outside the expectation. The equation can be recursively written as
+To start, I begin with (\ref{eq:capital asset pricing eqm stat}) because it does not have any terms outside the expectation. Ignore the disaster risk $\eta_{k, t + 1}$ term temporarily. Then the equation can be recursively written as
 \begin{align*}
   Q_t & = \E_t[M_{t, t + 1} (R_{k, t + 1} + Q_{t + 1}R_{q, t + 1})]\\
       & = \E_t[M_{t, t + 1}R_{k, t + 1} + R_{q, t + 1}M_{t, t + 1}\E_{t + 1}[M_{t + 1, t + 2}(R_{k, t + 2} + Q_{t  + 2}R_{q, t + 1})]]\\
@@ -1232,18 +1232,18 @@ Similarly, for $D_{Q, t}$, I have
   D_{Q, t}^{(3)} & = \E_t[R_{q, t + 1}M_{t, t + 1}\E_{t + 1}[R_{q, t + 2}M_{t + 1, t + 2}M_{t + 2, t + 3}R_{k, t + 3}]]\\
                  & = \E_t[R_{q, t + 1}R_{q, t + 2}M_{t, t + 1}M_{t + 1, t + 2}M_{t + 2, t + 3}R_{k, t + 3}].
 \end{align*}
-Since $P_{Q, t}^{(n)}$ and $D_{Q, t}^{(n)}$ are time-$t$ conditional expectations, they are measurable at time $t$, so they are not forward-looking variables. Thus, to get this version of (\ref{eq:capital asset pricing eqm}) in the appropriate form, define $d_{q, n, t} = \log(D_{Q, t}^{(n)})$ and $p_{q, n, t} = \log(P_{Q, t}^{(n)})$, and use the following $2N + 1$ equations:
+Since $P_{Q, t}^{(n)}$ and $D_{Q, t}^{(n)}$ are time-$t$ conditional expectations, they are measurable at time $t$, so they are not forward-looking variables. Thus, to get this version of (\ref{eq:capital asset pricing eqm}) in the appropriate form, add the disaster shock $\eta_{k, t + 1}$ back; define $d_{q, n, t} = \log(D_{Q, t}^{(n)})$ and $p_{q, n, t} = \log(P_{Q, t}^{(n)})$; and use the following $2N + 1$ equations:
 \begin{align}
   0 & = \log\E_t\left[\exp\left(\underbrace{q_t - \log\left(\sum_{n = 1}^{N}\exp(d_{q, n, t}) + \exp(p_{q, N, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{-d_{q, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + d_{q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{- d_{q, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{r_{k, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
+        \log\E_t\left[\exp\left(\underbrace{-d_{q, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\eta_{k, t + 1} + r_{q, t + 1} + d_{q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{- d_{q, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\eta_{k, t + 1} + r_{k, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{-p_{q, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + p_{q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{-p_{q, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\omega_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
+        \log\E_t\left[\exp\left(\underbrace{-p_{q, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\eta_{k, t + 1} + r_{q, t + 1} + p_{q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{-p_{q, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\eta_{k, t + 1} + r_{q, t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
       \end{cases}
 \end{align}
 
@@ -1277,12 +1277,12 @@ the $N$-period ahead recursive form of (\ref{eq:numerator recursion eqm stat}) r
   0 & = \log\E_t\left[\exp\left(\underbrace{s_{1, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{s1, n, t}) + \exp(p_{s1, N, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\log(\exp(\mu_a)\theta) - d_{s1, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{a_{t + 1} + \epsilon \pi_{t + 1} + d_{s1, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
+        \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - d_{s1, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{a_{t + 1} + \epsilon \pi_{t + 1} + d_{s1, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
         \log\E_t\left[\exp\left(\underbrace{d_{s1, 0, t} - mc_t - y_t}_{\xi}\right)\right] & \text{if } n = 0.
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - p_{s1, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{\epsilon \pi_{t + 1} + p_{s1, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - p_{s1, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{a_{t + 1} + \epsilon \pi_{t + 1} + p_{s1, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
         \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - p_{s1, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{a_{t + 1} + \epsilon \pi_{t + 1} + s_{1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1.
       \end{cases}
 \end{align}
@@ -1299,7 +1299,7 @@ It is straightforward to show that a similar recursive form applies to (\ref{eq:
   0 & =
       \begin{cases}
         \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - p_{s2, n, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{a_{t + 1} + (\epsilon - 1) \pi_{t + 1} + p_{s2, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - p_{s2, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{(\epsilon - 1)\pi_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
+        \log\E_t\left[\exp\left(\underbrace{\mu_a + \log(\theta) - p_{s2, 1, t}}_{\xi} + \underbrace{m_{t, t + 1}}_{\text{both}} + \underbrace{a_{t + 1} + (\epsilon - 1)\pi_{t + 1} + s_{2, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
       \end{cases}
 \end{align}
 where terms and boundary conditions are analogously defined.
@@ -1322,6 +1322,72 @@ where terms and boundary conditions are analogously defined.
 
 The jump variables are $y_t$, $c_t$, $l_t$, $v_t$, $ce_t$, $\omega_t$, $\overline{\beta}_t$, $\ell_t$, $w_t$, $r_t$, $\pi_t$, $q_t$, $x_t$, $r_{k, t}$, $r_{q, t}$, $mc_t$, $s_{1, t}$, $s_{2, t}$, and $\log(\Delta_t)$.
 The state variables are $k_{t - 1}$, $\log(\Delta_{t - 1})$, $r_{t - 1}$, $y_{t - 1}$, and the autoregressive processes. The equations defining the evolution of the lags $\log(\Delta_{t - 1})$, $r_{t - 1}$, and $y_{t - 1}$ are obtained by the formula $z_{(t - 1) + 1} = z_t$.
+
+
+\pagebreak
+\appendixpage
+\appendix
+
+\section{Rotemberg Pricing}\label{sec:rotemberg}
+Instead of Calvo pricing, firms solve the Rotemberg pricing problem
+\begin{align}
+  \begin{split}
+  \max_{P_{t + s}(j)} & \quad \E_t\sum_{s = 0}^\infty M_{t, t + s}\left(\frac{P_{t + s}(j)}{P_{t + s}}\left(\frac{P_{t + s}(j)}{P_{t + s}}\right)^{ - \epsilon}Y_{t + s} - MC_{t + s}\left(\frac{P_{t + s}(j)}{P_{t + s}}\right)^{-\epsilon} Y_{t + s}\right)\\
+  & \quad\quad - \E_t\sum_{s = 0}^\infty M_{t, t + s}\left( \chi_y \exp(\eta_{a, t + s}) + \frac{\theta}{2}\left(\frac{P_{t + s}(j)}{\Pi P_{t + s - 1}(j)} - 1\right)^2 Y_{t + s}\right),
+  \end{split}
+\end{align}
+given some initial condition $P_{t - 1}(j)$ and inflation target $\Pi$. Following the literature, the price adjustment cost is quadratic and proportional to output. This problem yields the first-order condition
+\begin{align*}
+  0 & = M_{t, t + s}\left((1 - \epsilon)\left(\frac{P_{t + s}(j)}{P_{t + s}}\right)^{-\epsilon}\frac{Y_{t + s}}{P_{t + s}} + \epsilon MC_{t + s}\left(\frac{P_{t + s}(j)}{P_{t + s}}\right)^{-(\epsilon + 1)} \frac{Y_{t + s}}{P_{t + s}}\right)\\
+    & \quad - M_{t, t + s}\theta \left(\frac{P_{t + s}(j)}{\Pi P_{t + s - 1}(j)} - 1\right)\frac{Y_{t + s}}{\Pi P_{t + s - 1}(j)}\\
+    &\quad - \E_{t + s}M_{t, t + s + 1} \theta \left(\frac{P_{t + s + 1}(j)}{\Pi P_{t + s}(j)} - 1\right)\left(-\frac{P_{t + s + 1}(j)}{\Pi P_{t + s}(j)^2}\right) Y_{t + s + 1}\\
+    & = (1 - \epsilon)\left(\frac{P_{t + s}(j)}{P_{t + s}}\right)^{-\epsilon}\frac{Y_{t + s}}{P_{t + s}} + \epsilon MC_{t + s}\left(\frac{P_{t + s}(j)}{P_{t + s}}\right)^{-(\epsilon + 1)} \frac{Y_{t + s}}{P_{t + s}}\\
+    & \quad - \theta \left(\frac{P_{t + s}(j)}{\Pi P_{t + s - 1}(j)} - 1\right)\frac{Y_{t + s}}{\Pi P_{t + s - 1}(j)} \\
+    &\quad - \E_{t + s}\frac{M_{t, t + s + 1}}{M_{t, t + s}} \theta \left(\frac{P_{t + s + 1}(j)}{\Pi P_{t + s}(j)} - 1\right)\left(-\frac{P_{t + s + 1}(j)}{\Pi P_{t + s}(j)^2}\right) Y_{t + s + 1}\\
+    & = (1 - \epsilon)\left(\frac{P_{t + s}(j)}{P_{t + s}}\right)^{-\epsilon} + \epsilon MC_{t + s}\left(\frac{P_{t + s}(j)}{P_{t + s}}\right)^{-(\epsilon + 1)} \\
+    & \quad - \theta \left(\frac{P_{t + s}(j)}{\Pi P_{t + s - 1}(j)} - 1\right)\frac{P_{t + s}}{\Pi P_{t + s - 1}(j)} \\
+    &\quad + \E_{t + s}\frac{M_{t, t + s + 1}}{M_{t, t + s}} \theta \left(\frac{P_{t + s + 1}(j)}{\Pi P_{t + s}(j)} - 1\right)\frac{P_{t + s + 1}(j)}{\Pi P_{t + s}(j)}\frac{P_{t + s}}{P_{t + s}(j)}\frac{Y_{t + s + 1}}{Y_{t + s}}
+\end{align*}
+Recall that the $s$-period ahead stochastic discount factor is
+\begin{align}
+  M_{t, t + s} & = \frac{\beta^s \prod_{u = 1}^s\exp(\eta_{\beta, t + u})}{\exp(\eta_{\beta, t})}\frac{\partial V_{t + s} / \partial C_{t + s}}{\partial V_t / \partial C_t} \prod_{u = 1}^s \frac{\partial V_{t + u - 1}}{\partial V_{t + u}},
+\end{align}
+hence the ratio of the stochastic discount factors between two consecutive periods is
+\begin{align*}
+  \frac{M_{t, t + s + 1}}{M_{t, t + s}} & = \frac{\partial V_{t + s + 1} / \partial C_{t + s + 1}}{\partial V_{t + s} / \partial C_{t + s}} \frac{\partial V_{t + s}}{\partial V_{t + s + 1}} = M_{t + s, t + s + 1}.
+\end{align*}
+Since every firm's first-order condition does not depend on the actions of the other firms, all firms choose the same action.
+Furthermore, the first-order condition for $P_{t + s}$ is recursive, so it suffices to state the condition in period $t$.
+As before, let $\Pi_t$ denote gross inflation. In a symmetric equilibrium, firms optimally set prices such that
+\begin{align}\label{eq:rotemberg original}
+  \begin{split}
+    (\epsilon - 1) & = \epsilon MC_t - \theta \left(\frac{\Pi_t}{\Pi} - 1\right) \frac{\Pi_t}{\Pi} + \theta\E_t M_{t, t + 1}\left(\frac{\Pi_{t + 1}}{\Pi} - 1\right)\frac{\Pi_{t + 1}}{\Pi}\frac{Y_{t + 1}}{Y_t}.
+  \end{split}
+\end{align}
+The risk-adjusted linearization of this equation is complicated by the fact that $\Pi_{t + 1} / \Pi - 1$ is not almost surely positive in equilibrium. To make the required conneciton with entropy, all forward-looking terms must be strictly positive. To handle this issue, I split (\ref{eq:rotemberg original}) into two equations as follows. First, multiply out the $\Pi_{t + 1} / \Pi - 1$ term to acquire
+\begin{align*}
+    (\epsilon - 1) & = \epsilon MC_t - \theta \left(\frac{\Pi_t}{\Pi}\right)^2 + \theta \frac{\Pi_t}{\Pi} + \theta\E_t M_{t, t + 1}\left(\frac{\Pi_{t + 1}}{\Pi}\right)^2\frac{Y_{t + 1}}{Y_t} - \theta\E_t M_{t, t + 1}\frac{\Pi_{t + 1}}{\Pi}\frac{Y_{t + 1}}{Y_t}.
+\end{align*}
+Re-arrange this equation to obtain the fraction
+\begin{align*}
+  1 & = \frac{-\theta\left(\frac{\Pi_t}{\Pi}\right)^2 + \theta\E_t M_{t, t + 1}\left(\frac{\Pi_{t + 1}}{\Pi}\right)^2\frac{Y_{t + 1}}{Y_t}}{(\epsilon - 1) - \epsilon MC_t - \theta \frac{\Pi_t}{\Pi} + \theta\E_t M_{t, t + 1}\frac{\Pi_{t + 1}}{\Pi}\frac{Y_{t + 1}}{Y_t}}.
+\end{align*}
+Define the variables
+\begin{align}
+  \calS_{1, t} & = -\theta\left(\frac{\Pi_t}{\Pi}\right)^2 + \theta\E_t M_{t, t + 1}\left(\frac{\Pi_{t + 1}}{\Pi}\right)^2\frac{Y_{t + 1}}{Y_t},\\
+  \calS_{2, t} & = (\epsilon - 1) - \epsilon MC_t - \theta \frac{\Pi_t}{\Pi} + \theta\E_t M_{t, t + 1}\frac{\Pi_{t + 1}}{\Pi}\frac{Y_{t + 1}}{Y_t},
+\end{align}
+and re-arrange to yield
+\begin{align}
+  \left(\frac{\Pi_t}{\Pi}\right)^2 & = - \frac{\calS_{1, t}}{\theta} + \E_t M_{t, t + 1}\left(\frac{\Pi_{t + 1}}{\Pi}\right)^2\frac{Y_{t + 1}}{Y_t},\\
+  \frac{\Pi_t}{\Pi} & = - \frac{\calS_{2, t}}{\theta} + \frac{\epsilon - 1}{\theta} - \frac{\epsilon}{\theta} MC_t  + \E_t M_{t, t + 1}\frac{\Pi_{t + 1}}{\Pi}\frac{Y_{t + 1}}{Y_t}.
+\end{align}
+These two equations define forward-difference equations for $(\Pi_t / \Pi)^2$ and $\Pi_t / \Pi$ and satisfy the positivity requirement
+for forward-looking variables. To enforce the first-order condition (\ref{eq:rotemberg original}), I add the ``consistency'' equation
+\begin{align}
+  1 & = \frac{\calS_{1, t}}{\calS_{2, t}}.
+\end{align}
+
 
 
 
