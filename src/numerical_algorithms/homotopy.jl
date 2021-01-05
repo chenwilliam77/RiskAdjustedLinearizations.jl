@@ -21,24 +21,34 @@ until ``q`` reaches 1 or passes 1 (in which case, we force ``q = 1``).
 ### Keywords
 - `step::Float64`: size of the uniform step from `step` to 1.
 - `pnorm::Float64`: norm under which to evaluate the errors after homotopy succeeds.
+- `sparse_jacobian::Bool = false`: exploit sparsity in Jacobians using SparseDiffTools.jl
+- `jac_cache = nothing`: pre-allocated Jacobian cache for calls to `nlsolve` during the numerical algorithms
 - `verbose::Symbol`: verbosity of information printed out during solution.
     a) `:low` -> statement when homotopy continuation succeeds
     b) `:high` -> statement when homotopy continuation succeeds and for each successful iteration
 """
 function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
                    step::Float64 = .1, pnorm::Float64 = Inf,
-                   verbose::Symbol = :none, autodiff::Symbol = :central,
+                   autodiff::Symbol = :central,
+                   sparse_jacobian::Bool = false,
+                   jac_cache = nothing, sparsity::Union{AbstractArray, Nothing} = nothing,
+                   colorvec = nothing, verbose::Symbol = :none,
                    kwargs...) where {S1 <: Number}
     # Set up
     nl = nonlinear_system(m)
     li = linearized_system(m)
+    _my_eqn = if Λ_eltype(nl) <: RALF1 && Σ_eltype(nl) <: RALF1 # only difference in this block and the next block
+        (F, x, q) -> _homotopy_equations1(F, x, m, q)                # is the number of args to retrieve 𝒱_sss and JV
+    else
+        (F, x, q) -> _homotopy_equations2(F, x, m, q)
+    end
 
     qguesses = step:step:1.
     if qguesses[end] != 1.
         qguesses = vcat(qguesses, 1.)
     end
     for (i, q) in enumerate(qguesses)
-        solve_steadystate!(m, getvecvalues(m), q; verbose = verbose, autodiff = autodiff, kwargs...)
+        solve_steadystate!(m, getvecvalues(m), _my_eqn, q; verbose = verbose, autodiff = autodiff, kwargs...)
 
         if verbose == :high
             println("Success at iteration $(i) of $(length(qguesses))")
@@ -58,70 +68,15 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
     return m
 end
 
-function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, q::Float64;
+function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, f::Function, q::Float64;
                             autodiff::Symbol = :central, verbose::Symbol = :none, kwargs...) where {S1 <: Real}
 
-    # Set up system of equations
-    N_zy = m.Nz + m.Ny
-    nl = nonlinear_system(m)
-    li = linearized_system(m)
-    _my_eqn = if Λ_eltype(nl) <: RALF1 && Σ_eltype(nl) <: RALF1 # only difference in this block and the next block
-        function _my_stochastic_equations1(F, x)                # is the number of args to retrieve 𝒱_sss and JV
-            # Unpack
-            z = @view x[1:m.Nz]
-            y = @view x[(m.Nz + 1):N_zy]
-            Ψ = @view x[(N_zy + 1):end]
-            Ψ = reshape(Ψ, m.Ny, m.Nz)
-
-            # Given coefficients, update the model
-            update!(nl, z, y, Ψ)
-            update!(li, z, y, Ψ)
-
-            # Calculate residuals
-            μ_sss              = get_tmp(nl.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one corresponds to autodiffing both z and y
-            ξ_sss              = get_tmp(nl.ξ.cache, z, y, (1, 1))
-            𝒱_sss              = get_tmp(nl.𝒱.cache, z, Ψ, (1, 1))
-            Γ₁                 = get_tmp(li.μz.cache, z, y, (1, 1))
-            Γ₂                 = get_tmp(li.μy.cache, z, y, (1, 1))
-            Γ₃                 = get_tmp(li.ξz.cache, z, y, (1, 1))
-            Γ₄                 = get_tmp(li.ξy.cache, z, y, (1, 1))
-            JV                 = get_tmp(li.J𝒱.cache, z, Ψ, (1, 1))
-            F[1:m.Nz]          = μ_sss - z
-            F[(m.Nz + 1):N_zy] = ξ_sss + li[:Γ₅] * z + li[:Γ₆] * y + q * 𝒱_sss
-            F[(N_zy + 1):end]  = Γ₃ + Γ₄ * Ψ + (li[:Γ₅] + li[:Γ₆] * Ψ) * (Γ₁ + Γ₂ * Ψ) + q * JV
-        end
-    else
-        function _my_stochastic_equations2(F, x)
-            # Unpack
-            z = @view x[1:m.Nz]
-            y = @view x[(m.Nz + 1):N_zy]
-            Ψ = @view x[(N_zy + 1):end]
-            Ψ = reshape(Ψ, m.Ny, m.Nz)
-
-            # Given coefficients, update the model
-            update!(nl, z, y, Ψ)
-            update!(li, z, y, Ψ)
-
-            # Calculate residuals
-            μ_sss              = get_tmp(nl.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one corresponds to autodiffing both z and y
-            ξ_sss              = get_tmp(nl.ξ.cache, z, y, (1, 1))
-            𝒱_sss              = get_tmp(nl.𝒱.cache, z, y, Ψ, z, (1, 1))
-            Γ₁                 = get_tmp(li.μz.cache, z, y, (1, 1))
-            Γ₂                 = get_tmp(li.μy.cache, z, y, (1, 1))
-            Γ₃                 = get_tmp(li.ξz.cache, z, y, (1, 1))
-            Γ₄                 = get_tmp(li.ξy.cache, z, y, (1, 1))
-            JV                 = get_tmp(li.J𝒱.cache, z, y, Ψ, (1, 1))
-            F[1:m.Nz]          = μ_sss - z
-            F[(m.Nz + 1):N_zy] = ξ_sss + li[:Γ₅] * z + li[:Γ₆] * y + q * 𝒱_sss
-            F[(N_zy + 1):end]  = Γ₃ + Γ₄ * Ψ + (li[:Γ₅] + li[:Γ₆] * Ψ) * (Γ₁ + Γ₂ * Ψ) + q * JV
-        end
-    end
-
     # Need to declare chunk size to ensure no problems with reinterpreting the cache
-    out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff,
+    out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, q), x0, copy(x0), autodiff,
                                      ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
 
     if out.f_converged
+        N_zy = m.Nz + m.Ny
         m.z .= out.zero[1:m.Nz]
         m.y .= out.zero[(m.Nz + 1):N_zy]
         m.Ψ .= reshape(out.zero[(N_zy + 1):end], m.Ny, m.Nz)
@@ -133,6 +88,57 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
                                "and linearization equations could not be found when the embedding " *
                                "parameter q equals $(q)"))
     end
+end
+
+function _homotopy_equations1(F::AbstractArray, x::AbstractArray, m::RiskAdjustedLinearization, q::Number)
+    # Unpack
+    z = @view x[1:m.Nz]
+    y = @view x[(m.Nz + 1):(m.Nz + m.Ny)]
+    Ψ = @view x[(m.Nz + m.Ny + 1):end]
+    Ψ = reshape(Ψ, m.Ny, m.Nz)
+
+    # Given coefficients, update the model
+    update!(m.nonlinear, z, y, Ψ)
+    update!(m.linearization, z, y, Ψ)
+
+    # Calculate residuals
+    μ_sss              = get_tmp(m.nonlinear.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one
+    ξ_sss              = get_tmp(m.nonlinear.ξ.cache, z, y, (1, 1)) # corresponds to autodiffing both z and y
+    𝒱_sss              = get_tmp(m.nonlinear.𝒱.cache, z, Ψ, (1, 1)) # This line is different than in _homotopy_equations2
+    Γ₁                 = get_tmp(m.linearization.μz.cache, z, y, (1, 1))
+    Γ₂                 = get_tmp(m.linearization.μy.cache, z, y, (1, 1))
+    Γ₃                 = get_tmp(m.linearization.ξz.cache, z, y, (1, 1))
+    Γ₄                 = get_tmp(m.linearization.ξy.cache, z, y, (1, 1))
+    JV                 = get_tmp(m.linearization.J𝒱.cache, z, Ψ, (1, 1)) # This line is different than in _homotopy_equations2
+    F[1:m.Nz]          = μ_sss - z
+    F[(m.Nz + 1):(m.Nz + m.Ny)] = ξ_sss + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y + q * 𝒱_sss
+    F[((m.Nz + m.Ny) + 1):end]  = Γ₃ + Γ₄ * Ψ + (m.linearization[:Γ₅] + m.linearization[:Γ₆] * Ψ) * (Γ₁ + Γ₂ * Ψ) + q * JV
+end
+
+function _homotopy_equations2(F::AbstractArray, x::AbstractArray, m::RiskAdjustedLinearization, q::Number)
+
+    # Unpack
+    z = @view x[1:m.Nz]
+    y = @view x[(m.Nz + 1):(m.Nz + m.Ny)]
+    Ψ = @view x[(m.Nz + m.Ny + 1):end]
+    Ψ = reshape(Ψ, m.Ny, m.Nz)
+
+    # Given coefficients, update the model
+    update!(m.nonlinear, z, y, Ψ)
+    update!(m.linearization, z, y, Ψ)
+
+    # Calculate residuals
+    μ_sss              = get_tmp(m.nonlinear.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one
+    ξ_sss              = get_tmp(m.nonlinear.ξ.cache, z, y, (1, 1)) # corresponds to autodiffing both z and y
+    𝒱_sss              = get_tmp(m.nonlinear.𝒱.cache, z, y, Ψ, z, (1, 1))
+    Γ₁                 = get_tmp(m.linearization.μz.cache, z, y, (1, 1))
+    Γ₂                 = get_tmp(m.linearization.μy.cache, z, y, (1, 1))
+    Γ₃                 = get_tmp(m.linearization.ξz.cache, z, y, (1, 1))
+    Γ₄                 = get_tmp(m.linearization.ξy.cache, z, y, (1, 1))
+    JV                 = get_tmp(m.linearization.J𝒱.cache, z, y, Ψ, (1, 1))
+    F[1:m.Nz]          = μ_sss - z
+    F[(m.Nz + 1):(m.Nz + m.Ny)] = ξ_sss + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y + q * 𝒱_sss
+    F[((m.Nz + m.Ny) + 1):end]  = Γ₃ + Γ₄ * Ψ + (m.linearization[:Γ₅] + m.linearization[:Γ₆] * Ψ) * (Γ₁ + Γ₂ * Ψ) + q * JV
 end
 
 mutable struct RALHomotopyError <: Exception

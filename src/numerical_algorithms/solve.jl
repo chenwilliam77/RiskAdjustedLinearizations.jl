@@ -31,10 +31,12 @@ The three available `solve!` algorithms are slight variations on each other.
 - `S1 <: Real`
 
 ### Keywords
-- `algorithm::Symbol`: which numerical algorithm to use? Can be one of `[:relaxation, :homotopy, :deterministic]`
-- `autodiff::Symbol`: use autodiff or not? This keyword is the same as in `nlsolve`
-- `use_anderson::Bool`: use Anderson acceleration if the relaxation algorithm is applied. Defaults to `false`
-- `step::Float64`: size of step from 0 to 1 if the homotopy algorithm is applied. Defaults to 0.1
+- `algorithm::Symbol = :relaxation`: which numerical algorithm to use? Can be one of `[:relaxation, :homotopy, :deterministic]`
+- `autodiff::Symbol = :central`: use autodiff or not? This keyword is the same as in `nlsolve`
+- `use_anderson::Bool = false`: use Anderson acceleration if the relaxation algorithm is applied. Defaults to `false`
+- `step::Float64 = .1`: size of step from 0 to 1 if the homotopy algorithm is applied. Defaults to 0.1
+- `sparse_jacobian::Bool = false`: exploit sparsity in Jacobians using SparseDiffTools.jl
+- `jac_cache = nothing`: pre-allocated Jacobian cache for calls to `nlsolve` during the numerical algorithms
 
 The solution algorithms all use `nlsolve` to calculate the solution to systems of nonlinear
 equations. The user can pass in any of the keyword arguments for `nlsolve` to adjust
@@ -49,21 +51,31 @@ Note these methods are not exported.
 """
 function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation,
                 autodiff::Symbol = :central, use_anderson::Bool = false,
-                step::Float64 = .1, verbose::Symbol = :high, kwargs...)
+                step::Float64 = .1, sparse_jacobian::Bool = false, jac_cache = nothing,
+                sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                verbose::Symbol = :high, kwargs...)
     if algorithm == :deterministic
-        solve!(m, m.z, m.y; algorithm = algorithm, autodiff = autodiff, verbose = verbose, kwargs...)
+        solve!(m, m.z, m.y; algorithm = algorithm, autodiff = autodiff,
+               sparse_jacobian = sparse_jacobian,
+               jac_cache = jac_cache, sparsity = sparsity,
+               colorvec = colorvec, verbose = verbose, kwargs...)
     else
         solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm, autodiff = autodiff,
-               use_anderson = use_anderson, step = step, verbose = verbose, kwargs...)
+               use_anderson = use_anderson, step = step,
+               sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
+               sparsity = sparsity,
+               colorvec = colorvec, verbose = verbose, kwargs...)
     end
 end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1};
                 algorithm::Symbol = :relaxation, autodiff::Symbol = :central,
                 use_anderson::Bool = false, step::Float64 = .1,
+                sparse_jacobian::Bool = false, jac_cache = nothing,
+                sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Real}
 
-    @assert algorithm in [:deterministic, :relaxation, :homotopy]
+    @assert algorithm in [:deterministic, :relaxation, :homotopy] "The algorithm must be :deterministic, :relaxation, or :homotopy"
 
     # Deterministic steady state
     deterministic_steadystate!(m, vcat(z0, y0); autodiff = autodiff, verbose = verbose, kwargs...)
@@ -88,6 +100,10 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     else
         solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm,
                use_anderson = use_anderson, step = step,
+               sparse_jacobian = sparse_jacobian,
+               jac_cache = jac_cache,
+               sparsity = sparsity,
+               colorvec = colorvec,
                verbose = verbose, kwargs...)
     end
 
@@ -96,7 +112,10 @@ end
 
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1}, Ψ0::AbstractMatrix{S1};
                 algorithm::Symbol = :relaxation, autodiff::Symbol = :central,
-                use_anderson::Bool = false, step::Float64 = .1, verbose::Symbol = :high, kwargs...) where {S1 <: Number}
+                use_anderson::Bool = false, step::Float64 = .1,
+                sparse_jacobian::Bool = false, jac_cache = nothing,
+                sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                verbose::Symbol = :high, kwargs...) where {S1 <: Number}
 
     @assert algorithm in [:relaxation, :homotopy] "The algorithm must be :relaxation or :homotopy because this function calculates the stochastic steady state"
 
@@ -104,9 +123,14 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
     if algorithm == :relaxation
         N_zy = m.Nz + m.Ny
         relaxation!(m, vcat(z0, y0), Ψ0; autodiff = autodiff,
-                    use_anderson = use_anderson, verbose = verbose, kwargs...)
+                    use_anderson = use_anderson, sparse_jacobian = sparse_jacobian,
+                    jac_cache = jac_cache, sparsity = sparsity,
+                    colorvec = colorvec, verbose = verbose, kwargs...)
     elseif algorithm == :homotopy
-        homotopy!(m, vcat(z0, y0, vec(Ψ0)); autodiff = autodiff, step = step, verbose = verbose, kwargs...)
+        homotopy!(m, vcat(z0, y0, vec(Ψ0)); autodiff = autodiff, step = step,
+                  sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
+                  sparsity = sparsity, colorvec = colorvec,
+                  verbose = verbose, kwargs...)
     end
 
     # Check Blanchard-Kahn
@@ -130,34 +154,26 @@ calculates the deterministic steady state.
 - `m::RiskAdjustedLinearization`: object holding functions needed to calculate
     the risk-adjusted linearization
 - `x0::AbstractVector{S1}`: initial guess for ``(z, y)``
-
-### Keywords
-- `verbose::Symbol`: verbosity of information printed out during solution.
-    If `:low` or `:high`, a print statement occurs when a steady state is solved.
 """
 function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1};
-                                    autodiff::Symbol = :central, verbose::Symbol = :none,
-                                    kwargs...) where {S1 <: Real, S2 <: Real}
+                                    autodiff::Symbol = :central,
+                                    sparse_jacobian::Bool = false, jac_cache = nothing,
+                                    sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                                    verbose::Symbol = :none, kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
-    nl = nonlinear_system(m)
-    li = linearized_system(m)
-    _my_eqn = function _my_deterministic_equations(F, x)
-        # Unpack
-        z = @view x[1:m.Nz]
-        y = @view x[(m.Nz + 1):end]
+    _my_eqn = (F, x) -> _my_deterministic_equations(F, x, m)
 
-        # Update μ(z, y) and ξ(z, y)
-        update!(m.nonlinear, z, y, m.Ψ; select = Symbol[:μ, :ξ])
-
-        # Calculate residuals
-        μ_sss             = get_tmp(nl.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one corresponds to autodiffing both z and y
-        ξ_sss             = get_tmp(nl.ξ.cache, z, y, (1, 1))
-        F[1:m.Nz]         = μ_sss - z
-        F[(m.Nz + 1):end] = ξ_sss + li[:Γ₅] * z + li[:Γ₆] * y
+    # Exploit sparsity?
+    if sparse_jacobian
+        nlsolve_jacobian!, jac =
+            construct_jacobian_function(m, _my_eqn, algorithm, autodiff; jac_cache = jac_cache,
+                                        sparsity = sparsity, colorvec = colorvec)
+        out = nlsolve(OnceDifferentiable(_my_eqn, nlsolve_jacobian!, x0, copy(x0), jac), x0; kwargs...)
+    else
+        out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff,
+                                         ForwardDiff.Chunk(min(m.Nz, m.Ny))), x0; kwargs...)
     end
-
-    out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff, ForwardDiff.Chunk(min(m.Nz, m.Ny))), x0; kwargs...)
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]
@@ -168,5 +184,83 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
         end
     else
         error("A deterministic steady state could not be found.")
+    end
+end
+
+function _my_deterministic_equations(F::AbstractVector{<: Number}, x::AbstractVector{<: Number},
+                                     m::RiskAdjustedLinearization)
+    # Unpack input vector
+    z = @view x[1:m.Nz]
+    y = @view x[(m.Nz + 1):end]
+
+    # Update μ(z, y) and ξ(z, y)
+    update!(m.nonlinear, z, y, m.Ψ; select = Symbol[:μ, :ξ])
+
+    # Calculate residuals
+    μ_sss             = get_tmp(m.nonlinear.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that
+    ξ_sss             = get_tmp(m.nonlinear.ξ.cache, z, y, (1, 1)) # one corresponds to autodiffing both z and y
+    F[1:m.Nz]         = μ_sss - z
+    F[(m.Nz + 1):end] = ξ_sss + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y
+end
+
+function compute_sparsity_pattern(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1)
+    @assert algorithm in [:deterministic, :relaxation, :homotopy] "The algorithm must be :deterministic, :relaxation, or :homotopy"
+
+    f = if algorithm == :deterministic
+        (F, x) -> _my_deterministic_equations(F, x, m)
+    elseif algorithm == :relaxation
+        (F, x) -> _relaxation_equations(F, x, m, m.Ψ, m[:𝒱_sss])
+    elseif algorithm == :homotopy
+        if Λ_eltype(nl) <: RALF1 && Σ_eltype(nl) <: RALF1
+            (F, x) -> _homotopy_equations1(F, x, m, q)
+        else
+            (F, x) -> _homotopy_equations2(F, x, m, q)
+        end
+    end
+
+    input = algorithm == :homotopy ? vcat(m.z, m.y) : vcat(m.z, m.y, vec(m.Ψ))
+    sparsity = jacobian_sparsity(f, similar(input), input)
+    colorvec = matrix_colors(sparsity)
+
+    return sparsity, colorvec
+end
+
+function preallocate_jac_cache(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1)
+
+    sparsity, colorvec = compute_sparsity_pattern(m, algorithm; q = q)
+    input = algorithm == :homotopy ? vcat(m.z, m.y) : vcat(m.z, m.y, vec(m.Ψ))
+
+    return FiniteDiff.JacobianCache(x, colorvec = colorvec, sparsity = sparsity)
+end
+
+function construct_jacobian_function(m::RiskAdjustedLinearization, f::Function,
+                                     algorithm::Symbol, autodiff::Symbol;
+                                     jac_cache = nothing,
+                                     sparsity::Union{AbstractArray, Nothing} = nothing,
+                                     colorvec = nothing)
+    if isnothing(jac_cache)
+        if isnothing(sparsity)
+            sparsity, colorvec = compute_sparsity_pattern(m, algorithm)
+        elseif isnothing(colorvec)
+            colorvec = matrix_colors(sparsity)
+        end
+
+        nlsolve_jacobian! = if autodiff == :forward
+            (F, x) -> forwarddiff_color_jacobian!(F, f, x; colorvec = colorvec,
+                                                  sparsity = sparsity)
+        else
+            (F, x) -> FiniteDiff.finite_difference_jacobian!(F, f, x; colorvec = colorvec,
+                                                             sparsity = sparsity)
+        end
+
+        return nlsolve_jacobian!, sparsity
+    else
+        nlsolve_jacobian! = if autodiff == :forward
+            (F, x) -> forwarddiff_color_jacobian!(F, f, x, jac_cache)
+        else
+            (F, x) -> FiniteDiff.finite_difference_jacobian!(F, f, x, jac_cache)
+        end
+
+        return nlsolve_jacobian!, jac_cache.sparsity
     end
 end

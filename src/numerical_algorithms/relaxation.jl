@@ -37,6 +37,8 @@ solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization b
 - `use_anderson::Bool`: set to true to apply Anderson acceleration to the
     fixed point iteration of the relaxation algorithm
 - `m::Int`: `m` coefficient if using Anderson acceleration
+- `sparse_jacobian::Bool = false`: exploit sparsity in Jacobians using SparseDiffTools.jl
+- `jac_cache = nothing`: pre-allocated Jacobian cache for calls to `nlsolve` during the numerical algorithms
 - `verbose::Symbol`: verbosity of information printed out during solution.
     a) `:low` -> statement when homotopy continuation succeeds
     b) `:high` -> statement when homotopy continuation succeeds and for each successful iteration
@@ -44,8 +46,10 @@ solves for the coefficients ``(z, y, \\Psi)`` of a risk-adjusted linearization b
 function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1}, Ψₙ₋₁::AbstractMatrix{S1};
                      tol::S2 = 1e-10, max_iters::Int = 1000, damping::S2 = .5, pnorm::S3 = Inf,
                      schur_fnct::Function = schur!, autodiff::Symbol = :central,
-                     use_anderson::Bool = false, m::Int = 5, verbose::Symbol = :none,
-                     kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
+                     use_anderson::Bool = false, m::Int = 5,
+                     sparse_jacobian::Bool = false, jac_cache = nothing,
+                     sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                     verbose::Symbol = :none, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
     # Set up
     err = 1.
     nl  = nonlinear_system(ral)
@@ -53,6 +57,9 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
     Nzy = ral.Nz + ral.Ny
     AA  = Matrix{Complex{S1}}(undef, Nzy, Nzy) # pre-allocate these matrices to calculate QZ decomp for Ψ
     BB  = similar(AA)
+
+    # Initialize system of equations
+    _my_eqn = (F, x, Ψ, 𝒱) -> _relaxation_equations(F, x, ral, Ψ, 𝒱)
 
     if use_anderson
         # Some aliases/views will be useful
@@ -73,7 +80,7 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
             update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:JV]) # updates li.JV
 
             # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
-            solve_steadystate!(ral, vcat(zₙ₋₁, yₙ₋₁), Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, # updates ral.z and ral.y
+            solve_steadystate!(ral, vcat(zₙ₋₁, yₙ₋₁), _my_eqn, Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, # updates ral.z and ral.y
                                verbose = verbose, kwargs...)
 
             # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
@@ -121,7 +128,7 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
             update!(li, zₙ₋₁, yₙ₋₁, Ψₙ₋₁; select = Symbol[:JV]) # updates li.JV
 
             # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
-            solve_steadystate!(ral, xₙ₋₁, Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, # updates ral.z and ral.y
+            solve_steadystate!(ral, xₙ₋₁, _my_eqn, Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, # updates ral.z and ral.y
                                verbose = verbose, kwargs...)
 
             # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
@@ -172,29 +179,12 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
 end
 
 function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1},
-                            Ψ::AbstractMatrix{<: Number}, 𝒱::AbstractVector{<: Number};
+                            f::Function, Ψ::AbstractMatrix{<: Number}, 𝒱::AbstractVector{<: Number};
                             autodiff::Symbol = :central, verbose::Symbol = :none,
                             kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
-    nl = nonlinear_system(m)
-    li = linearized_system(m)
-    _my_eqn = function _my_stochastic_equations(F, x)
-        # Unpack
-        z = @view x[1:m.Nz]
-        y = @view x[(m.Nz + 1):end]
-
-        # Update μ(z, y) and ξ(z, y)
-        update!(nl, z, y, Ψ; select = Symbol[:μ, :ξ])
-
-        # Calculate residuals
-        μ_sss             = get_tmp(nl.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one corresponds to autodiffing both z and y
-        ξ_sss             = get_tmp(nl.ξ.cache, z, y, (1, 1))
-        F[1:m.Nz]         = μ_sss - z
-        F[(m.Nz + 1):end] = ξ_sss + li[:Γ₅] * z + li[:Γ₆] * y + 𝒱
-    end
-
-    out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff,
+    out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, Ψ, 𝒱), x0, copy(x0), autodiff,
                                      ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
 
     if out.f_converged
@@ -206,6 +196,22 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         end
         throw(RALRelaxationError())
     end
+end
+
+function _relaxation_equations(F::AbstractArray, x::AbstractArray, m::RiskAdjustedLinearization,
+                               Ψ::AbstractMatrix{<: Number}, 𝒱::AbstractVector{<: Number})
+    # Unpack
+    z = @view x[1:m.Nz]
+    y = @view x[(m.Nz + 1):end]
+
+    # Update μ(z, y) and ξ(z, y)
+    update!(m.nonlinear, z, y, Ψ; select = Symbol[:μ, :ξ])
+
+    # Calculate residuals
+    μ_sss             = get_tmp(m.nonlinear.μ.cache, z, y, (1, 1)) # select the first DiffCache b/c that one
+    ξ_sss             = get_tmp(m.nonlinear.ξ.cache, z, y, (1, 1)) # corresponds to autodiffing both z and y
+    F[1:m.Nz]         = μ_sss - z
+    F[(m.Nz + 1):end] = ξ_sss + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y + 𝒱
 end
 
 mutable struct RALRelaxationError <: Exception
