@@ -49,7 +49,8 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
                      use_anderson::Bool = false, m::Int = 5,
                      sparse_jacobian::Bool = false, jac_cache = nothing,
                      sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
-                     verbose::Symbol = :none, kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
+                     sparsity_detection::Bool = true, verbose::Symbol = :none,
+                     kwargs...) where {S1 <: Number, S2 <: Real, S3 <: Real}
     # Set up
     err = 1.
     nl  = nonlinear_system(ral)

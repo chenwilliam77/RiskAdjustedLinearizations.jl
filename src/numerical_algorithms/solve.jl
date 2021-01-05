@@ -53,18 +53,20 @@ function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation,
                 autodiff::Symbol = :central, use_anderson::Bool = false,
                 step::Float64 = .1, sparse_jacobian::Bool = false, jac_cache = nothing,
                 sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                sparsity_detection::Bool = true,
                 verbose::Symbol = :high, kwargs...)
     if algorithm == :deterministic
         solve!(m, m.z, m.y; algorithm = algorithm, autodiff = autodiff,
                sparse_jacobian = sparse_jacobian,
                jac_cache = jac_cache, sparsity = sparsity,
-               colorvec = colorvec, verbose = verbose, kwargs...)
+               colorvec = colorvec, sparsity_detection = sparsity_detection,
+               verbose = verbose, kwargs...)
     else
         solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm, autodiff = autodiff,
                use_anderson = use_anderson, step = step,
                sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
-               sparsity = sparsity,
-               colorvec = colorvec, verbose = verbose, kwargs...)
+               sparsity = sparsity, colorvec = colorvec,
+               sparsity_detection = sparsity_detection, verbose = verbose, kwargs...)
     end
 end
 
@@ -73,12 +75,16 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
                 use_anderson::Bool = false, step::Float64 = .1,
                 sparse_jacobian::Bool = false, jac_cache = nothing,
                 sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                sparsity_detection::Bool = true,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Real}
 
     @assert algorithm in [:deterministic, :relaxation, :homotopy] "The algorithm must be :deterministic, :relaxation, or :homotopy"
 
     # Deterministic steady state
-    deterministic_steadystate!(m, vcat(z0, y0); autodiff = autodiff, verbose = verbose, kwargs...)
+    deterministic_steadystate!(m, vcat(z0, y0); autodiff = autodiff,
+                               sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
+                               sparsity = sparsity, colorvec = colorvec,
+                               sparsity_detection = sparsity_detection, verbose = verbose, kwargs...)
 
     # Calculate linearization
     nl = nonlinear_system(m)
@@ -101,9 +107,8 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
         solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm,
                use_anderson = use_anderson, step = step,
                sparse_jacobian = sparse_jacobian,
-               jac_cache = jac_cache,
-               sparsity = sparsity,
-               colorvec = colorvec,
+               jac_cache = jac_cache, sparsity = sparsity,
+               colorvec = colorvec, sparsity_detection = sparsity_detection,
                verbose = verbose, kwargs...)
     end
 
@@ -115,6 +120,7 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
                 use_anderson::Bool = false, step::Float64 = .1,
                 sparse_jacobian::Bool = false, jac_cache = nothing,
                 sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                sparsity_detection::Bool = true,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Number}
 
     @assert algorithm in [:relaxation, :homotopy] "The algorithm must be :relaxation or :homotopy because this function calculates the stochastic steady state"
@@ -125,11 +131,13 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
         relaxation!(m, vcat(z0, y0), Ψ0; autodiff = autodiff,
                     use_anderson = use_anderson, sparse_jacobian = sparse_jacobian,
                     jac_cache = jac_cache, sparsity = sparsity,
-                    colorvec = colorvec, verbose = verbose, kwargs...)
+                    colorvec = colorvec, sparsity_detection = sparsity_detection,
+                    verbose = verbose, kwargs...)
     elseif algorithm == :homotopy
         homotopy!(m, vcat(z0, y0, vec(Ψ0)); autodiff = autodiff, step = step,
                   sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
                   sparsity = sparsity, colorvec = colorvec,
+                  sparsity_detection = sparsity_detection,
                   verbose = verbose, kwargs...)
     end
 
@@ -159,6 +167,7 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
                                     autodiff::Symbol = :central,
                                     sparse_jacobian::Bool = false, jac_cache = nothing,
                                     sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                                    sparsity_detection::Bool = true,
                                     verbose::Symbol = :none, kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
@@ -167,8 +176,9 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
     # Exploit sparsity?
     if sparse_jacobian
         nlsolve_jacobian!, jac =
-            construct_jacobian_function(m, _my_eqn, algorithm, autodiff; jac_cache = jac_cache,
-                                        sparsity = sparsity, colorvec = colorvec)
+            construct_jacobian_function(m, _my_eqn, :deterministic, autodiff; jac_cache = jac_cache,
+                                        sparsity = sparsity, colorvec = colorvec,
+                                        sparsity_detection = sparsity_detection)
         out = nlsolve(OnceDifferentiable(_my_eqn, nlsolve_jacobian!, x0, copy(x0), jac), x0; kwargs...)
     else
         out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff,
@@ -203,8 +213,7 @@ function _my_deterministic_equations(F::AbstractVector{<: Number}, x::AbstractVe
     F[(m.Nz + 1):end] = ξ_sss + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y
 end
 
-function compute_sparsity_pattern(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1)
-    @assert algorithm in [:deterministic, :relaxation, :homotopy] "The algorithm must be :deterministic, :relaxation, or :homotopy"
+function infer_objective_function(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1)
 
     f = if algorithm == :deterministic
         (F, x) -> _my_deterministic_equations(F, x, m)
@@ -218,36 +227,59 @@ function compute_sparsity_pattern(m::RiskAdjustedLinearization, algorithm::Symbo
         end
     end
 
-    input = algorithm == :homotopy ? vcat(m.z, m.y) : vcat(m.z, m.y, vec(m.Ψ))
-    sparsity = jacobian_sparsity(f, similar(input), input)
+    return f
+end
+
+function compute_sparsity_pattern(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1,
+                                  sparsity::Union{AbstractArray, Nothing} = nothing,
+                                  sparsity_detection::Bool = true)
+    @assert algorithm in [:deterministic, :relaxation, :homotopy] "The algorithm must be :deterministic, :relaxation, or :homotopy"
+
+    f = infer_objective_function(m, algorithm; q = q)
+
+    input = algorithm == :homotopy ? vcat(m.z, m.y, vec(m.Ψ)) : vcat(m.z, m.y)
+    if isnothing(sparsity)
+        sparsity = if sparsity_detection
+            jacobian_sparsity(f, similar(input), input)
+        else
+            jac = similar(input, m.Nz + m.Ny, length(input))
+            FiniteDiff.finite_difference_jacobian!(jac, f, input)
+            sparse(jac)
+        end
+    end
     colorvec = matrix_colors(sparsity)
 
     return sparsity, colorvec
 end
 
-function preallocate_jac_cache(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1)
+function preallocate_jac_cache(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1,
+                               sparsity::Union{AbstractArray, Nothing} = nothing,
+                               sparsity_detection::Bool = true)
 
-    sparsity, colorvec = compute_sparsity_pattern(m, algorithm; q = q)
-    input = algorithm == :homotopy ? vcat(m.z, m.y) : vcat(m.z, m.y, vec(m.Ψ))
+    sparsity, colorvec = compute_sparsity_pattern(m, algorithm; q = q,
+                                                  sparsity = sparsity, sparsity_detection = sparsity_detection)
+    input = algorithm == :homotopy ? vcat(m.z, m.y, vec(m.Ψ)) : vcat(m.z, m.y)
 
-    return FiniteDiff.JacobianCache(x, colorvec = colorvec, sparsity = sparsity)
+    return FiniteDiff.JacobianCache(input, colorvec = colorvec, sparsity = sparsity)
 end
 
 function construct_jacobian_function(m::RiskAdjustedLinearization, f::Function,
                                      algorithm::Symbol, autodiff::Symbol;
                                      jac_cache = nothing,
                                      sparsity::Union{AbstractArray, Nothing} = nothing,
-                                     colorvec = nothing)
+                                     sparsity_detection::Bool = true, colorvec = nothing)
     if isnothing(jac_cache)
         if isnothing(sparsity)
-            sparsity, colorvec = compute_sparsity_pattern(m, algorithm)
+            sparsity, colorvec = compute_sparsity_pattern(m, algorithm; sparsity = sparsity,
+                                                          sparsity_detection = sparsity_detection)
         elseif isnothing(colorvec)
             colorvec = matrix_colors(sparsity)
         end
 
         nlsolve_jacobian! = if autodiff == :forward
-            (F, x) -> forwarddiff_color_jacobian!(F, f, x; colorvec = colorvec,
-                                                  sparsity = sparsity)
+            (F, x) -> forwarddiff_color_jacobian!(F, f, x,
+                                                  ForwardColorJacCache(f, x, min(m.Nz, m.Ny);
+                                                                       colorvec = colorvec, sparsity = sparsity))
         else
             (F, x) -> FiniteDiff.finite_difference_jacobian!(F, f, x; colorvec = colorvec,
                                                              sparsity = sparsity)

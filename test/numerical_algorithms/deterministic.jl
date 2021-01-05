@@ -38,3 +38,35 @@ RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y);
                                                       verbose = :none, autodiff = :forward)
 @test maximum(abs.(ral.z - detout["z"])) < 1e-6
 @test maximum(abs.(ral.y - detout["y"])) < 1e-6
+
+# sparsity, colorvec = compute_sparsity_pattern(ral, :deterministic)
+using SparseArrays, SparseDiffTools, FiniteDiff
+sparsity, colorvec = compute_sparsity_pattern(ral, :deterministic; sparsity_detection = false)
+jac_cache = preallocate_jac_cache(ral, :deterministic; sparsity_detection = false)
+RiskAdjustedLinearizations.deterministic_steadystate!(ral, 1.001 .* vcat(ral.z, ral.y);
+                                                      verbose = :none,
+                                                      sparse_jacobian = true,
+                                                      sparsity = sparsity,
+                                                      colorvec = colorvec)
+@test maximum(abs.(ral.z - detout["z"])) < 1e-6
+@test maximum(abs.(ral.y - detout["y"])) < 1e-6
+RiskAdjustedLinearizations.deterministic_steadystate!(ral, 1.001 .* vcat(ral.z, ral.y);
+                                                      verbose = :none,
+                                                      autodiff = :forward,
+                                                      sparse_jacobian = true,
+                                                      sparsity = sparsity,
+                                                      colorvec = colorvec)
+@test maximum(abs.(ral.z - detout["z"])) < 1e-6
+@test maximum(abs.(ral.y - detout["y"])) < 1e-6
+RiskAdjustedLinearizations.deterministic_steadystate!(ral, 1.001 .* vcat(ral.z, ral.y);
+                                                      verbose = :none,
+                                                      sparse_jacobian = true,
+                                                      jac_cache = jac_cache)
+@test maximum(abs.(ral.z - detout["z"])) < 1e-6
+@test maximum(abs.(ral.y - detout["y"])) < 1e-6
+RiskAdjustedLinearizations.deterministic_steadystate!(ral, 1.001 .* vcat(ral.z, ral.y);
+                                                      verbose = :none,
+                                                      sparse_jacobian = true,
+                                                      sparsity_detection = false)
+@test maximum(abs.(ral.z - detout["z"])) < 1e-6
+@test maximum(abs.(ral.y - detout["y"])) < 1e-6

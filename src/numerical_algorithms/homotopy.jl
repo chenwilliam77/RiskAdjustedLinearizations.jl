@@ -32,7 +32,8 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
                    autodiff::Symbol = :central,
                    sparse_jacobian::Bool = false,
                    jac_cache = nothing, sparsity::Union{AbstractArray, Nothing} = nothing,
-                   colorvec = nothing, verbose::Symbol = :none,
+                   colorvec = nothing, sparsity_detection::Bool = true,
+                   verbose::Symbol = :none,
                    kwargs...) where {S1 <: Number}
     # Set up
     nl = nonlinear_system(m)
