@@ -4,8 +4,8 @@ module RiskAdjustedLinearizations
 
 import Base: show, getindex
 import DiffEqBase: get_tmp
-using ArrayInterface, FastGaussQuadrature, ForwardDiff, LinearAlgebra, Printf, SparseArrays# , SparseDiffTools, SparsityDetection
-using UnPack
+using ArrayInterface, FastGaussQuadrature, FiniteDiff, ForwardDiff, LinearAlgebra, Printf
+using SparseArrays, SparseDiffTools, SparsityDetection, UnPack
 using BandedMatrices: Ones, Zeros
 using DiffEqBase: DiffCache, dualcache
 using NLsolve: nlsolve, OnceDifferentiable
@@ -30,7 +30,14 @@ include("simulation/impulse_responses.jl")
 include("simulation/gausshermite_expectation.jl")
 include("simulation/euler_equation_error.jl")
 
-export RiskAdjustedLinearization, update!, nonlinear_system, linearized_system, solve!,
+export
+    # main functions
+    RiskAdjustedLinearization, update!, nonlinear_system, linearized_system, solve!,
+
+    # simulation related functions
     simulate, impulse_responses, gausshermite_expectation, euler_equation_error,
-    dynamic_euler_equation_error
+    dynamic_euler_equation_error,
+
+    # sparsity helpers
+    preallocate_jac_cache, compute_sparsity_pattern
 end # module
