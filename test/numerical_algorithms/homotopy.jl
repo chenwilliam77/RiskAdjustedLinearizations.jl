@@ -38,3 +38,22 @@ update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ) # now autodiff Jacobian
 #=@test ral.z ≈ sssout["z"] atol=1e-6
 @test ral.y ≈ sssout["y"] atol=1e-4
 @test ral.Ψ ≈ sssout["Psi"] atol=5e-3=#
+
+# Check sparse Jacobian methods work
+sparsity, colorvec = compute_sparsity_pattern(ral, :homotopy; sparsity_detection = false)
+jac_cache = preallocate_jac_cache(ral, :homotopy; sparsity_detection = false)
+RiskAdjustedLinearizations.homotopy!(ral, 1.001 .* vcat(ral.z, ral.y, vec(ral.Ψ));
+                                     verbose = :none, sparse_jacobian = true,
+                                     sparsity = sparsity, colorvec = colorvec)
+@test maximum(abs.(ral.z - sssout["z"])) < 1e-6
+@test maximum(abs.(ral.y - sssout["y"])) < 1e-6
+RiskAdjustedLinearizations.homotopy!(ral, 1.001 .* vcat(ral.z, ral.y, vec(ral.Ψ));
+                                     verbose = :none, sparse_jacobian = true,
+                                     jac_cache = jac_cache)
+@test maximum(abs.(ral.z - sssout["z"])) < 1e-6
+@test maximum(abs.(ral.y - sssout["y"])) < 1e-6
+RiskAdjustedLinearizations.homotopy!(ral, 1.001 .* vcat(ral.z, ral.y, vec(ral.Ψ));
+                                    verbose = :none, sparse_jacobian = true,
+                                    sparsity_detection = false)
+@test maximum(abs.(ral.z - sssout["z"])) < 1e-6
+@test maximum(abs.(ral.y - sssout["y"])) < 1e-6

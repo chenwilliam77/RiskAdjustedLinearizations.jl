@@ -82,6 +82,9 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
 
             # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
             solve_steadystate!(ral, vcat(zₙ₋₁, yₙ₋₁), _my_eqn, Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, # updates ral.z and ral.y
+                               sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
+                               sparsity = sparsity, colorvec = colorvec,
+                               sparsity_detection = sparsity_detection,
                                verbose = verbose, kwargs...)
 
             # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
@@ -130,6 +133,9 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
 
             # Solve state transition and expectational equations for (zₙ, yₙ), taking 𝒱ₙ₋₁ and Ψₙ₋₁ as given
             solve_steadystate!(ral, xₙ₋₁, _my_eqn, Ψₙ₋₁, 𝒱ₙ₋₁; autodiff = autodiff, # updates ral.z and ral.y
+                               sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
+                               sparsity = sparsity, colorvec = colorvec,
+                               sparsity_detection = sparsity_detection,
                                verbose = verbose, kwargs...)
 
             # Update Γ₁, Γ₂, Γ₃, Γ₄, given (zₙ, yₙ)
@@ -181,12 +187,22 @@ end
 
 function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1},
                             f::Function, Ψ::AbstractMatrix{<: Number}, 𝒱::AbstractVector{<: Number};
-                            autodiff::Symbol = :central, verbose::Symbol = :none,
-                            kwargs...) where {S1 <: Real, S2 <: Real}
+                            sparse_jacobian::Bool = false, jac_cache = nothing,
+                            sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                            sparsity_detection::Bool = true, autodiff::Symbol = :central,
+                            verbose::Symbol = :none, kwargs...) where {S1 <: Real, S2 <: Real}
 
-    # Set up system of equations
-    out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, Ψ, 𝒱), x0, copy(x0), autodiff,
-                                     ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
+    # Exploit sparsity?
+    if sparse_jacobian
+        nlsolve_jacobian!, jac =
+            construct_jacobian_function(m, (F, x) -> f(F, x, Ψ, 𝒱), :relaxation, autodiff; jac_cache = jac_cache,
+                                        sparsity = sparsity, colorvec = colorvec,
+                                        sparsity_detection = sparsity_detection)
+        out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, Ψ, 𝒱), nlsolve_jacobian!, x0, copy(x0), jac), x0; kwargs...)
+    else
+        out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, Ψ, 𝒱), x0, copy(x0), autodiff,
+                                         ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
+    end
 
     if out.f_converged
         m.z .= out.zero[1:m.Nz]

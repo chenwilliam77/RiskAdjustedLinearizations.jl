@@ -1,4 +1,5 @@
 using RiskAdjustedLinearizations, Test, JLD2
+using SparseArrays, SparseDiffTools, FiniteDiff
 include(joinpath(dirname(@__FILE__), "..", "..", "examples", "wachter_disaster_risk", "wachter.jl"))
 
 # Load in guesses and true solutions
@@ -39,8 +40,7 @@ RiskAdjustedLinearizations.deterministic_steadystate!(ral, vcat(ral.z, ral.y);
 @test maximum(abs.(ral.z - detout["z"])) < 1e-6
 @test maximum(abs.(ral.y - detout["y"])) < 1e-6
 
-# sparsity, colorvec = compute_sparsity_pattern(ral, :deterministic)
-using SparseArrays, SparseDiffTools, FiniteDiff
+# Check sparse Jacobian
 sparsity, colorvec = compute_sparsity_pattern(ral, :deterministic; sparsity_detection = false)
 jac_cache = preallocate_jac_cache(ral, :deterministic; sparsity_detection = false)
 RiskAdjustedLinearizations.deterministic_steadystate!(ral, 1.001 .* vcat(ral.z, ral.y);

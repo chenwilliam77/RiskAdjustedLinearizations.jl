@@ -220,7 +220,7 @@ function infer_objective_function(m::RiskAdjustedLinearization, algorithm::Symbo
     elseif algorithm == :relaxation
         (F, x) -> _relaxation_equations(F, x, m, m.Ψ, m[:𝒱_sss])
     elseif algorithm == :homotopy
-        if Λ_eltype(nl) <: RALF1 && Σ_eltype(nl) <: RALF1
+        if Λ_eltype(m.nonlinear) <: RALF1 && Σ_eltype(m.nonlinear) <: RALF1
             (F, x) -> _homotopy_equations1(F, x, m, q)
         else
             (F, x) -> _homotopy_equations2(F, x, m, q)
@@ -242,7 +242,7 @@ function compute_sparsity_pattern(m::RiskAdjustedLinearization, algorithm::Symbo
         sparsity = if sparsity_detection
             jacobian_sparsity(f, similar(input), input)
         else
-            jac = similar(input, m.Nz + m.Ny, length(input))
+            jac = similar(input, length(input), length(input))
             FiniteDiff.finite_difference_jacobian!(jac, f, input)
             sparse(jac)
         end
@@ -277,9 +277,9 @@ function construct_jacobian_function(m::RiskAdjustedLinearization, f::Function,
         end
 
         nlsolve_jacobian! = if autodiff == :forward
-            (F, x) -> forwarddiff_color_jacobian!(F, f, x,
-                                                  ForwardColorJacCache(f, x, min(m.Nz, m.Ny);
-                                                                       colorvec = colorvec, sparsity = sparsity))
+            (F, x) -> forwarddiff_color_jacobian!(F, f, x, # homotopy doesn't work with autodiff, so assuming
+                                                  ForwardColorJacCache(f, x, min(m.Nz, m.Ny); # only using deterministic/relaxation,
+                                                                       colorvec = colorvec, sparsity = sparsity)) # hence the chunk size
         else
             (F, x) -> FiniteDiff.finite_difference_jacobian!(F, f, x; colorvec = colorvec,
                                                              sparsity = sparsity)

@@ -34,3 +34,28 @@ RiskAdjustedLinearizations.relaxation!(ral, vcat(ral.z, ral.y), ral.Ψ; verbose 
 @test ral.z ≈ sssout["z"] atol=1e-6
 @test ral.y ≈ sssout["y"] atol=1e-6
 @test ral.Ψ ≈ sssout["Psi"] atol=1e-6
+
+# Check sparse Jacobian methods work
+sparsity, colorvec = compute_sparsity_pattern(ral, :relaxation; sparsity_detection = false)
+jac_cache = preallocate_jac_cache(ral, :relaxation; sparsity_detection = false)
+RiskAdjustedLinearizations.relaxation!(ral, 1.001 .* vcat(ral.z, ral.y), ral.Ψ;
+                                     verbose = :none, sparse_jacobian = true,
+                                     sparsity = sparsity, colorvec = colorvec)
+@test maximum(abs.(ral.z - sssout["z"])) < 1e-6
+@test maximum(abs.(ral.y - sssout["y"])) < 1e-6
+RiskAdjustedLinearizations.relaxation!(ral, 1.001 .* vcat(ral.z, ral.y), ral.Ψ;
+                                     verbose = :none, sparse_jacobian = true,
+                                     autodiff = :forward, sparsity = sparsity,
+                                     colorvec = colorvec)
+@test maximum(abs.(ral.z - sssout["z"])) < 1e-6
+@test maximum(abs.(ral.y - sssout["y"])) < 1e-6
+RiskAdjustedLinearizations.relaxation!(ral, 1.001 .* vcat(ral.z, ral.y), ral.Ψ;
+                                     verbose = :none, sparse_jacobian = true,
+                                     jac_cache = jac_cache)
+@test maximum(abs.(ral.z - sssout["z"])) < 1e-6
+@test maximum(abs.(ral.y - sssout["y"])) < 1e-6
+RiskAdjustedLinearizations.relaxation!(ral, 1.001 .* vcat(ral.z, ral.y), ral.Ψ;
+                                       verbose = :none, sparse_jacobian = true,
+                                       sparsity_detection = false)
+@test maximum(abs.(ral.z - sssout["z"])) < 1e-6
+@test maximum(abs.(ral.y - sssout["y"])) < 1e-6

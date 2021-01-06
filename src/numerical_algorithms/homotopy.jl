@@ -49,7 +49,11 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
         qguesses = vcat(qguesses, 1.)
     end
     for (i, q) in enumerate(qguesses)
-        solve_steadystate!(m, getvecvalues(m), _my_eqn, q; verbose = verbose, autodiff = autodiff, kwargs...)
+        solve_steadystate!(m, getvecvalues(m), _my_eqn, q; autodiff = autodiff,
+                           sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
+                           sparsity = sparsity, colorvec = colorvec,
+                           sparsity_detection = sparsity_detection,
+                           verbose = verbose, kwargs...)
 
         if verbose == :high
             println("Success at iteration $(i) of $(length(qguesses))")
@@ -70,11 +74,22 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
 end
 
 function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, f::Function, q::Float64;
-                            autodiff::Symbol = :central, verbose::Symbol = :none, kwargs...) where {S1 <: Real}
+                            sparse_jacobian::Bool = false, jac_cache = nothing,
+                            sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                            sparsity_detection::Bool = true, autodiff::Symbol = :central,
+                            verbose::Symbol = :none, kwargs...) where {S1 <: Real}
 
-    # Need to declare chunk size to ensure no problems with reinterpreting the cache
-    out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, q), x0, copy(x0), autodiff,
-                                     ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
+    if sparse_jacobian # Exploit sparsity?
+        nlsolve_jacobian!, jac =
+            construct_jacobian_function(m, (F, x) -> f(F, x, q), :homotopy, autodiff; jac_cache = jac_cache,
+                                        sparsity = sparsity, colorvec = colorvec,
+                                        sparsity_detection = sparsity_detection)
+        out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, q), nlsolve_jacobian!, x0, copy(x0), jac), x0; kwargs...)
+    else
+        # Need to declare chunk size to ensure no problems with reinterpreting the cache
+        out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, q), x0, copy(x0), autodiff,
+                                         ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
+    end
 
     if out.f_converged
         N_zy = m.Nz + m.Ny
