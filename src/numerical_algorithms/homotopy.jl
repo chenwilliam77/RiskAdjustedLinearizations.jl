@@ -21,8 +21,15 @@ until ``q`` reaches 1 or passes 1 (in which case, we force ``q = 1``).
 ### Keywords
 - `step::Float64`: size of the uniform step from `step` to 1.
 - `pnorm::Float64`: norm under which to evaluate the errors after homotopy succeeds.
-- `sparse_jacobian::Bool = false`: exploit sparsity in Jacobians using SparseDiffTools.jl
+- `sparse_jacobian::Bool = false`: if true, exploit sparsity in the Jacobian in calls to `nlsolve` using SparseDiffTools.jl.
+    If `jac_cache` and `sparsity` are `nothing`, then `homotopy!` will attempt to determine the sparsity pattern.
+- `sparsity::Union{AbstractArray, Nothing} = nothing`: sparsity pattern for the Jacobian in calls to `nlsolve`
+- `colorvec = nothing`: matrix coloring vector for sparse Jacobian in calls to `nlsolve`
 - `jac_cache = nothing`: pre-allocated Jacobian cache for calls to `nlsolve` during the numerical algorithms
+- `sparsity_detection::Bool = false`: If true, use SparsityDetection.jl to detect sparsity pattern (only relevant if
+    both `jac_cache` and `sparsity` are `nothing`). If false,  then the sparsity pattern is
+    determined by using finite differences to calculate a Jacobian and assuming any zeros will always be zero.
+    Currently, SparsityDetection.jl fails to work.
 - `verbose::Symbol`: verbosity of information printed out during solution.
     a) `:low` -> statement when homotopy continuation succeeds
     b) `:high` -> statement when homotopy continuation succeeds and for each successful iteration
@@ -31,8 +38,8 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
                    step::Float64 = .1, pnorm::Float64 = Inf,
                    autodiff::Symbol = :central,
                    sparse_jacobian::Bool = false,
-                   jac_cache = nothing, sparsity::Union{AbstractArray, Nothing} = nothing,
-                   colorvec = nothing, sparsity_detection::Bool = true,
+                   sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
+                   jac_cache = nothing, sparsity_detection::Bool = true,
                    verbose::Symbol = :none,
                    kwargs...) where {S1 <: Number}
     # Set up
@@ -50,8 +57,9 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
     end
     for (i, q) in enumerate(qguesses)
         solve_steadystate!(m, getvecvalues(m), _my_eqn, q; autodiff = autodiff,
-                           sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
+                           sparse_jacobian = sparse_jacobian,
                            sparsity = sparsity, colorvec = colorvec,
+                           jac_cache = jac_cache,
                            sparsity_detection = sparsity_detection,
                            verbose = verbose, kwargs...)
 
@@ -74,15 +82,16 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
 end
 
 function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}, f::Function, q::Float64;
-                            sparse_jacobian::Bool = false, jac_cache = nothing,
+                            sparse_jacobian::Bool = false,
                             sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
-                            sparsity_detection::Bool = true, autodiff::Symbol = :central,
+                            jac_cache = nothing, sparsity_detection::Bool = true, autodiff::Symbol = :central,
                             verbose::Symbol = :none, kwargs...) where {S1 <: Real}
 
     if sparse_jacobian # Exploit sparsity?
         nlsolve_jacobian!, jac =
-            construct_sparse_jacobian_function(m, (F, x) -> f(F, x, q), :homotopy, autodiff; jac_cache = jac_cache,
+            construct_sparse_jacobian_function(m, (F, x) -> f(F, x, q), :homotopy, autodiff;
                                                sparsity = sparsity, colorvec = colorvec,
+                                               jac_cache = jac_cache,
                                                sparsity_detection = sparsity_detection)
         out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, q), nlsolve_jacobian!, x0, copy(x0), jac), x0; kwargs...)
     else

@@ -35,8 +35,15 @@ The three available `solve!` algorithms are slight variations on each other.
 - `autodiff::Symbol = :central`: use autodiff or not? This keyword is the same as in `nlsolve`
 - `use_anderson::Bool = false`: use Anderson acceleration if the relaxation algorithm is applied. Defaults to `false`
 - `step::Float64 = .1`: size of step from 0 to 1 if the homotopy algorithm is applied. Defaults to 0.1
-- `sparse_jacobian::Bool = false`: exploit sparsity in Jacobians using SparseDiffTools.jl
+- `sparse_jacobian::Bool = false`: if true, exploit sparsity in the Jacobian in calls to `nlsolve` using SparseDiffTools.jl.
+    If `jac_cache` and `sparsity` are `nothing`, then `solve!` will attempt to determine the sparsity pattern.
+- `sparsity::Union{AbstractArray, Nothing} = nothing`: sparsity pattern for the Jacobian in calls to `nlsolve`
+- `colorvec = nothing`: matrix coloring vector for sparse Jacobian in calls to `nlsolve`
 - `jac_cache = nothing`: pre-allocated Jacobian cache for calls to `nlsolve` during the numerical algorithms
+- `sparsity_detection::Bool = false`: If true, use SparsityDetection.jl to detect sparsity pattern (only relevant if
+    both `jac_cache` and `sparsity` are `nothing`). If false,  then the sparsity pattern is
+    determined by using finite differences to calculate a Jacobian and assuming any zeros will always be zero.
+    Currently, SparsityDetection.jl fails to work.
 
 The solution algorithms all use `nlsolve` to calculate the solution to systems of nonlinear
 equations. The user can pass in any of the keyword arguments for `nlsolve` to adjust
@@ -51,21 +58,21 @@ Note these methods are not exported.
 """
 function solve!(m::RiskAdjustedLinearization; algorithm::Symbol = :relaxation,
                 autodiff::Symbol = :central, use_anderson::Bool = false,
-                step::Float64 = .1, sparse_jacobian::Bool = false, jac_cache = nothing,
+                step::Float64 = .1, sparse_jacobian::Bool = false,
                 sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
-                sparsity_detection::Bool = true,
+                jac_cache = nothing, sparsity_detection::Bool = false,
                 verbose::Symbol = :high, kwargs...)
     if algorithm == :deterministic
         solve!(m, m.z, m.y; algorithm = algorithm, autodiff = autodiff,
                sparse_jacobian = sparse_jacobian,
-               jac_cache = jac_cache, sparsity = sparsity,
-               colorvec = colorvec, sparsity_detection = sparsity_detection,
+               sparsity = sparsity, colorvec = colorvec,
+               jac_cache = jac_cache, sparsity_detection = sparsity_detection,
                verbose = verbose, kwargs...)
     else
         solve!(m, m.z, m.y, m.Ψ; algorithm = algorithm, autodiff = autodiff,
                use_anderson = use_anderson, step = step,
-               sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
-               sparsity = sparsity, colorvec = colorvec,
+               sparse_jacobian = sparse_jacobian, sparsity = sparsity,
+               colorvec = colorvec, jac_cache = jac_cache,
                sparsity_detection = sparsity_detection, verbose = verbose, kwargs...)
     end
 end
@@ -73,18 +80,20 @@ end
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1};
                 algorithm::Symbol = :relaxation, autodiff::Symbol = :central,
                 use_anderson::Bool = false, step::Float64 = .1,
-                sparse_jacobian::Bool = false, jac_cache = nothing,
+                sparse_jacobian::Bool = false,
                 sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
-                sparsity_detection::Bool = true,
+                jac_cache = nothing, sparsity_detection::Bool = false,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Real}
 
     @assert algorithm in [:deterministic, :relaxation, :homotopy] "The algorithm must be :deterministic, :relaxation, or :homotopy"
 
     # Deterministic steady state
     deterministic_steadystate!(m, vcat(z0, y0); autodiff = autodiff,
-                               sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
+                               sparse_jacobian = sparse_jacobian,
                                sparsity = sparsity, colorvec = colorvec,
-                               sparsity_detection = sparsity_detection, verbose = verbose, kwargs...)
+                               jac_cache = jac_cache,
+                               sparsity_detection = sparsity_detection,
+                               verbose = verbose, kwargs...)
 
     # Calculate linearization
     nl = nonlinear_system(m)
@@ -118,9 +127,8 @@ end
 function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::AbstractVector{S1}, Ψ0::AbstractMatrix{S1};
                 algorithm::Symbol = :relaxation, autodiff::Symbol = :central,
                 use_anderson::Bool = false, step::Float64 = .1,
-                sparse_jacobian::Bool = false, jac_cache = nothing,
-                sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
-                sparsity_detection::Bool = true,
+                sparse_jacobian::Bool = false, sparsity::Union{AbstractArray, Nothing} = nothing,
+                colorvec = nothing, jac_cache = nothing, sparsity_detection::Bool = false,
                 verbose::Symbol = :high, kwargs...) where {S1 <: Number}
 
     @assert algorithm in [:relaxation, :homotopy] "The algorithm must be :relaxation or :homotopy because this function calculates the stochastic steady state"
@@ -130,14 +138,14 @@ function solve!(m::RiskAdjustedLinearization, z0::AbstractVector{S1}, y0::Abstra
         N_zy = m.Nz + m.Ny
         relaxation!(m, vcat(z0, y0), Ψ0; autodiff = autodiff,
                     use_anderson = use_anderson, sparse_jacobian = sparse_jacobian,
-                    jac_cache = jac_cache, sparsity = sparsity,
-                    colorvec = colorvec, sparsity_detection = sparsity_detection,
+                    sparsity = sparsity, colorvec = colorvec,
+                    jac_cache = jac_cache, sparsity_detection = sparsity_detection,
                     verbose = verbose, kwargs...)
     elseif algorithm == :homotopy
         homotopy!(m, vcat(z0, y0, vec(Ψ0)); autodiff = autodiff, step = step,
-                  sparse_jacobian = sparse_jacobian, jac_cache = jac_cache,
+                  sparse_jacobian = sparse_jacobian,
                   sparsity = sparsity, colorvec = colorvec,
-                  sparsity_detection = sparsity_detection,
+                  jac_cache = jac_cache, sparsity_detection = sparsity_detection,
                   verbose = verbose, kwargs...)
     end
 
@@ -165,9 +173,9 @@ calculates the deterministic steady state.
 """
 function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1};
                                     autodiff::Symbol = :central,
-                                    sparse_jacobian::Bool = false, jac_cache = nothing,
+                                    sparse_jacobian::Bool = false,
                                     sparsity::Union{AbstractArray, Nothing} = nothing, colorvec = nothing,
-                                    sparsity_detection::Bool = true,
+                                    jac_cache = nothing, sparsity_detection::Bool = false,
                                     verbose::Symbol = :none, kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
@@ -176,8 +184,9 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
     # Exploit sparsity?
     if sparse_jacobian
         nlsolve_jacobian!, jac =
-            construct_spasre_jacobian_function(m, _my_eqn, :deterministic, autodiff; jac_cache = jac_cache,
+            construct_spasre_jacobian_function(m, _my_eqn, :deterministic, autodiff;
                                                sparsity = sparsity, colorvec = colorvec,
+                                               jac_cache = jac_cache,
                                                sparsity_detection = sparsity_detection)
         out = nlsolve(OnceDifferentiable(_my_eqn, nlsolve_jacobian!, x0, copy(x0), jac), x0; kwargs...)
     else

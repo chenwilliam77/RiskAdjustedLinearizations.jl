@@ -22,7 +22,7 @@ end
 ```
 compute_sparsity_pattern(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1,
                          sparsity::Union{AbstractArray, Nothing} = nothing,
-                         sparsity_detection::Bool = true)
+                         sparsity_detection::Bool = false)
 ```
 calculates the sparsity pattern of the Jacobian of the nonlinear system of equations
 for either the deterministic or stochastic steady state, depending on which
@@ -39,7 +39,7 @@ for either the deterministic or stochastic steady state, depending on which
 """
 function compute_sparsity_pattern(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1,
                                   sparsity::Union{AbstractArray, Nothing} = nothing,
-                                  sparsity_detection::Bool = true)
+                                  sparsity_detection::Bool = false)
     @assert algorithm in [:deterministic, :relaxation, :homotopy] "The algorithm must be :deterministic, :relaxation, or :homotopy"
     @assert 1 > q > 0 "The step size q must satisfy 0 < q < 1."
 
@@ -64,7 +64,7 @@ end
 ```
 preallocate_jac_cache(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1,
                       sparsity::Union{AbstractArray, Nothing} = nothing,
-                      sparsity_detection::Bool = true)
+                      sparsity_detection::Bool = false)
 ```
 pre-allocates the cache for the Jacobian of the nonlinear system of equations
 for either the deterministic or stochastic steady state, depending on which
@@ -81,7 +81,7 @@ for either the deterministic or stochastic steady state, depending on which
 """
 function preallocate_jac_cache(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1,
                                sparsity::Union{AbstractArray, Nothing} = nothing,
-                               sparsity_detection::Bool = true)
+                               sparsity_detection::Bool = false)
 
     sparsity, colorvec = compute_sparsity_pattern(m, algorithm; q = q,
                                                   sparsity = sparsity, sparsity_detection = sparsity_detection)
@@ -92,9 +92,9 @@ end
 
 function construct_sparse_jacobian_function(m::RiskAdjustedLinearization, f::Function,
                                             algorithm::Symbol, autodiff::Symbol;
-                                            jac_cache = nothing,
                                             sparsity::Union{AbstractArray, Nothing} = nothing,
-                                            sparsity_detection::Bool = true, colorvec = nothing)
+                                            colorvec = nothing, jac_cache = nothing,
+                                            sparsity_detection::Bool = false)
 
     if isnothing(jac_cache)
         # Create Jacobian function that does not assume the existence of a cache
