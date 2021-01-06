@@ -171,14 +171,14 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
                                     verbose::Symbol = :none, kwargs...) where {S1 <: Real, S2 <: Real}
 
     # Set up system of equations
-    _my_eqn = (F, x) -> _my_deterministic_equations(F, x, m)
+    _my_eqn = (F, x) -> _deterministic_equations(F, x, m)
 
     # Exploit sparsity?
     if sparse_jacobian
         nlsolve_jacobian!, jac =
-            construct_jacobian_function(m, _my_eqn, :deterministic, autodiff; jac_cache = jac_cache,
-                                        sparsity = sparsity, colorvec = colorvec,
-                                        sparsity_detection = sparsity_detection)
+            construct_spasre_jacobian_function(m, _my_eqn, :deterministic, autodiff; jac_cache = jac_cache,
+                                               sparsity = sparsity, colorvec = colorvec,
+                                               sparsity_detection = sparsity_detection)
         out = nlsolve(OnceDifferentiable(_my_eqn, nlsolve_jacobian!, x0, copy(x0), jac), x0; kwargs...)
     else
         out = nlsolve(OnceDifferentiable(_my_eqn, x0, copy(x0), autodiff,
@@ -197,8 +197,8 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
     end
 end
 
-function _my_deterministic_equations(F::AbstractVector{<: Number}, x::AbstractVector{<: Number},
-                                     m::RiskAdjustedLinearization)
+function _deterministic_equations(F::AbstractVector{<: Number}, x::AbstractVector{<: Number},
+                                  m::RiskAdjustedLinearization)
     # Unpack input vector
     z = @view x[1:m.Nz]
     y = @view x[(m.Nz + 1):end]
@@ -211,88 +211,4 @@ function _my_deterministic_equations(F::AbstractVector{<: Number}, x::AbstractVe
     ξ_sss             = get_tmp(m.nonlinear.ξ.cache, z, y, (1, 1)) # one corresponds to autodiffing both z and y
     F[1:m.Nz]         = μ_sss - z
     F[(m.Nz + 1):end] = ξ_sss + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y
-end
-
-function infer_objective_function(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1)
-
-    f = if algorithm == :deterministic
-        (F, x) -> _my_deterministic_equations(F, x, m)
-    elseif algorithm == :relaxation
-        (F, x) -> _relaxation_equations(F, x, m, m.Ψ, m[:𝒱_sss])
-    elseif algorithm == :homotopy
-        if Λ_eltype(m.nonlinear) <: RALF1 && Σ_eltype(m.nonlinear) <: RALF1
-            (F, x) -> _homotopy_equations1(F, x, m, q)
-        else
-            (F, x) -> _homotopy_equations2(F, x, m, q)
-        end
-    end
-
-    return f
-end
-
-function compute_sparsity_pattern(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1,
-                                  sparsity::Union{AbstractArray, Nothing} = nothing,
-                                  sparsity_detection::Bool = true)
-    @assert algorithm in [:deterministic, :relaxation, :homotopy] "The algorithm must be :deterministic, :relaxation, or :homotopy"
-
-    f = infer_objective_function(m, algorithm; q = q)
-
-    input = algorithm == :homotopy ? vcat(m.z, m.y, vec(m.Ψ)) : vcat(m.z, m.y)
-    if isnothing(sparsity)
-        sparsity = if sparsity_detection
-            jacobian_sparsity(f, similar(input), input)
-        else
-            jac = similar(input, length(input), length(input))
-            FiniteDiff.finite_difference_jacobian!(jac, f, input)
-            sparse(jac)
-        end
-    end
-    colorvec = matrix_colors(sparsity)
-
-    return sparsity, colorvec
-end
-
-function preallocate_jac_cache(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1,
-                               sparsity::Union{AbstractArray, Nothing} = nothing,
-                               sparsity_detection::Bool = true)
-
-    sparsity, colorvec = compute_sparsity_pattern(m, algorithm; q = q,
-                                                  sparsity = sparsity, sparsity_detection = sparsity_detection)
-    input = algorithm == :homotopy ? vcat(m.z, m.y, vec(m.Ψ)) : vcat(m.z, m.y)
-
-    return FiniteDiff.JacobianCache(input, colorvec = colorvec, sparsity = sparsity)
-end
-
-function construct_jacobian_function(m::RiskAdjustedLinearization, f::Function,
-                                     algorithm::Symbol, autodiff::Symbol;
-                                     jac_cache = nothing,
-                                     sparsity::Union{AbstractArray, Nothing} = nothing,
-                                     sparsity_detection::Bool = true, colorvec = nothing)
-    if isnothing(jac_cache)
-        if isnothing(sparsity)
-            sparsity, colorvec = compute_sparsity_pattern(m, algorithm; sparsity = sparsity,
-                                                          sparsity_detection = sparsity_detection)
-        elseif isnothing(colorvec)
-            colorvec = matrix_colors(sparsity)
-        end
-
-        nlsolve_jacobian! = if autodiff == :forward
-            (F, x) -> forwarddiff_color_jacobian!(F, f, x, # homotopy doesn't work with autodiff, so assuming
-                                                  ForwardColorJacCache(f, x, min(m.Nz, m.Ny); # only using deterministic/relaxation,
-                                                                       colorvec = colorvec, sparsity = sparsity)) # hence the chunk size
-        else
-            (F, x) -> FiniteDiff.finite_difference_jacobian!(F, f, x; colorvec = colorvec,
-                                                             sparsity = sparsity)
-        end
-
-        return nlsolve_jacobian!, sparsity
-    else
-        nlsolve_jacobian! = if autodiff == :forward
-            (F, x) -> forwarddiff_color_jacobian!(F, f, x, jac_cache)
-        else
-            (F, x) -> FiniteDiff.finite_difference_jacobian!(F, f, x, jac_cache)
-        end
-
-        return nlsolve_jacobian!, jac_cache.sparsity
-    end
 end

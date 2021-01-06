@@ -81,9 +81,9 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
 
     if sparse_jacobian # Exploit sparsity?
         nlsolve_jacobian!, jac =
-            construct_jacobian_function(m, (F, x) -> f(F, x, q), :homotopy, autodiff; jac_cache = jac_cache,
-                                        sparsity = sparsity, colorvec = colorvec,
-                                        sparsity_detection = sparsity_detection)
+            construct_sparse_jacobian_function(m, (F, x) -> f(F, x, q), :homotopy, autodiff; jac_cache = jac_cache,
+                                               sparsity = sparsity, colorvec = colorvec,
+                                               sparsity_detection = sparsity_detection)
         out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, q), nlsolve_jacobian!, x0, copy(x0), jac), x0; kwargs...)
     else
         # Need to declare chunk size to ensure no problems with reinterpreting the cache

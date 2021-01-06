@@ -18,6 +18,7 @@ include("cache_types.jl")
 include("risk_adjusted_linearization.jl")
 
 # Numerical Algorithms
+include("numerical_algorithms/helpers.jl")
 include("numerical_algorithms/compute_psi.jl")
 include("numerical_algorithms/blanchard_kahn.jl")
 include("numerical_algorithms/relaxation.jl")
