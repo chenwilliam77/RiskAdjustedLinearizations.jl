@@ -1,9 +1,10 @@
 # This script solves the NKCapital model with a risk-adjusted linearization.
-using RiskAdjustedLinearizations, JLD2, LinearAlgebra, Test
+using RiskAdjustedLinearizations, JLD2, LinearAlgebra, Test, SparseArrays
 
 # Settings
 define_functions      = true
 testing               = true         # check model's solution under default parameters against saved output
+nlsolve_sparsity      = true         # exploit sparsity in calls to nlsolve
 autodiff              = false
 algorithm             = :relaxation
 euler_equation_errors = false
@@ -22,8 +23,16 @@ m_nk = NKCapital(; N_approx = N_approx) # create parameters
 m = nk_capital(m_nk) # instantiate risk-adjusted linearization
 autodiff_method = autodiff ? :forward : :central
 
+if nlsolve_sparsity
+    solve!(m; algorithm = :deterministic, autodiff = autodiff_method) # ensure Ψ is nonzero
+    jac_cache = preallocate_jac_cache(m, algorithm; sparsity_detection = false)
+else
+    jac_cache = nothing
+end
+
 # Solve!
-solve!(m; algorithm = algorithm, autodiff = autodiff_method)
+solve!(m; algorithm = algorithm, autodiff = autodiff_method,
+       jac_cache = jac_cache, sparse_jacobian = nlsolve_sparsity)
 
 if testing
     out = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "nk_with_capital_output.jld2"), "r")
