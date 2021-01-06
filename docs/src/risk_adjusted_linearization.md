@@ -164,7 +164,7 @@ z_{t + 1} - \mathbb{E}_t[z_{t + 1}] & = \mu(z_t, y_t) + \Lambda(z_t)(y_{t + 1} -
 \end{aligned}
 ```
 Therefore, the entropy term ``\mathcal{V}_t(\cdot)`` becomes
-```
+```math
 \begin{aligned}
 \mathcal{V}_t(\exp((\Gamma_5 + \Gamma_6 \Psi)z_{t + 1})) & = \log\mathbb{E}_t\left[\exp\left((\Gamma_5 + \Gamma_6 \Psi)(I - \Lambda(z_t) \Psi)^{-1} \Sigma(z_t) \varepsilon_{t + 1}\right)\right].
 \end{aligned}
@@ -197,9 +197,11 @@ accessible through Julia.
 
 3. Functions provided by the user will be converted into in-place functions with pre-allocated caches.
 
-4. (Coming in the future) Calculation of Jacobians with automatic differentiation is accelerated by exploiting sparsity with SparseDiffTools.jl
+4. Calls to nonlinear equation solver `nlsolve` are accelerated by exploiting sparsity in Jacobians with [SparseDiffTools.jl](https://github.com/JuliaDiff/SparseDiffTools.jl).
 
-5. (Coming in the future) Usage of sparse arrays when reasonable
+5. (Coming in the future) Calculation of Jacobians of ``\mu``, ``\xi``, and ``\mathcal{V}`` with automatic differentiation is accelerated by exploiting sparsity with [SparseDiffTools.jl](https://github.com/JuliaDiff/SparseDiffTools.jl).
+
+6. (Coming in the future) Usage of sparse arrays when reasonable
 
 See the [Example](@ref example) for how to use the type. To compare this package's speed with the original MATLAB code,
 run the [wac_disaster.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/matlab_timing_test/wac_disaster.jl) or [rbc_cc.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/matlab_timing_test/rbc_cc.jl)

@@ -13,7 +13,11 @@ keyword of `solve!`.
 All of the available algorithms need to solve a system of nonlinear
 equations. We use `nlsolve` for this purpose, and all keyword arguments
 for `nlsolve` can be passed as keyword arguments to `solve!`, e.g.
-`autodiff` and `ftol`.
+`autodiff` and `ftol`. The user can also exploit sparsity in the
+Jacobian of the system of nonlinear equations to accelerate
+`nlsolve` by using the keywords `sparse_jacobian`,
+`sparsity`, `colorvec`, `jac_cache`, and/or `sparsity_detection`.
+For details, see [Exploiting Sparsity](@ref sparsity-numerical-algo).
 
 ```@docs
 RiskAdjustedLinearizations.solve!
@@ -88,10 +92,60 @@ also includes the Jacobian of the entropy. In the deterministic steady state, th
 hence the Jacobian of the entropy is zero. In the stochastic steady state, the entropy is no longer zero
 and varies with ``z_t``, hence the Jacobian of the expectational equations to ``z_t`` depends on entropy.
 
+## [Exploiting Sparsity](@id sparsity-numerical-algo)
+When solving for the deterministic or stochastic steady state, this package
+solves a system of nonlinear equations by calling `nlsolve`, whose underlying
+algorithms typically require calculating the Jacobian of the system of nonlinear equations.
+For many economic models, this system is sparse because each individual equation usually depends
+on a small subset of the coefficients ``(z, y, \Psi)``. To exploit this sparsity and further
+accelerate computation time, we can use methods implemented by
+[SparseDiffTools.jl](https://github.com/JuliaDiff/SparseDiffTools.jl).
+For an example, please see this
+[script](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_jacobians.jl).
+
+We automate the setup process by letting the user pass the keyword `sparse_jacobian = true`
+to `solve!`. If this keyword is true, then there are three ways to exploit sparsity.
+
+1. If no other keywords are passed, then `solve!` will attempt to determine the sparsity pattern.
+   By default, the sparsity pattern is determined by using finite differences to
+   calculate a Jacobian and assuming any zeros will always be zero. If the keyword
+   `sparsity_detection = true`, then `solve!` will try using [SparsityDetection.jl](https://github.com/JuliaDiff/SparsityDetection.jl).
+   Currently, the latter approach does not work with RiskAdjustedLinearizations.jl.
+
+2. The keyword `sparsity` can be used to specify the sparsity pattern of the Jacobian. If `colorvec` is not also
+   passed, then the matrix coloring vector is computed based on `sparsity`.
+
+3. The keyword `jac_cache` allows the user to specify the sparsity pattern of the Jacobian
+   and additionally pre-allocate the Jacobian's cache, which achieves speed gains by
+   avoiding extra allocations when `nlsolve` is repeatedly called.
+
+If `solve!` is called once, then the first two approaches are essentially the same. If `solve!`
+is repeatedly called (e.g. if the model's parameters are changed), then
+the second two approaches are strictly faster because
+computing the sparsity pattern or pre-allocating the Jacobian's cache only needs to be done once,
+as long as the system of equations does not change.
+
+To simplify using the `sparsity`, `colorvec`, and `jac_cache` keywords, we implement
+two helper functions, `compute_sparsity_pattern` and `preallocate_jac_cache`.
+The first function calculates `sparsity` and `colorvec` while the second ones
+computes `jac_cache`. See the docstrings below and
+this [example](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_jacobians.jl)
+for more details.
+
+Some additional caveats on these methods:
+- Creating a cached Jacobian with automatic differentiation via `ForwardColorJacCache`
+  will not work because the objective function changes in each loop of the homotopy and
+  relaxation algorithms, so the cached `Dual` matrices will have information
+  on the wrong function after a loop completes. Currently, RiskAdjustedLinearizations.jl has not implemented
+  a way to update the information on the function required by the `Dual` matrices.
+- If automatic differentiation does not work with dense Jacobians due to
+  problems with reinterpreting the chunk size, then it will also not work when using sparse Jacobians.
 
 ## Docstrings
 ```@docs
 RiskAdjustedLinearizations.relaxation!
 RiskAdjustedLinearizations.homotopy!
 RiskAdjustedLinearizations.blanchard_kahn
+RiskAdjustedLinearizations.compute_sparsity_pattern
+RiskAdjustedLinearizations.preallocate_jac_cache
 ```
