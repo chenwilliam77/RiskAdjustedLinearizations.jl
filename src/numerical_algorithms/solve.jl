@@ -184,7 +184,7 @@ function deterministic_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVe
     # Exploit sparsity?
     if sparse_jacobian
         nlsolve_jacobian!, jac =
-            construct_spasre_jacobian_function(m, _my_eqn, :deterministic, autodiff;
+            construct_sparse_jacobian_function(m, _my_eqn, :deterministic, autodiff;
                                                sparsity = sparsity, colorvec = colorvec,
                                                jac_cache = jac_cache,
                                                sparsity_detection = sparsity_detection)
