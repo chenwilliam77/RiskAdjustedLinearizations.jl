@@ -3,6 +3,7 @@ include(joinpath(dirname(@__FILE__), "..", "wachter_disaster_risk", "wachter.jl"
 
 # Settings: what do you want to do?
 autodiff = false
+time_matlab = true
 
 # Set up
 autodiff_method = autodiff ? :forward : :central
@@ -18,10 +19,12 @@ zdet = copy(m.z)
 ydet = copy(m.y)
 Ψdet = copy(m.Ψ)
 
-println("Relaxation algorithm in MATLAB")
-mat"""
-genaffine_wac_disaster_relaxation;
-"""
+if time_matlab
+    println("Relaxation algorithm in MATLAB")
+    mat"""
+    genaffine_wac_disaster_relaxation;
+    """
+end
 
 println("Relaxation algorithm in Julia")
 @btime begin # called the "iterative" method in the original paper
@@ -33,12 +36,44 @@ println("Relaxation algorithm with Anderson acceleration")
     solve!(m, zdet, ydet, Ψdet; algorithm = :relaxation, use_anderson = true, m = 3, autodiff = autodiff_method, verbose = :none)
 end
 
-println("Homotopy algorithm in MATLAB")
-mat"""
-genaffine_wac_disaster_homotopy;
-"""
+sparsity, colorvec = compute_sparsity_pattern(m, :relaxation; sparsity_detection = false)
+jac_cache = preallocate_jac_cache(m, :relaxation; sparsity_detection = false)
+
+println("Relaxation with matrix coloring of sparse Jacobians")
+@btime begin
+    solve!(m, zdet, ydet, Ψdet; algorithm = :relaxation, autodiff = autodiff_method,
+           sparse_jacobian = true, sparsity = sparsity, colorvec = colorvec, verbose = :none)
+end
+
+println("Relaxation with matrix coloring of sparse Jacobians and caching")
+@btime begin
+    solve!(m, zdet, ydet, Ψdet; algorithm = :relaxation, autodiff = autodiff_method,
+           sparse_jacobian = true, jac_cache = jac_cache, verbose = :none)
+end
+
+if time_matlab
+    println("Homotopy algorithm in MATLAB")
+    mat"""
+    genaffine_wac_disaster_homotopy;
+    """
+end
 
 println("Homotopy algorithm in Julia")
 @btime begin # called the "continuation" method in the original paper, but is called homotopy in the original code
     solve!(m, zdet, ydet, Ψdet; algorithm = :homotopy, autodiff = autodiff_method, verbose = :none)
+end
+
+sparsity, colorvec = compute_sparsity_pattern(m, :homotopy; sparsity_detection = false)
+jac_cache = preallocate_jac_cache(m, :homotopy; sparsity_detection = false)
+
+println("Homotopy with matrix coloring of sparse Jacobians")
+@btime begin
+    solve!(m, zdet, ydet, Ψdet; algorithm = :homotopy, autodiff = autodiff_method,
+           sparse_jacobian = true, sparsity = sparsity, colorvec = colorvec, verbose = :none)
+end
+
+println("Homotopy with matrix coloring of sparse Jacobians and caching")
+@btime begin
+    solve!(m, zdet, ydet, Ψdet; algorithm = :homotopy, autodiff = autodiff_method,
+           sparse_jacobian = true, jac_cache = jac_cache, verbose = :none)
 end
