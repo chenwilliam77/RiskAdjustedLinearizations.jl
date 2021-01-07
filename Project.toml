@@ -25,6 +25,7 @@ DiffEqBase = "6"
 FastGaussQuadrature = "v0.4"
 ForwardDiff = "0.10"
 NLsolve = "4"
+SparsityDetection = "0.3"
 UnPack = "1"
 julia = "1"
 
