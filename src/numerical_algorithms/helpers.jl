@@ -4,7 +4,7 @@
 function infer_objective_function(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1)
 
     f = if algorithm == :deterministic
-        (F, x) -> _my_deterministic_equations(F, x, m)
+        (F, x) -> _deterministic_equations(F, x, m)
     elseif algorithm == :relaxation
         (F, x) -> _relaxation_equations(F, x, m, m.Ψ, m[:𝒱_sss])
     elseif algorithm == :homotopy
