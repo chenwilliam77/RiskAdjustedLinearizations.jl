@@ -101,7 +101,7 @@ on a small subset of the coefficients ``(z, y, \Psi)``. To exploit this sparsity
 accelerate computation time, we can use methods implemented by
 [SparseDiffTools.jl](https://github.com/JuliaDiff/SparseDiffTools.jl).
 For an example, please see this
-[script](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_jacobians.jl).
+[script](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_jacobians/sparse_jacobians.jl).
 
 We automate the setup process by letting the user pass the keyword `sparse_jacobian = true`
 to `solve!`. If this keyword is true, then there are three ways to exploit sparsity.
@@ -116,8 +116,8 @@ to `solve!`. If this keyword is true, then there are three ways to exploit spars
    passed, then the matrix coloring vector is computed based on `sparsity`.
 
 3. The keyword `jac_cache` allows the user to specify the sparsity pattern of the Jacobian
-   and additionally pre-allocate the Jacobian's cache, which achieves speed gains by
-   avoiding extra allocations when `nlsolve` is repeatedly called.
+   and additionally pre-allocate the Jacobian's cache, which potentially achieves speed gains by
+   avoiding extra allocations when the Jacobian function is repeatedly constructed.
 
 If `solve!` is called once, then the first two approaches are essentially the same. If `solve!`
 is repeatedly called (e.g. if the model's parameters are changed), then
@@ -129,7 +129,7 @@ To simplify using the `sparsity`, `colorvec`, and `jac_cache` keywords, we imple
 two helper functions, `compute_sparsity_pattern` and `preallocate_jac_cache`.
 The first function calculates `sparsity` and `colorvec` while the second ones
 computes `jac_cache`. See the docstrings below and
-this [example](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_jacobians.jl)
+this [example](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_jacobians/sparse_jacobians.jl)
 for more details.
 
 Some additional caveats on these methods:
