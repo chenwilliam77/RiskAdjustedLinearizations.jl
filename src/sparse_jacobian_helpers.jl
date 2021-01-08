@@ -30,6 +30,101 @@ function compute_sparsity_pattern(f::Function, x::AbstractVector{<: Number};
     return sparsity, colorvec
 end
 
+"""
+```
+update_sparsity_pattern!(m::RiskAdjustedLinearization, function_name::Union{Symbol, Vector{Symbol}};
+                         z::AbstractVector{<: Number} = m.z,
+                         y::AbstractVector{<: Number} = m.y,
+                         Ψ::AbstractVector{<: Number} = m.Ψ,
+                         sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                         colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                         sparsity_detection::Bool = false)
+```
+updates the Jacobians of μ, ξ, and/or 𝒱 in the `RiskAdjustedLinearization` `m`
+with a new sparsity pattern. If the keyword `sparsity`
+is empty, then the function attempts to determine the new sparsity pattern by computing
+the Jacobian via automatic differentiation and assuming any zeros are always zero.
+Keywords provide guesses for the coefficients ``(z, y, \\Psi)`` that are required
+to calculate the Jacobians.
+
+### Keywords
+- `z`: state coefficients at steady state
+- `y`: jump coefficients at steady state
+- `Ψ`: coefficients for mapping from states to jumps
+- `sparsity`: key-value pairs can be used to specify new sparsity patterns for the Jacobian functions
+    `μz`, `μy`, `ξz`, `ξy`, and `J𝒱 `.
+- `colorvec`: key-value pairs can be used to specify new matrix coloring vectors for the Jacobian functions
+    `μz`, `μy`, `ξz`, `ξy`, and `J𝒱 `.
+- `sparsity_detection`: use SparsityDetection.jl to determine the sparsity pattern.
+"""
+function update_sparsity_pattern!(m::RiskAdjustedLinearization, function_name::Symbol;
+                                  z::AbstractVector{<: Number} = m.z,
+                                  y::AbstractVector{<: Number} = m.y,
+                                  Ψ::AbstractVector{<: Number} = m.Ψ,
+                                  sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                                  colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                  sparsity_detection::Bool = false)
+    return update_sparsity_pattern!(m, [function_name]; z = z, y = y, Ψ = Ψ,
+                                    sparsity = sparsity, colorvec = colorvec,
+                                    sparsity_detection = sparsity_detection)
+end
+
+function update_sparsity_pattern!(m::RiskAdjustedLinearization, function_names::Vector{Symbol};
+                                  z::AbstractVector{<: Number} = m.z,
+                                  y::AbstractVector{<: Number} = m.y,
+                                  Ψ::AbstractVector{<: Number} = m.Ψ,
+                                  sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                                  colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                  sparsity_detection::Bool = false)
+
+    if :μ in function_names
+        μz, μy, μz_jac_cache, μy_jac_cache =
+            construct_μ_jacobian_function(m.μ, z, y;
+                                          sparsity_z = haskey(sparsity, :μz) ? sparsity[:μz] : nothing,
+                                          sparsity_y = haskey(sparsity, :μy) ? sparsity[:μy] : nothing,
+                                          colorvec_z = haskey(sparsity, :μz) ? sparsity[:μz] : nothing,
+                                          colorvec_y = haskey(sparsity, :μy) ? sparsity[:μy] : nothing,
+                                          sparsity_detection = sparsity_detection)
+
+        m.linearization.μz = μz
+        m.linearization.μy = μy
+        m.linearization.jac_cache[:μz] = μz_jac_cache
+        m.linearization.jac_cache[:μy] = μy_jac_cache
+    end
+
+    if :ξ in function_names
+        ξz, ξy, ξz_jac_cache, ξy_jac_cache =
+            construct_ξ_jacobian_function(m.ξ, z, y;
+                                          sparsity_z = haskey(sparsity, :ξz) ? sparsity[:ξz] : nothing,
+                                          sparsity_y = haskey(sparsity, :ξy) ? sparsity[:ξy] : nothing,
+                                          colorvec_z = haskey(sparsity, :ξz) ? sparsity[:ξz] : nothing,
+                                          colorvec_y = haskey(sparsity, :ξy) ? sparsity[:ξy] : nothing,
+                                          sparsity_detection = sparsity_detection)
+
+        m.linearization.ξz = ξz
+        m.linearization.ξy = ξy
+        m.linearization.jac_cache[:ξz] = ξz_jac_cache
+        m.linearization.jac_cache[:ξy] = ξy_jac_cache
+    end
+
+    if :𝒱 in function_names
+        J𝒱, J𝒱_jac_cache = if isa(m.nonlinear.𝒱, RALF2)
+            construct_𝒱_jacobian_function(m.𝒱, z, Ψ; sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
+                                          colorvec = haskey(colorvec, :J𝒱) ? colorvec[:J𝒱] : nothing,
+                                          sparsity_detection = sparsity_detection)
+        else
+            construct_𝒱_jacobian_function(m.𝒱, z, y, Ψ; sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
+                                          colorvec = haskey(colorvec, :J𝒱) ? colorvec[:J𝒱] : nothing,
+                                          sparsity_detection = sparsity_detection)
+        end
+
+        m.linearization.J𝒱 = J𝒱
+        m.linearization.jac_cache[:J𝒱] = J𝒱_jac_cache
+    end
+
+    m
+end
+
 function construct_μ_jacobian_function(μ::RALF2, z::AbstractVector{<: Number}, y::AbstractVector{<: Number};
                                        sparsity_z::Union{AbstractArray, Nothing} = nothing,
                                        sparsity_y::Union{AbstractArray, Nothing} = nothing,
