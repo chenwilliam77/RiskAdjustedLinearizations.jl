@@ -15,10 +15,10 @@ include("util.jl") # in principle, several of these utility functions could work
 
 # RiskAdjustedLinearization
 include("cache_types.jl")
+include("sparse_jacobian_helpers.jl")
 include("risk_adjusted_linearization.jl")
 
 # Numerical Algorithms
-include("numerical_algorithms/helpers.jl")
 include("numerical_algorithms/compute_psi.jl")
 include("numerical_algorithms/blanchard_kahn.jl")
 include("numerical_algorithms/relaxation.jl")

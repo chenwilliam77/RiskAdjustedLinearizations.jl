@@ -14,7 +14,8 @@ end
 
 function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
                  select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {L, S, V <: RALF2,
-                                                                     C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+                                                                     C1 <: AbstractVector{<: Number},
+                                                                     C2 <: AbstractMatrix{<: Number}}
 
     if :μ in select
         m.μ(z, y)
@@ -50,7 +51,7 @@ function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
     m
 end
 
-mutable struct RALLinearizedSystem{JV <: AbstractRALF, JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number}}
+mutable struct RALLinearizedSystem{JV <: AbstractRALF, JC5 <: AbstractMatrix{<: Number}, JC6 <: AbstractMatrix{<: Number}, SJC}
     μz::RALF2
     μy::RALF2
     ξz::RALF2
@@ -58,6 +59,12 @@ mutable struct RALLinearizedSystem{JV <: AbstractRALF, JC5 <: AbstractMatrix{<: 
     J𝒱::JV
     Γ₅::JC5
     Γ₆::JC6
+    sparse_jac_caches::SJC
+end
+
+function RALLinearizedSystem(μz::RALF2, μy::RALF2, ξz::RALF2, ξy::RALF2, J𝒱::AbstractRALF,
+                             Γ₅::AbstractMatrix{<: Number}, Γ₆::AbstractMatrix{<: Number})
+    RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₅, Γ₆, nothing)
 end
 
 function update!(m::RALLinearizedSystem{JV, JC5, JC6}, z::C1, y::C1, Ψ::C2;
@@ -170,11 +177,15 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nε::Int; sss_vector_type::DataType = Vector{T},
                                    Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
-                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: Function, L, S,
-                                                                               X <: Function,
-                                                                               JC5 <: AbstractMatrix{<: Number},
-                                                                               JC6 <: AbstractMatrix{<: Number},
-                                                                               CF <: Function}
+                                   jacobian_type::DataType = Matrix{T},
+                                   sparse_jacobian::Vector{Symbol} = Symbol[],
+                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   sparsity_detection::Bool = false) where {T <: Number, M <: Function, L, S,
+                                                                            X <: Function,
+                                                                            JC5 <: AbstractMatrix{<: Number},
+                                                                            JC6 <: AbstractMatrix{<: Number},
+                                                                            CF <: Function}
     # Get dimensions
     Nz  = length(z)
     Ny  = length(y)
@@ -198,33 +209,53 @@ end
 # Users will not typically use this constructor, however, because it requires
 # various functions of the RALNonlinearSystem and RALLinearizedSystem to already
 # be wrapped with either an RALF1 or RALF2 type.
+# TODO: add a method that will re-cache sparse Jacobians
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
-                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: RALF1, S <: RALF1,
-                                                                               X <: RALF2,
-                                                                               JC5 <: AbstractMatrix{<: Number},
-                                                                               JC6 <: AbstractMatrix{<: Number},
-                                                                               CF <: Function}
-    # Get dimensions
-    Nz  = length(z)
-    Ny  = length(y)
-    Nzy = Nz + Ny
-    if Nε < 0
-        throw(BoundsError("Nε cannot be negative"))
-    end
+                                   jacobian_type::DataType = Matrix{T},
+                                   sparse_jacobian::Vector{Symbol} = Symbol[],
+                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   sparsity_detection::Bool = false) where {T <: Number, M <: RALF2, L <: RALF1, S <: RALF1,
+                                                                            X <: RALF2,
+                                                                            JC5 <: AbstractMatrix{<: Number},
+                                                                            JC6 <: AbstractMatrix{<: Number},
+                                                                            CF <: Function}
+
+    jac_cache = isempty(sparse_jacobian) ? nothing : Dict{Symbol, NamedTuple}()
 
     # Use RALF2 wrapper to create Jacobian functions with caching for μ, ξ.
     # Use the tuple to select the correct Dual cache b/c μ is in place
-    μz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(x, y, (1, 2)), z), z, y,
-               jacobian_type, (Nz, Nz))
-    μy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(z, x, (2, 3)), y), z, y,
-               jacobian_type, (Nz, Ny))
+    if :μ in sparse_jacobian
+        μz, μy, jac_cache[:μz], jac_cache[:μy] =
+            construct_μ_jacobian_function(μ, z, y;
+                                          sparsity_z = haskey(sparsity, :μz) ? sparsity[:μz] : nothing,
+                                          sparsity_y = haskey(sparsity, :μy) ? sparsity[:μy] : nothing,
+                                          colorvec_z = haskey(sparsity, :μz) ? sparsity[:μz] : nothing,
+                                          colorvec_y = haskey(sparsity, :μy) ? sparsity[:μy] : nothing,
+                                          sparsity_detection = sparsity_detection)
+    else
+        μz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(x, y, (1, 2)), z), z, y,
+                   jacobian_type, (Nz, Nz))
+        μy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(z, x, (2, 3)), y), z, y,
+                   jacobian_type, (Nz, Ny))
+    end
 
-    ξz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(x, y, (1, 2)), z), z, y,
-               jacobian_type, (Ny, Nz))
-    ξy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(z, x, (2, 3)), y), z, y,
-               jacobian_type, (Ny, Ny))
+    if :ξ in sparse_jacobian
+        ξz, ξy, jac_cache[:ξz], jac_cache[:ξy] =
+            construct_ξ_jacobian_function(μ, z, y;
+                                          sparsity_z = haskey(sparsity, :ξz) ? sparsity[:ξz] : nothing,
+                                          sparsity_y = haskey(sparsity, :ξy) ? sparsity[:ξy] : nothing,
+                                          colorvec_z = haskey(sparsity, :ξz) ? sparsity[:ξz] : nothing,
+                                          colorvec_y = haskey(sparsity, :ξy) ? sparsity[:ξy] : nothing,
+                                          sparsity_detection = sparsity_detection)
+    else
+        ξz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(x, y, (1, 2)), z), z, y,
+                   jacobian_type, (Ny, Nz))
+        ξy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(z, x, (2, 3)), y), z, y,
+                   jacobian_type, (Ny, Ny))
+    end
 
     # Create RALF2 wrappers for 𝒱 and its Jacobian J𝒱
     if applicable(ccgf, Γ₅, z) # Check if ccgf is in place or not
@@ -238,37 +269,75 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     Nychunk = ForwardDiff.pickchunksize(Ny)
     𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type, (Ny, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
 
-    _J𝒱(F, z, Ψ) = ForwardDiff.jacobian!(F, x -> 𝒱(x, Ψ, (1, 2)), z)
-    J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_type, (Ny, Nz))
+    if :𝒱 in sparse_jacobian
+        J𝒱, jac_cache[:J𝒱] = construct_𝒱_jacobian_function(𝒱, z, Ψ; sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
+                                                           colorvec = haskey(colorvec, :J𝒱) ? colorvec[:J𝒱] : nothing,
+                                                           sparsity_detection = sparsity_detection)
+    else
+        _J𝒱(F, z, Ψ) = ForwardDiff.jacobian!(F, x -> 𝒱(x, Ψ, (1, 2)), z)
+        J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_type, (Ny, Nz))
+    end
 
     # Form underlying RAL blocks
     nonlinear_system  = RALNonlinearSystem(μ, Λ, Σ, ξ, 𝒱)
     linearized_system = RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₅, Γ₆)
 
-    return RiskAdjustedLinearization(nonlinear_system, linearized_system, z, y, Ψ, Nz, Ny, Nε)
+    jac_cache = (μz = μz_jac_cache,
+                 μy = μy_jac_cache,
+                 ξz = ξz_jac_cache,
+                 ξy = ξy_jac_cache,
+                 J𝒱 = J𝒱_cache)
+
+    return RiskAdjustedLinearization(nonlinear_system, linearized_system, z, y, Ψ, Nz, Ny, Nε, jac_cache)
 end
 
 # Handles case where Λ and Σ are RALF2
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
-                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: RALF2, S <: RALF2,
-                                                                               X <: RALF2,
-                                                                               JC5 <: AbstractMatrix{<: Number},
-                                                                               JC6 <: AbstractMatrix{<: Number},
-                                                                               CF <: Function}
+                                   jacobian_type::DataType = Matrix{T},
+                                   sparse_jacobian::Vector{Symbol} = Symbol[],
+                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   sparsity_detection::Bool = false) where {T <: Number, M <: RALF2, L <: RALF2, S <: RALF2,
+                                                                            X <: RALF2,
+                                                                            JC5 <: AbstractMatrix{<: Number},
+                                                                            JC6 <: AbstractMatrix{<: Number},
+                                                                            CF <: Function}
+
+    jac_cache = isempty(sparse_jacobian) ? nothing : Dict{Symbol, NamedTuple}()
 
     # Use RALF2 wrapper to create Jacobian functions with caching for μ, ξ.
     # Use the tuple to select the correct Dual cache b/c μ is in place
-    μz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(x, y, (1, 2)), z), z, y,
-               jacobian_type, (Nz, Nz))
-    μy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(z, x, (2, 3)), y), z, y,
-               jacobian_type, (Nz, Ny))
+    if :μ in sparse_jacobian
+        μz, μy, jac_cache[:μz], jac_cache[:μy] =
+            construct_μ_jacobian_function(μ, z, y;
+                                          sparsity_z = haskey(sparsity, :μz) ? sparsity[:μz] : nothing,
+                                          sparsity_y = haskey(sparsity, :μy) ? sparsity[:μy] : nothing,
+                                          colorvec_z = haskey(sparsity, :μz) ? sparsity[:μz] : nothing,
+                                          colorvec_y = haskey(sparsity, :μy) ? sparsity[:μy] : nothing,
+                                          sparsity_detection = sparsity_detection)
+    else
+        μz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(x, y, (1, 2)), z), z, y,
+                   jacobian_type, (Nz, Nz))
+        μy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(z, x, (2, 3)), y), z, y,
+                   jacobian_type, (Nz, Ny))
+    end
 
-    ξz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(x, y, (1, 2)), z), z, y,
-               jacobian_type, (Ny, Nz))
-    ξy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(z, x, (2, 3)), y), z, y,
-               jacobian_type, (Ny, Ny))
+    if :ξ in sparse_jacobian
+        ξz, ξy, jac_cache[:ξz], jac_cache[:ξy] =
+            construct_ξ_jacobian_function(μ, z, y;
+                                          sparsity_z = haskey(sparsity, :ξz) ? sparsity[:ξz] : nothing,
+                                          sparsity_y = haskey(sparsity, :ξy) ? sparsity[:ξy] : nothing,
+                                          colorvec_z = haskey(sparsity, :ξz) ? sparsity[:ξz] : nothing,
+                                          colorvec_y = haskey(sparsity, :ξy) ? sparsity[:ξy] : nothing,
+                                          sparsity_detection = sparsity_detection)
+    else
+        ξz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(x, y, (1, 2)), z), z, y,
+                   jacobian_type, (Ny, Nz))
+        ξy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(z, x, (2, 3)), y), z, y,
+                   jacobian_type, (Ny, Ny))
+    end
 
     # Create RALF2 wrappers for 𝒱 and its Jacobian J𝒱
     if applicable(ccgf, Γ₅, z) # Check if ccgf is in place or not
@@ -284,16 +353,23 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
-    𝒱       = RALF4((F, z, y, Ψ, zₜ) -> _𝒱(F, z, y, Ψ, zₜ), z, y, Ψ, z, sss_vector_type, (Ny, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+    𝒱       = RALF4((F, z, y, Ψ, zₜ) -> _𝒱(F, z, y, Ψ, zₜ), z, y, Ψ, z, sss_vector_type, (Ny, ),
+                    (max(min(Nzchunk, Nychunk), 2), Nzchunk))
 
-    _J𝒱(F, z, y, Ψ) = ForwardDiff.jacobian!(F, zₜ -> 𝒱(z, y, Ψ, zₜ, (4, 2)), z) # use zₜ argument to infer the cache
-    J𝒱              = RALF3((F, z, y, Ψ) -> _J𝒱(F, z, y, Ψ), z, y, Ψ, jacobian_type, (Ny, Nz))
+    if :𝒱 in sparse_jacobian
+        J𝒱, jac_cache[:J𝒱] = construct_𝒱_jacobian_function(𝒱, z, y, Ψ; sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
+                                                           colorvec = haskey(colorvec, :J𝒱) ? colorvec[:J𝒱] : nothing,
+                                                           sparsity_detection = sparsity_detection)
+    else
+        _J𝒱(F, z, y, Ψ) = ForwardDiff.jacobian!(F, zₜ -> 𝒱(z, y, Ψ, zₜ, (4, 2)), z) # use zₜ argument to infer the cache
+        J𝒱              = RALF3((F, z, y, Ψ) -> _J𝒱(F, z, y, Ψ), z, y, Ψ, jacobian_type, (Ny, Nz))
+    end
 
     # Form underlying RAL blocks
     nonlinear_system  = RALNonlinearSystem(μ, Λ, Σ, ξ, 𝒱)
     linearized_system = RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₅, Γ₆)
 
-    return RiskAdjustedLinearization(nonlinear_system, linearized_system, z, y, Ψ, Nz, Ny, Nε)
+    return RiskAdjustedLinearization(nonlinear_system, linearized_system, z, y, Ψ, Nz, Ny, Nε, jac_cache)
 end
 
 # The following four constructors cover different common cases for the Λ and Σ functions.
@@ -301,11 +377,15 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
                                    Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
-                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: Function, S <: Function,
-                                                                               X <: RALF2,
-                                                                               JC5 <: AbstractMatrix{<: Number},
-                                                                               JC6 <: AbstractMatrix{<: Number},
-                                                                               CF <: Function}
+                                   jacobian_type::DataType = Matrix{T},
+                                   sparse_jacobian::Vector{Symbol} = Symbol[],
+                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   sparsity_detection::Bool = false) where {T <: Number, M <: RALF2, L <: Function, S <: Function,
+                                                                            X <: RALF2,
+                                                                            JC5 <: AbstractMatrix{<: Number},
+                                                                            JC6 <: AbstractMatrix{<: Number},
+                                                                            CF <: Function}
     # Create wrappers enabling caching for Λ and Σ
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
@@ -318,18 +398,24 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
-                                     jacobian_type = jacobian_type)
+                                     jacobian_type = jacobian_type, sparse_jacobian = sparse_jacobian,
+                                     sparsity = sparsity, sparsity_detection = sparsity_detection, colorvec = colorvec)
 end
 
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
                                    Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
-                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: AbstractMatrix{<: Number}, S <: Function,
-                                                                               X <: RALF2,
-                                                                               JC5 <: AbstractMatrix{<: Number},
-                                                                               JC6 <: AbstractMatrix{<: Number},
-                                                                               CF <: Function}
+                                   jacobian_type::DataType = Matrix{T},
+                                   sparse_jacobian::Vector{Symbol} = Symbol[],
+                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   sparsity_detection::Bool = false) where {T <: Number, M <: RALF2,
+                                                                            L <: AbstractMatrix{<: Number}, S <: Function,
+                                                                            X <: RALF2,
+                                                                            JC5 <: AbstractMatrix{<: Number},
+                                                                            JC6 <: AbstractMatrix{<: Number},
+                                                                            CF <: Function}
 
     # Create wrappers enabling caching for Λ and Σ
     if jump_dependent_shock_matrices
@@ -341,18 +427,23 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
-                                     jacobian_type = jacobian_type)
+                                     jacobian_type = jacobian_type, sparse_jacobian = sparse_jacobian,
+                                     sparsity = sparsity, sparsity_detection = sparsity_detection, colorvec = colorvec)
 end
 
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
                                    Λ_Σ_type::DataType = Matrix{T}, jump_dependent_shock_matrices::Bool = false,
-                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2, L <: Function, S <: AbstractMatrix{<: Number},
-                                                                               X <: RALF2,
-                                                                               JC5 <: AbstractMatrix{<: Number},
-                                                                               JC6 <: AbstractMatrix{<: Number},
-                                                                               CF <: Function}
+                                   jacobian_type::DataType = Matrix{T},
+                                   sparse_jacobian::Vector{Symbol} = Symbol[],
+                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   sparsity_detection::Bool = false) where {T <: Number, M <: RALF2, L <: Function, S <: AbstractMatrix{<: Number},
+                                                                            X <: RALF2,
+                                                                            JC5 <: AbstractMatrix{<: Number},
+                                                                            JC6 <: AbstractMatrix{<: Number},
+                                                                            CF <: Function}
 
     # Create wrappers enabling caching for Λ and Σ
     Nzchunk = ForwardDiff.pickchunksize(Nz)
@@ -366,26 +457,30 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
-                                     jacobian_type = jacobian_type)
+                                     jacobian_type = jacobian_type, sparse_jacobian = sparse_jacobian,
+                                     sparsity = sparsity, sparsity_detection = sparsity_detection, colorvec = colorvec)
 end
 
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_type::DataType = Vector{T},
-                                   Λ_Σ_type::DataType = Matrix{T},
-                                   jacobian_type::DataType = Matrix{T}) where {T <: Number, M <: RALF2,
-                                                                               L <: AbstractMatrix{<: Number}, S <: AbstractMatrix{<: Number},
-                                                                               X <: RALF2,
-                                                                               JC5 <: AbstractMatrix{<: Number},
-                                                                               JC6 <: AbstractMatrix{<: Number},
-                                                                               CF <: Function}
+                                   Λ_Σ_type::DataType = Matrix{T}, jacobian_type::DataType = Matrix{T},
+                                   sparse_jacobian::Vector{Symbol} = Symbol[],
+                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                                   sparsity_detection::Bool = false) where {T <: Number, M <: RALF2,
+                                                                            L <: AbstractMatrix{<: Number}, S <: AbstractMatrix{<: Number},
+                                                                            X <: RALF2,
+                                                                            JC5 <: AbstractMatrix{<: Number},
+                                                                            JC6 <: AbstractMatrix{<: Number},
+                                                                            CF <: Function}
 
     # Create wrappers enabling caching for Λ and Σ
     _Λ = RALF1(Λ)
     _Σ = RALF1(Σ)
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
-                                     jacobian_type = jacobian_type)
+                                     jacobian_type = jacobian_type, sparse_jacobian = sparse_jacobian,
+                                     sparsity = sparsity, sparsity_detection = sparsity_detection, colorvec = colorvec)
 end
 
 ## Print statements for RAL objects
