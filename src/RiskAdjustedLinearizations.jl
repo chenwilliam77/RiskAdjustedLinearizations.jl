@@ -15,8 +15,8 @@ include("util.jl") # in principle, several of these utility functions could work
 
 # RiskAdjustedLinearization
 include("cache_types.jl")
-include("sparse_jacobian_helpers.jl")
 include("risk_adjusted_linearization.jl")
+include("sparse_jacobian_helpers.jl")
 
 # Numerical Algorithms
 include("numerical_algorithms/compute_psi.jl")
@@ -40,5 +40,5 @@ export
     dynamic_euler_equation_error,
 
     # sparsity helpers
-    preallocate_jac_cache, compute_sparsity_pattern
+    preallocate_jac_cache, compute_sparsity_pattern, update_sparsity_pattern!
 end # module
