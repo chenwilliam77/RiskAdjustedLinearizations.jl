@@ -96,6 +96,8 @@ function solve_steadystate!(m::RiskAdjustedLinearization, x0::AbstractVector{S1}
         out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, q), nlsolve_jacobian!, x0, copy(x0), jac), x0; kwargs...)
     else
         # Need to declare chunk size to ensure no problems with reinterpreting the cache
+        # Potential solution: https://discourse.julialang.org/t/issue-with-pdmp-and-forwardiff-differentialequation/17925/22
+        # Essentially, it may require developing another cache.
         out = nlsolve(OnceDifferentiable((F, x) -> f(F, x, q), x0, copy(x0), autodiff,
                                          ForwardDiff.Chunk(ForwardDiff.pickchunksize(min(m.Nz, m.Ny)))), x0; kwargs...)
     end
