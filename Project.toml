@@ -20,14 +20,14 @@ UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 
 [compat]
 ArrayInterface = "2"
-BandedMatrices = "0.15"
+BandedMatrices = "0.15, 0.16"
 DiffEqBase = "6"
 FastGaussQuadrature = "0.4"
 FiniteDiff = "2.7"
 ForwardDiff = "0.10"
 NLsolve = "4"
-SparsityDetection = "0.3"
 SparseDiffTools = "1.9, 1.10, 1.11"
+SparsityDetection = "0.3"
 UnPack = "1"
 julia = "1"
 
