@@ -51,13 +51,15 @@ function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
     m
 end
 
-mutable struct RALLinearizedSystem{JV <: AbstractRALF, JC5 <: AbstractMatrix{<: Number},
+#=mutable struct RALLinearizedSystem{JV <: AbstractRALF, JC5 <: AbstractMatrix{<: Number},
+                                   JC6 <: AbstractMatrix{<: Number}, SJC <: AbstractDict{Symbol, NamedTuple}}=#
+mutable struct RALLinearizedSystem{JC5 <: AbstractMatrix{<: Number},
                                    JC6 <: AbstractMatrix{<: Number}, SJC <: AbstractDict{Symbol, NamedTuple}}
     μz::RALF2
     μy::RALF2
     ξz::RALF2
     ξy::RALF2
-    J𝒱::JV
+    J𝒱::Union{RALF2, RALF3}# JV
     Γ₅::JC5
     Γ₆::JC6
     sparse_jac_caches::SJC
@@ -68,9 +70,11 @@ function RALLinearizedSystem(μz::RALF2, μy::RALF2, ξz::RALF2, ξy::RALF2, J�
     RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₅, Γ₆, Dict{Symbol, NamedTuple}())
 end
 
-function update!(m::RALLinearizedSystem{JV, JC5, JC6}, z::C1, y::C1, Ψ::C2;
+# function update!(m::RALLinearizedSystem{JV, JC5, JC6}, z::C1, y::C1, Ψ::C2;
+function update!(m::RALLinearizedSystem{JC5, JC6}, z::C1, y::C1, Ψ::C2;
                  select::Vector{Symbol} =
-                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {JV <: RALF2, JC5, JC6,
+                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {#JV <: RALF2,
+                                                         JC5, JC6,
                                                          C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
 
     if :Γ₁ in select
@@ -90,35 +94,11 @@ function update!(m::RALLinearizedSystem{JV, JC5, JC6}, z::C1, y::C1, Ψ::C2;
     end
 
     if :JV in select
-        m.J𝒱(z, Ψ)
-    end
-
-    m
-end
-
-function update!(m::RALLinearizedSystem{JV, JC5, JC6}, z::C1, y::C1, Ψ::C2;
-                 select::Vector{Symbol} =
-                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {JV <: RALF3, JC5, JC6,
-                                                         C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
-
-    if :Γ₁ in select
-        m.μz(z, y)
-    end
-
-    if :Γ₂ in select
-        m.μy(z, y)
-    end
-
-    if :Γ₃ in select
-        m.ξz(z, y)
-    end
-
-    if :Γ₄ in select
-        m.ξy(z, y)
-    end
-
-    if :JV in select
-        m.J𝒱(z, y, Ψ)
+        if isa(m.J𝒱, RALF2)
+            m.J𝒱(z, Ψ)
+        else
+            m.J𝒱(z, y, Ψ)
+        end
     end
 
     m
@@ -182,7 +162,10 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
                                    sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
                                    colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
-                                   sparsity_detection::Bool = false) where {T <: Number, M <: Function, L, S,
+                                   sparsity_detection::Bool = false,
+                                   ξ_chunksizes::NTuple{3, Int} = (0, 0, 0),
+                                   μ_chunksizes::NTuple{3, Int} = (0, 0, 0)
+                                   ) where {T <: Number, M <: Function, L, S,
                                                                             X <: Function,
                                                                             JC5 <: AbstractMatrix{<: Number},
                                                                             JC6 <: AbstractMatrix{<: Number},
@@ -198,8 +181,12 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     # Create wrappers enabling caching for μ and ξ
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
-    _μ = RALF2(μ, z, y, sss_vector_type, (Nz, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk, Nychunk))
-    _ξ = RALF2(ξ, z, y, sss_vector_type, (Ny, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk, Nychunk))
+    _μ = RALF2(μ, z, y, sss_vector_type(undef, Nz), μ_chunksizes[1] == 0 ?
+               (max(min(Nzchunk, Nychunk), 2), Nzchunk, Nychunk) : μ_chunksizes)
+    _ξ = RALF2(ξ, z, y, sss_vector_type(undef, Ny), ξ_chunksizes[1] == 0 ?
+                 (max(min(Nzchunk, Nychunk), 2), Nzchunk, Nychunk) : ξ_chunksizes)
+    # _μ = RALF2(μ, z, y, sss_vector_type, (Nz, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk, Nychunk))
+    # _ξ = RALF2(ξ, z, y, sss_vector_type, (Ny, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk, Nychunk))
 
     # Apply dispatch on Λ and Σ to figure what they should be
     return RiskAdjustedLinearization(_μ, Λ, Σ, _ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_type = sss_vector_type,
@@ -240,9 +227,9 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                           sparsity_detection = sparsity_detection)
     else
         μz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(x, y, (1, 2)), z), z, y,
-                   jacobian_type, (Nz, Nz))
+                   jacobian_type(undef, Nz, Nz))# jacobian_type, (Nz, Nz))
         μy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(z, x, (2, 3)), y), z, y,
-                   jacobian_type, (Nz, Ny))
+                   jacobian_type(undef, Nz, Ny))# jacobian_type, (Nz, Ny))
     end
 
     if :ξ in sparse_jacobian
@@ -256,9 +243,9 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                           sparsity_detection = sparsity_detection)
     else
         ξz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(x, y, (1, 2)), z), z, y,
-                   jacobian_type, (Ny, Nz))
+                   jacobian_type(undef, Ny, Nz))#, (Ny, Nz))
         ξy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(z, x, (2, 3)), y), z, y,
-                   jacobian_type, (Ny, Ny))
+                   jacobian_type(undef, Ny, Ny))#, (Ny, Ny))
     end
 
     # Create RALF2 wrappers for 𝒱 and its Jacobian J𝒱
@@ -271,16 +258,18 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
-    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type, (Ny, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+    # 𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type, (Ny, ), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_type(undef, Ny), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
 
     if :𝒱 in sparse_jacobian
-        J𝒱, jac_cache[:J𝒱] = construct_𝒱_jacobian_function(𝒱, z, Ψ; sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
+        J𝒱, jac_cache[:J𝒱] = construct_𝒱_jacobian_function(𝒱, ccgf, Λ, Σ, Γ₅, Γ₆, z, Ψ;
+                                                           sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
                                                            colorvec = haskey(colorvec, :J𝒱) ? colorvec[:J𝒱] : nothing,
                                                            sparsity_detection = sparsity_detection,
                                                            jacobian_type = jacobian_type)
     else
         _J𝒱(F, z, Ψ) = ForwardDiff.jacobian!(F, x -> 𝒱(x, Ψ, (1, 2)), z)
-        J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_type, (Ny, Nz))
+        J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_type(undef, Ny, Nz))
     end
 
     # Form underlying RAL blocks

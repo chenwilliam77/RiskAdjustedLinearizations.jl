@@ -3,6 +3,7 @@ abstract type AbstractRALF end
 # RALF1
 mutable struct RALF1{LC} <: AbstractRALF
     f::Function
+    f0::Function
     cache::LC
 end
 
@@ -20,12 +21,12 @@ function RALF1(f::Function, x1::C1, array_type::DataType, dims::NTuple{N, Int};
             return get_tmp(cache, x1)
         end
     end
-    return RALF1(fnew, dualcache(cache, Val{chunksize}))
+    return RALF1(fnew, f, dualcache(cache, Val{chunksize}))
 end
 
 function RALF1(fin::LC) where {LC <: AbstractArray{<: Number}}
     f(cache::LCN, x1::C1N) where {LCN <: AbstractMatrix{ <: Number}, C1N <: AbstractArray{<: Number}} = cache
-    return RALF1{LC}(f, fin)
+    return RALF1{LC}(f, x -> fin, fin)
 end
 
 function (ralf::RALF1)(x1::C1) where {C1 <: AbstractArray{<: Number}}
@@ -35,13 +36,16 @@ end
 # RALF2
 mutable struct RALF2{LC} <: AbstractRALF
     f::Function
+    f0::Function
     cache::LC
 end
 
-function RALF2(f::Function, x1::C1, x2::C2, array_type::DataType,
-               dims::NTuple{N, Int}, chunksizes::NTuple{Nc, Int} =
+function RALF2(f::Function, x1::C1, x2::C2, cache::AbstractArray{<: Number}, chunksizes::NTuple{Nc, Int} =
                (ForwardDiff.pickchunksize(min(length(x1), length(x2))), )) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number}, N, Nc}
-    cache = array_type(undef, dims)
+#=function RALF2(f::Function, x1::C1, x2::C2, array_type::DataType,
+               dims::NTuple{N, Int}, chunksizes::NTuple{Nc, Int} =
+               (ForwardDiff.pickchunksize(min(length(x1), length(x2))), )) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number}, N, Nc}=#
+    # cache = array_type(undef, dims)
     if applicable(f, cache, x1, x2)
         if length(chunksizes) == 1 # Figure out which type of DiffCache is needed
             diffcache = dualcache(cache, Val{chunksizes[1]})
@@ -99,12 +103,12 @@ function RALF2(f::Function, x1::C1, x2::C2, array_type::DataType,
             throw(MethodError("The length of the sixth input argument, chunksizes, must be 1, 2, or 3."))
         end
     end
-    return RALF2(fnew, diffcache)
+    return RALF2(fnew, f, diffcache)
 end
 
 function RALF2(fin::LC) where {LC <: AbstractArray{<: Number}}
     f(cache::LCN, x1::C1N, x2::C2N, select::Tuple{Int, Int}) where {LCN <: AbstractArray{<: Number}, C1N <: AbstractArray{<: Number}, C2N <: AbstractArray{<: Number}} = cache
-    return RALF2{LC}(f, fin)
+    return RALF2{LC}(f, x -> fin, fin)
 end
 
 # Using the default of (1, 1) for `select` is important. This way, we can use autodiff

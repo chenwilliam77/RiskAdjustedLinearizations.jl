@@ -19,13 +19,13 @@ calculates the sparsity pattern of the Jacobian of the functions μ, ξ, and �
     If false, then the sparsity pattern is determined by using automatic differentiation
     to calculate a Jacobian and assuming any zeros will always be zero.
 """
-function compute_sparsity_pattern(f::Function, x::AbstractVector{<: Number}, nrow::Int;
+function compute_sparsity_pattern(f::Function, x::AbstractVector{T}, nrow::Int;
                                   sparsity::Union{AbstractArray, Nothing} = nothing,
-                                  sparsity_detection::Bool = false)
+                                  sparsity_detection::Bool = false) where {T <: Number}
 
     if isnothing(sparsity)
         sparsity = if sparsity_detection
-            jacobian_sparsity(f, similar(x, nrow), x)
+            convert(SparseMatrixCSC{eltype(x), Int}, jacobian_sparsity(f, similar(x, nrow), x))
         else
             sparse(ForwardDiff.jacobian(f, x))
         end
@@ -33,7 +33,7 @@ function compute_sparsity_pattern(f::Function, x::AbstractVector{<: Number}, nro
 
     if isempty(nonzeros(sparsity))
         # default to differentiating a dense matrix if all zeros
-        return ones(size(sparsity)), 1:length(x)
+        return ones(T, size(sparsity)), 1:length(x)
     else
         return sparsity, matrix_colors(sparsity)
     end
@@ -73,10 +73,10 @@ function update_sparsity_pattern!(m::RiskAdjustedLinearization, function_name::S
                                   Ψ::AbstractMatrix{<: Number} = m.Ψ,
                                   sparsity::AbstractDict{Symbol, <: AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
-                                  sparsity_detection::Bool = false)
+                                  sparsity_detection::Bool = false, ccgf = nothing)
     return update_sparsity_pattern!(m, [function_name]; z = z, y = y, Ψ = Ψ,
                                     sparsity = sparsity, colorvec = colorvec,
-                                    sparsity_detection = sparsity_detection)
+                                    sparsity_detection = sparsity_detection, ccgf = ccgf)
 end
 
 function update_sparsity_pattern!(m::RiskAdjustedLinearization, function_names::Vector{Symbol};
@@ -85,7 +85,7 @@ function update_sparsity_pattern!(m::RiskAdjustedLinearization, function_names::
                                   Ψ::AbstractMatrix{<: Number} = m.Ψ,
                                   sparsity::AbstractDict{Symbol, <: AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
-                                  sparsity_detection::Bool = false)
+                                  sparsity_detection::Bool = false, ccgf = nothing)
 
     if :μ in function_names
         μz, μy, μz_jac_cache, μy_jac_cache =
@@ -119,11 +119,14 @@ function update_sparsity_pattern!(m::RiskAdjustedLinearization, function_names::
 
     if :𝒱 in function_names
         J𝒱, J𝒱_jac_cache = if isa(m.nonlinear.𝒱, RALF2)
-            construct_𝒱_jacobian_function(m.nonlinear.𝒱, z, Ψ; sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
+            construct_𝒱_jacobian_function(m.nonlinear.𝒱, ccgf, m.nonlinear.Λ, m.nonlinear.Σ,
+                                          m[:Γ₅], m[:Γ₆], z, Ψ;
+                                          sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
                                           colorvec = haskey(colorvec, :J𝒱) ? colorvec[:J𝒱] : nothing,
                                           sparsity_detection = sparsity_detection)
         else
-            construct_𝒱_jacobian_function(m.nonlinear.𝒱, z, y, Ψ; sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
+            construct_𝒱_jacobian_function(m.nonlinear.𝒱, ccgf, m.nonlinear.Λ, m.nonlinear.Σ,
+                                          z, y, Ψ; sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
                                           colorvec = haskey(colorvec, :J𝒱) ? colorvec[:J𝒱] : nothing,
                                           sparsity_detection = sparsity_detection)
         end
@@ -144,19 +147,19 @@ function construct_μ_jacobian_function(μ::RALF2, z::AbstractVector{T}, y::Abst
                                        sparsity_detection::Bool = false) where {T <: Number}
 
     # Define (temporary) objective functions
-    _f_μz = z -> μ(z, y, (1, 2))
-    _f_μy = y -> μ(z, y, (2, 3))
+    _init_f_μz = z -> μ(z, y, (1, 2))
+    _init_f_μy = y -> μ(z, y, (2, 3))
 
     # Infer sparsity patterns and matrix coloring vector
     Nz = length(z)
     Ny = length(y)
     if isnothing(sparsity_z)
-        sparsity_z, colorvec_z = compute_sparsity_pattern(_f_μz, z, Nz; sparsity_detection = sparsity_detection)
+        sparsity_z, colorvec_z = compute_sparsity_pattern(_init_f_μz, z, Nz; sparsity_detection = sparsity_detection)
     elseif isnothing(colorvec_z)
         colorvec_z = matrix_colors(sparsity_z)
     end
     if isnothing(sparsity_y)
-        sparsity_y, colorvec_y = compute_sparsity_pattern(_f_μy, y, Nz; sparsity_detection = sparsity_detection)
+        sparsity_y, colorvec_y = compute_sparsity_pattern(_init_f_μy, y, Nz; sparsity_detection = sparsity_detection)
     elseif isnothing(colorvec_y)
         colorvec_y = matrix_colors(sparsity_y)
     end
@@ -173,13 +176,18 @@ function construct_μ_jacobian_function(μ::RALF2, z::AbstractVector{T}, y::Abst
     # then it'll be possible to cache.
     μ_dz = similar(z)
     μ_dy = similar(z)
-
-    μz = RALF2((F, z, y) -> forwarddiff_color_jacobian!(F, x -> μ(x, y, (1, 2)), z, dx = μ_dz,
-                                                        colorvec = colorvec_z, sparsity = sparsity_z),
+    μz = RALF2((F, z, y) -> forwarddiff_color_jacobian(F, x -> μ(x, y, (1, 2)), z, dx = μ.cache.dual_du2,
+                                                       colorvec = colorvec_z, sparsity = sparsity_z),
+               z, y, deepcopy(sparsity_z))
+    μy = RALF2((F, z, y) -> forwarddiff_color_jacobian(F, x -> μ(z, x, (2, 3)), y, dx = μ.cache.dual_du3,
+                                                       colorvec = colorvec_y, sparsity = sparsity_y),
+               z, y, deepcopy(sparsity_y))
+#=    μz = RALF2((F, z, y) -> forwarddiff_color_jacobian(F, x -> μ(x, y, (1, 2)), z, dx = μ_dz, # μ.cache.dual_du2,
+                                                       colorvec = colorvec_z, sparsity = sparsity_z),
                z, y, jacobian_type, (Nz, Nz))
-    μy = RALF2((F, z, y) -> forwarddiff_color_jacobian!(F, x -> μ(z, x, (2, 3)), y, dx = μ_dy,
-                                                        colorvec = colorvec_y, sparsity = sparsity_y),
-               z, y, jacobian_type, (Nz, Ny))
+    μy = RALF2((F, z, y) -> forwarddiff_color_jacobian(F, x -> μ(z, x, (2, 3)), y, dx = μ_dy, # μ.cache.dual_du3,
+                                                       colorvec = colorvec_y, sparsity = sparsity_y),
+               z, y, jacobian_type, (Nz, Ny))=#
 
     # Create mini-version of the Jacobian cache
     μz_jac_cache = (dx = μ_dz, sparsity = sparsity_z, colorvec = colorvec_z)
@@ -226,12 +234,22 @@ function construct_ξ_jacobian_function(ξ::RALF2, z::AbstractVector{T}, y::Abst
     ξ_dz = similar(y)
     ξ_dy = similar(y)
 
-    ξz = RALF2((F, z, y) -> forwarddiff_color_jacobian!(F, x -> ξ(x, y, (1, 2)), z, dx = ξ_dz,
+    # to make redefining the function work, maybe add an f0 to the RALF types. If this is done, we should first test the speed losses
+#=     _ξ = RALF2(ξ.f0, z, y, ξ.cache.du, (7,
+                                        7,
+                                        7))# ForwardDiff.pickchunksize(maximum(colorvec_y))))=#
+#=    ξz = RALF2((F, z, y) -> forwarddiff_color_jacobian(F, x -> _ξ(x, y, (1, 2)), z, dx = ξ.cache.dual_du2,
+                                                       colorvec = colorvec_z, sparsity = sparsity_z),
+               z, y, deepcopy(sparsity_z), (7, ))
+    ξy = RALF2((F, z, y) -> forwarddiff_color_jacobian(F, x -> _ξ(z, x, (2, 3)), y, dx = ξ.cache.dual_du3,
+                                                       colorvec = colorvec_y, sparsity = sparsity_y),
+               z, y, deepcopy(sparsity_y), (7, ))#(ForwardDiff.pickchunksize(maximum(colorvec_y)), ))=#
+    ξz = RALF2((F, z, y) -> forwarddiff_color_jacobian!(F, (F0, x) -> ξ.f0(F0, x, y), z, dx = ξ_dz,
                                                         colorvec = colorvec_z, sparsity = sparsity_z),
-               z, y, jacobian_type, (Ny, Nz))
-    ξy = RALF2((F, z, y) -> forwarddiff_color_jacobian!(F, x -> ξ(z, x, (2, 3)), y, dx = ξ_dy,
+               z, y, deepcopy(sparsity_z), (ForwardDiff.pickchunksize(maximum(colorvec_z)), ))
+    ξy = RALF2((F, z, y) -> forwarddiff_color_jacobian!(F, (F0, x) -> ξ.f0(F0, z, x), y, dx = ξ_dy,
                                                         colorvec = colorvec_y, sparsity = sparsity_y),
-               z, y, jacobian_type, (Ny, Ny))
+               z, y, deepcopy(sparsity_y), (ForwardDiff.pickchunksize(maximum(colorvec_y)), ))
 
     # Create mini-version of the Jacobian cache
     ξz_jac_cache = (dx = ξ_dz, sparsity = sparsity_z, colorvec = colorvec_z)
@@ -240,30 +258,69 @@ function construct_ξ_jacobian_function(ξ::RALF2, z::AbstractVector{T}, y::Abst
     return ξz, ξy, ξz_jac_cache, ξy_jac_cache
 end
 
-function construct_𝒱_jacobian_function(𝒱::RALF2, z::AbstractVector{T}, Ψ::AbstractMatrix{T};
+function construct_𝒱_jacobian_function(𝒱::RALF2, ccgf::Function, Λ::RALF1, Σ::RALF1{LC}, Γ₅::AbstractArray{<: Number},
+                                       Γ₆::AbstractArray{<: Number}, z::AbstractVector{T}, Ψ::AbstractMatrix{T};
                                        jacobian_type::DataType = Matrix{T},
                                        sparsity::Union{AbstractArray, Nothing} = nothing,
-                                       colorvec = nothing, sparsity_detection::Bool = false) where {T <: Number}
+                                       colorvec = nothing, sparsity_detection::Bool = false) where {T <: Number, LC}
 
     # Define (temporary) objective functions
     _f_𝒱z = z -> 𝒱(z, Ψ, (1, 2))
 
+    # Need to grab some dimensions
+    Ny, Nz = size(Ψ)
+    Nε     = size(LC <: AbstractArray ? Σ.cache : Σ.cache.du, 2)
+
     # Infer sparsity patterns and matrix coloring vector
     if isnothing(sparsity)
-        Nz = length(z)
-        sparsity, colorvec = compute_sparsity_pattern(_f_𝒱z, z, size(Ψ, 1); sparsity_detection = sparsity_detection)
+        sparsity, colorvec = compute_sparsity_pattern(_f_𝒱z, z, Ny; sparsity_detection = sparsity_detection)
     elseif isnothing(colorvec)
         colorvec = matrix_colors(sparsity)
     end
 
     # Create RALF2 objects. Note that we cannot pre-allocate the caches for
     # forwarddiff_color_jacobian! by using ForwardColorJacCache b/c the objective function
-    # changes as z and y change. If Jacobians of μ and ξ are refactored to be done once,
-    # then it'll be possible to cache.
-    𝒱_dz = similar(Ψ, size(Ψ, 1))
-    J𝒱 = RALF2((F, z, Ψ) -> forwarddiff_color_jacobian!(F, x -> 𝒱(x, Ψ, (1, 2)), z, dx = 𝒱_dz,
+    # changes as the coefficients (z, y, Ψ) change
+
+    ## Infer whether Λ and Σ are in place
+    FΛ0 = similar(z, Nz, Ny)
+    FΣ0 = similar(z, Nz, Nε)
+    Λ0 = if applicable(Λ.f0, FΛ0, z)
+        Λ.f0
+    else
+        function _Λ_op(F, z)
+            F .= Λ.f0(z)
+        end
+    end
+    Σ0 = if applicable(Σ.f0, FΛ0, z)
+        Σ.f0
+    else
+        function _Σ_op(F, z)
+            F .= Σ.f0(z)
+        end
+    end
+
+    _𝒱_sparse = if applicable(ccgf, Γ₅, z)
+        function _𝒱_sparse_op(F, z, Ψ)
+            FΛ = similar(F, Nz, Ny)
+            FΣ = similar(F, Nz, Nε)
+            Λ0(FΛ, z)
+            Σ0(FΣ, z)
+            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - (FΛ * Ψ)) \ FΣ), z)
+        end
+    else
+        function _𝒱_sparse_ip(F, z, Ψ)
+            FΛ = similar(F, Nz, Ny)
+            FΣ = similar(F, Nz, Nε)
+            Λ0(FΛ, z)
+            Σ0(FΣ, z)
+            ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - (FΛ * Ψ)) \ FΣ), z)
+        end
+    end
+    𝒱_dz = similar(z, Ny)
+    J𝒱 = RALF2((F, z, Ψ) -> forwarddiff_color_jacobian!(F, (F0, x) -> _𝒱_sparse(F0, x, Ψ), z, dx = 𝒱_dz,
                                                         colorvec = colorvec, sparsity = sparsity),
-               z, Ψ, jacobian_type, size(Ψ))
+               z, Ψ, deepcopy(sparsity))
 
     # Create mini-version of the Jacobian cache
     J𝒱_jac_cache = (dx = 𝒱_dz, sparsity = sparsity, colorvec = colorvec)
@@ -293,8 +350,8 @@ function construct_𝒱_jacobian_function(𝒱::RALF4, z::AbstractVector{T}, y::
     # then it'll be possible to cache.
     𝒱_dz = similar(Ψ, size(Ψ, 1))
 
-    J𝒱 = RALF3((F, z, y, Ψ) -> forwarddiff_color_jacobian!(F, zₜ -> 𝒱(z, y, Ψ, zₜ, (4, 2)), z, dx = 𝒱_dz,
-                                                           colorvec = colorvec, sparsity = sparsity),
+    J𝒱 = RALF3((F, z, y, Ψ) -> forwarddiff_color_jacobian(F, zₜ -> 𝒱(z, y, Ψ, zₜ, (4, 2)), z, dx = 𝒱.cache.dual_du2, # 𝒱_dz,
+                                                          colorvec = colorvec, sparsity = sparsity),
                z, y, Ψ, jacobian_type, size(Ψ))
 
     # Create mini-version of the Jacobian cache
@@ -353,7 +410,7 @@ function compute_sparsity_pattern(m::RiskAdjustedLinearization, algorithm::Symbo
     input = algorithm == :homotopy ? vcat(m.z, m.y, vec(m.Ψ)) : vcat(m.z, m.y)
     if isnothing(sparsity)
         sparsity = if sparsity_detection
-            jacobian_sparsity(f, similar(input), input)
+            convert(SparseMatrixCSC{eltype(x), Int}, jacobian_sparsity(f, similar(input), input))
         else
             jac = similar(input, length(input), length(input))
             FiniteDiff.finite_difference_jacobian!(jac, f, input)
