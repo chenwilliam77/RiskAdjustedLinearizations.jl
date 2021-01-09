@@ -24,7 +24,7 @@ function CoeurdacierReyWinant(; σr::T = .025, σy::T = .025, β::T = .96, γ::T
     return CoeurdacierReyWinant{T}(σr, σy, β, γ, θ, ρr, ρy, rr, yy)
 end
 
-function crw(m::CoeurdacierReyWinant{T}) where {T <: Real}
+function crw(m::CoeurdacierReyWinant{T}; sparse_jacobian::Vector{Symbol} = Symbol[]) where {T <: Real}
     @unpack σr, σy, β, γ, θ, ρr, ρy, rr, yy = m
 
     # Nₜ = exp(rₜ) * Aₜ₋₁ + Yₜ, where Aₜ is foreign assets and Yₜ is the endowment
@@ -61,10 +61,6 @@ function crw(m::CoeurdacierReyWinant{T}) where {T <: Real}
         F[S[:y], SH[:εy]] = σy
     end
 
-    function ccgf(F, α, z)
-        F .= .5 * diag(α * α')
-    end
-
     Γ₅ = zeros(T, Ny, Nz)
     Γ₅[J[:c], S[:r]] = 1.
     Γ₅[J[:x], S[:r]] = 1.
@@ -76,7 +72,8 @@ function crw(m::CoeurdacierReyWinant{T}) where {T <: Real}
     z = zguess
     y = yguess
     Ψ = Psiguess
-    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nε; jump_dependent_shock_matrices = true)
+    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, crw_ccgf, z, y, Ψ, Nε;
+                                     sparse_jacobian = sparse_jacobian, jump_dependent_shock_matrices = true)
 end
 
 crw_cₜ(m, zₜ) = exp(m.y[1] + (m.Ψ * (zₜ - m.z))[1])
@@ -106,4 +103,8 @@ function crw_endo_states(m, zₜ, zₜ₋₁, c_impl)
     Nₜ   = exp(zₜ[2]) * Aₜ₋₁ + exp(zₜ[3]) # Now we can get implied resources available today.
 
     return vcat(zₜ, Nₜ - exp(c_impl)) # This gives us implied foreign assets today, along with other state variables
+end
+
+function crw_ccgf(F, α, z)
+    F .= .5 * diag(α * α')
 end

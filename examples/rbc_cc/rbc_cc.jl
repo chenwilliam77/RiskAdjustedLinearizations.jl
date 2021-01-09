@@ -18,7 +18,8 @@ function RBCCampbellCochraneHabits(; α::T = .36, ξ₃ = .23, δ::T = .1337, IK
     return RBCCampbellCochraneHabits{T}(IK̄, β, δ, α, ξ₃, μₐ, σₐ, γ, ρₛ, S)
 end
 
-function rbc_cc(m::RBCCampbellCochraneHabits{T}, n_strips::Int = 0) where {T <: Real}
+function rbc_cc(m::RBCCampbellCochraneHabits{T}, n_strips::Int = 0;
+                sparse_jacobian::Vector{Symbol} = Symbol[]) where {T <: Real}
     @unpack IK̄, β, δ, α, ξ₃, μₐ, σₐ, γ, ρₛ, S = m
 
     s  = OrderedDict{Symbol, Int}(:kₐ => 1,  :hats => 2) # State variables
@@ -97,11 +98,6 @@ function rbc_cc(m::RBCCampbellCochraneHabits{T}, n_strips::Int = 0) where {T <: 
         F[s[:hats], SH[:εₐ]] = 0.
     end
 
-    function ccgf(F, α, z)
-        # F .= .5 * RiskAdjustedLinearizations.diag(α * α') # slower but this is the underlying math
-        F .= vec(.5 * sum(α.^2, dims = 2)) # faster implementation
-    end
-
     Γ₅ = zeros(T, Ny, Nz)
     if n_strips > 0
         Γ₅[J[:r_div],    s[:hats]] = -γ
@@ -151,5 +147,10 @@ function rbc_cc(m::RBCCampbellCochraneHabits{T}, n_strips::Int = 0) where {T <: 
     end
     Ψ = zeros(T, Ny, Nz)
 
-    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε)
+    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, rbc_cc_ccgf, vec(z), vec(y), Ψ, Nε; sparse_jacobian = sparse_jacobian)
+end
+
+function rbc_cc_ccgf(F, α, z)
+    # F .= .5 * RiskAdjustedLinearizations.diag(α * α') # slower but this is the underlying math
+    F .= vec(.5 * sum(α.^2, dims = 2)) # faster implementation
 end
