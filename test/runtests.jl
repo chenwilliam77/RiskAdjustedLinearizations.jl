@@ -26,7 +26,11 @@ using SafeTestsets
         include(joinpath(dirname(@__FILE__), "..", "examples", "crw", "example_crw.jl")) # This example tests case of jump-dependent Σ and Λ
         include(joinpath(dirname(@__FILE__), "..", "examples", "textbook_nk", "example_textbook_nk.jl"))
         include(joinpath(dirname(@__FILE__), "..", "examples", "nk_with_capital", "example_nk_with_capital.jl"))
-        include("test_rbc_cc.jl")
+        include("examples_to_test/rbc_cc.jl")
+    end
+
+    @time @safetestset "Sparse Arrays and Jacobians for Objects of Risk-Adjusted Linearizations" begin
+        include("sparse_jacobians/sparse_mu_xi_V_jacobians.jl")
     end
 
     @time @safetestset "Simulations, Impulse Responses, and Simulation-Based Diagnostics" begin
