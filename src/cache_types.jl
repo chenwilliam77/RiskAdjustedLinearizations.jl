@@ -11,13 +11,21 @@ function RALF1(f::Function, x1::C1, cache::AbstractArray{<: Number};
                chunksize::Int = ForwardDiff.pickchunksize(length(x1))) where {C1 <: AbstractArray{<: Number}, N}
     if applicable(f, cache, x1)
         fnew = function _f_ip(cache::LCN, x1::C1N) where {LCN <: DiffCache, C1N <: AbstractArray{<: Number}}
-            f(get_tmp(cache, x1), x1)
-            return get_tmp(cache, x1)
+            target_cache = get_tmp(cache, x1)
+            if size(target_cache) != size(cache.du)
+                target_cache = reshape(target_cache, size(cache.du))
+            end
+            f(target_cache, x1)
+            return target_cache
         end
     else
         fnew = function _f_oop(cache::LCN, x1::C1N) where {LCN <: DiffCache, C1N <: AbstractArray{<: Number}}
-            get_tmp(cache, x1) .= f(x1)
-            return get_tmp(cache, x1)
+            target_cache = get_tmp(cache, x1)
+            if size(target_cache) != size(cache.du)
+                target_cache = reshape(target_cache, size(cache.du))
+            end
+            target_cache .= f(x1)
+            return target_cache
         end
     end
     return RALF1(fnew, f, dualcache(cache, Val{chunksize}))
@@ -47,24 +55,36 @@ function RALF2(f::Function, x1::C1, x2::C2, cache::AbstractArray{<: Number}, chu
             fnew      = function _f_ip1(cache::LCN, x1::C1N, x2::C2N, select::Tuple{Int, Int}) where {LCN <: DiffCache,
                                                                                                      C1N <: AbstractArray{<: Number},
                                                                                                      C2N <: AbstractArray{<: Number}}
-                f(get_tmp(cache, x1, x2, select), x1, x2)
-                return get_tmp(cache, x1, x2, select)
+                target_cache = get_tmp(cache, x1, x2, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                f(target_cache, x1, x2)
+                return target_cache
             end
         elseif length(chunksizes) == 2
             diffcache = twodualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]})
             fnew      = function _f_ip2(cache::LCN, x1::C1N, x2::C2N, select::Tuple{Int, Int}) where {LCN <: TwoDiffCache,
                                                                                                      C1N <: AbstractArray{<: Number},
                                                                                                      C2N <: AbstractArray{<: Number}}
-                f(get_tmp(cache, x1, x2, select), x1, x2)
-                return get_tmp(cache, x1, x2, select)
+                target_cache = get_tmp(cache, x1, x2, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                f(target_cache, x1, x2)
+                return target_cache
             end
         elseif length(chunksizes) == 3
             diffcache = threedualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]}, Val{chunksizes[3]})
             fnew      = function _f_ip3(cache::LCN, x1::C1N, x2::C2N, select::Tuple{Int, Int}) where {LCN <: ThreeDiffCache,
                                                                                                      C1N <: AbstractArray{<: Number},
                                                                                                      C2N <: AbstractArray{<: Number}}
-                f(get_tmp(cache, x1, x2, select), x1, x2)
-                return get_tmp(cache, x1, x2, select)
+                target_cache = get_tmp(cache, x1, x2, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                f(target_cache, x1, x2)
+                return target_cache
             end
         else
             throw(MethodError("The length of the sixth input argument, chunksizes, must be 1, 2, or 3."))
@@ -75,24 +95,36 @@ function RALF2(f::Function, x1::C1, x2::C2, cache::AbstractArray{<: Number}, chu
             fnew      = function _f_oop1(cache::LCN, x1::C1N, x2::C2N, select::Tuple{Int, Int}) where {LCN <: DiffCache,
                                                                                                      C1N <: AbstractArray{<: Number},
                                                                                                      C2N <: AbstractArray{<: Number}}
-                get_tmp(cache, x1, x2, select) .= f(x1, x2)
-                return get_tmp(cache, x1, x2, select)
+                target_cache = get_tmp(cache, x1, x2, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                target_cache .= f(x1, x2)
+                return target_cache
             end
         elseif length(chunksizes) == 2
             diffcache = twodualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]})
             fnew      = function _f_oop2(cache::LCN, x1::C1N, x2::C2N, select::Tuple{Int, Int}) where {LCN <: TwoDiffCache,
                                                                                                      C1N <: AbstractArray{<: Number},
                                                                                                      C2N <: AbstractArray{<: Number}}
-                get_tmp(cache, x1, x2, select) .= f(x1, x2)
-                return get_tmp(cache, x1, x2, select)
+                target_cache = get_tmp(cache, x1, x2, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                target_cache .= f(x1, x2)
+                return target_cache
             end
         elseif length(chunksizes) == 3
             diffcache = threedualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]}, Val{chunksizes[3]})
             fnew      = function _f_oop3(cache::LCN, x1::C1N, x2::C2N, select::Tuple{Int, Int}) where {LCN <: ThreeDiffCache,
                                                                                                      C1N <: AbstractArray{<: Number},
                                                                                                      C2N <: AbstractArray{<: Number}}
-                get_tmp(cache, x1, x2, select) .= f(x1, x2)
-                return get_tmp(cache, x1, x2, select)
+                target_cache = get_tmp(cache, x1, x2, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                target_cache .= f(x1, x2)
+                return target_cache
             end
         else
             throw(MethodError("The length of the sixth input argument, chunksizes, must be 1, 2, or 3."))
@@ -133,8 +165,12 @@ function RALF3(f::Function, x1::C1, x2::C2, x3::C3, cache::AbstractArray{<: Numb
                                                                                           C1N <: AbstractArray{<: Number},
                                                                                           C2N <: AbstractArray{<: Number},
                                                                                           C3N <: AbstractArray{<: Number}}
-                f(get_tmp(cache, x1, x2, x3, select), x1, x2, x3)
-                return get_tmp(cache, x1, x2, x3, select)
+                target_cache = get_tmp(cache, x1, x2, x3, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                f(target_cache, x1, x2, x3)
+                return target_cache
             end
         elseif length(chunksizes) == 2
             diffcache = twodualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]})
@@ -143,8 +179,12 @@ function RALF3(f::Function, x1::C1, x2::C2, x3::C3, cache::AbstractArray{<: Numb
                                                                                  C1N <: AbstractArray{<: Number},
                                                                                  C2N <: AbstractArray{<: Number},
                                                                                  C3N <: AbstractArray{<: Number}}
-                f(get_tmp(cache, x1, x2, x3, select), x1, x2, x3)
-                return get_tmp(cache, x1, x2, x3, select)
+                target_cache = get_tmp(cache, x1, x2, x3, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                f(target_cache, x1, x2, x3)
+                return target_cache
             end
         elseif length(chunksizes) == 3
             diffcache = threedualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]}, Val{chunksizes[3]})
@@ -153,8 +193,12 @@ function RALF3(f::Function, x1::C1, x2::C2, x3::C3, cache::AbstractArray{<: Numb
                                                                                  C1N <: AbstractArray{<: Number},
                                                                                  C2N <: AbstractArray{<: Number},
                                                                                  C3N <: AbstractArray{<: Number}}
-                f(get_tmp(cache, x1, x2, x3, select), x1, x2, x3)
-                return get_tmp(cache, x1, x2, x3, select)
+                target_cache = get_tmp(cache, x1, x2, x3, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                f(target_cache, x1, x2, x3)
+                return target_cache
             end
         else
             throw(MethodError("The length of the seventh input argument, chunksizes, must be 1, 2, or 3."))
@@ -167,8 +211,12 @@ function RALF3(f::Function, x1::C1, x2::C2, x3::C3, cache::AbstractArray{<: Numb
                                                                                   C1N <: AbstractArray{<: Number},
                                                                                   C2N <: AbstractArray{<: Number},
                                                                                   C3N <: AbstractArray{<: Number}}
-                get_tmp(cache, x1, x2, x3, select) .= f(x1, x2, x3)
-                return get_tmp(cache, x1, x2, x3, select)
+                target_cache = get_tmp(cache, x1, x2, x3, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                target_cache .= f(x1, x2, x3)
+                return target_cache
             end
         elseif length(chunksizes) == 2
             diffcache = twodualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]})
@@ -177,8 +225,12 @@ function RALF3(f::Function, x1::C1, x2::C2, x3::C3, cache::AbstractArray{<: Numb
                                                                                   C1N <: AbstractArray{<: Number},
                                                                                   C2N <: AbstractArray{<: Number},
                                                                                   C3N <: AbstractArray{<: Number}}
-                get_tmp(cache, x1, x2, x3, select) .= f(x1, x2, x3)
-                return get_tmp(cache, x1, x2, x3, select)
+                target_cache = get_tmp(cache, x1, x2, x3, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                target_cache .= f(x1, x2, x3)
+                return target_cache
             end
         elseif length(chunksizes) == 3
             diffcache = threedualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]}, Val{chunksizes[3]})
@@ -187,8 +239,12 @@ function RALF3(f::Function, x1::C1, x2::C2, x3::C3, cache::AbstractArray{<: Numb
                                                                                   C1N <: AbstractArray{<: Number},
                                                                                   C2N <: AbstractArray{<: Number},
                                                                                   C3N <: AbstractArray{<: Number}}
-                get_tmp(cache, x1, x2, x3, select) .= f(x1, x2, x3)
-                return get_tmp(cache, x1, x2, x3, select)
+                target_cache = get_tmp(cache, x1, x2, x3, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                target_cache .= f(x1, x2, x3)
+                return target_cache
             end
         else
             throw(MethodError("The length of the seventh input argument, chunksizes, must be 1, 2, or 3."))
@@ -233,8 +289,12 @@ function RALF4(f::Function, x1::C1, x2::C2, x3::C3, x4::C4, cache::AbstractArray
                                                                                           C2N <: AbstractArray{<: Number},
                                                                                           C3N <: AbstractArray{<: Number},
                                                                                           C4N <: AbstractArray{<: Number}}
-                f(get_tmp(cache, x1, x2, x3, x4, select), x1, x2, x3, x4)
-                return get_tmp(cache, x1, x2, x3, x4, select)
+                target_cache = get_tmp(cache, x1, x2, x3, x4, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                f(target_cache, x1, x2, x3, x4)
+                return target_cache
             end
         elseif length(chunksizes) == 2
             diffcache = twodualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]})
@@ -270,8 +330,12 @@ function RALF4(f::Function, x1::C1, x2::C2, x3::C3, x4::C4, cache::AbstractArray
                                                                                            C2N <: AbstractArray{<: Number},
                                                                                            C3N <: AbstractArray{<: Number},
                                                                                            C4N <: AbstractArray{<: Number}}
-                get_tmp(cache, x1, x2, x3, x4, select) .= f(x1, x2, x3, x4)
-                return get_tmp(cache, x1, x2, x3, x4, select)
+                target_cache = get_tmp(cache, x1, x2, x3, x4, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                target_cache .= f(x1, x2, x3, x4)
+                return target_cache
             end
         elseif length(chunksizes) == 2
             diffcache = twodualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]})
@@ -281,8 +345,12 @@ function RALF4(f::Function, x1::C1, x2::C2, x3::C3, x4::C4, cache::AbstractArray
                                                                                            C2N <: AbstractArray{<: Number},
                                                                                            C3N <: AbstractArray{<: Number},
                                                                                            C4N <: AbstractArray{<: Number}}
-                get_tmp(cache, x1, x2, x3, x4, select) .= f(x1, x2, x3, x4)
-                return get_tmp(cache, x1, x2, x3, x4, select)
+                target_cache = get_tmp(cache, x1, x2, x3, x4, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                target_cache .= f(x1, x2, x3, x4)
+                return target_cache
             end
         elseif length(chunksizes) == 3
             diffcache = threedualcache(cache, Val{chunksizes[1]}, Val{chunksizes[2]}, Val{chunksizes[3]})
@@ -292,8 +360,12 @@ function RALF4(f::Function, x1::C1, x2::C2, x3::C3, x4::C4, cache::AbstractArray
                                                                                            C2N <: AbstractArray{<: Number},
                                                                                            C3N <: AbstractArray{<: Number},
                                                                                            C4N <: AbstractArray{<: Number}}
-                get_tmp(cache, x1, x2, x3, x4, select) .= f(x1, x2, x3, x4)
-                return get_tmp(cache, x1, x2, x3, x4, select)
+                target_cache = get_tmp(cache, x1, x2, x3, x4, select)
+                if size(target_cache) != size(cache.du)
+                    target_cache = reshape(target_cache, size(cache.du))
+                end
+                target_cache .= f(x1, x2, x3, x4)
+                return target_cache
             end
         else
             throw(MethodError("The length of the eighth input argument, chunksizes, must be 1, 2, or 3."))
