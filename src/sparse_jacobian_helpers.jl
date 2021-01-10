@@ -313,7 +313,7 @@ function construct_𝒱_jacobian_function(𝒱::RALF2, ccgf::Function, Λ::RALF1
     return J𝒱, J𝒱_jac_cache
 end
 
-function construct_𝒱_jacobian_function(𝒱::RALF4, ccgf::Function, Λ::RALF1, Σ::RALF1{LC}, Γ₅::AbstractArray{<: Number},
+function construct_𝒱_jacobian_function(𝒱::RALF4, ccgf::Function, Λ::RALF2, Σ::RALF2{LC}, Γ₅::AbstractArray{<: Number},
                                        Γ₆::AbstractArray{<: Number}, z::AbstractVector{T}, y::AbstractVector{T},
                                        Ψ::AbstractMatrix{T};
                                        sparsity::Union{AbstractArray, Nothing} = nothing,

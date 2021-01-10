@@ -24,7 +24,7 @@ function CoeurdacierReyWinant(; σr::T = .025, σy::T = .025, β::T = .96, γ::T
     return CoeurdacierReyWinant{T}(σr, σy, β, γ, θ, ρr, ρy, rr, yy)
 end
 
-function crw(m::CoeurdacierReyWinant{T}; sparse_jacobian::Vector{Symbol} = Symbol[]) where {T <: Real}
+function crw(m::CoeurdacierReyWinant{T}; Ψ = nothing, sparse_jacobian::Vector{Symbol} = Symbol[]) where {T <: Real}
     @unpack σr, σy, β, γ, θ, ρr, ρy, rr, yy = m
 
     # Nₜ = exp(rₜ) * Aₜ₋₁ + Yₜ, where Aₜ is foreign assets and Yₜ is the endowment
@@ -71,7 +71,9 @@ function crw(m::CoeurdacierReyWinant{T}; sparse_jacobian::Vector{Symbol} = Symbo
 
     z = zguess
     y = yguess
-    Ψ = Psiguess
+    if isnothing(Ψ)
+        Ψ = Psiguess
+    end
     return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, crw_ccgf, z, y, Ψ, Nε;
                                      sparse_jacobian = sparse_jacobian, jump_dependent_shock_matrices = true)
 end

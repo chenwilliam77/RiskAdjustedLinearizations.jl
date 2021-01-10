@@ -1,4 +1,5 @@
 # This script shows how to compute risk-adjusted linearizations using sparse Jacobian methods
+# for calls to nlsolve
 using RiskAdjustedLinearizations, LinearAlgebra, SparseArrays, BenchmarkTools
 
 # Settings
