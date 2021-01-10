@@ -222,7 +222,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
 
     if :ξ in sparse_jacobian
         ξz, ξy, jac_cache[:ξz], jac_cache[:ξy] =
-            construct_ξ_jacobian_function(μ, z, y;
+            construct_ξ_jacobian_function(ξ, z, y;
                                           sparsity_z = haskey(sparsity, :ξz) ? sparsity[:ξz] : nothing,
                                           sparsity_y = haskey(sparsity, :ξy) ? sparsity[:ξy] : nothing,
                                           colorvec_z = haskey(sparsity, :ξz) ? sparsity[:ξz] : nothing,
@@ -330,7 +330,8 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                     (max(min(Nzchunk, Nychunk), 2), Nzchunk))
 
     if :𝒱 in sparse_jacobian
-        J𝒱, jac_cache[:J𝒱] = construct_𝒱_jacobian_function(𝒱, z, y, Ψ; sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
+        J𝒱, jac_cache[:J𝒱] = construct_𝒱_jacobian_function(𝒱, ccgf, Λ, Σ, Γ₅, Γ₆, z, y, Ψ;
+                                                           sparsity = haskey(sparsity, :J𝒱) ? sparsity[:J𝒱] : nothing,
                                                            colorvec = haskey(colorvec, :J𝒱) ? colorvec[:J𝒱] : nothing,
                                                            sparsity_detection = sparsity_detection)
     else
