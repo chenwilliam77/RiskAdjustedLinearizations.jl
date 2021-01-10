@@ -1,9 +1,9 @@
 using RiskAdjustedLinearizations, SparseArrays, SparseDiffTools, Test
-include(joinpath(dirname(@__FILE__), "..", "examples", "rbc_cc", "rbc_cc.jl"))
-include(joinpath(dirname(@__FILE__), "..", "examples", "crw", "crw.jl"))
+include(joinpath(dirname(@__FILE__), "..", "..", "examples", "rbc_cc", "rbc_cc.jl"))
+include(joinpath(dirname(@__FILE__), "..", "..", "examples", "crw", "crw.jl"))
 
 # Set up
-n_strips = 1
+n_strips = 0
 m_rbc_cc = RBCCampbellCochraneHabits()
 m_crw = CoeurdacierReyWinant()
 
@@ -49,8 +49,9 @@ end
 #@testset "Calculate risk-adjusted linearization with sparse autodiff (using RBC-CC)" begin
     # Now provide the sparsity pattern and matrix coloring vector
     # to update the Jacobians of objects
+    rbc_cc_out = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "rbccc_sss_iterative_output.jld2"), "r")
     m_dense = rbc_cc(m_rbc_cc, n_strips) # recompute to get dense Jacobians again
-    solve!(m_dense, m_dense.z, m_dense.y; algorithm = :relaxation, verbose = :none)
+    update!(m_dense, vec(rbc_cc_out["z_rss"]), vec(rbc_cc_out["y_rss"]), rbc_cc_out["Psi_rss"])
     ztrue = copy(m_dense.z)
     ytrue = copy(m_dense.y)
     Ψtrue = copy(m_dense.Ψ)
@@ -70,10 +71,8 @@ end
     update_sparsity_pattern!(m_dense, [:μ, :ξ, :𝒱])
     try # prone to weird non-deterministic behavior in nlsolve
         solve!(m_dense, ztrue * 1.005, ytrue * 1.005, Ψtrue * 1.005; algorithm = :relaxation,
-               ftol = 1e-6, tol = 1e-3, verbose = :none)
-        @test m_dense.z ≈ ztrue atol=1e-4
-        @test m_dense.y ≈ ytrue atol=1e-4
-        @test m_dense.Ψ ≈ Ψtrue atol=1e-4
+               ftol = 1e-6, tol = 1e-5, verbose = :none)
+        @test norm(steady_state_errors(m_dense), Inf) < 1e-4
     catch e
         println("Updating dense Jacobian with sparse Jacobian methods did not pass")
     end
@@ -83,10 +82,8 @@ end
                              colorvec = colorvec)
     try # prone to weird non-deterministic behavior in nlsolve
         solve!(m, ztrue * 1.005, ytrue * 1.005, Ψtrue * 1.005; algorithm = :relaxation,
-               ftol = 1e-6, tol = 1e-3, verbose = :none)
-        @test m.z ≈ m_dense.z atol=1e-4
-        @test m.y ≈ m_dense.y atol=1e-4
-        @test m.Ψ ≈ m_dense.Ψ atol=1e-4
+               ftol = 1e-6, tol = 1e-5, verbose = :none)
+        @test norm(steady_state_errors(m), Inf) < 1e-4
     catch e
         println("Updating sparsity pattern of 𝒱 for an RAL w/sparse methods did not pass")
     end
@@ -96,14 +93,13 @@ end
                              colorvec = colorvec)
     try # prone to weird non-deterministic behavior in nlsolve
         solve!(m, ztrue * 1.005, ytrue * 1.005, Ψtrue * 1.005; algorithm = :relaxation,
-               ftol = 1e-6, tol = 1e-3, verbose = :none)
-        @test m.z ≈ m_dense.z atol=1e-4
-        @test m.y ≈ m_dense.y atol=1e-4
-        @test m.Ψ ≈ m_dense.Ψ atol=1e-4
+               ftol = 1e-6, tol = 1e-5, verbose = :none)
+        @test norm(steady_state_errors(m), Inf) < 1e-4
     catch e
         println("Updating sparsity pattern of μ, ξ, and 𝒱 for an RAL w/sparse methods did not pass")
     end
 
+    close(rbc_cc_out)
 # caching appears to be failing somehow; the caches of μ, ξ, and 𝒱 are being set to NaN unexpectedly
     @test_broken solve!(m, ztrue * 1.005, ytrue * 1.005, Ψtrue * 1.005; algorithm = :homotopy, verbose = :none)
 #=
@@ -152,11 +148,12 @@ end
     end
 end
 
-@testset "Calculate risk-adjusted linearization with sparse autodiff (using CRW)" begin
+#@testset "Calculate risk-adjusted linearization with sparse autodiff (using CRW)" begin
     # Now provide the sparsity pattern and matrix coloring vector
     # to update the Jacobians of objects
     m_dense = crw(m_crw) # recompute to get dense Jacobians again
-    solve!(m_dense, z0, y0, Ψ0; algorithm = :homotopy, verbose = :none)
+    crw_out = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference/crw_sss.jld2"), "r")
+    update!(m_dense, vec(crw_out["z_rss"]), vec(crw_out["y_rss"]), copy(crw_out["Psi_rss"]))
     ztrue = copy(m_dense.z)
     ytrue = copy(m_dense.y)
     Ψtrue = copy(m_dense.Ψ)
@@ -165,7 +162,7 @@ end
     colorvec = Dict{Symbol, Vector{Int64}}()
     sparsity[:μz] = sparse(m_dense[:Γ₁])
     sparsity[:μy] = sparse(m_dense[:Γ₂])
-    sparsity[:ξz] = sparse(m_dense[:Γ₃])
+    sparsity[:ξz] = sparse(ones(size(m_dense[:Γ₃])))
     sparsity[:ξy] = sparse(m_dense[:Γ₄])
     sparsity[:J𝒱] = sparse(m_dense[:JV])
     for (k, v) in sparsity
@@ -180,9 +177,7 @@ end
     update_sparsity_pattern!(m_dense, [:μ, :ξ, :𝒱])
     try
         solve!(m_dense, ztrue, ytrue, Ψtrue; algorithm = :relaxation, ftol = 5e-4, tol = 1e-3, verbose = :none)
-        @test m_dense.z ≈ ztrue atol=1e-1
-        @test m_dense.y ≈ ytrue atol=1e-1
-        @test m_dense.Ψ ≈ Ψtrue
+        @test norm(steady_state_errors(m_dense), Inf) < 1e-3
     catch e
         println("Updating dense Jacobian with sparse Jacobian methods did not pass")
     end
@@ -192,9 +187,7 @@ end
                              colorvec = colorvec)
     try
         solve!(m, ztrue, ytrue, Ψtrue; algorithm = :relaxation, ftol = 5e-4, tol = 1e-3, verbose = :none)
-        @test m_dense.z ≈ ztrue atol=1e-1
-        @test m_dense.y ≈ ytrue atol=1e-1
-        @test m.Ψ ≈ m_dense.Ψ
+        @test norm(steady_state_errors(m), Inf) < 1e-3
     catch e
         println("Updating sparsity pattern of 𝒱 for an RAL w/sparse methods did not pass")
     end
@@ -204,9 +197,7 @@ end
                              colorvec = colorvec)
     try
         solve!(m, ztrue, ytrue, Ψtrue; algorithm = :relaxation, ftol = 5e-4, tol = 1e-3, verbose = :none)
-        @test m_dense.z ≈ ztrue atol=1e-1
-        @test m_dense.y ≈ ytrue atol=1e-1
-        @test m.Ψ ≈ m_dense.Ψ
+        @test norm(steady_state_errors(m), Inf) < 1e-3
     catch e
         println("Updating sparsity pattern of μ, ξ, and 𝒱 for an RAL w/sparse methods did not pass")
     end

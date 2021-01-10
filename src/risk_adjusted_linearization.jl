@@ -195,6 +195,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
 
     # Apply dispatch on Λ and Σ to figure what they should be
     return RiskAdjustedLinearization(_μ, Λ, Σ, _ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_cache_init = sss_vector_cache_init,
+                                     Λ_Σ_cache_init = Λ_Σ_cache_init,
                                      jump_dependent_shock_matrices = jump_dependent_shock_matrices,
                                      jacobian_cache_init = jacobian_cache_init,
                                      sparse_jacobian = sparse_jacobian, sparsity = sparsity,
@@ -232,9 +233,9 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                           sparsity_detection = sparsity_detection)
     else
         μz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(x, y, (1, 2)), z), z, y,
-                   jacobian_cache_init(Nz, Nz))
+                   jacobian_cache_init((Nz, Nz)))
         μy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(z, x, (2, 3)), y), z, y,
-                   jacobian_cache_init(Nz, Ny))
+                   jacobian_cache_init((Nz, Ny)))
     end
 
     if :ξ in sparse_jacobian
@@ -247,9 +248,9 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                           sparsity_detection = sparsity_detection)
     else
         ξz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(x, y, (1, 2)), z), z, y,
-                   jacobian_cache_init(Ny, Nz))
+                   jacobian_cache_init((Ny, Nz)))
         ξy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(z, x, (2, 3)), y), z, y,
-                   jacobian_cache_init(Ny, Ny))
+                   jacobian_cache_init((Ny, Ny)))
     end
 
     # Create RALF2 wrappers for 𝒱 and its Jacobian J𝒱
@@ -262,7 +263,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
-    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_cache_init(undef, Ny), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+    𝒱 = RALF2((F, z, Ψ) -> _𝒱(F, z, Ψ), z, Ψ, sss_vector_cache_init(Ny), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
 
     if :𝒱 in sparse_jacobian
         J𝒱, jac_cache[:J𝒱] = construct_𝒱_jacobian_function(𝒱, ccgf, Λ, Σ, Γ₅, Γ₆, z, Ψ;
@@ -271,7 +272,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                                            sparsity_detection = sparsity_detection)
     else
         _J𝒱(F, z, Ψ) = ForwardDiff.jacobian!(F, x -> 𝒱(x, Ψ, (1, 2)), z)
-        J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_cache_init(Ny, Nz))
+        J𝒱           = RALF2((F, z, Ψ) -> _J𝒱(F, z, Ψ), z, Ψ, jacobian_cache_init((Ny, Nz)))
     end
 
     # Form underlying RAL blocks
@@ -309,9 +310,9 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                           sparsity_detection = sparsity_detection)
     else
         μz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(x, y, (1, 2)), z), z, y,
-                   jacobian_cache_init(Nz, Nz))
+                   jacobian_cache_init((Nz, Nz)))
         μy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> μ(z, x, (2, 3)), y), z, y,
-                   jacobian_cache_init(Nz, Ny))
+                   jacobian_cache_init((Nz, Ny)))
     end
 
     if :ξ in sparse_jacobian
@@ -324,9 +325,9 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                           sparsity_detection = sparsity_detection)
     else
         ξz = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(x, y, (1, 2)), z), z, y,
-                   jacobian_cache_init(Ny, Nz))
+                   jacobian_cache_init((Ny, Nz)))
         ξy = RALF2((F, z, y) -> ForwardDiff.jacobian!(F, x -> ξ(z, x, (2, 3)), y), z, y,
-                   jacobian_cache_init(Ny, Ny))
+                   jacobian_cache_init((Ny, Ny)))
     end
 
     # Create RALF2 wrappers for 𝒱 and its Jacobian J𝒱
@@ -343,7 +344,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     end
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
-    𝒱       = RALF4((F, z, y, Ψ, zₜ) -> _𝒱(F, z, y, Ψ, zₜ), z, y, Ψ, z, sss_vector_cache_init(undef, Ny),
+    𝒱       = RALF4((F, z, y, Ψ, zₜ) -> _𝒱(F, z, y, Ψ, zₜ), z, y, Ψ, z, sss_vector_cache_init(Ny),
                     (max(min(Nzchunk, Nychunk), 2), Nzchunk))
 
     if :𝒱 in sparse_jacobian
@@ -353,7 +354,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                                            sparsity_detection = sparsity_detection)
     else
         _J𝒱(F, z, y, Ψ) = ForwardDiff.jacobian!(F, zₜ -> 𝒱(z, y, Ψ, zₜ, (4, 2)), z) # use zₜ argument to infer the cache
-        J𝒱              = RALF3((F, z, y, Ψ) -> _J𝒱(F, z, y, Ψ), z, y, Ψ, jacobian_cache_init(Ny, Nz))
+        J𝒱              = RALF3((F, z, y, Ψ) -> _J𝒱(F, z, y, Ψ), z, y, Ψ, jacobian_cache_init((Ny, Nz)))
     end
 
     # Form underlying RAL blocks
@@ -382,11 +383,11 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
     if jump_dependent_shock_matrices
-        _Λ = RALF2(Λ, z, y, Λ_Σ_cache_init(Nz, Ny), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
-        _Σ = RALF2(Σ, z, y, Λ_Σ_cache_init(Nz, Nε), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Λ = RALF2(Λ, z, y, Λ_Σ_cache_init((Nz, Ny)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Σ = RALF2(Σ, z, y, Λ_Σ_cache_init((Nz, Nε)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
     else
-        _Λ = RALF1(Λ, z, Λ_Σ_cache_init(Nz, Ny))
-        _Σ = RALF1(Σ, z, Λ_Σ_cache_init(Nz, Nε))
+        _Λ = RALF1(Λ, z, Λ_Σ_cache_init((Nz, Ny)))
+        _Σ = RALF1(Σ, z, Λ_Σ_cache_init((Nz, Nε)))
     end
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_cache_init = sss_vector_cache_init,
@@ -412,10 +413,10 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     # Create wrappers enabling caching for Λ and Σ
     if jump_dependent_shock_matrices
         _Λ = RALF2(Λ)
-        _Σ = RALF2(Σ, z, y, Λ_Σ_cache_init(Nz, Nε), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Σ = RALF2(Σ, z, y, Λ_Σ_cache_init((Nz, Nε)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
     else
         _Λ = RALF1(Λ)
-        _Σ = RALF1(Σ, z, Λ_Σ_cache_init(Nz, Nε))
+        _Σ = RALF1(Σ, z, Λ_Σ_cache_init((Nz, Nε)))
     end
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_cache_init = sss_vector_cache_init,
@@ -441,10 +442,10 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
     if jump_dependent_shock_matrices
-        _Λ = RALF2(Λ, z, y, Λ_Σ_cache_init(Nz, Ny), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Λ = RALF2(Λ, z, y, Λ_Σ_cache_init((Nz, Ny)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
         _Σ = RALF2(Σ)
     else
-        _Λ = RALF1(Λ, z, Λ_Σ_cache_init(Nz, Ny))
+        _Λ = RALF1(Λ, z, Λ_Σ_cache_init((Nz, Ny)))
         _Σ = RALF1(Σ)
     end
 

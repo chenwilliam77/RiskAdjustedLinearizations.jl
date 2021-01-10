@@ -33,7 +33,7 @@ function compute_sparsity_pattern(f::Function, x::AbstractVector{T}, nrow::Int;
 
     if isempty(nonzeros(sparsity))
         # default to differentiating a dense matrix if all zeros
-        return ones(T, size(sparsity)), 1:length(x)
+        return sparse(ones(T, size(sparsity))), 1:length(x)
     else
         return sparsity, matrix_colors(sparsity)
     end
