@@ -151,7 +151,7 @@ end
     end
 end
 
-@testset begin "Calculate risk-adjusted linearization with sparse autodiff (using CRW)" begin
+@testset "Calculate risk-adjusted linearization with sparse autodiff (using CRW)" begin
     # Now provide the sparsity pattern and matrix coloring vector
     # to update the Jacobians of objects
     m_dense = crw(m_crw) # recompute to get dense Jacobians again
