@@ -1,4 +1,4 @@
-using UnPack, OrderedCollections, ForwardDiff, JLD2
+using UnPack, OrderedCollections, ForwardDiff, JLD2, SparseArrays
 
 mutable struct RBCCampbellCochraneHabits{T <: Real}
     IK̄::T
@@ -19,7 +19,8 @@ function RBCCampbellCochraneHabits(; α::T = .36, ξ₃ = .23, δ::T = .1337, IK
 end
 
 function rbc_cc(m::RBCCampbellCochraneHabits{T}, n_strips::Int = 0;
-                sparse_jacobian::Vector{Symbol} = Symbol[]) where {T <: Real}
+                sparse_jacobian::Vector{Symbol} = Symbol[],
+                sparse_arrays::Bool = false) where {T <: Real}
     @unpack IK̄, β, δ, α, ξ₃, μₐ, σₐ, γ, ρₛ, S = m
 
     s  = OrderedDict{Symbol, Int}(:kₐ => 1,  :hats => 2) # State variables
@@ -132,6 +133,11 @@ function rbc_cc(m::RBCCampbellCochraneHabits{T}, n_strips::Int = 0;
         Γ₆[J[:log_E_RQ], J[:cₖ]]           = -γ
     end
 
+    if sparse_arrays
+        Γ₅ = sparse(Γ₅)
+        Γ₆ = sparse(Γ₆)
+    end
+
     if n_strips > 0
         z = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_dss_N3_output.jld2"), "r")["z_dss"]
         y = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "rbccc_dss_N3_output.jld2"), "r")["y_dss"]
@@ -147,7 +153,12 @@ function rbc_cc(m::RBCCampbellCochraneHabits{T}, n_strips::Int = 0;
     end
     Ψ = zeros(T, Ny, Nz)
 
-    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, rbc_cc_ccgf, vec(z), vec(y), Ψ, Nε; sparse_jacobian = sparse_jacobian)
+    if sparse_arrays
+        return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, rbc_cc_ccgf, vec(z), vec(y), Ψ, Nε; sparse_jacobian = sparse_jacobian,
+                                         Λ_Σ_cache_init = dims -> spzeros(dims...))
+    else
+        return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, rbc_cc_ccgf, vec(z), vec(y), Ψ, Nε; sparse_jacobian = sparse_jacobian)
+    end
 end
 
 function rbc_cc_ccgf(F, α, z)

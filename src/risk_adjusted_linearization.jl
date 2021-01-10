@@ -256,10 +256,28 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     # Create RALF2 wrappers for 𝒱 and its Jacobian J𝒱
     if applicable(ccgf, Γ₅, z) # Check if ccgf is in place or not
         _𝒱 = function _𝒱_oop(F, z, Ψ)
-            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
+            Λ0 = Λ(z)
+            Σ0 = Σ(z)
+            if size(Λ0) != (Nz, Ny)
+                Λ0 = reshape(Λ0, Nz, Ny)
+            end
+            if size(Σ0) != (Nz, Nε)
+                Σ0 = reshape(Σ0, Nz, Nε)
+            end
+            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), z)
         end
     else # in place
-        _𝒱 = (F, z, Ψ) -> ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - Λ(z) * Ψ) \ Σ(z)), z)
+        _𝒱 = function _𝒱_ip(F, z, Ψ)
+            Λ0 = Λ(z)
+            Σ0 = Σ(z)
+            if size(Λ0) != (Nz, Ny)
+                Λ0 = reshape(Λ0, Nz, Ny)
+            end
+            if size(Σ0) != (Nz, Nε)
+                Σ0 = reshape(Σ0, Nz, Nε)
+            end
+            ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), z)
+        end
     end
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
@@ -334,12 +352,28 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     if applicable(ccgf, Γ₅, z) # Check if ccgf is in place or not
         _𝒱 = function _𝒱_oop(F, z, y, Ψ, zₜ)
             yₜ = y + Ψ * (zₜ - z)
-            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - Λ(zₜ, yₜ) * Ψ) \ Σ(zₜ, yₜ)), zₜ)
+            Λ0 = Λ(zₜ, yₜ)
+            Σ0 = Σ(zₜ, yₜ)
+            if size(Λ0) != (Nz, Ny)
+                Λ0 = reshape(Λ0, Nz, Ny)
+            end
+            if size(Σ0) != (Nz, Nε)
+                Σ0 = reshape(Σ0, Nz, Nε)
+            end
+            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), zₜ)
         end
     else # in place
         _𝒱 = function _𝒱_ip(F, z, y, Ψ, zₜ)
             yₜ = y + Ψ * (zₜ - z)
-            ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - Λ(zₜ, yₜ) * Ψ) \ Σ(zₜ, yₜ)), zₜ)
+            Λ0 = Λ(zₜ, yₜ)
+            Σ0 = Σ(zₜ, yₜ)
+            if size(Λ0) != (Nz, Ny)
+                Λ0 = reshape(Λ0, Nz, Ny)
+            end
+            if size(Σ0) != (Nz, Nε)
+                Σ0 = reshape(Σ0, Nz, Nε)
+            end
+            ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), zₜ)
         end
     end
     Nzchunk = ForwardDiff.pickchunksize(Nz)
