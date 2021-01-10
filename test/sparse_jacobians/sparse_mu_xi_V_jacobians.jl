@@ -70,7 +70,7 @@ end
     update_sparsity_pattern!(m_dense, [:μ, :ξ, :𝒱])
     try # prone to weird non-deterministic behavior in nlsolve
         solve!(m_dense, ztrue * 1.005, ytrue * 1.005, Ψtrue * 1.005; algorithm = :relaxation,
-               ftol = 1e-6, tol = 1e-6, verbose = :none)
+               ftol = 1e-6, tol = 1e-3, verbose = :none)
         @test m_dense.z ≈ ztrue atol=1e-4
         @test m_dense.y ≈ ytrue atol=1e-4
         @test m_dense.Ψ ≈ Ψtrue atol=1e-4
@@ -83,7 +83,7 @@ end
                              colorvec = colorvec)
     try # prone to weird non-deterministic behavior in nlsolve
         solve!(m, ztrue * 1.005, ytrue * 1.005, Ψtrue * 1.005; algorithm = :relaxation,
-               ftol = 1e-6, tol = 1e-6, verbose = :none)
+               ftol = 1e-6, tol = 1e-3, verbose = :none)
         @test m.z ≈ m_dense.z atol=1e-4
         @test m.y ≈ m_dense.y atol=1e-4
         @test m.Ψ ≈ m_dense.Ψ atol=1e-4
@@ -91,11 +91,12 @@ end
         println("Updating sparsity pattern of 𝒱 for an RAL w/sparse methods did not pass")
     end
 
+    update_sparsity_pattern!(m, [:μ, :ξ, :𝒱]; sparsity = sparsity)
     update_sparsity_pattern!(m, [:μ, :ξ, :𝒱]; sparsity = sparsity,
                              colorvec = colorvec)
     try # prone to weird non-deterministic behavior in nlsolve
         solve!(m, ztrue * 1.005, ytrue * 1.005, Ψtrue * 1.005; algorithm = :relaxation,
-               ftol = 1e-6, tol = 1e-6, verbose = :none)
+               ftol = 1e-6, tol = 1e-3, verbose = :none)
         @test m.z ≈ m_dense.z atol=1e-4
         @test m.y ≈ m_dense.y atol=1e-4
         @test m.Ψ ≈ m_dense.Ψ atol=1e-4
@@ -198,6 +199,7 @@ end
         println("Updating sparsity pattern of 𝒱 for an RAL w/sparse methods did not pass")
     end
 
+    update_sparsity_pattern!(m, [:μ, :ξ, :𝒱]; sparsity = sparsity)
     update_sparsity_pattern!(m, [:μ, :ξ, :𝒱]; sparsity = sparsity,
                              colorvec = colorvec)
     try
