@@ -69,8 +69,7 @@ function homotopy!(m::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{S1};
     end
 
     if verbose in [:low, :high]
-        errvec = vcat(m[:μ_sss] - m.z, m[:ξ_sss] + m[:Γ₅] * m.z + m[:Γ₆] * m.y + m[:𝒱_sss],
-                      vec(m[:Γ₃] + m[:Γ₄] * m.Ψ + (m[:Γ₅] + m[:Γ₆] * m.Ψ) * (m[:Γ₁] + m[:Γ₂] * m.Ψ) + m[:JV]))
+        errvec = steady_state_errors(m)
 
         println("Homotopy succeeded!")
         println("Error under norm = $(pnorm) is $(norm(errvec, pnorm)).")

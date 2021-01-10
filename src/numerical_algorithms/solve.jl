@@ -221,3 +221,22 @@ function _deterministic_equations(F::AbstractVector{<: Number}, x::AbstractVecto
     F[1:m.Nz]         = μ_sss - z
     F[(m.Nz + 1):end] = ξ_sss + m.linearization[:Γ₅] * z + m.linearization[:Γ₆] * y
 end
+
+
+"""
+```
+steady_state_errors(m::RiskAdjustedLinearization, stochastic_steady_state::Bool = true)
+```
+
+calculates the errors in the system of equations characterizing the steady state.
+When the second input is `true`, the steady state is the stochastic steady state,
+and when it is false, the steady state is the deterministic steady state.
+"""
+function steady_state_errors(m::RiskAdjustedLinearization, stochastic_steady_state::Bool = true)
+    if stochastic_steady_state
+        return vcat(m[:μ_sss] - m.z, m[:ξ_sss] + m[:Γ₅] * m.z + m[:Γ₆] * m.y + m[:𝒱_sss],
+                    vec(m[:Γ₃] + m[:Γ₄] * m.Ψ + (m[:Γ₅] + m[:Γ₆] * m.Ψ) * (m[:Γ₁] + m[:Γ₂] * m.Ψ) + m[:JV]))
+    else
+        return vcat(m[:μ_sss] - m.z, m[:ξ_sss] + m[:Γ₅] * m.z + m[:Γ₆] * m.y)
+    end
+end

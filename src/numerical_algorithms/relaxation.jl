@@ -178,13 +178,11 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
         update!(ral)
 
         if verbose == :low
-            errvec = vcat(ral[:μ_sss] - ral.z, ral[:ξ_sss] + ral[:Γ₅] * ral.z + ral[:Γ₆] * ral.y + ral[:𝒱_sss],
-                          vec(ral[:Γ₃] + ral[:Γ₄] * ral.Ψ + (ral[:Γ₅] + ral[:Γ₆] * ral.Ψ) * (ral[:Γ₁] + ral[:Γ₂] * ral.Ψ) + ral[:JV]))
+            errvec = steady_state_errors(ral)
             println("Convergence achieved after $(count) iterations! Error under norm = $(pnorm) is " *
                     "$(norm(errvec, pnorm)).")
         elseif verbose == :high
-            errvec = vcat(ral[:μ_sss] - ral.z, ral[:ξ_sss] + ral[:Γ₅] * ral.z + ral[:Γ₆] * ral.y + ral[:𝒱_sss],
-                          vec(ral[:Γ₃] + ral[:Γ₄] * ral.Ψ + (ral[:Γ₅] + ral[:Γ₆] * ral.Ψ) * (ral[:Γ₁] + ral[:Γ₂] * ral.Ψ) + ral[:JV]))
+            errvec = steady_state_errors(ral)
             println("")
             println("Convergence achieved after $(count) iterations! Error under norm = $(pnorm) is " *
                     "$(norm(errvec, pnorm)).")

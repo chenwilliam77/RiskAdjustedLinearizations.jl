@@ -34,6 +34,7 @@ include("simulation/euler_equation_error.jl")
 export
     # main functions
     RiskAdjustedLinearization, update!, nonlinear_system, linearized_system, solve!,
+    steady_state_errors,
 
     # simulation related functions
     simulate, impulse_responses, gausshermite_expectation, euler_equation_error,
