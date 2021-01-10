@@ -262,9 +262,12 @@ function construct_𝒱_jacobian_function(𝒱::RALF2, ccgf::Function, Λ::RALF1
     # forwarddiff_color_jacobian! by using ForwardColorJacCache b/c the objective function
     # changes as the coefficients (z, y, Ψ) change.
     #
-    # For 𝒱 specifically, to avoid problems reinterpreting arrays (to make ForwardDiff work),
+    # For 𝒱 specifically, to avoid problems reinterpreting arrays to make autodiff work,
     # we redefine the 𝒱 function to use Λ.f0 and Σ.f0 rather than using the RALF objects
-    # (as we do when applying autodiff for dense Jacobians).
+    # (as we do when applying autodiff for dense Jacobians). If we use Λ(z) and Σ(z)
+    # directly, then the reinterpret step may either fail (cannot reinterpret the array
+    # to the new desired chunk size), or the reinterpreted array
+    # will have the wrong dimensions.
 
     ## Infer whether Λ and Σ are in place
     FΛ0 = similar(z, Nz, Ny)
@@ -337,6 +340,10 @@ function construct_𝒱_jacobian_function(𝒱::RALF4, ccgf::Function, Λ::RALF2
     # forwarddiff_color_jacobian! by using ForwardColorJacCache b/c the objective function
     # changes as z and y change. If Jacobians of μ and ξ are refactored to be done once,
     # then it'll be possible to cache.
+    #
+    # See the previous version of construct_𝒱_jacobian_function for comments on
+    # why we re-implement 𝒱 as done below.
+
     FΛ0 = similar(z, Nz, Ny)
     FΣ0 = similar(z, Nz, Nε)
     Λ0 = if applicable(Λ.f0, FΛ0, z, y)
