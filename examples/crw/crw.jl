@@ -1,4 +1,4 @@
-using UnPack, OrderedCollections, LinearAlgebra, JLD2
+using UnPack, OrderedCollections, LinearAlgebra, JLD2, SparseArrays
 
 # Load guesses
 sssout = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "..", "test", "reference", "crw_sss.jld2"), "r")
@@ -24,7 +24,8 @@ function CoeurdacierReyWinant(; σr::T = .025, σy::T = .025, β::T = .96, γ::T
     return CoeurdacierReyWinant{T}(σr, σy, β, γ, θ, ρr, ρy, rr, yy)
 end
 
-function crw(m::CoeurdacierReyWinant{T}; Ψ = nothing, sparse_jacobian::Vector{Symbol} = Symbol[]) where {T <: Real}
+function crw(m::CoeurdacierReyWinant{T}; Ψ = nothing, sparse_jacobian::Vector{Symbol} = Symbol[],
+             sparse_arrays::Bool = false) where {T <: Real}
     @unpack σr, σy, β, γ, θ, ρr, ρy, rr, yy = m
 
     # Nₜ = exp(rₜ) * Aₜ₋₁ + Yₜ, where Aₜ is foreign assets and Yₜ is the endowment
@@ -69,13 +70,24 @@ function crw(m::CoeurdacierReyWinant{T}; Ψ = nothing, sparse_jacobian::Vector{S
     Γ₆ = zeros(T, Ny, Ny)
     Γ₆[J[:c], J[:c]] = -γ
 
+    if sparse_arrays
+        Γ₅ = sparse(Γ₅)
+        Γ₆ = sparse(Γ₆)
+    end
+
     z = zguess
     y = yguess
     if isnothing(Ψ)
         Ψ = Psiguess
     end
-    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, crw_ccgf, z, y, Ψ, Nε;
-                                     sparse_jacobian = sparse_jacobian, jump_dependent_shock_matrices = true)
+
+    if sparse_arrays
+        return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, crw_ccgf, z, y, Ψ, Nε; sparse_jacobian = sparse_jacobian,
+                                         Λ_Σ_cache_init = dims -> spzeros(dims...), jump_dependent_shock_matrices = true)
+    else
+        return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, crw_ccgf, z, y, Ψ, Nε; sparse_jacobian = sparse_jacobian,
+                                         jump_dependent_shock_matrices = true)
+    end
 end
 
 crw_cₜ(m, zₜ) = exp(m.y[1] + (m.Ψ * (zₜ - m.z))[1])

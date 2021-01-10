@@ -71,8 +71,8 @@ function update_sparsity_pattern!(m::RiskAdjustedLinearization, function_name::S
                                   z::AbstractVector{<: Number} = m.z,
                                   y::AbstractVector{<: Number} = m.y,
                                   Ψ::AbstractMatrix{<: Number} = m.Ψ,
-                                  sparsity::AbstractDict{Symbol, <: AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
-                                  colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                  sparsity::AbstractDict = Dict{Symbol, Matrix}(),
+                                  colorvec::AbstractDict = Dict{Symbol, Vector{Int}}(),
                                   sparsity_detection::Bool = false)
     return update_sparsity_pattern!(m, [function_name]; z = z, y = y, Ψ = Ψ,
                                     sparsity = sparsity, colorvec = colorvec,
@@ -83,8 +83,8 @@ function update_sparsity_pattern!(m::RiskAdjustedLinearization, function_names::
                                   z::AbstractVector{<: Number} = m.z,
                                   y::AbstractVector{<: Number} = m.y,
                                   Ψ::AbstractMatrix{<: Number} = m.Ψ,
-                                  sparsity::AbstractDict{Symbol, <: AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
-                                  colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                  sparsity::AbstractDict = Dict{Symbol, Matrix}(),
+                                  colorvec::AbstractDict = Dict{Symbol, Vector{Int}}(),
                                   sparsity_detection::Bool = false)
 
     if :μ in function_names

@@ -46,7 +46,7 @@ end
     end
 end
 
-#@testset "Calculate risk-adjusted linearization with sparse autodiff (using RBC-CC)" begin
+@testset "Calculate risk-adjusted linearization with sparse autodiff (using RBC-CC)" begin
     # Now provide the sparsity pattern and matrix coloring vector
     # to update the Jacobians of objects
     rbc_cc_out = JLD2.jldopen(joinpath(dirname(@__FILE__), "..", "reference", "rbccc_sss_iterative_output.jld2"), "r")
@@ -100,14 +100,14 @@ end
     end
 
     close(rbc_cc_out)
-# caching appears to be failing somehow; the caches of μ, ξ, and 𝒱 are being set to NaN unexpectedly
+    # caching appears to be failing somehow; the caches of μ, ξ, and 𝒱 are being set to NaN unexpectedly
     @test_broken solve!(m, ztrue * 1.005, ytrue * 1.005, Ψtrue * 1.005; algorithm = :homotopy, verbose = :none)
-#=
+    #=
     @test m.z ≈ m_dense.z atol=1e-6
     @test m.y ≈ m_dense.y atol=1e-6
     @test m.Ψ ≈ m_dense.Ψ atol=1e-6
-=#
-#end
+    =#
+end
 
 # Test sparse Jacobians on CRW
 m_dense = crw(m_crw)
