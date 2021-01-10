@@ -11,24 +11,26 @@ function blanchard_kahn(m::RiskAdjustedLinearization; deterministic::Bool = fals
 
     li = linearized_system(m)
 
-    Γ₅ = issparse(li[:Γ₅]) ? Array(li[:Γ₅]) : li[:Γ₅]
-    Γ₆ = issparse(li[:Γ₆]) ? Array(li[:Γ₆]) : li[:Γ₆]
+    Nz = m.Nz
+    Ny = m.Ny
+    N_zy = m.Nz + m.Ny
+    ztype = eltype(m.z)
+    AA = Matrix{ztype}(undef, N_zy, N_zy)
+    BB = similar(AA)
 
-    if isempty(li.sparse_jac_caches)
-        A = [Γ₅ Γ₆; Matrix{eltype(Γ₅)}(I, m.Nz, m.Nz) Zeros{eltype(Γ₅)}(m.Nz, m.Ny)]
-        B = [(-li[:Γ₃] - li[:JV]) (-li[:Γ₄]); li[:Γ₁] li[:Γ₂]]
-    else
-        Γ₁ = haskey(li.sparse_jac_caches, :μz) ? Array(li[:Γ₁]) : li[:Γ₁]
-        Γ₂ = haskey(li.sparse_jac_caches, :μy) ? Array(li[:Γ₂]) : li[:Γ₂]
-        Γ₃ = haskey(li.sparse_jac_caches, :ξz) ? Array(li[:Γ₃]) : li[:Γ₃]
-        Γ₄ = haskey(li.sparse_jac_caches, :ξy) ? Array(li[:Γ₄]) : li[:Γ₄]
-        JV = haskey(li.sparse_jac_caches, :J𝒱) ? Array(li[:JV]) : li[:JV]
+    # Populate AA
+    AA[1:Ny, 1:Nz]                 = li[:Γ₅]
+    AA[1:Ny, (Nz + 1):end]         = li[:Γ₆]
+    AA[(Ny + 1):end, 1:Nz]         = Matrix{ztype}(I, m.Nz, m.Nz) # faster but makes allocations, unlike Diagonal(Ones{ztype}(Nz))
+    AA[(Ny + 1):end, (Nz + 1):end] = Zeros{ztype}(m.Nz, m.Ny)
 
-        A = [Γ₅ Γ₆; Matrix{eltype(Γ₅)}(I, m.Nz, m.Nz) Zeros{eltype(Γ₅)}(m.Nz, m.Ny)]
-        B = [(-Γ₃ - JV) (-Γ₄); Γ₁ Γ₂]
-    end
+    # Populate BB
+    BB[1:Ny, 1:Nz]                 = deterministic ? -li[:Γ₃] : -(li[:Γ₃] + li[:JV])
+    BB[1:Ny, (Nz + 1):end]         = -li[:Γ₄]
+    BB[(Ny + 1):end, 1:Nz]         =  li[:Γ₁]
+    BB[(Ny + 1):end, (Nz + 1):end] =  li[:Γ₂]
 
-    if count(abs.(eigen(A, B).values) .> 1) != m.Nz
+    if count(abs.(eigen(AA, BB).values) .> 1) != m.Nz
         if deterministic
             throw(BlanchardKahnError("First-order perturbation around deterministic steady state is not saddle-path stable"))
         else

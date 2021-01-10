@@ -68,7 +68,7 @@ function compute_Ψ!(AA::AbstractMatrix{Complex{S}}, BB::AbstractMatrix{Complex{
     # Populate AA
     AA[1:Ny, 1:Nz]                 = Γ₅
     AA[1:Ny, (Nz + 1):end]         = Γ₆
-    AA[(Ny + 1):end, 1:Nz]         = Diagonal(Ones{Complex{S}}(Nz))
+    AA[(Ny + 1):end, 1:Nz]         = Matrix{Complex{S}}(I, Nz, Nz) # faster but makes allocations, unlike Diagonal(Ones{Complex{S}}(Nz))
     AA[(Ny + 1):end, (Nz + 1):end] = Zeros{Complex{S}}(Nz, Ny)
 
     # Populate BB

@@ -6,7 +6,7 @@ import Base: show, getindex
 import DiffEqBase: get_tmp
 using ArrayInterface, FastGaussQuadrature, FiniteDiff, ForwardDiff, LinearAlgebra, Printf
 using SparseArrays, SparseDiffTools, SparsityDetection, UnPack
-using BandedMatrices: Ones, Zeros
+using BandedMatrices: Zeros
 using DiffEqBase: DiffCache, dualcache
 using NLsolve: nlsolve, OnceDifferentiable
 
