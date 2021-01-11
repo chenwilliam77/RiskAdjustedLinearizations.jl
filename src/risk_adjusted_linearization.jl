@@ -11,10 +11,10 @@ end
 Λ_eltype(m::RALNonlinearSystem{L, S}) where {L, S} = L
 Σ_eltype(m::RALNonlinearSystem{L, S}) where {L, S} = S
 
-function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
-                 select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {L, S, V <: RALF2,
-                                                                     C1 <: AbstractVector{<: Number},
-                                                                     C2 <: AbstractMatrix{<: Number}}
+@inline function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
+                         select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {L, S, V <: RALF2,
+                                                                             C1 <: AbstractVector{<: Number},
+                                                                             C2 <: AbstractMatrix{<: Number}}
 
     if :μ in select
         m.μ(z, y)
@@ -31,9 +31,9 @@ function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
     m
 end
 
-function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
-                 select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {L, S, V <: RALF4,
-                                                                     C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+@inline function update!(m::RALNonlinearSystem{L, S, V}, z::C1, y::C1, Ψ::C2;
+                         select::Vector{Symbol} = Symbol[:μ, :ξ, :𝒱]) where {L, S, V <: RALF4,
+                                                                             C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
 
     if :μ in select
         m.μ(z, y)
@@ -67,11 +67,11 @@ function RALLinearizedSystem(μz::RALF2, μy::RALF2, ξz::RALF2, ξy::RALF2, J�
     RALLinearizedSystem(μz, μy, ξz, ξy, J𝒱, Γ₅, Γ₆, Dict{Symbol, NamedTuple}())
 end
 
-function update!(m::RALLinearizedSystem{JC5, JC6}, z::C1, y::C1, Ψ::C2;
-                 select::Vector{Symbol} =
-                 Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {#JV <: RALF2,
-                                                         JC5, JC6,
-                                                         C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+@inline function update!(m::RALLinearizedSystem{JC5, JC6}, z::C1, y::C1, Ψ::C2;
+                         select::Vector{Symbol} =
+                         Symbol[:Γ₁, :Γ₂, :Γ₃, :Γ₄, :JV]) where {#JV <: RALF2,
+                                                                 JC5, JC6,
+                                                                 C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
 
     if :Γ₁ in select
         m.μz(z, y)
@@ -528,7 +528,7 @@ function Base.show(io::IO, m::RALLinearizedSystem)
 end
 
 ## Indexing for convenient access to steady state values
-function Base.getindex(m::RiskAdjustedLinearization, sym::Symbol)
+@inline function Base.getindex(m::RiskAdjustedLinearization, sym::Symbol)
     if sym in [:μ_sss, :ξ_sss, :𝒱_sss, :Σ_sss, :Λ_sss]
         m.nonlinear[sym]
     elseif sym in [:Γ₁, :Γ₂, :Γ₃, :Γ₄, :Γ₅, :Γ₆, :JV]
@@ -538,7 +538,7 @@ function Base.getindex(m::RiskAdjustedLinearization, sym::Symbol)
     end
 end
 
-function Base.getindex(m::RALNonlinearSystem, sym::Symbol)
+@inline function Base.getindex(m::RALNonlinearSystem, sym::Symbol)
     if sym == :μ_sss
         isnothing(m.μ.cache) ? error("μ is out of place, so its stochastic steady state value is not cached.") : m.μ.cache.du
     elseif sym == :ξ_sss
@@ -566,7 +566,7 @@ function Base.getindex(m::RALNonlinearSystem, sym::Symbol)
     end
 end
 
-function Base.getindex(m::RALLinearizedSystem, sym::Symbol)
+@inline function Base.getindex(m::RALLinearizedSystem, sym::Symbol)
     if sym == :Γ₁
         m.μz.cache.du
     elseif sym == :Γ₂
@@ -595,10 +595,12 @@ end
 @inline function update!(m::RiskAdjustedLinearization)
     update!(nonlinear_system(m), m.z, m.y, m.Ψ)
     update!(linearized_system(m), m.z, m.y, m.Ψ)
+
+    m
 end
 
-function update!(m::RiskAdjustedLinearization, z::C1, y::C1, Ψ::C2;
-                 update_cache::Bool = true) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
+@inline function update!(m::RiskAdjustedLinearization, z::C1, y::C1, Ψ::C2;
+                         update_cache::Bool = true) where {C1 <: AbstractVector{<: Number}, C2 <: AbstractMatrix{<: Number}}
 
     # Update values of the affine approximation
     m.z .= z
