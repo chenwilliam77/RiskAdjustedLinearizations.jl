@@ -3,7 +3,7 @@
 using RiskAdjustedLinearizations, LinearAlgebra, SparseArrays, BenchmarkTools
 
 # Settings
-define_functions = false
+define_functions = true
 time_methods     = true
 algorithm        = :relaxation
 N_approx         = 10          # Number of periods ahead used for forward-difference equations

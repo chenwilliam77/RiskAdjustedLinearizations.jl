@@ -1,3 +1,7 @@
+# TODO: Check if computing the Blanchard Kahn conditions every time within compute_Ψ
+#       ends up being faster than doing the computation once but saving on the
+#       cost of calling eigen.
+
 """
 ```
 compute_Ψ(Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = []; schur_fnct = schur!)
