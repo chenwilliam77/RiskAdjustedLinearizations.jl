@@ -19,21 +19,21 @@ yguess = 1.01 .* copy(ral.y)
 
 # relaxation w/finite diff Jacobian
 solve!(ral, zguess, yguess; verbose = :high, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
-@test ral.z ≈ sssout["z"]                                                      # and then proceeding to stochastic steady state
-@test ral.y ≈ sssout["y"] atol=1e-6
-@test ral.Ψ ≈ sssout["Psi"]
+@test ral.z ≈ sssout["z"] atol=1e-5                                            # and then proceeding to stochastic steady state
+@test ral.y ≈ sssout["y"] atol=1e-5
+@test ral.Ψ ≈ sssout["Psi"] atol=1e-5
 
 update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
 solve!(ral; verbose = :none, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
-@test ral.z ≈ sssout["z"] atol=1e-6
-@test ral.y ≈ sssout["y"] atol=1e-6
-@test ral.Ψ ≈ sssout["Psi"]
+@test ral.z ≈ sssout["z"] atol=1e-5
+@test ral.y ≈ sssout["y"] atol=1e-5
+@test ral.Ψ ≈ sssout["Psi"] atol=1e-5
 
 solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ;
        verbose = :none, autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
-@test ral.z ≈ sssout["z"] atol=1e-6
-@test ral.y ≈ sssout["y"] atol=1e-6
-@test ral.Ψ ≈ sssout["Psi"]
+@test ral.z ≈ sssout["z"] atol=1e-5
+@test ral.y ≈ sssout["y"] atol=1e-5
+@test ral.Ψ ≈ sssout["Psi"] atol=1e-5
 
 # homotopy w/finite diff Jacobian
 for i in 1:10
@@ -50,9 +50,9 @@ for i in 1:10
                verbose = :high, autodiff = :central, ftol = 1e-8) # first w/ calculating the deterministic steady state
     end
 end
-@test ral.z ≈ sssout["z"]                                                      # and then proceeding to stochastic steady state
-@test ral.y ≈ sssout["y"] atol=1e-6
-@test ral.Ψ ≈ sssout["Psi"]
+@test ral.z ≈ sssout["z"] atol=1e-5                               # and then proceeding to stochastic steady state
+@test ral.y ≈ sssout["y"] atol=1e-5
+@test ral.Ψ ≈ sssout["Psi"] atol=1e-5
 
 update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
 for i in 1:2
@@ -68,9 +68,9 @@ for i in 1:2
                autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
     end
 end
-@test ral.z ≈ sssout["z"]
-@test ral.y ≈ sssout["y"] atol=1e-6
-@test ral.Ψ ≈ sssout["Psi"]
+@test ral.z ≈ sssout["z"] atol=1e-5
+@test ral.y ≈ sssout["y"] atol=1e-5
+@test ral.Ψ ≈ sssout["Psi"] atol=1e-5
 
 for i in 1:2
     try
@@ -89,9 +89,9 @@ for i in 1:2
                autodiff = :central, ftol = 1e-8) # Now just go straight to solving stochastic steady state
     end
 end
-@test ral.z ≈ sssout["z"]
-@test ral.y ≈ sssout["y"] atol=1e-6
-@test ral.Ψ ≈ sssout["Psi"]
+@test ral.z ≈ sssout["z"] atol=1e-5
+@test ral.y ≈ sssout["y"] atol=1e-5
+@test ral.Ψ ≈ sssout["Psi"] atol=1e-5
 
 # Now autodiff Jacobian
 solve!(ral, zguess, yguess; verbose = :high, autodiff = :forward, ftol = 1e-8)
@@ -108,20 +108,20 @@ update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
 # relaxation w/Anderson
 solve!(ral, zguess, yguess; verbose = :high, autodiff = :central,
        use_anderson = true, ftol = 1e-8) # first w/ calculating the deterministic steady state
-@test ral.z ≈ sssout["z"]                                                      # and then proceeding to stochastic steady state
-@test ral.y ≈ sssout["y"] atol=1e-6
-@test ral.Ψ ≈ sssout["Psi"]
+@test ral.z ≈ sssout["z"] atol=1e-5      # and then proceeding to stochastic steady state
+@test ral.y ≈ sssout["y"] atol=1e-5
+@test ral.Ψ ≈ sssout["Psi"] atol=1e-5
 
 update!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ)
 solve!(ral; verbose = :none, autodiff = :central,
        use_anderson = true, ftol = 1e-8) # Now just go straight to solving stochastic steady state
-@test ral.z ≈ sssout["z"] atol=1e-6
-@test ral.y ≈ sssout["y"] atol=1e-6
-@test ral.Ψ ≈ sssout["Psi"]
+@test ral.z ≈ sssout["z"] atol=1e-5
+@test ral.y ≈ sssout["y"] atol=1e-5
+@test ral.Ψ ≈ sssout["Psi"] atol=1e-5
 
 solve!(ral, 1.01 .* z, 1.01 .* y, 1.01 .* Ψ;
        verbose = :none, autodiff = :central,
        use_anderson = true, ftol = 1e-8) # Now just go straight to solving stochastic steady state
-@test ral.z ≈ sssout["z"] atol=1e-6
-@test ral.y ≈ sssout["y"] atol=1e-6
-@test ral.Ψ ≈ sssout["Psi"]
+@test ral.z ≈ sssout["z"] atol=1e-5
+@test ral.y ≈ sssout["y"] atol=1e-5
+@test ral.Ψ ≈ sssout["Psi"] atol=1e-5
