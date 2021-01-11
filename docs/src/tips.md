@@ -12,11 +12,11 @@ M_X(t) \equiv \mathbb{E}[e^{tX}],\quad \quad \quad t\in \mathbb{R},
 is the moment-generating function of a random variable ``X``, then the cumulant-generating function is just
 ```math
 \begin{aligned}
-cgf_X(t) \equiv \log\mathbb{E}[e^{tX}],\quad \quad \quad t\in \mathbb{R}.
+ccgf_X(t) \equiv \log\mathbb{E}[e^{tX}],\quad \quad \quad t\in \mathbb{R}.
 \end{aligned}
 ```
 As an example, if ``X \sim N(\mu, \sigma^2)``, then ``M_X(t) = \exp(t\mu + \sigma^2 t^2 / 2)`` and
-``cgf_X(t) = t\mu + \sigma^2 t^2 / 2``.
+``ccgf_X(t) = t\mu + \sigma^2 t^2 / 2``.
 
 Risk-adjusted linearizations imply that the relative entropy measure ``\mathcal{V}(\Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1})``
 becomes a vector of conditional cumulant-generating functions for the random variables ``A_i(z_t) \varepsilon_{t + 1}``,
@@ -98,7 +98,8 @@ To calculate the remaining term, note that ``\mathbb{E}_{t}\xi_{t + 1} = p_t`` i
 at ``z_t``, hence
 ```math
 \begin{aligned}
-\log\mathbb{E}_t[\exp(A_{i3}(z_t) \varepsilon_{t + 1}^\xi)] = \log\left[\frac{1}{\exp(A_{i3}(z_t) p_t)}\mathbb{E}_t\left[\exp(A_{i3}(z_t) \xi_{t + 1})\right]\right] = \log\mathbb{E}_t\left[\exp(A_{i3}(z_t) \xi_{t + 1})\right] - A_{i3}(z_t) p_t.
+\log\mathbb{E}_t[\exp(A_{i3}(z_t) \varepsilon_{t + 1}^\xi)] & = \log\left[\frac{1}{\exp(A_{i3}(z_t) p_t)}\mathbb{E}_t\left[\exp(A_{i3}(z_t) \xi_{t + 1})\right]\right] \\
+                                  & = \log\mathbb{E}_t\left[\exp(A_{i3}(z_t) \xi_{t + 1})\right] - A_{i3}(z_t) p_t.
 \end{aligned}
 ```
 

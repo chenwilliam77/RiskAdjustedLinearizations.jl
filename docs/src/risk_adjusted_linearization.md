@@ -180,7 +180,7 @@ Refer to [Lopez et al. (2018) "Risk-Adjusted Linearizations of Dynamic Equilibri
 See [Deriving the conditional cumulant generating function](@ref ccgf-tips) for some guidance on calculating the ccgf, which
 many users may not have seen before.
 
-## [Implementation: `RiskAdjustedLinearization`](@ref implement-ral)
+## [Implementation: `RiskAdjustedLinearization`](@id implement-ral)
 
 We implement risk-adjusted linearizations of nonlinear dynamic economic models
 through the wrapper type `RiskAdjustedLinearization`.
