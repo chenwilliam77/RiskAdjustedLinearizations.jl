@@ -110,11 +110,7 @@ we recommend calculating the risk-adjusted linearization once using dense Jacobi
 The calculated Jacobians can be used subsequently as the sparsity patterns.
 
 
-For reference, we again show the docstring for `RiskAdjustedLinearization`.
-
-```@docs
-RiskAdjustedLinearizations.RiskAdjustedLinearization
-```
+For reference, see the [docstring for `RiskAdjustedLinearization`](@ref implement-ral).
 
 ### Update a `RiskAdjustedLinearization` with Sparse Jacobians after Construction
 Sparse Jacobians can be specified after a `RiskAdjustedLinearization` object `m` already exists
