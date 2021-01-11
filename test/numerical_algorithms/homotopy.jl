@@ -57,3 +57,8 @@ RiskAdjustedLinearizations.homotopy!(ral, 1.001 .* vcat(ral.z, ral.y, vec(ral.Ψ
                                     sparsity_detection = false)
 @test maximum(abs.(ral.z - sssout["z"])) < 1e-6
 @test maximum(abs.(ral.y - sssout["y"])) < 1e-6
+
+# Using SparsityDetection.jl fails
+@test_broken RiskAdjustedLinearizations.homotopy!(ral, 1.001 .* vcat(ral.z, ral.y, vec(ral.Ψ));
+                                    verbose = :none, sparse_jacobian = true,
+                                    sparsity_detection = true)

@@ -44,6 +44,8 @@ end
         @test issparse(m_dense.linearization.sparse_jac_caches[k][:sparsity])
         @test isa(m_dense.linearization.sparse_jac_caches[k][:colorvec], AbstractVector{Int})
     end
+
+    @test_broken update_sparsity_pattern!(m_dense, [:μ, :ξ, :𝒱]; sparsity_detection = true)
 end
 
 @testset "Calculate risk-adjusted linearization with sparse autodiff (using RBC-CC)" begin
@@ -76,6 +78,7 @@ end
     catch e
         println("Updating dense Jacobian with sparse Jacobian methods did not pass")
     end
+    @test_broken update_sparsity_pattern!(m_dense, [:μ, :ξ, :𝒱]; sparsity_detection = true)
 
     # Check updating sparse Jacobians w/new patterns works
     update_sparsity_pattern!(m, :𝒱; sparsity = sparsity,
@@ -146,6 +149,7 @@ end
         @test issparse(m_dense.linearization.sparse_jac_caches[k][:sparsity])
         @test isa(m_dense.linearization.sparse_jac_caches[k][:colorvec], AbstractVector{Int})
     end
+    @test_broken update_sparsity_pattern!(m_dense, [:μ, :ξ, :𝒱]; sparsity_detection = true)
 end
 
 @testset "Calculate risk-adjusted linearization with sparse autodiff (using CRW)" begin
@@ -203,6 +207,7 @@ end
     catch e
         println("Updating sparsity pattern of μ, ξ, and 𝒱 for an RAL w/sparse methods did not pass")
     end
+    @test_broken update_sparsity_pattern!(m_dense, [:μ, :ξ, :𝒱]; sparsity_detection = true)
 
     @test_broken solve!(m, ztrue, ytrue, Ψtrue; algorithm = :homotopy, ftol = 5e-4, tol = 1e-3, verbose = :none)
 end

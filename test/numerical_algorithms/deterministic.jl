@@ -70,3 +70,9 @@ RiskAdjustedLinearizations.deterministic_steadystate!(ral, 1.001 .* vcat(ral.z, 
                                                       sparsity_detection = false)
 @test maximum(abs.(ral.z - detout["z"])) < 1e-6
 @test maximum(abs.(ral.y - detout["y"])) < 1e-6
+
+# Using SparsityDetection.jl fails
+@test_broken RiskAdjustedLinearizations.deterministic_steadystate!(ral, 1.001 .* vcat(ral.z, ral.y);
+                                                                   verbose = :none,
+                                                                   sparse_jacobian = true,
+                                                                   sparsity_detection = true)
