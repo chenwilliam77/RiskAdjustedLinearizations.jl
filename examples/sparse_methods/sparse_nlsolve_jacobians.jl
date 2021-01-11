@@ -76,7 +76,6 @@ solve!(m; algorithm = :relaxation, ftol = 1e-10,
 # Using Jacobian cache to find stochastic steady state via homotopy
 jac_cache_hom = preallocate_jac_cache(m, :homotopy)
 update!(m, zdet, ydet, Ψdet)
-update!(m, zdet, ydet, Ψdet)
 solve!(m; algorithm = :homotopy, autodiff = autodiff_method,
        sparse_jacobian = true, jac_cache = jac_cache_hom,
        verbose = :none)
