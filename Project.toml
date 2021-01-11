@@ -1,7 +1,7 @@
 name = "RiskAdjustedLinearizations"
 uuid = "7bb39b10-f246-11ea-2456-25a63198e074"
 authors = ["William Chen <chenwilliamy77@gmail.com>"]
-version = "0.5.3"
+version = "1.0.0"
 
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
@@ -26,7 +26,7 @@ FastGaussQuadrature = "0.4"
 FiniteDiff = "2.7"
 ForwardDiff = "0.10"
 NLsolve = "4"
-SparseDiffTools = "1.9, 1.10, 1.11"
+SparseDiffTools = "1.9, 1.10, 1.11, 1.12"
 SparsityDetection = "0.3"
 UnPack = "1"
 julia = "1"
