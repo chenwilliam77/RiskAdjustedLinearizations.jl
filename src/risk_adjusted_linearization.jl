@@ -132,13 +132,13 @@ The first method is the main constructor most users will want, while the second 
     to allow dependence on jumps.
 - `sparse_jacobian::Vector{Symbol} = Symbol[]`: pass the symbols `:μ`, `:ξ`, and/or `:𝒱 ` to declare that
     the Jacobians of these functions are sparse and should be differentiated using sparse methods from SparseDiffTools.jl
-- `sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}()`: a dictionary for declaring the
+- `sparsity::AbstractDict = Dict{Symbol, Mtarix}()`: a dictionary for declaring the
     sparsity patterns of the Jacobians of `μ`, `ξ`, and `𝒱 `. The relevant keys are `:μz`, `:μy`, `:ξz`, `:ξy`, and `:J𝒱 `.
-- `colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}()`: a dictionary for declaring the
+- `colorvec::AbstractDict = Dict{Symbol, Vector{Int}}()`: a dictionary for declaring the
     the matrix coloring vector. The relevant keys are `:μz`, `:μy`, `:ξz`, `:ξy`, and `:J𝒱 `.
 - `sparsity_detection::Bool = false`: if true, use SparseDiffTools to determine the sparsity pattern.
     When false (default), the sparsity pattern is estimated by differentiating the Jacobian once
-    with `ForwardDiff` and assuming any zeros in the calculated Jacobian are always zeros.
+    with `ForwardDiff` and assuming any zeros in the calculated Jacobian are supposed to be zeros.
 
 ### Inputs for Second Method
 - `nonlinear_system::RALNonlinearSystem`
@@ -173,7 +173,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
                                    sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
-                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   colorvec::AbstractDict = Dict{Symbol, Vector{Int}}(),
                                    sparsity_detection::Bool = false) where {T <: Number, M <: Function, L, S,
                                                                             X <: Function,
                                                                             JC5 <: AbstractMatrix{<: Number},
@@ -212,7 +212,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
                                    sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
-                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   colorvec::AbstractDict = Dict{Symbol, Vector{Int}}(),
                                    sparsity_detection::Bool = false) where {T <: Number, M <: RALF2, L <: RALF1, S <: RALF1,
                                                                             X <: RALF2,
                                                                             JC5 <: AbstractMatrix{<: Number},
@@ -307,7 +307,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
                                    sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
-                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   colorvec::AbstractDict = Dict{Symbol, Vector{Int}}(),
                                    sparsity_detection::Bool = false) where {T <: Number, M <: RALF2, L <: RALF2, S <: RALF2,
                                                                             X <: RALF2,
                                                                             JC5 <: AbstractMatrix{<: Number},
@@ -405,8 +405,8 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                    Λ_Σ_cache_init::Function = dims -> Matrix{T}(undef, dims), jump_dependent_shock_matrices::Bool = false,
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
-                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
-                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   sparsity::AbstractDict = Dict{Symbol, Matrix}(),
+                                   colorvec::AbstractDict = Dict{Symbol, Vector{Int}}(),
                                    sparsity_detection::Bool = false) where {T <: Number, M <: RALF2, L <: Function, S <: Function,
                                                                             X <: RALF2,
                                                                             JC5 <: AbstractMatrix{<: Number},
@@ -435,8 +435,8 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                    Λ_Σ_cache_init::Function = dims -> Matrix{T}(undef, dims), jump_dependent_shock_matrices::Bool = false,
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
-                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
-                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   sparsity::AbstractDict = Dict{Symbol, Matrix}(),
+                                   colorvec::AbstractDict = Dict{Symbol, Vector{Int}}(),
                                    sparsity_detection::Bool = false) where {T <: Number, M <: RALF2,
                                                                             L <: AbstractMatrix{<: Number}, S <: Function,
                                                                             X <: RALF2,
@@ -464,8 +464,8 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                    Λ_Σ_cache_init::Function = dims -> Matrix{T}(undef, dims), jump_dependent_shock_matrices::Bool = false,
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
-                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
-                                   colorvec::AbstractDict{Symbol, <: AbstractVector{Int}} = Dict{Symbol, Vector{Int}}(),
+                                   sparsity::AbstractDict = Dict{Symbol, Matrix}(),
+                                   colorvec::AbstractDict = Dict{Symbol, Vector{Int}}(),
                                    sparsity_detection::Bool = false) where {T <: Number, M <: RALF2, L <: Function, S <: AbstractMatrix{<: Number},
                                                                             X <: RALF2,
                                                                             JC5 <: AbstractMatrix{<: Number},
@@ -494,7 +494,7 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                                    Λ_Σ_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
-                                   sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
+                                   sparsity::AbstractDict = Dict{Symbol, Matrix}(),
                                    sparsity_detection::Bool = false) where {T <: Number, M <: RALF2,
                                                                             L <: AbstractMatrix{<: Number}, S <: AbstractMatrix{<: Number},
                                                                             X <: RALF2,

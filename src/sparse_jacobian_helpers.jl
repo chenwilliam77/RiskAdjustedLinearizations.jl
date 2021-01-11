@@ -17,7 +17,7 @@ calculates the sparsity pattern of the Jacobian of the functions μ, ξ, and �
 - `sparsity`: sparsity pattern of the Jacobian
 - `sparsity_detection`: if true, use SparsityDetection.jl to determine the sparsity pattern.
     If false, then the sparsity pattern is determined by using automatic differentiation
-    to calculate a Jacobian and assuming any zeros will always be zero.
+    to calculate a Jacobian and assuming any zeros are supposed to be zero.
 """
 function compute_sparsity_pattern(f::Function, x::AbstractVector{T}, nrow::Int;
                                   sparsity::Union{AbstractArray, Nothing} = nothing,
@@ -53,7 +53,7 @@ updates the Jacobians of μ, ξ, and/or 𝒱 in `m` with a new sparsity pattern.
 to be updated are specified by `function_name`, e.g. `function_name = [:μ, :ξ, :𝒱]`.
 
 If the keyword `sparsity` is empty, then the function attempts to determine the new sparsity pattern by computing
-the Jacobian via automatic differentiation and assuming any zeros are always zero.
+the Jacobian via automatic differentiation and assuming any zeros are supposed to be zero.
 Keywords provide guesses for the coefficients ``(z, y, \\Psi)`` that are required
 to calculate the Jacobians.
 
@@ -429,7 +429,7 @@ stochastic steady state, depending on which `algorithm` is called.
 - `sparsity`: sparsity pattern of the Jacobian of the nonlinear system of equations
 - `sparsity_detection`: if true, use SparsityDetection.jl to determine the sparsity pattern.
     If false, then the sparsity pattern is determined by using finite differences
-    to calculate a Jacobian and assuming any zeros will always be zero.
+    to calculate a Jacobian and assuming any zeros are supposed to be zero.
 """
 function compute_sparsity_pattern(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1,
                                   sparsity::Union{AbstractArray, Nothing} = nothing,
@@ -471,7 +471,7 @@ for either the deterministic or stochastic steady state, depending on which
 - `sparsity`: the sparsity pattern of the Jacobian of the nonlinear system of equations
 - `sparsity_detection`: if true, use SparsityDetection.jl to determine the sparsity pattern.
     If false, then the sparsity pattern is determined by using finite differences
-    to calculate a Jacobian and assuming any zeros will always be zero.
+    to calculate a Jacobian and assuming any zeros are supposed to be zero.
 """
 function preallocate_jac_cache(m::RiskAdjustedLinearization, algorithm::Symbol; q::Float64 = .1,
                                sparsity::Union{AbstractArray, Nothing} = nothing,
