@@ -19,12 +19,12 @@ These methods can be easily used through keyword arguments of the main construct
 `RiskAdjustedLinearization` type.
 We have also written examples which show how to use these methods and time their speed.
 See the folder [examples/sparse_methods](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_methods).
-The script [sparse_arrays_and_jacobians.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_methods/sparse_arrays_and_jacobians.jl)
+The script [sparse\_arrays\_and\_jacobians.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_methods/sparse_arrays_and_jacobians.jl)
 illustrates how to apply the methods described in this documentation page while
-[sparse_nlsolve_jacobians.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_methods/sparse_nlsolve_jacobians.jl) describe how to use sparse automatic differentiation
+[sparse\_nlsolve\_jacobians.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_methods/sparse_nlsolve_jacobians.jl) describe how to use sparse automatic differentiation
 to accelerate the calculation of Jacobians during calls to `nlsolve`. See [Numerical Algorithms](@ref numerical-algorithms)
 for more details on the latter. Finally, the script
-[combined_sparse_methods.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_methods/combined_sparse_methods.jl) combines these methods to achieve the fastest possible speeds with this package.
+[combined\_sparse\_methods.jl](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_methods/combined_sparse_methods.jl) combines these methods to achieve the fastest possible speeds with this package.
 
 ## Sparsity with ``\Gamma_5``, ``\Gamma_6``, ``\Lambda``, and ``\Sigma``
 The matrices ``\Gamma_5`` and ``\Gamma_6`` are constants and can be passed in directly as
@@ -77,7 +77,7 @@ is a vector containing the symbols `:μ`, `:ξ`, and/or `:𝒱`. For example, if
 sparse_jacobian = [:μ, :𝒱]
 ```
 
-then the constructor will interpret that ``\mu`` has sparse Jacobians with respect to ``z`` and ``y`,
+then the constructor will interpret that ``\mu`` has sparse Jacobians with respect to ``z`` and ``y``,
 and that ``\mathcal{V}`` has a sparse Jacobian with respect to ``z``.
 
 To implement sparse differentiation, the user needs to provide a sparsity pattern and a matrix coloring vector.
