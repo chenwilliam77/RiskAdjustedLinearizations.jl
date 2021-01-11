@@ -148,7 +148,7 @@ end
     end
 end
 
-#@testset "Calculate risk-adjusted linearization with sparse autodiff (using CRW)" begin
+@testset "Calculate risk-adjusted linearization with sparse autodiff (using CRW)" begin
     # Now provide the sparsity pattern and matrix coloring vector
     # to update the Jacobians of objects
     m_dense = crw(m_crw) # recompute to get dense Jacobians again
@@ -166,15 +166,17 @@ end
     sparsity[:ξy] = sparse(m_dense[:Γ₄])
     sparsity[:J𝒱] = sparse(m_dense[:JV])
     for (k, v) in sparsity
-        if k != :ξz
-            colorvec[k] = matrix_colors(v)
-        else
+        if k == :ξz
             colorvec[k] = 1:3
+        elseif k ==  :J𝒱
+            colorvec[k] = ones(Int64, 3)
+        else
+            colorvec[k] = matrix_colors(v)
         end
     end
 
     # Check updating dense Jacobians works
-    update_sparsity_pattern!(m_dense, [:μ, :ξ, :𝒱])
+    update_sparsity_pattern!(m_dense, [:μ, :ξ])
     try
         solve!(m_dense, ztrue, ytrue, Ψtrue; algorithm = :relaxation, ftol = 5e-4, tol = 1e-3, verbose = :none)
         @test norm(steady_state_errors(m_dense), Inf) < 1e-3
@@ -192,7 +194,7 @@ end
         println("Updating sparsity pattern of 𝒱 for an RAL w/sparse methods did not pass")
     end
 
-    update_sparsity_pattern!(m, [:μ, :ξ, :𝒱]; sparsity = sparsity)
+    update_sparsity_pattern!(m, [:μ, :ξ]; sparsity = sparsity) # don't do for 𝒱 b/c its Jacobian is all zeros
     update_sparsity_pattern!(m, [:μ, :ξ, :𝒱]; sparsity = sparsity,
                              colorvec = colorvec)
     try
