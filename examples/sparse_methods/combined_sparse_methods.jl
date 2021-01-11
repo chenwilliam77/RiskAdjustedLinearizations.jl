@@ -53,4 +53,8 @@ if time_methods
         solve!(m; algorithm = algorithm, sparse_jacobian = true, jac_cache = jac_cache, verbose = :none)
     end
     # ~ 0.8 - 1 s
+
+    @test m_dense.z ≈ m.z
+    @test m_dense.y ≈ m.y
+    @test m_dense.Ψ ≈ m.Ψ
 end
