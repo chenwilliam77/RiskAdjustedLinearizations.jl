@@ -27,7 +27,8 @@ need to apply automatic differentiation to calculate their Jacobians. Because al
 the chunk size for the cache used to evaluate the functions themselves will be different from the cache
 used to calculate the Jacobians, which occur with respect to only one of the input variables.
 
-*Note that the cache is always initialized as zeros by defaults (rather than undefined arrays).*
+*Note that, by default, the cache is initialized with undefined values if arrays are dense
+and zeros if arrays are sparse.*
 
 ## [Automated Caching via `RALF1`, `RALF2`, `RALF3`, and `RALF4` Wrappers](@id ralfwrappers)
 The `RALF1` type applies to functions with 1 input variables (``\Lambda`` and ``\Sigma``),

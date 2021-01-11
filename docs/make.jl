@@ -14,6 +14,7 @@ makedocs(
     linkcheck = false,
     pages = ["Home" => "index.md",
              "Risk-Adjusted Linearizations" => "risk_adjusted_linearization.md",
+             "Sparse Arrays and Jacobians" => "sparse_arrays_jacs.md",
              "Numerical Algorithms" => "numerical_algorithms.md",
              "Example" => "example.md",
              "Caching" => "caching.md",

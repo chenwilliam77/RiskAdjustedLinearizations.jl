@@ -1,4 +1,4 @@
-# [Numerical Algorithms](@id numerical algorithms)
+# [Numerical Algorithms](@id numerical-algorithms)
 
 To calculate the risk-adjusted linearization, we need to solve a system of nonlinear equations.
 These equations are generally solvable using Newton-type methods. The package currently has two
@@ -101,7 +101,7 @@ on a small subset of the coefficients ``(z, y, \Psi)``. To exploit this sparsity
 accelerate computation time, we can use methods implemented by
 [SparseDiffTools.jl](https://github.com/JuliaDiff/SparseDiffTools.jl).
 For an example, please see this
-[script](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_jacobians/sparse_jacobians.jl).
+[script](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_methods/sparse_nlsolve_jacobians.jl).
 
 We automate the setup process by letting the user pass the keyword `sparse_jacobian = true`
 to `solve!`. If this keyword is true, then there are three ways to exploit sparsity.
@@ -129,7 +129,7 @@ To simplify using the `sparsity`, `colorvec`, and `jac_cache` keywords, we imple
 two helper functions, `compute_sparsity_pattern` and `preallocate_jac_cache`.
 The first function calculates `sparsity` and `colorvec` while the second ones
 computes `jac_cache`. See the docstrings below and
-this [example](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_jacobians/sparse_jacobians.jl)
+this [example](https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/tree/main/examples/sparse_methods/sparse_nlsolve_jacobians.jl)
 for more details.
 
 Some additional caveats on these methods:
