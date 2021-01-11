@@ -1,4 +1,4 @@
-using UnPack, OrderedCollections, ForwardDiff, JLD2, NLsolve
+using UnPack, OrderedCollections, ForwardDiff, JLD2, NLsolve, SparseArrays
 
 mutable struct NKCapital{T <: Real}
     β::T
@@ -73,7 +73,8 @@ function NKCapital(; β::T = .99, γ::T = 3.8, φ::T = 1., ν::T = 1., χ::T = 4
                         N_approx, S, J, E, SH)
 end
 
-function nk_capital(m::NKCapital{T}) where {T <: Real}
+function nk_capital(m::NKCapital{T}; sparse_arrays::Bool = false,
+                    sparse_jacobian::Vector{Symbol} = Symbol[]) where {T <: Real}
 
     # Get parameters
     @unpack β, γ, φ, ν, χ, δ, α, ϵ, θ, π_ss, ϕ_r, ϕ_π, ϕ_y = m
@@ -241,6 +242,11 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
         Γ₆[E[Symbol("eq_ps₂$(i)")], J[Symbol("ps₂$(i-1)")]] = one(T)
     end
 
+    if sparse_arrays
+        Γ₅ = sparse(Γ₅)
+        Γ₆ = sparse(Γ₆)
+    end
+
     ## Mapping from states to jump variables
     Ψ = zeros(T, Ny, Nz)
 
@@ -304,7 +310,12 @@ function nk_capital(m::NKCapital{T}) where {T <: Real}
         y[J[Symbol("ps₂$(i)")]] = convert(T, log(θ) + log(M0) + (ϵ - 1.) * π_ss + y[J[Symbol("ps₂$(i-1)")]])
     end
 
-    return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε)
+    if sparse_arrays
+        return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε; sparse_jacobian = sparse_jacobian,
+                                         Λ_Σ_cache_init = dims -> spzeros(dims...))
+    else
+        return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε; sparse_jacobian = sparse_jacobian)
+    end
 end
 
 nk_cₜ(m, zₜ) = exp(m.y[2] + (m.Ψ * (zₜ - m.z))[2])
