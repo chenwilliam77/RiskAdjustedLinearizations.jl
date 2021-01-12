@@ -23,7 +23,7 @@ yinit = deepcopy(m.y)
 Ψinit = deepcopy(m.Ψ)
 
 ## Solve for steady state once and update sparsity pattern
-solve!(m; algorithm = algorithm)
+solve!(m; algorithm = algorithm, verbose = :none)
 
 sparsity = Dict()
 colorvec = Dict()
@@ -40,19 +40,36 @@ solve!(m; algorithm = algorithm, sparse_jacobian = true, jac_cache = jac_cache)
 if time_methods
     m_dense = nk_capital(m_nk)
 
+    @info "Timing solve! with varying degrees of sparsiy"
+
     println("Dense Array Caches and Dense Jacobians")
     @btime begin
         update!(m_dense, zinit, yinit, Ψinit)
         solve!(m_dense; algorithm = algorithm, verbose = :none)
     end
-    # ~ 2 - 2.5 s
+    # ~ 2.48 s
+
+    println("Sparse Array Caches and Sparse Jacobians for Equilibrium Functions")
+    @btime begin
+        update!(m, zinit, yinit, Ψinit)
+        solve!(m; algorithm = algorithm, verbose = :none)
+    end
+    # ~ 2.37 s
+
+    println("Sparse Jacobians for nlsolve")
+    @btime begin
+        update!(m_dense, zinit, yinit, Ψinit)
+        solve!(m_dense; algorithm = algorithm, sparse_jacobian = true,
+               jac_cache = jac_cache, verbose = :none)
+    end
+    # ~ 0.85 s
 
     println("Sparse Array Caches, Sparse Jacobians for Equilibrium Functions, and Sparse Jacobians for nlsolve")
     @btime begin
         update!(m, zinit, yinit, Ψinit)
         solve!(m; algorithm = algorithm, sparse_jacobian = true, jac_cache = jac_cache, verbose = :none)
     end
-    # ~ 0.8 - 1 s
+    # ~ 0.9s
 
     @test m_dense.z ≈ m.z
     @test m_dense.y ≈ m.y
