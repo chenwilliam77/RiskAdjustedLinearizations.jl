@@ -1,7 +1,3 @@
-# TODO: Check if computing the Blanchard Kahn conditions every time within compute_Ψ
-#       ends up being faster than doing the computation once but saving on the
-#       cost of calling eigen.
-
 """
 ```
 compute_Ψ(Γ₁, Γ₂, Γ₃, Γ₄, Γ₅, Γ₆, JV = []; schur_fnct = schur!)
@@ -83,7 +79,14 @@ function compute_Ψ!(AA::AbstractMatrix{Complex{S}}, BB::AbstractMatrix{Complex{
 
     # Compute QZ and back out Ψ
     schurfact = schur_fnct(AA, BB)
-	ordschur!(schurfact, [abs(αᵢ) >= abs(βᵢ) for (αᵢ, βᵢ) in zip(schurfact.α, schurfact.β)]) # eigenvalues = schurfact.β / schurfact.α
+	ordschur!(schurfact, [abs(αᵢ) >= abs(βᵢ) for (αᵢ, βᵢ) in
+                          zip(schurfact.α, schurfact.β)]) # eigenvalues = schurfact.β / schurfact.α
+
+    # Note: We could calculate stability conditions here but, typically,
+    # compute_Ψ is called enough within the relaxation algorithm
+    # that calculating the stability conditions repeatedly takes more time
+    # than just calling eigen once
+
     return real(schurfact.Z[Nz + 1:end, 1:Nz] / schurfact.Z[1:Nz, 1:Nz])
 end
 
