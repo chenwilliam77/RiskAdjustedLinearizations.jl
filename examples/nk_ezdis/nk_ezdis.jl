@@ -187,7 +187,7 @@ function nk_ez_disaster(m::NKEZDisaster{T, SNK, NNK}) where {T <: Real, SNK, NNK
 
         ## Non-forward-difference equations
         F[value_fnct]          = 1. / (1. - ψ) * (y[β̅] + y[ω]) - y[v]
-        F[certainty_equiv]     = 1. / (1. - ψ) * (y[β̅] - (z[η_β] + log(β)) + (exp(y[ω]) - 1.)) - y[ce]
+        F[certainty_equiv]     = 1. / (1. - ψ) * (y[β̅] - (z[η_β] + log(β)) + log(exp(y[ω]) - 1.)) - y[ce]
         F[wage]                = log(ψ) + z[η_l] + log(ν̅) + y[c] + ν * y[l] - (1. - ψ) / ψ * y[ℓ] - y[w]
         F[labor_disutility]    = ψ / (1. - ψ) * log(1. + (ψ - 1.) * exp(z[η_l]) * ν̅ *
                                                     exp((1. + ν) * y[l]) / (1. + ν)) - y[ℓ]

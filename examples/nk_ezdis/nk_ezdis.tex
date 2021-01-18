@@ -527,7 +527,7 @@ From this section, we obtain the following five equilibrium conditions:
 For expositional clarity, I model capital production as its own sector.\footnote{I could subsume capital production within the household problem by adding as an additional constraint $K_t = \Phi(X_t/\hat{K}_t)\hat{K}_t$.}
 After intermediate firms finish using the time $t$ stock of capital $\hat{K}_t = \exp(\eta_{k, t})K_{t - 1}$,  households trade their capital holdings to capital producers in exchange for claims to profits from capital production. Each producer solves the problem
 \begin{align}
-  \max_{X_t} \Phi\left(\frac{X_t}{\hat{K}_t}\right))Q_t\hat{K}_t - X_t.
+  \max_{X_t} \Phi\left(\frac{X_t}{\hat{K}_t}\right)Q_t\hat{K}_t - X_t.
 \end{align}
 In other words, capital producers maximize the static profits from producing new capital since it costs them $X_t$ in investment to produce $\Phi(X_t / \hat{K}_t)Q_t \hat{K}_t$ in revenue.\footnote{The cost of buying the initial stock of capital $\hat{K}_t$ is offset by selling $\hat{K}_t$ at the same price after production.}
 The solution to this problem yields the Tobin's Q equation
@@ -851,7 +851,7 @@ From (\ref{eq:stochastic discount factor eqm stat}) and (\ref{eq:epstein zin wea
   M & = \beta\left(\frac{\tilde{V}}{\tilde{\calC\calE}}\right)^{\psi - \gamma}(A\exp(\mu_a))^{ - \gamma} = \beta\left(\beta\frac{\tilde{\Omega}}{\tilde{\Omega} - 1}\right)^{\frac{\psi - \gamma}{1 - \psi}}(A\exp(\mu_a))^{ - \gamma}\\
   \tilde{\Omega} & = 1 + \exp(\mu_a)M A \tilde{\Omega}\\
     & = 1 + \exp(\mu_a)\beta\left(\beta\frac{\tilde{\Omega}}{\tilde{\Omega} - 1}\right)^{\frac{\psi - \gamma}{1 - \psi}}(A\exp(\mu_a))^{ - \gamma} A \tilde{\Omega}\\
-    & = 1 +\beta^{\frac{\psi - \gamma + (1 - \psi)}{1 - \psi}}\left(\beta\frac{\tilde{\Omega}}{\tilde{\Omega} - 1}\right)^{\frac{\psi - \gamma}{1 - \psi}}(A\exp(\mu_a))^{1 - \gamma} \tilde{\Omega}\\
+    & = 1 +\beta^{\frac{\psi - \gamma + (1 - \psi)}{1 - \psi}}\left(\frac{\tilde{\Omega}}{\tilde{\Omega} - 1}\right)^{\frac{\psi - \gamma}{1 - \psi}}(A\exp(\mu_a))^{1 - \gamma} \tilde{\Omega}\\
   1 & =  \left(\beta A \exp(\mu_a)\left(\frac{\tilde{\Omega}}{\tilde{\Omega} - 1}\right)^{\frac{1}{1 - \psi}}\right)^{1 - \gamma}\\
   \tilde{\Omega} - 1 & = (\beta A \exp(\mu_a))^{1 - \psi} \tilde{\Omega}\\
   \tilde{\Omega} & = \frac{1}{1 - (\beta A \exp(\mu_a))^{1 - \psi}}.
@@ -1109,7 +1109,7 @@ Equation (\ref{eq:epstein zin defn eqm stat}) becomes
 \end{align*}
 Equation (\ref{eq:certainty equivalent eqm stat}) becomes
 \begin{align*}
-  0 & = \frac{1}{1 - \psi}(\overline{\beta}_t - (\eta_{\beta, t} + \log(\beta)) + (\exp(\omega_t) - 1)) - ce_t
+  0 & = \frac{1}{1 - \psi}(\overline{\beta}_t - (\eta_{\beta, t} + \log(\beta)) + \log(\exp(\omega_t) - 1)) - ce_t
 \end{align*}
 Equation (\ref{eq:epstein zin wealth recursion eqm stat}) will be handled later because it is a forward difference equation. Equation (\ref{eq:stochastic discount factor eqm stat}) will be directly substituted rather than used as an equilibrium condition. Using the transformations for a risk-adjusted linearization, the stochastic discount factor becomes
 \begin{align*}
