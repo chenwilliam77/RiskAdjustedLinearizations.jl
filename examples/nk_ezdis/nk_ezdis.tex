@@ -624,6 +624,7 @@ as desired.
 
 
 \subsubsection{Exogenous Shocks}\label{sec:exog shocks}
+% TODO: get rid of the Markov chains; you really want all states to be continuous
 There are five shocks in the model: $\eta_{a, t}$, $\eta_{k, t}$, $\eta_{\beta, t}$, $\eta_{l, t}$, and $\eta_{r, t}$. The first shock has been specified as an AR(1) with a disaster component. I specify $\eta_{k, t}$ below. Without loss of generality, I assume the last three shocks follow AR(1) processes with persistence $\rho_i$ and standard deviation $\sigma_i$. Shocks to the time preference rate should ideally satisfy $\beta \exp(\eta_{\beta, t}) < 1$ for all $t$. To ensure this property is satisfied \emph{most} of the time, I add the restriction
 \begin{align}
   \sigma_\beta^2 & = \left(\frac{\log(\beta)}{n_\beta}\right)^2(1 - \rho_\beta^2)
