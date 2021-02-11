@@ -4,7 +4,7 @@ varexo ey, ex, esig;
 
 parameters mu_y, rho_x, sig_x, rho_sig, sig_y, varsig, beta, psi, gamma;
 
-mu_y = .0016 / 3;
+mu_y = .0016 * 3;
 rho_x = .99^3;
 sig_x = sqrt((.074 * sqrt(1 - rho_x^2))^2 * 3);
 rho_sig = 0.99^3;

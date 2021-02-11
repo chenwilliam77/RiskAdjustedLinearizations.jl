@@ -102,9 +102,9 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
             Ψₙ .= compute_Ψ!(AA, BB, li; schur_fnct = schur_fnct)
 
             # Update zₙ, yₙ, and Ψₙ; then calculate error for convergence check
-            zₙ .= damping .* zₙ + (1 - damping) .* zₙ₋₁
-            yₙ .= damping .* yₙ + (1 - damping) .* yₙ₋₁
-            Ψₙ .= damping .* Ψₙ + (1 - damping) .* Ψₙ₋₁
+            zₙ .= (1 - damping) .* zₙ + damping .* zₙ₋₁
+            yₙ .= (1 - damping) .* yₙ + damping .* yₙ₋₁
+            Ψₙ .= (1 - damping) .* Ψₙ + damping .* Ψₙ₋₁
             err = norm(vcat(zₙ - zₙ₋₁, yₙ - yₙ₋₁, vec(Ψₙ - Ψₙ₋₁)), pnorm)
 
             # Calculate residual
@@ -154,9 +154,9 @@ function relaxation!(ral::RiskAdjustedLinearization, xₙ₋₁::AbstractVector{
             Ψₙ .= compute_Ψ!(AA, BB, li; schur_fnct = schur_fnct)
 
             # Update zₙ, yₙ, and Ψₙ; then calculate error for convergence check
-            zₙ .= damping .* zₙ + (1 - damping) .* zₙ₋₁
-            yₙ .= damping .* yₙ + (1 - damping) .* yₙ₋₁
-            Ψₙ .= damping .* Ψₙ + (1 - damping) .* Ψₙ₋₁
+            zₙ .= (1 - damping) .* zₙ + damping .* zₙ₋₁
+            yₙ .= (1 - damping) .* yₙ + damping .* yₙ₋₁
+            Ψₙ .= (1 - damping) .* Ψₙ + damping .* Ψₙ₋₁
             err = norm(vcat(zₙ - zₙ₋₁, yₙ - yₙ₋₁, vec(Ψₙ - Ψₙ₋₁)), pnorm)
 
             # Update zₙ₋₁, yₙ₋₁, and Ψₙ₋₁ (without reallocating them)
