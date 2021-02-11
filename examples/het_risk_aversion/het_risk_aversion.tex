@@ -1,0 +1,856 @@
+\documentclass[12 pt, oneside]{article}
+\textheight 9 in
+\textwidth 6.5 in
+\topmargin 0 in
+\oddsidemargin .3 in
+\evensidemargin .3 in
+\usepackage{amssymb}
+\usepackage{amsmath,amsthm}
+\usepackage{amsbsy,paralist}
+\usepackage{appendix}
+\usepackage{natbib}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{color}
+\usepackage{mathrsfs}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+%\usepackage[nodisplayskipstretch]{setspace}
+\usepackage{fullpage}
+\usepackage{cancel}
+\usepackage{pgfplots}
+\usepackage{lipsum}
+% \usepackage{subfig}
+\usepackage{wrapfig,subcaption}
+\usepackage{xfrac}
+\usepackage{hyperref}
+\usepackage{bbm}
+\allowdisplaybreaks
+\let\oldemptyset\emptyset
+\let\emptyset\varnothing
+\newtheorem*{thm}{Theorem}
+\newtheorem*{lem}{Lemma}
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{lemnum}{Lemma}
+\newtheorem*{cor}{Corollary}
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{cornum}{Corollary}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{thmnum}{Theorem}
+\newtheorem*{prop}{Proposition}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{propnum}{Proposition}
+\theoremstyle{definition}
+\newtheorem*{remark}{Remarks}
+\theoremstyle{definition}
+\newtheorem*{eg}{Example}
+\theoremstyle{definition}
+\newtheorem*{defn}{Definition}
+\newtheorem{definition}{Definition}
+\newtheorem{defnnum}{Definition}[section]
+\newcommand{\bigsum}[2]{\sum\limits_{#1}^{#2}}
+\newcommand{\bigprod}[2]{\prod\limits_{#1}^{#2}}
+\newcommand{\nlim}{\lim_{n\ra\infty}}
+\DeclareMathOperator{\as}{a.s.}
+\DeclareMathOperator{\almalw}{a.a.}
+\newcommand{\vecx}{\vec{x}}
+\newcommand{\vecy}{\vec{y}}
+\DeclareMathOperator{\Char}{Char}
+\DeclareMathOperator{\orb}{orb}
+\DeclareMathOperator{\stab}{stab}
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\Inn}{Inn}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\card}{card}
+\DeclareMathOperator{\Cl}{Cl}
+\DeclareMathOperator{\Int}{Int}
+\DeclareMathOperator{\var}{Var}
+\DeclareMathOperator{\cov}{Cov}
+\DeclareMathOperator{\io}{i.o.}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\tr}{trace}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\vect}{vec}
+\DeclareMathOperator{\diver}{div}
+\DeclareMathOperator{\gradi}{grad}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\bfSigma}{\mathbf{\Sigma}}
+\newcommand{\bfc}{\mathbf{c}}
+\newcommand{\bfb}{\mathbf{b}}
+\newcommand{\bfa}{\mathbf{a}}
+\newcommand{\bfd}{\mathbf{d}}
+\newcommand{\bff}{\mathbf{f}}
+\newcommand{\bfh}{\mathbf{h}}
+\newcommand{\bfg}{\mathbf{g}}
+\newcommand{\bfi}{\mathbf{i}}
+\newcommand{\bfj}{\mathbf{j}}
+\newcommand{\bfk}{\mathbf{k}}
+\newcommand{\bfl}{\mathbf{l}}
+\newcommand{\bfm}{\mathbf{m}}
+\newcommand{\bfn}{\mathbf{n}}
+\newcommand{\bfo}{\mathbf{o}}
+\newcommand{\bfp}{\mathbf{p}}
+\newcommand{\bfq}{\mathbf{q}}
+\newcommand{\bfr}{\mathbf{r}}
+\newcommand{\bfs}{\mathbf{s}}
+\newcommand{\bft}{\mathbf{t}}
+\newcommand{\bfx}{\mathbf{x}}
+\newcommand{\bfy}{\mathbf{y}}
+\newcommand{\bfz}{\mathbf{z}}
+\newcommand{\bfu}{\mathbf{u}}
+\newcommand{\bfv}{\mathbf{v}}
+\newcommand{\bfw}{\mathbf{w}}
+\newcommand{\bfX}{\mathbf{X}}
+\newcommand{\bfY}{\mathbf{Y}}
+\newcommand{\bfA}{\mathbf{A}}
+\newcommand{\bfB}{\mathbf{B}}
+\newcommand{\bfC}{\mathbf{C}}
+\newcommand{\bfD}{\mathbf{D}}
+\newcommand{\bfE}{\mathbf{E}}
+\newcommand{\bfF}{\mathbf{F}}
+\newcommand{\bfG}{\mathbf{G}}
+\newcommand{\bfH}{\mathbf{H}}
+\newcommand{\bfI}{\mathbf{I}}
+\newcommand{\bfJ}{\mathbf{J}}
+\newcommand{\bfK}{\mathbf{K}}
+\newcommand{\bfL}{\mathbf{L}}
+\newcommand{\bfU}{\mathbf{U}}
+\newcommand{\bfV}{\mathbf{V}}
+\newcommand{\bfW}{\mathbf{W}}
+\newcommand{\bfZ}{\mathbf{Z}}
+\newcommand{\bfM}{\mathbf{M}}
+\newcommand{\bfN}{\mathbf{N}}
+\newcommand{\bfQ}{\mathbf{Q}}
+\newcommand{\bfO}{\mathbf{O}}
+\newcommand{\bfR}{\mathbf{R}}
+\newcommand{\bfS}{\mathbf{S}}
+\newcommand{\bfT}{\mathbf{T}}
+\newcommand{\bfP}{\mathbf{P}}
+\newcommand{\bfzero}{\mathbf{0}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\curA}{\mathscr{A}}
+\newcommand{\curC}{\mathscr{C}}
+\newcommand{\curD}{\mathscr{D}}
+\newcommand{\curE}{\mathscr{E}}
+\newcommand{\curH}{\mathscr{H}}
+\newcommand{\curJ}{\mathscr{J}}
+\newcommand{\curK}{\mathscr{K}}
+\newcommand{\curN}{\mathscr{N}}
+\newcommand{\curO}{\mathscr{O}}
+\newcommand{\curQ}{\mathscr{Q}}
+\newcommand{\curS}{\mathscr{S}}
+\newcommand{\curT}{\mathscr{T}}
+\newcommand{\curU}{\mathscr{U}}
+\newcommand{\curV}{\mathscr{V}}
+\newcommand{\curW}{\mathscr{W}}
+\newcommand{\curZ}{\mathscr{Z}}
+\newcommand{\curI}{\mathscr{I}}
+\newcommand{\curB}{\mathscr{B}}
+\newcommand{\curF}{\mathscr{F}}
+\newcommand{\curG}{\mathscr{G}}
+\newcommand{\curM}{\mathscr{M}}
+\newcommand{\curL}{\mathscr{L}}
+\newcommand{\curP}{\mathscr{P}}
+\newcommand{\curR}{\mathscr{R}}
+\newcommand{\curX}{\mathscr{X}}
+\newcommand{\curY}{\mathscr{Y}}
+\newcommand{\calA}{\mathcal{A}}
+\newcommand{\calB}{\mathcal{B}}
+\newcommand{\calC}{\mathcal{C}}
+\newcommand{\calD}{\mathcal{D}}
+\newcommand{\calE}{\mathcal{E}}
+\newcommand{\calF}{\mathcal{F}}
+\newcommand{\calG}{\mathcal{G}}
+\newcommand{\calH}{\mathcal{H}}
+\newcommand{\calI}{\mathcal{I}}
+\newcommand{\calJ}{\mathcal{J}}
+\newcommand{\calL}{\mathcal{L}}
+\newcommand{\calK}{\mathcal{K}}
+\newcommand{\calM}{\mathcal{M}}
+\newcommand{\calN}{\mathcal{N}}
+\newcommand{\calO}{\mathcal{O}}
+\newcommand{\calP}{\mathcal{P}}
+\newcommand{\calQ}{\mathcal{Q}}
+\newcommand{\calR}{\mathcal{R}}
+\newcommand{\calS}{\mathcal{S}}
+\newcommand{\calT}{\mathcal{T}}
+\newcommand{\calU}{\mathcal{U}}
+\newcommand{\calV}{\mathcal{V}}
+\newcommand{\calW}{\mathcal{W}}
+\newcommand{\calX}{\mathcal{X}}
+\newcommand{\calY}{\mathcal{Y}}
+\newcommand{\calZ}{\mathcal{Z}}
+\newcommand{\RA}{\Rightarrow}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\fd}{\vspace{2.5mm}}
+\newcommand{\ds}{\vspace{1mm}}
+\begin{document}
+These notes present an endowment economy with long-run risk, stochastic volatility, (two) heterogeneous agents, and incomplete markets.
+
+\section{Model}\label{sec:model}
+
+
+\subsection{Technology and Financial Markets}
+There exists a single tree producing nondurable consumption in every time period. I postulate that dividends $Y_t$ from the tree follow
+\begin{align}\label{eq:endowment growth}
+  \Delta \log(Y_{t + 1}) & = \mu_y + x_t + \sigma_{y, t} \varepsilon_{y, t + 1},\\
+  \label{eq:long run risk}
+  x_{t + 1} & = \rho_x x_t + \sigma_x \sigma_{y, t} \varepsilon_{x, t + 1},\\
+  \label{eq:stochastic volatility}
+  \sigma_{y, t}^2 & = (1 - \rho_\sigma) \sigma_y^2 + \rho_\sigma \sigma_{y, t}^2 + \sigma_{y, t}\varsigma \varepsilon_{\sigma, t + 1}.
+\end{align}
+Thus, aggregate consumption is subject to long-run risk and stochastic volatility.
+
+Financial markets are incomplete. Agents are permitted to trade two assets, a one-period risk-free bond and shares in the tree. Bonds are denominated in units of consumption and are in zero net supply. I normalize the stock of shares to one and let $Q_t$ denote the price of a share.
+
+\subsection{Household}
+
+There are $H$ types of households $i$, and each type has measure $\lambda_i$. Because agents are identical within types, I will present the model in terms of the representative agents for each type.
+Household $i$ has Epstein-Zin preferences and chooses consumption $C_{i, t}$, next-period bond holdings $B_{i, t}$, and next-period stock holdings $S_{i, t}$ to maximize
+\begin{align}\label{eq:hh objective}
+  V_{i, t} = \left((1 - \beta_i)\left(C_{i, t}\right)^{1 - \psi_i} + \beta_i \E_t\left[\left(V_{i, t + 1}\right)^{1 - \gamma_i}\right]^{\frac{1 - \psi_i}{1 - \gamma_i}}\right)^{\frac{1}{1 - \psi_i}},
+\end{align}
+where $\beta_i$ is the time preference rate; $\psi_i$ is the inverse intertemporal elasticity of substitution; and $\gamma_i$ is the risk aversion coefficient for household $i$, subject to the budget constraint
+\begin{align}\label{eq:hh budget constraint}
+  C_{i, t} + B_{i, t} + Q_tS_{i, t} & \leq (Y_t + R_{q, t}Q_t)S_{i, t - 1} + R_{t - 1}B_{i, t - 1}  + T_{i, t}.
+\end{align}
+Agents choose their consumption, next-period bond holdings, and next-period stock holdings using income from dividends, capital gains on last period's stock holdings, the return from last period's bond holdings given the lagged interest rate $R_{t - 1}$, and any net transfers $T_{i, t}$ implemented by a fiscal authority.
+My notation treats $B_{i, t - 1}$ and $S_{i, t - 1}$ as the quantity of bonds and shares present at time $t$, while $B_{i, t}$ and $S_{i, t}$ are the chosen quantities of bonds and shares for the following period. I adopt this notation so that all time $t$ choices are dated at time $t$ rather than having to differentiate between the predetermined time-$t$ variables from the endogenous controls.
+
+
+Solving the household's problem is the same as solving the maximization problem
+\begin{align}
+  \begin{split}
+  &V_{i, t} = \max_{C_{i, t}, B_{i, t}, S_{i, t}} \left((1 - \beta_i)\left(C_{i, t}\right)^{1 - \psi_i} + \beta_i \E_t\left[\left(V_{i, t + 1}\right)^{1 - \gamma_i}\right]^{\frac{1 - \psi_i}{1 - \gamma_i}}\right)^{\frac{1}{1 - \psi_i}}\\
+  & \quad + \Xi_{i, t} \left((Y_t + R_{q, t}Q_t)S_{i, t - 1} + R_{t - 1} B_{i, t - 1} + T_{i, t} - \left(C_{i, t} + B_{i, t} + Q_tS_{i, t}\right)\right).
+  \end{split}
+\end{align}
+Define $\hat{V}_{i, t} = V_{i, t}^{1 - \psi_i}$, hence $\hat{V}_{i, t}^{\frac{\psi_i}{1 - \psi_i}} = V_{i, t}^{\psi_i}$, and conjecture that $V_{i, t}$ is a function of the state variables $S_{i, t - 1} \equiv $ and $B_{i, t - 1}$, among other states (e.g. the realized shocks). The first-order conditions with respect to controls are
+\begin{align*}
+  0 & = \frac{1}{1 - \psi_i}\hat{V}_{i, t}^{\frac{\psi_i}{1 - \psi_i}} (1 - \beta_i) (1 - \psi_i)C_t^{-\psi_i}  - \Xi_{i, t}\\
+  0 & = \frac{1}{1 - \psi_i}\hat{V}_{i, t}^{\frac{\psi_i}{1 - \psi_i}}\beta_i \frac{1 - \psi_i}{1 - \gamma_i}\E_t[V_{i, t + 1}^{1 - \gamma_i}]^{\frac{\gamma_i - \psi_i}{1 - \gamma_i}} (1 - \gamma_i)\E_t\left[V_{i, t + 1}^{ - \gamma_i}\frac{\partial V_{i, t + 1}}{\partial B_{i, t}}\right] - \Xi_{i, t},\\
+  0 & = \frac{1}{1 - \psi_i}\hat{V}_{i, t}^{\frac{\psi_i}{1 - \psi_i}}\beta_i \frac{1 - \psi_i}{1 - \gamma_i}\E_t[V_{i, t + 1}^{1 - \gamma_i}]^{\frac{\gamma_i - \psi_i}{1 - \gamma_i}} (1 - \gamma_i)\E_t\left[V_{i, t + 1}^{ - \gamma_i}\frac{\partial V_{i, t + 1}}{\partial S_{i, t}}\right] - \Xi_{i, t} Q_t.
+\end{align*}
+The envelope conditions for  $B_{t - 1}$ and  $K_{t - 1}$ are
+\begin{align*}
+  \frac{\partial V_{i, t}}{\partial B_{i, t - 1}} & = \Xi_{i, t}R_{t - 1},\\
+  \frac{\partial V_{i, t}}{\partial K_{i, t - 1}} & = \Xi_{i, t}(Y_t + R_{q, t}Q_t)
+\end{align*}
+The Euler equation for bonds can be obtained by combining the envelope condition for $B_{i, t - 1}$ with the first and third first-order conditions. Iterate the envelope condition for $B_{i, t - 1}$ forward by one period.
+\begin{align*}
+  \frac{\partial V_{i, t + 1}}{\partial B_{i, t}} & = \Xi_{i, t + 1}R_t.
+\end{align*}
+Define
+\begin{align}\label{eq:certainty equivalent definition}
+\calC\calE_{i, t} = \E_t[V_{i, t + 1}^{1 - \gamma_i}]^{\frac{1}{1 - \gamma_i}}
+\end{align}
+as households' certainty equivalent. Substitute this expression and the iterated envelope condition into the third first-order condition.
+\begin{align*}
+  0 & = \frac{1}{1 - \psi_i}\hat{V}_{i, t}^{\frac{\psi_i}{1 - \psi_i}}\beta_i(1 - \psi_i)\calC\calE_{i, t}^{\gamma_i - \psi_i}\E_t\left[V_{i, t + 1}^{-\gamma_i}\lambda_{t + 1}R_t\right] - \Xi_{i, t}\\
+    & = V_{i, t}^{\psi_i}\beta_i\calC\calE_{i, t}^{\gamma_i - \psi_i}\E_t\left[V_{i, t + 1}^{-\gamma_i}\Xi_{i, t + 1}R_t\right] - \Xi_{i, t}
+\end{align*}
+Observe that, from the first-order condition with respect to consumption,
+\begin{align*}
+  \frac{\Xi_{i, t + 1}}{\Xi_{i, t}} & = \frac{V_{i, t + 1}^{\psi_i} (1 - \beta_i)C_{i, t + 1}^{-\psi_i}}{V_{i, t}^{\psi_i} (1 - \beta_i)C_{i, t}^{-\psi_i}}.
+\end{align*}
+Divide the second first-order condition by $\Xi_{i, t}$ and substitute these quantities. Re-arrange to acquire
+\begin{align*}
+  1 & = \beta_i\calC\calE_{i, t}^{\gamma_i - \psi_i}\E_t\left[V_{i, t + 1}^{-\gamma_i} R_t V_{i, t + 1}^{\psi_i} \frac{(1 - \beta_i)C_{i, t + 1}^{-\psi_i}}{(1 - \beta_i)C_{i, t}^{-\psi_i}} \right]\\
+    & = \calC\calE_{i, t}^{\gamma_i - \psi_i}\E_t\left[\beta_i\frac{(1 - \beta_i)C_{i, t + 1}^{-\psi_i}}{(1 - \beta_i)C_{i, t}^{-\psi_i}}V_{i, t + 1}^{\psi_i - \gamma_i} R_t\right].
+\end{align*}
+Define agent $i$'s stochastic discount factor between periods $t$ and $t + 1$ as
+\begin{align}\label{eq:sdf}
+  M_{i, t, t + 1} & = \beta_i \frac{C_{i, t + 1}^{-\psi_i}}{C_{i, t}^{-\psi_i}}\left(\frac{V_{i, t + 1}}{\calC\calE_{i, t}}\right)^{\psi_i - \gamma_i}.
+\end{align}
+Using these definitions, the Euler equation for bonds becomes
+\begin{align}
+  1 & = \E_t\left[M_{i, t, t + 1}R_t\right].
+\end{align}
+Households' asset pricing equation for shares in the endowment tree can be obtained using similar steps and will take the familiar form from consumption-based asset pricing. Iterate the envelope condition for $S_{i, t - 1}$ forward by one period.
+\begin{align*}
+  \frac{\partial V_{i, t + 1}}{\partial S_{i, t}} = \Xi_{i, t + 1}(Y_{t + 1} + R_{q, t + 1} Q_{t + 1}).
+\end{align*}
+Substitute this expression and other quantities derived previously into the third first-order condition.
+\begin{align*}
+  0 & = V_{i, t}^{\psi_i}\beta_i \calC\calE_{i, t}^{\gamma_i - \psi_i}\E_t\left[V_{i, t + 1}^{-\gamma_i}\Xi_{i, t + 1}(Y_{t + 1} + R_{q, t + 1} Q_{t + 1})\right] - \Xi_{i, t}Q_t.
+\end{align*}
+Divide by $\Xi_{i, t}$ and plug in $\Xi_{i, t + 1} / \Xi_{i, t}$.
+\begin{align*}
+  0 & = V_{i, t}^{\psi_i}\beta_i \calC\calE_{i, t}^{\gamma_i - \psi_i}\E_t\left[\frac{V_{i, t + 1}^{\psi_i - \gamma_i} (1 - \beta_i)C_{i, t + 1}^{-\psi_i}}{V_{i, t}^{\psi_i}(1 - \beta_i)C_{i, t}^{-\psi_i}}(Y_{t + 1} + R_{q, t + 1} Q_{t + 1})\right] - Q_t\\
+    & = \E_t\left[M_{i, t, t + 1}(Y_{t + 1} + R_{q, t + 1}Q_{t + 1})\right] - Q_t\\
+  Q_t & = \E_t\left[M_{i, t, t + 1}(Y_{t + 1} + R_{q, t + 1}Q_{t + 1})\right].
+\end{align*}
+Finally, because $V_t$ is defined recursively, I can express households' preferences as a forward-looking difference equation. The value function $V_{i, t}$ is homogeneous of degree 1 in $C_{i, t}$ and $V_{i, t + 1}$. By Euler's Theorem,
+\begin{align}\label{eq:ez prefs euler theorem}
+  V_{i, t} & = \frac{\partial V_{i, t}}{\partial C_{i, t}}C_{i, t} + \E_t\left[\frac{\partial V_{i, t}}{\partial V_{i, t + 1}}V_{i, t + 1}\right].
+\end{align}
+The derivatives in this expression are, after simplification,
+\begin{align*}
+  \frac{\partial V_{i, t}}{\partial C_{i, t}} & = V_{i, t}^{\psi_i}(1 - \beta_i) C_{i, t}^{-\psi_i}\\
+  \frac{\partial V_{i, t}}{\partial V_{i, t + 1}} & = V_{i, t}^{\psi_i}\beta_i \E_t[V_{i, t + 1}^{1 - \gamma_i}]^{\frac{\gamma_i - \psi_i}{1 - \gamma_i}}V_{i, t + 1}^{ - \gamma_i}.
+\end{align*}
+It is easy to verify this claim is true by direct calculation. Since $\E_t[V_{i, t + 1}^{1 - \gamma_i}]$ is $t$-measurable,
+\begin{align*}
+  \E_t\left[\frac{\partial V_{i, t}}{\partial V_{i, t + 1}}V_{i, t + 1}\right] & = \E_t\left[V_{i, t}^{\psi_i}\beta_i \E_t[V_{i, t + 1}^{1 - \gamma_i}]^{\frac{\gamma_i - \psi_i}{1 - \gamma_i}} V_{i, t + 1}^{1 - \gamma_i}\right]\\
+                                                                    & = V_{i, t}^{\psi_i}\beta_i \E_t[V_{i, t + 1}^{1 - \gamma_i}]^{\frac{\gamma_i - \psi_i}{1 - \gamma_i}}\E_t[V_{i, t + 1}^{1 - \gamma_i}]\\
+                                                                    & = V_{i, t}^{\psi_i}\beta_i \E_t[V_{i, t + 1}^{1 - \gamma_i}]^{\frac{1 - \psi_i}{1 - \gamma_i}}.
+\end{align*}
+Further algebraic manipulation verifies the claim.
+
+To obtain a forward difference equation, define
+\begin{align}
+  \Omega_{i, t} & = \frac{V_{i, t}}{\partial V_{i, t} /\partial C_{i, t}}.
+\end{align}
+Given this definition, (\ref{eq:ez prefs euler theorem}) becomes
+\begin{align*}
+  \Omega_{i, t} & = C_{i, t} + \E_t\left[\frac{\partial V_{i, t}}{\partial V_{i, t + 1}}\frac{1}{\partial V_{i, t} / \partial C_{i, t}}V_{i, t + 1}\right]\\
+  & = C_{i, t} + \E_t\left[\frac{\partial V_{i, t + 1} / \partial C_{i, t + 1}}{\partial V_{i, t} / \partial C_{i, t}}\frac{\partial V_{i, t}}{\partial V_{i, t + 1}}\frac{V_{i, t + 1}}{\partial V_{i, t + 1} / \partial C_{i, t + 1}}\right].
+\end{align*}
+Notice that
+\begin{align*}
+  \frac{\partial V_{i, t + 1} / \partial C_{i, t + 1}}{\partial V_{i, t} / \partial C_{i, t}} \frac{\partial V_{i, t}}{\partial V_{i, t + 1}} & = \frac{V_{i, t + 1}^{\psi_i} (1 - \beta_i)C_{i, t + 1}^{ - \psi_i}}{V_{i, t}^{\psi_i}(1 - \beta_i) C_{i, t}^{-\psi_i}} V_{i, t}^{\psi_i}\beta_i \E_t[V_{i, t + 1}^{1 - \gamma_i}]^{\frac{\gamma_i - \psi_i}{1 - \gamma_i}}V_{i, t + 1}^{ - \gamma_i}\\
+                                                                                                                      & = \beta_i\frac{ C_{i, t + 1}^{ - \psi_i}}{C_{i, t}^{-\psi_i}}\left(\frac{V_{i, t + 1}}{\calC\calE_{i, t}}\right)^{\psi_i - \gamma_i}\\
+                                                                                                                      & = M_{i, t, t + 1}.
+\end{align*}
+Therefore, (\ref{eq:ez prefs euler theorem}) simplifies to
+\begin{align}\label{eq:ez prefs euler theorem forward difference}
+  \Omega_{i, t} & = C_{i, t} + \E_t[M_{t, t + 1} \Omega_{i, t + 1}],
+\end{align}
+which is a forward difference equation in $\Omega_{i, t}$. This expression also shows that $\Omega_{i, t}$ may be interpreted as wealth because it is the price of a claim to consumption.
+
+The equations defining the value function $V_{i, t}$ and certainty equivalent $\calC\calE_{i, t}$ can also be rewritten using $\Omega_{i, t}$. Observe that
+\begin{align*}
+  V_{i, t}^{\psi_i} \beta_i \calC\calE_{i, t}^{1 - \psi_i} & = \E_t\left[\frac{\partial V_{i, t}}{\partial V_{i, t + 1}}V_{i, t + 1}\right] = V_{i, t} - \frac{\partial V_{i, t}}{\partial C_{i, t}}C_{i, t} = \frac{\partial V_{i, t}}{\partial C_{i, t}}(\Omega_{i, t} - C_{i, t})\\
+                                                              & = V_{i, t}^{\psi_i} (1 - \beta_i)C_{i, t}^{ - \psi_i}(\Omega_{i, t} - C_{i, t})\\
+  \calC\calE_{i, t} & = \left(\frac{1 - \beta_i}{\beta_i}C_{i, t}^{1 - \psi_i}\left(\frac{\Omega_{i, t}}{C_{i, t}} - 1\right)\right)^{\frac{1}{1 - \psi_i}}.
+\end{align*}
+Plug this version of $\calC\calE_{i, t}$ into the definition of the value function to acquire
+\begin{align*}
+  V_{i, t} & = \left((1 - \beta_i)C_{i, t}^{1 - \psi_i} + \beta_i \frac{1 - \beta_i}{\beta_i}C_{i, t}^{1 - \psi_i}\left(\frac{\Omega_{i, t}}{C_{i, t}} - 1\right)\right)^{\frac{1}{1 - \psi_i}}\\
+      & = C_{i, t} \left((1 - \beta_i)\frac{\Omega_{i, t}}{C_{i, t}}\right)^{\frac{1}{1 - \psi_i}}.
+\end{align*}
+In light of these formulas, it will be convenient to define
+\begin{align}
+  \tilde{V}_{i, t} & = \frac{V_{i, t}}{C_{i, t}}, \quad \tilde{\calC\calE}_{i, t} = \frac{\calC\calE_{i, t}}{C_{i, t}}, \quad \tilde{\Omega}_{i, t} = \frac{\Omega_{i, t}}{C_{i, t}}.
+\end{align}
+These transformations adjust the definition of the stochastic discount factor to become
+\begin{align*}
+  M_{i, t, t + 1} & = \beta_i\frac{C_{i, t + 1}^{ - \psi_i}}{C_{i, t}^{- \psi_i}}\left(\frac{\tilde{V}_{i, t + 1} C_{i, t + 1}\calL(L_{t + 1})}{\tilde{\calC\calE}_{i, t} C_{i, t}}\right)^{ \psi_i - \gamma_i}\\
+               & = \beta_i \frac{C_{i, t + 1}^{- \gamma_i } }{C_{i, t}^{-\gamma_i}}\left(\frac{\tilde{V}_{i, t + 1}}{\tilde{\calC\calE}_{i, t}}\right)^{ \psi_i - \gamma_i}.
+\end{align*}
+Finally, because there is heterogeneity in agents' portfolio choices, I need to include type $i$'s individual budget constraints as optimality conditions.
+
+In summary, households' optimality conditions are
+\begin{align}
+  \label{eq:epstein zin defn}
+  \tilde{V}_{i, t} & = ((1 - \beta_i)\tilde{\Omega}_t)^{\frac{1}{1 - \psi_i}},\\
+  \label{eq:certainty equivalent}
+  \tilde{\calC\calE}_{i, t} & = \left(\frac{1 - \beta_i}{\beta_i}(\tilde{\Omega}_{i, t} - 1)\right)^{\frac{1}{1 - \psi_i}},\\
+  \label{eq:epstein zin wealth recursion}
+  \tilde{\Omega}_{i, t} & = 1 + \E_t\left[M_{i, t, t + 1}\frac{C_{i, t + 1}}{C_{i, t}}\tilde{\Omega}_{i, t + 1}\right],\\
+  \label{eq:stochastic discount factor}
+  M_{i, t, t + 1} & = \beta_i \frac{C_{i, t + 1}^{- \gamma_i }}{C_{i, t}^{-\gamma_i}}\left(\frac{\tilde{V}_{i, t + 1}}{\tilde{\calC\calE}_{i, t}}\right)^{ \psi_i - \gamma_i},\\
+  \label{eq:euler eqn}
+  1 & = \E_t\left[M_{i, t, t + 1}R_t\right],\\
+  \label{eq:tree asset pricing}
+  Q_t & = \E_t\left[M_{i, t, t + 1} \left(Y_{t + 1} + R_{q, t + 1}Q_{t + 1}\right)\right],\\
+  \label{eq:hh budget constraint}
+  C_{i, t} + B_{i, t} + Q_t S_{i, t} & \leq \frac{1}{\lambda_i}\left(Y_t + R_{q, t}Q_t\right)S_{i, t - 1}.
+\end{align}
+
+
+\subsection{Equilibrium}
+To close the model, I need to specify market-clearing conditions, fiscal policy, and the aggregate state variables.\\
+
+\subsubsection{Market Clearing}
+Markets must clear for consumption, bonds, and the tree. Since dividends from the tree are nondurable and there are no aggregate savings technologies, the consumption market satisfies
+\begin{align}\label{eq:consumption market clearing}
+  \sum_i \lambda_i C_{i, t} & = Y_t.
+\end{align}
+The bond market has zero net supply, hence
+\begin{align}\label{eq:bond market clearing}
+  \sum_i \lambda_i B_{i, t} & = 0.
+\end{align}
+Finally, the stock of shares is normalized to one, so
+\begin{align}\label{eq:bond market clearing}
+  \sum_i \lambda_i S_{i, t} & = 1.
+\end{align}
+Because the stock of shares in the tree do not change over time, $R_{q, t} \equiv 1$ so that the gross capital gains between periods $t$ and $t + 1$ is $Q_{t + 1} / Q_t$.
+
+\subsubsection{Fiscal Policy}
+The government exists only to implement lump-sum transfers among the different types, and the transfers are used only to guarantee a nondegenerate wealth distribution. Following Kekre and Lenel (2020), I assume that households fully anticipate the transfers for all households except themselves,
+which they believe to be zero. As a consequence, from the perspective of each household, the net transfers $T_{i, t}$ are unaffected by their consumption and portfolio choice decisions.
+
+The transfers follow the rule
+\begin{align}\label{eq:net transfer rule}
+  T_{i, t} & = -\tau_{i, t}(R_{t - 1} B_{i, t - 1} + (Y_t + Q_t)S_{i, t - 1}),
+\end{align}
+where $\tau_{i, t} = \overline{\tau}_i$ for all households except a positive measure, for whom $\tau_{i, t} = \tau_t$, which ensures that $\sum_i T_{i, t} = 0$.
+Essentially, all households pay a type-specific tax that is proportional to their wealth before transfers. To pin down $\tau_t$,
+define $\delta_i$ as the fraction of the measure of households in type $i$ who pay $\overline{\tau}_i$, so that $1 - \delta_i$ is the measure of households who pay $\tau_t$. Then
+\begin{align*}
+ 0 = \sum_i T_{i, t} & = -\sum_i \tau_{i, t}(R_{t - 1} B_{i, t - 1} + (Y_t + Q_t)S_{i, t - 1})\\
+                  & = -R_{t - 1}\sum_i \tau_{i, t}B_{i, t - 1} - (Y_t + Q_t)\sum_i \tau_{i, t}S_{i, t - 1}\\
+                  & = -R_{t - 1}\sum_i \overline{\tau}_i\delta_i \lambda_i B_{i, t - 1} - (Y_t + Q_t)\sum_i \overline{\tau}_i\delta_i\lambda_iS_{i, t - 1}\\
+                  & \quad -R_{t - 1}\tau_t\sum_i (1 - \delta_i)\lambda_i B_{i, t - 1} - (Y_t + Q_t)\tau_t\sum_i (1 - \delta_i)\lambda_i S_{i, t - 1}.
+\end{align*}
+Define $\delta_i \equiv \delta$. Then
+\begin{align*}
+ 0 = \sum_i T_{i, t} & = -R_{t - 1}\delta\sum_i \overline{\tau}_i \lambda_i B_{i, t - 1} - (Y_t + Q_t)\delta\sum_i \overline{\tau}_i\lambda_iS_{i, t - 1}\\
+& \quad -R_{t - 1}(1 - \delta)\tau_t\sum_i \lambda_i B_{i, t - 1} - (Y_t + Q_t)(1 - \delta)\tau_t\sum_i \lambda_i S_{i, t - 1}\\
+                  & = -R_{t - 1}\delta\sum_i \overline{\tau}_i \lambda_i B_{i, t - 1} - (Y_t + Q_t)\delta\sum_i \overline{\tau}_i\lambda_iS_{i, t - 1}- (Y_t + Q_t)(1 - \delta)\tau_t
+\end{align*}
+by market-clearing for bonds and shares. Re-arranging yields
+\begin{align*}
+  \tau_t & = -\frac{1}{(Y_t + Q_t)(1 - \delta)}\left(R_{t - 1}\delta\sum_i \overline{\tau}_i \lambda_i B_{i, t - 1} + (Y_t + Q_t)\delta\sum_i \overline{\tau}_i\lambda_iS_{i, t - 1}\right)\\
+         & = -\frac{\delta}{1 - \delta}\left(\frac{R_{t - 1}}{Y_t + Q_t}\sum_i \overline{\tau}_i \lambda_i B_{i, t - 1} + \sum_i \overline{\tau}_i\lambda_iS_{i, t - 1}\right)
+\end{align*}
+Notice that the quantity
+\begin{align*}
+  \frac{R_{t - 1}B_{i, t - 1} + (Y_t + Q_t)S_{i, t - 1}}{Y_t + Q_t}
+\end{align*}
+is type $i$'s wealth share in the absence of redistributive taxes. Thus, it is economically more meaningful to write the taxation rule as
+\begin{align}\label{eq:common tax rate}
+  \tau_t & = -\frac{\delta}{1 - \delta}\sum_i\tau_i\left(\frac{R_{t - 1}B_{i, t - 1} + (Y_t + Q_t)S_{i, t - 1}}{Y_t + Q_t}\right).
+\end{align}
+
+\subsubsection{Aggregate State Variables}
+Aside from the exogenous shocks, the wealth distribution is a state variable. By construction, agents can be aggregated within the household types, so I only need to track the wealth distribution across the $H$ types. Let $W_{i, t}$ denote the wealth share of type $i$ in time $t$ given agents' portfolio allocations at time $t - 1$. Then
+\begin{align}\label{eq:wealth share defn}
+  W_{i, t} & = \lambda_i\frac{R_{t - 1}B_{i, t - 1} + (Y_t + Q_t) S_{i, t - 1} + T_{i, t}}{Y_t + Q_t}.
+\end{align}
+Households in type $i$ obtain a bond position of $R_{t - 1} B_{i, t - 1}$ at the start of period $t$,
+earn dividends $Y_t S_{i, t - 1}$ from the tree, hold shares worth $Q_t S_{i, t - 1}$, and receive redistributive transfers $T_{i, t}$.
+The total stock of shares is one, so the total wealth in period $t$ is the sum of aggregate dividends $Y_t$ and the value of the tree, inclusive of capital gains.
+
+Given this definition of the wealth distribution, each type $i$'s budget constraint becomes
+\begin{align}\label{eq:hh budget constraint with wealth share}
+  C_{i, t} + B_{i, t} + Q_t S_{i, t}\leq \frac{1}{\lambda_i} W_{i, t} (Y_t +  Q_t).
+\end{align}
+
+Iterating the wealth shares one period forward yields
+\begin{align*}
+  W_{i, t + 1} & = \lambda_i\frac{R_tB_{i, t} + (Y_{t + 1} + Q_{t + 1}) S_{i, t} + T_{i, t + 1}}{Y_{t + 1} + Q_{t + 1}} = \lambda_i\left(S_{i, t} + \frac{R_tB_{i, t} + T_{i, t + 1}}{Y_{t + 1} +  Q_{t + 1}}\right).
+\end{align*}
+Anticipating the need to write the forward-looking terms on RHS as linear, define the auxiliary variable
+\begin{align}\label{eq:wealth share auxiliary defn}
+  \Theta_{i, t} & = S_{i, t - 1} + \frac{R_{t - 1}B_{i, t - 1} + T_{i, t}}{Y_t +  Q_t}.
+\end{align}
+Note that I need to include $S_{i, t - 1}$ in (\ref{eq:wealth share defn}) because it is possible that, with leverage, $R_{t - 1} B_{i, t - 1} + T_{i, t} < 0$, and forward-looking variables must be strictly positive for a risk-adjusted linearization. It follows that the evolution equation for the wealth share of type $i$ is
+\begin{align*}
+  W_{i, t + 1} & = \lambda_i \Theta_{i, t + 1} = \lambda_i(\E_t[\Theta_{i, t + 1}] + (\Theta_{i, t + 1} - \E_t[\Theta_{i, t + 1}])).
+\end{align*}
+The second equality is required to permit a risk-adjusted linearization. To allow greater accuracy in the approximation, I can also incorporate
+expectations of $W_{i, t}$ and $\Theta_{i, t}$ further into the future. Define $\Theta_{i, j, t} = \E_t[\Theta_{i, t + j}]$. Then
+\begin{align*}
+  \Theta_{i, j, t} & = \E_t[\Theta_{i, t + j}] = \E_t[\E_{t + 1}[\Theta_{i, t + 1 + (j - 1)}]] = \E_t[\Theta_{i, j - 1, t + 1}].
+\end{align*}
+Define $W_{i, j, t} = \E_t[W_{i, t + j}]$. Then
+\begin{align*}
+  W_{i, j, t} & = \E_t[\lambda_i\Theta_{i, t + j}] = \lambda_i\Theta_{i, j, t}\\
+  W_{i, j, t + 1} & = \lambda_i\E_{t + 1}[\Theta_{i, t + 1 + j}] = \lambda_i\Theta_{i, j, t + 1} = \lambda_i(\Theta_{i, j + 1, t} + (\Theta_{i, j, t + 1} - \E_t[\Theta_{i, j, t + 1}])).
+\end{align*}
+The final equality for $W_{i, j, t + 1}$ follows from the fact that $\Theta_{i, j, t} = \E_t[\Theta_{i, j - 1, t + 1}]$.
+Thus, given a choice of $N_j$ for the maximum number of periods that I approximate the conditional expectations of $\Theta_{i, t + j}$, the wealth share for type $i$ and the $j$th period ahead expectation of the wealth share evolve according to
+\begin{align}
+  \label{eq:wealth share cond expectation j period defn}
+  W_{i, j, t + 1} & = \lambda_i(\Theta_{i, j + 1, t} + (\Theta_{i, j, t + 1} - \E_t[\Theta_{i, j, t + 1}])),\\
+  \label{eq:wealth share evolution}
+  W_{i, t + 1} & = \lambda_i(\Theta_{i, 1, t} + (\Theta_{i, t + 1} - \E_t[\Theta_{i, t + 1}])).
+\end{align}
+
+% \emph{DON'T USE LOGS, FOLLOW CRW AND USE LEVELS INSTEAD. MAY ALSO WANT TO USE WEALTH LEVEL RATHER THAN SHARE, NOTHING THAT WEALTH LEVELS STILL NEED TO SUM TO AGGREGATE WEALTH, PLUS I CAN DIVIDE AGGREGATE WEALTH BY DIVIDENDS STILL}. Also try a couple approaches, e.g. use $\Theta$ in levels, too, versus keeping it in logs.
+% \begin{align*}
+%   0 & = \log \E_t[\exp(\log(\Theta_{i, t + 1}) - \E_t[\log(\Theta_{i, t + 1})])] = \log\E_t[\Theta_{i, t + 1} / \exp(\E_t[\log(\Theta_{i, t + 1})])] = \log\E_t[\Theta_{i, t + 1}] - \log\exp(\E_t[\log(\Theta_{i, t + 1})]) \\
+%     & = \log\E_t[\Theta_{i, t + 1}] - \E_t[\log(\Theta_{i, t + 1})]\\
+%   1 & = \frac{\E_t[\Theta_{i, t + 1}]}{\exp(\E_t[\log(\Theta_{i, t + 1})])}.
+% \end{align*}
+% Take logs to acquire
+% \begin{align*}
+%   \log(W_{i, t + 1}) & = \log(\lambda_i) + \log(\Theta_{i, t + 1}) = \log(\lambda_i) + \E_t[\log(\Theta_{i, t + 1})] + (\log(\Theta_{i, t + 1}) - \E_t[\log(\Theta_{i, t + 1})]).
+% \end{align*}
+% The second equality is required to permit a risk-adjusted linearization. To allow greater accuracy in the approximation, I can also incorporate
+% expectations of $\log(W_{i, t})$ and $\log(\Theta_{i, t})$ further into the future. Define $\theta_{i, j, t} = \E_t[\log(\Theta_{i, t + j})]$. Then
+% \begin{align*}
+%   \theta_{i, j, t} & = \E_t[\log(\Theta_{i, t + j})] = \E_t[\E_{t + 1}[\log(\Theta_{i, t + 1 + (j - 1)})]] = \E_t[\theta_{i, j - 1, t + 1}].
+% \end{align*}
+% Define $w_{i, j, t} = \E_t[\log(W_{i, t + j})]$. Then
+% \begin{align*}
+%   w_{i, j, t} & = \E_t[\log(\lambda_i) + \log(\Theta_{i, t + j})] = \log(\lambda_i) + \theta_{i, j, t}\\
+%   w_{i, j, t + 1} & = \log(\lambda_i) + \E_{t + 1}[\log(\Theta_{i, t + 1 + j})] = \log(\lambda_i) +  \theta_{i, j, t + 1} \\
+%               & = \log(\lambda_i) + \E_t[\theta_{i, j, t + 1}] + \theta_{i, j, t + 1} - \E_t[\theta_{i, j, t + 1}]\\
+%               & = \log(\lambda_i) + \theta_{i, j + 1, t} + \theta_{i, j, t + 1} - \E_t[\theta_{i, j, t + 1}].
+% \end{align*}
+
+\subsubsection{Equilibrium Conditions}
+Since the tree and wealth shares must sum to one, I reduce dimensionality by setting $S_{H, t} = 1 - \sum_{i\neq H} S_{i, t}$ and $W_{H, t} = 1 - \sum_{i\neq H} W_{i, t}$.
+
+
+All together, the equilibrium conditions are
+\begin{align}
+  \label{eq:epstein zin defn eqm}
+  \tilde{V}_{i, t} & = ((1 - \beta_i)\tilde{\Omega}_{i, t})^{\frac{1}{1 - \psi_i}},\\
+  \label{eq:certainty equivalent eqm}
+  \tilde{\calC\calE}_t & = \left(\frac{1 - \beta_i}{\beta_i}(\tilde{\Omega}_{i, t} - 1)\right)^{\frac{1}{1 - \psi_i}},\\
+  \label{eq:epstein zin wealth recursion eqm}
+  \tilde{\Omega}_{i, t} & = 1 + \E_t\left[M_{t, t + 1}\frac{C_{i, t + 1}}{C_{i, t}}\tilde{\Omega}_{t + 1}\right],\\
+  \label{eq:stochastic discount factor eqm}
+  M_{i, t, t + 1} & = \beta_i \frac{C_{i, t + 1}^{- \gamma_i } }{C_{i, t}^{-\gamma_i}}\left(\frac{\tilde{V}_{i, t + 1}}{\tilde{\calC\calE}_{i, t}}\right)^{ \psi_i - \gamma_i},\\
+  \label{eq:euler eqn eqm}
+  1 & = \E_t\left[M_{i, t, t + 1}R_t\right],\\
+  \label{eq:tree asset pricing eqm}
+  Q_t & = \E_t\left[M_{i, t, t + 1} \left(Y_{t + 1} + Q_{t + 1}\right)\right],\\
+  \label{eq:hh budget constraint with wealth share eqm}
+  C_{i, t} + B_{i, t} + Q_t S_{i, t} & \leq \frac{1}{\lambda_i} W_{i, t} (Y_t +  Q_t),\\
+  \label{eq:Rq defn eqm}
+  R_{q, t} & = 1,\\
+  \label{eq:net transfer rule eqm}
+  T_{i, t} & = -\tau_{i, t}(R_t B_{i, t - 1} + (Y_t +  Q_t)S_{i, t - 1}),\\
+  \label{eq:common tax rate eqm}
+  \tau_t & = -\frac{\delta}{1 - \delta}\sum_i\overline{\tau}_i\left(\frac{R_{t - 1}B_{i, t - 1} + (Y_t + Q_t)S_{i, t - 1}}{Y_t + Q_t}\right),\\
+  \label{eq:tax rate on type i eqm}
+  \tau_{i, t} & = \delta\overline{\tau}_i + (1 - \delta)\tau_t\\
+  \label{eq:consumption market clearing eqm}
+  Y_t & = \sum_{i = 1}^H \lambda_i C_{i, t} \\
+  \label{eq:bond market clearing eqm}
+  0 & = \sum_{i = 1}^H \lambda_i B_{i, t}\\
+  \label{eq:share market clearing eqm}
+  1 & = \sum_{i = 1}^H \lambda_i S_{i, t} \\
+  \label{eq:theta defn eqm}
+  \Theta_{i, t} & = S_{i, t} + \frac{R_{t - 1} B_{i, t - 1} + T_{i, t}}{Y_t + Q_t}\\
+  \label{eq:theta cond expectation 1 period defn eqm}
+  \Theta_{i, 1, t} & = \E_t[\Theta_{i, t + 1}]\\
+  \label{eq:theta cond expectation j period defn eqm}
+  \Theta_{i, j, t} & = \E_t[\Theta_{i, j - 1, t + 1}] \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\,\,\,\,\, \text{for }j = 2,\dots, N_j,\\
+  \label{eq:wealth share cond expectation j period defn eqm}
+  W_{i, j, t + 1} & = \lambda_i(\Theta_{i, j + 1, t} + (\Theta_{i, j, t + 1} - \E_t[\Theta_{i, j, t + 1}])),\\
+  \label{eq:wealth share evolution eqm}
+  W_{i, t + 1} & = \lambda_i(\Theta_{i, 1, t} + (\Theta_{i, t + 1} - \E_t[\Theta_{i, t + 1}])),
+\end{align}
+and the exogenous processes
+\begin{align}
+  \label{eq:endowment growth eqm}
+  \Delta \log(Y_{t + 1}) & = \mu_y + x_t + \sigma_{y, t} \varepsilon_{y, t + 1},\\
+  \label{eq:long run risk eqm}
+  x_{t + 1} & = \rho_x x_t + \sigma_x \sigma_{y, t} \varepsilon_{x, t + 1},\\
+  \label{eq:stochastic volatility eqm}
+  \sigma_{y, t}^2 & = (1 - \rho_\sigma) \sigma_y^2 + \rho_\sigma \sigma_{y, t}^2 + \sigma_{y, t}\varsigma \varepsilon_{\sigma, t + 1}.
+\end{align}
+
+\subsubsection{Stationary Equilibrium Conditions}
+Because of the unit root in $Y_t$, the model is non-stationary. To obtain a stationary representation, define the transformations
+\begin{align}
+  \tilde{C}_{i, t} & = \frac{C_{i, t}}{Y_t}, \quad \tilde{Q}_t = \frac{Q_t}{Y_t}, \quad  \tilde{B}_{i, t - 1} = \frac{B_{i, t - 1}}{Y_t}, \quad \tilde{B}_{i, t} = \frac{B_{i, t}}{Y_t}, \quad \tilde{T}_{i, t} = \frac{T_{i, t}}{Y_t},\\
+  \tilde{Y}_t & = \exp(\Delta \log(Y_t) - \mu_y) = \exp(x_{t - 1} + \sigma_{y, t - 1} \varepsilon_{y, t})
+\end{align}
+Most of the calculations for the stationary representation are straightforward, so I only show the work for the more complicated cases.
+
+The stochastic discount factor (\ref{eq:stochastic discount factor eqm}) becomes
+\begin{align*}
+  M_{i, t, t + 1} & = \beta_i \frac{C_{i, t + 1}^{- \gamma_i } }{C_{i, t}^{-\gamma_i} }\left(\frac{\tilde{V}_{i, t + 1}}{\tilde{\calC\calE}_{i, t}}\right)^{ \psi_i - \gamma_i}\\
+               & = \beta_i\frac{\tilde{C}_{i, t + 1}^{- \gamma_i } }{\tilde{C}_{i, t}^{-\gamma_i} }\left(\frac{\tilde{V}_{i, t + 1}}{\tilde{\calC\calE}_{i, t}}\right)^{ \psi_i - \gamma_i}\left(\frac{Y_{t + 1}}{Y_t}\right)^{-\gamma_i}\\
+               & = \beta_i\frac{\tilde{C}_{i, t + 1}^{- \gamma_i } }{\tilde{C}_{i, t}^{-\gamma_i} }\left(\frac{\tilde{V}_{i, t + 1}}{\tilde{\calC\calE}_{i, t}}\right)^{ \psi_i - \gamma_i}\left(\exp(\log(Y_{t + 1}) - \log(Y_t))\right)^{-\gamma_i}\\
+               & = \beta_i \frac{\tilde{C}_{i, t + 1}^{- \gamma_i } }{\tilde{C}_{i, t}^{-\gamma_i} }\left(\frac{\tilde{V}_{i, t + 1}}{\tilde{\calC\calE}_{i, t}}\right)^{ \psi_i - \gamma_i}\left(\tilde{Y}_{t + 1}\exp(\mu_y)\right)^{-\gamma_i}.
+\end{align*}
+The forward difference equation for $\tilde{\Omega}_t$ (\ref{eq:epstein zin wealth recursion eqm}) becomes
+\begin{align*}
+  \tilde{\Omega}_{i, t} & = 1 + \E_t \left[M_{i, t, t + 1}\frac{\tilde{C}_{i, t + 1}Y_{t + 1}}{\tilde{C}_{i, t}Y_t}\tilde{\Omega}_{i, t}\right]\\
+                  & = 1 + \exp(\mu_y)\E_t \left[M_{i, t, t + 1}\frac{\tilde{C}_{i, t + 1}}{\tilde{C}_{i, t}}\tilde{Y}_{t + 1}\tilde{\Omega}_{i, t}\right].
+\end{align*}
+The asset pricing equation for the endowment tree (\ref{eq:tree asset pricing eqm}) becomes
+\begin{align*}
+  \tilde{Q}_t Y_t & = \E_t[M_{i, t, t + 1}(Y_{t + 1} + \tilde{Q}_{t + 1} Y_{t + 1})]\\
+  \tilde{Q}_t & = \E_t\left[M_{i, t, t + 1}(1 + \tilde{Q}_{t + 1})\frac{Y_{t + 1}}{Y_t}\right]\\
+                  & = \exp(\mu_y)\E_t[M_{i, t, t + 1}(1 + \tilde{Q}_{t + 1})\tilde{Y}_{t + 1}].
+\end{align*}
+Instead of $Y_t$, the relevant endowment process is
+\begin{align*}
+  \log(\tilde{Y}_t) & = x_{t - 1} + \sigma_{y, t - 1} \varepsilon_{y, t}.
+\end{align*}
+I will also remove the fiscal policy from equilibrium conditions to reduce dimensionality. First, I substitute the net transfer term (\ref{eq:net transfer rule eqm}) into the definition of $\Theta_{i, t}$.
+\begin{align*}
+  \Theta_{i, t} & = (1 - \tau_{i, t})\left(S_{i, t - 1} + \frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t}\right).
+\end{align*}
+Second, when coding the model, I will treat the common tax rate (\ref{eq:common tax rate eqm}) and type-specific tax rate (\ref{eq:tax rate on type i eqm}) as functions of the state and jump variables.
+
+Finally, I will further reduce the model's dimensionality by using the market-clearing conditions to remove the consumption and portfolio choice variables as well as the wealth share state for type $H$.
+\begin{align}
+  \lambda_H \tilde{C}_{H, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i \tilde{C}_{i, t},\\
+  \lambda_H \tilde{B}_{i, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i \tilde{B}_{i, t},\\
+  \lambda_H S_{i, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i S_{i, t},\\
+  W_{H, t} & = 1 - \sum_{i = 1}^{H - 1} W_{i, t}.
+\end{align}
+
+In summary, the stationary equilibrium conditions (excluding the exogenous shocks) are
+\begin{align}
+  \label{eq:epstein zin defn eqm stat}
+  \tilde{V}_{i, t} & = ((1 - \beta_i)\tilde{\Omega}_{i, t})^{\frac{1}{1 - \psi_i}},\\
+  \label{eq:certainty equivalent eqm stat}
+  \tilde{\calC\calE}_{i, t} & = \left(\frac{1 - \beta_i}{\beta_i}(\tilde{\Omega}_{i, t} - 1)\right)^{\frac{1}{1 - \psi_i}},\\
+  \label{eq:epstein zin wealth recursion eqm stat}
+  \tilde{\Omega}_{i, t} & = 1 + \exp(\mu_y)\E_t\left[M_{i, t, t + 1}\frac{\tilde{C}_{i, t + 1}}{\tilde{C}_{i, t}}\tilde{Y}_{t + 1}\tilde{\Omega}_{i, t + 1}\right],\\
+  \label{eq:stochastic discount factor eqm stat}
+  M_{i, t, t + 1} & = \beta_i\frac{\tilde{C}_{i, t + 1}^{- \gamma_i } }{\tilde{C}_{i, t}^{-\gamma_i} }\left(\frac{\tilde{V}_{i, t + 1}}{\tilde{\calC\calE}_{i, t}}\right)^{ \psi_i - \gamma_i}\left(\tilde{Y}_{t + 1}\exp(\mu_y)\right)^{-\gamma_i},\\
+  \label{eq:euler eqn eqm stat}
+  1 & = \E_t\left[M_{i, t, t + 1}R_t\right],\\
+  \label{eq:tree asset pricing eqm stat}
+  \tilde{Q}_t & = \exp(\mu_y)\E_t[M_{i, t, t + 1}(1 + \tilde{Q}_{t + 1})\tilde{Y}_{t + 1}],\\
+  \label{eq:hh budget constraint with wealth share eqm stat}
+  \tilde{C}_{i, t} + \tilde{B}_{i, t} + \tilde{Q}_t S_{i, t} & \leq \frac{1}{\lambda_i} W_{i, t} (1 + \tilde{Q}_t),\\
+  \label{eq:Rq defn eqm stat}
+  R_{q, t} & = 1,\\
+  \label{eq:net transfer rule eqm stat}
+  \tilde{T}_{i, t} & = -\tau_{i, t}(R_t \tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t)S_{i, t - 1}),\\
+  \label{eq:common tax rate eqm stat}
+  \tau_t & = -\frac{\delta}{1 - \delta}\sum_i\overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t)S_{i, t - 1}}{1 + \tilde{Q}_t}\right),\\
+  \label{eq:tax rate on type i eqm stat}
+  \tau_{i, t} & = \delta\overline{\tau}_i + (1 - \delta)\tau_t\\
+  \label{eq:consumption market clearing eqm stat}
+  \lambda_H \tilde{C}_{H, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i \tilde{C}_{i, t},\\
+  \label{eq:bond market clearing eqm stat}
+  \lambda_H \tilde{B}_{i, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i \tilde{B}_{i, t},\\
+  \label{eq:share market clearing eqm stat}
+  \lambda_H S_{i, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i S_{i, t},\\
+  \label{eq:wealth share market clearing eqm stat}
+  W_{H, t} & = 1 - \sum_{i = 1}^{H - 1} W_{i, t},\\
+  \label{eq:theta defn eqm stat}
+  \Theta_{i, t} & = (1 - \tau_{i, t})\left(S_{i, t - 1} + \frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t}\right) = S_{i, t - 1} + \frac{R_{t - 1} \tilde{B}_{i, t - 1} + \tilde{T}_{i, t}}{1 + \tilde{Q}_t}\\
+  \label{eq:theta cond expectation 1 period defn eqm stat}
+  \Theta_{i, 1, t} & = \E_t[\Theta_{i, t + 1}]\\
+  \label{eq:theta cond expectation j period defn eqm stat}
+  \Theta_{i, j, t} & = \E_t[\Theta_{i, j - 1, t + 1}] \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\,\,\,\,\, \text{for }j = 2,\dots, N_j,\\
+  \label{eq:wealth share cond expectation j period defn eqm stat}
+  W_{i, j, t + 1} & = \lambda_i(\Theta_{i, j + 1, t} + (\Theta_{i, j, t + 1} - \E_t[\Theta_{i, j, t + 1}])),\\
+  \label{eq:wealth share evolution eqm stat}
+  W_{i, t + 1} & = \lambda_i(\Theta_{i, 1, t} + (\Theta_{i, t + 1} - \E_t[\Theta_{i, t + 1}])).
+\end{align}
+
+\subsection{Representative Agent}
+To provide an initial guess for the risk-adjusted linearization and to provide a verification that the model is coded correctly, I solve the representative agent version of the model and use its solution as an initial guess for the heterogeneous agent version.
+
+To solve the representative agent version, I use the deterministic steady state as an initial guess.
+Within this subsection, I denote the deterministic steady state values by an absence of a time subscript or tilde. By construction, the growth of the endowment is $\exp(x)$, the long-run growth rate (excluding the deterministic growth $\mu_y$) is $x = 0$, and the long-run volatility is $\sigma_y$.
+
+Focusing now on the equilibrium conditions, from (\ref{eq:epstein zin defn eqm stat}) and (\ref{eq:certainty equivalent eqm stat})
+\begin{align*}
+  \tilde{V}_i & = ((1 - \beta_i) \tilde{\Omega}_i)^{\frac{1}{1 - \psi_i}},\quad \tilde{\calC\calE}_i = \left(\frac{1 - \beta_i}{\beta_i} (\tilde{\Omega}_i - 1)\right)^{\frac{1}{1 - \psi_i}}\\
+  \RA \frac{\tilde{V}_i}{\tilde{\calC\calE}_i} & = \left(\frac{(1 - \beta_i)\tilde{\Omega}_i}{\frac{1 - \beta_i}{\beta_i} (\tilde{\Omega}_i - 1)}\right)^{\frac{1}{1 - \psi_i}} = \left(\beta_i\frac{\tilde{\Omega}_i}{\tilde{\Omega}_i - 1}\right)^{\frac{1}{1 - \psi_i}}.
+\end{align*}
+From (\ref{eq:stochastic discount factor eqm stat}) and (\ref{eq:epstein zin wealth recursion eqm stat}),
+\begin{align*}
+  M_i & = \beta_i\left(\frac{\tilde{V}_i}{\tilde{\calC\calE}_i}\right)^{\psi_i - \gamma_i}(Y\exp(\mu_y))^{ - \gamma_i} = \beta_i\left(\beta_i\frac{\tilde{\Omega}_i}{\tilde{\Omega}_i - 1}\right)^{\frac{\psi_i - \gamma_i}{1 - \psi_i}}(Y\exp(\mu_y))^{ - \gamma_i}\\
+  \tilde{\Omega}_i & = 1 + \exp(\mu_y)M_i Y \tilde{\Omega}_i\\
+    & = 1 + \exp(\mu_y)\beta_i\left(\beta_i\frac{\tilde{\Omega}_i}{\tilde{\Omega}_i - 1}\right)^{\frac{\psi_i - \gamma_i}{1 - \psi_i}}(Y\exp(\mu_y))^{ - \gamma_i} Y \tilde{\Omega}_i\\
+    & = 1 +\beta_i^{\frac{\psi_i - \gamma_i + (1 - \psi_i)}{1 - \psi_i}}\left(\beta_i\frac{\tilde{\Omega}_i}{\tilde{\Omega}_i - 1}\right)^{\frac{\psi_i - \gamma_i}{1 - \psi_i}}(Y\exp(\mu_y))^{1 - \gamma_i} \tilde{\Omega}_i\\
+  1 & =  \left(\beta_i Y \exp(\mu_y)\left(\frac{\tilde{\Omega}_i}{\tilde{\Omega}_i - 1}\right)^{\frac{1}{1 - \psi_i}}\right)^{1 - \gamma_i}\\
+  \tilde{\Omega}_i - 1 & = (\beta_i Y \exp(\mu_y))^{1 - \psi_i} \tilde{\Omega}_i\\
+  \tilde{\Omega}_i & = \frac{1}{1 - (\beta_i Y \exp(\mu_y))^{1 - \psi_i}}.
+\end{align*}
+Since $Y$ can be determined directly from parameters, this is a closed form formula for $\tilde{\Omega}_i$, which also determines the values of $\tilde{V}_i$, $\tilde{\calC\calE}_i$, and $M_i$ in the deterministic steady state.
+
+Moving onto the remaining equilibrium conditions, the Euler equation (\ref{eq:euler eqn eqm stat}) becomes
+\begin{align*}
+  R & = \frac{1}{M_i}.
+\end{align*}
+The tree asset pricing condition (\ref{eq:tree asset pricing eqm stat}) becomes
+\begin{align*}
+  Q & = \exp(\mu_y) (M_i (1 + Q)Y) = \exp(\mu_y) M_i Y + \exp(\mu_y) M_i Y Q\\
+  Q & = \frac{\exp(\mu_y) M_i Y}{1 - \exp(\mu_y) M_i Y}.
+\end{align*}
+Since there is a representative agent, $B_i = 0$, $S_i = 1$, and $W_i = 1$, hence $C_i = Y = \exp(x)$.
+
+\subsubsection{Initial Guess for Heterogeneous Agent Model}
+I need to specify how a representative-agent solution $(z_r, y_r, \Psi_r)$ is interpolated into $(z, y, \Psi)$ because the dimensionalities differ.
+
+The interpolation is relatively straightforward $z$ and $y$ since
+the individual-specific variables will be the same as in the representative agent version. Not all jump and state variables, however, can be
+based on $z_r$ and $y_r$.
+The initial portfolio allocation will be set to $\gamma_i^{-1} / \sum_i \gamma_i^{-1}$ so that lower risk aversion agents hold a larger share of the tree.
+I set the consumption choices all to the same value, as implied by the representative agent solution. Similarly, the price of the tree per dividend is the same as in $y_r$. The wealth distribution, by assumption, can be arbitrarily chosen. The budget constraint for type $i$ implies that bonds satisfy
+\begin{align*}
+  B_i & = \frac{1}{\lambda_i}W_i(1 + Q) - C_i - Q S_i.
+\end{align*}
+In a steady state, the wealth shares are
+\begin{align*}
+  W_i & = \lambda_i(1 - \overline{\tau}_i)\left(S_i + \frac{R B_i}{1 + Q}\right).
+\end{align*}
+Combine these two equations.
+\begin{align*}
+  B_i & = (1 + Q)\left(1 - \delta \overline{\tau}_i + \delta \sum_i\overline{\tau}_i\left(\frac{R B_i + (1 + Q) S_i}{1 + Q}\right)\right)\left(S_i + \frac{R B_i}{1 + Q}\right) - C_i - Q S_i.
+\end{align*}
+Given tax rates $\overline{\tau}_i$, I have a system of $H$ equations for the portfolio bond allocations. Note that I am allowing the bond market to fail to clear, which it generally will. After the portfolio choice is set, all remaining state and jump variables in the heterogeneous agent model can be populated.
+
+The interpolation for $\Psi$ is more complicated. Rather than formalize the interpolation scheme, I briefly sketch it. The idea is that in the representative agent solution, the deviation of a jump variable from steady state is a linear combination of the deviations of the state variables from steady state. For initial guesses of $\Psi$ for the heterogeneous agent solution, I will use the same coefficients for each row corresponding to type $i$'s jump variable. With sufficiently small heterogeneity, the dependence on the new state variables like the wealth distribution should be small. If nonzero guesses are needed, then small perturbations in the economically sensible direction should work.
+
+\section{Risk-Adjusted Linearization}\label{sec:ral}
+
+We now proceed to converting the equilibrium conditions into a suitable form for a risk-adjusted linearization. The system should conform to the representation
+\begin{align*}
+  0 & = \log \E_t\left[\exp\left(\xi(z_t, y_t) + \Gamma_5 z_{t + 1} + \Gamma_6 y_{t + 1}\right)\right]\\
+  z_{t + 1} & = \mu(z_t, y_t) + \Lambda(z_t, y_t) (y_{t + 1} - \E_t y_{t + 1}) + \Sigma(z_t, y_t) \varepsilon_{t + 1},
+\end{align*}
+where $z_t$ are (predetermined) state variables and $y_t$ are (nondetermined) jump variables.
+For the remainder of this section, lower case variables are generally the logs of previously upper case variables, whether or not they had tildes. The exceptions are as follows. The lowercase equivalent of the certainty equivalent $\calC\calE_{i, t}$ will be the plain lowercase letters $ce_t$. Additionally, depending on the number of agents and redistribute taxes, it may not always be numerically feasible to take the log of bond positions. The reason is that levered agents will take negative bond positions, so if agent $i$ is levered, the log position would have to be $-\log(\vert B_{i, t}\vert)$. More generally, I would have to specify which types I expect to be levered before running the numerical algorithms. Thus, instead of a lowercase letter, I may sometimes use a capital letter for bond positions because I will linearize with respect to the level rather than the log. To avoid extra notation, I will now apply an abuse of notation and let $B_{i, t}$ denote the bond position per dividend (rather than the total bond position). I will also not take the logs of $\Theta_{i, t}$, $\Theta_{i, j, t}$, $W_{i, t}$, and $W_{i, j, t}$, but because they appear as forward-looking variables in some equations, I will add their log values as auxiliary variables and denote them by lowercase letters.
+
+
+\subsection{Exogenous Shocks}
+The martingale difference sequences are all standard normal random variables. The matrix $\Sigma(z_t, y_t)$ has nonzero entries for the rows corresponding to the three exogenous shocks $y_t$, $x_t$, and $\sigma_{y, t}$, which take the form
+\begin{align}
+  y_{t + 1} & = x_t + \sigma_{y, t} \varepsilon_{y, t + 1},\\
+  x_{t + 1} & = \rho_x x_t + \sigma_x\sigma_{y, t} \varepsilon_{x, t + 1},\\
+  \sigma^2_{y, t + 1} & = (1 - \rho_\sigma)\sigma^2_y + \rho_\sigma \sigma^2_{y, t} + \sigma_{y, t}\varsigma \varepsilon_{\sigma, t + 1}.
+\end{align}
+
+\subsection{Endogenous Equilibrium Conditions}
+
+\subsubsection{Preferences and Asset Pricing}
+In this subsection, I list the risk-adjusted linearization of equations related to households' preferences and asset pricing.
+
+Equation (\ref{eq:epstein zin defn eqm stat}) becomes
+\begin{align*}
+  0 & = \frac{1}{1 - \psi_i}(\log(1 - \beta_i) + \omega_{i, t}) - v_{i, t}.
+\end{align*}
+Equation (\ref{eq:certainty equivalent eqm stat}) becomes
+\begin{align*}
+  0 & = \frac{1}{1 - \psi_i}(\log(1 - \beta_i) - \log(\beta) + \log(\exp(\omega_t) - 1)) - ce_t
+\end{align*}
+Equation (\ref{eq:epstein zin wealth recursion eqm stat}) will be handled later because it is a forward difference equation. Equation (\ref{eq:stochastic discount factor eqm stat}) will be directly substituted rather than used as an equilibrium condition. Using the transformations for a risk-adjusted linearization, the stochastic discount factor becomes
+\begin{align*}
+  m_{i, t, t + 1} & = \log(\beta)  - \gamma_i (c_{i, t + 1} - c_{i, t}) + (\psi_if - \gamma_i)(v_{i, t + 1} - ce_{i, t}) - \gamma_i(y_{t + 1} + \mu_y)\\
+               & = \underbrace{\log(\beta) + \gamma_i c_{i, t} - (\psi_i - \gamma_i) ce_{i, t} - \gamma_i \mu_y}_{\xi} \underbrace{ - \gamma_i c_{i, t + 1} + (\psi_i - \gamma_i) v_{i, t + 1} - \gamma_i y_{t + 1}}_{\text{forward}}.
+\end{align*}
+Equation (\ref{eq:euler eqn eqm stat}) becomes
+\begin{align*}
+  0 & = \E_t\left[\underbrace{r_t}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}}\right]
+\end{align*}
+Equation (\ref{eq:tree asset pricing eqm}) will be handled below because it is a forward difference equation.
+
+\subsubsection{Portfolio Choice and the Wealth Distribution}
+Due to the required form of equilibrium conditions for a risk-adjusted linearization, I need to be careful with the handling of the portfolio choice and the wealth distribution.
+The budget constraints for each type (\ref{eq:hh budget constraint with wealth share eqm stat}) bind in equilibrium so that
+\begin{align*}
+  0 & = w_{i, t} - \log(\lambda_i) + \log(1 + \exp(q_t)) - \log(\exp(c_{i, t}) + B_{i, t} + \exp(q_t + s_{i, t})).
+\end{align*}
+If I choose to use the log bond positions $b_{i, t}$, then the condition becomes
+\begin{align*}
+  0 & = w_{i, t} - \log(\lambda_i) + \log(1 + \exp(q_t)) - \log(\exp(c_{i, t}) + \exp(b_{i, t}) + \exp(q_t + s_{i, t})).
+\end{align*}
+
+The net transfer rule (\ref{eq:net transfer rule eqm stat}) has already been substituted into (\ref{eq:theta defn eqm stat}),
+so I will skip this condition. The common tax rate (\ref{eq:common tax rate eqm stat}) and tax rate on type $i$ (\ref{eq:tax rate on type i eqm stat}) become
+\begin{align*}
+  \tau_t & = -\frac{\delta}{1 - \delta}\sum_i \overline{\tau}_i\left(\frac{\exp(r_{t - 1})B_{i, t - 1} + (1 + \exp(q_t))\exp(s_{i, t - 1})}{1 + \exp(q_t)}\right),\\
+  \tau_{i, t} & = \delta \overline{\tau}_i + (1 - \delta)\tau_t\\
+\end{align*}
+The market-clearing conditions (\ref{eq:consumption market clearing eqm stat}) - (\ref{eq:wealth share market clearing eqm stat}) are directly substituted into the relevant equilibrium conditions, or
+else the number of degrees of freedom will be too large, and the steady state will not be stable.
+
+Equation (\ref{eq:theta defn eqm stat}) becomes
+\begin{align*}
+  0 & = \log(1 - \tau_{i, t}) + \log\left(\exp(s_{i, t - 1}) + \frac{\exp(r_{t - 1}) B_{i, t - 1}}{1 + \exp(q_t)}\right) - \log(\Theta_{i, t}).
+\end{align*}
+
+The conditional expectations for $W_{i, t}$ (\ref{eq:wealth share cond expectation j period defn eqm stat}) can be written as
+\begin{align*}
+  W_{i, j, t + 1} & = \lambda_i\Theta_{i, j + 1, t} + \lambda_i(\Theta_{i, j, t + 1} - \E_t[\Theta_{i, j, t + 1}]).
+\end{align*}
+The wealth shares for types $i \in \{1,\dots, H - 1\}$ in (\ref{eq:wealth share evolution eqm stat}) evolve according to
+\begin{align*}
+  W_{i, t + 1} & = \lambda_i\Theta_{i, 1, t} + \lambda_i(\Theta_{i, t + 1} - \E_t[\Theta_{i, t + 1}]).
+\end{align*}
+
+I also need to add equations for the auxiliary variables to implement the conditional expectations of $\Theta_{i, t}$. Let
+\begin{align}
+\theta_{i, t} & = \log(\Theta_{i, t}),\\
+\theta_{i, j, t} & = \log(\Theta_{i, j, t}),
+\end{align}
+so that (\ref{eq:theta cond expectation 1 period defn eqm stat}) and (\ref{eq:theta cond expectation j period defn eqm stat}) become
+\begin{align*}
+  \Theta_{i, 1, t} & = \E_t\left[\Theta_{i, t + 1}\right] = \E_t\left[\exp(\log(\Theta_{i, t + 1}))\right] = \E_t[\exp(\theta_{i, t + 1})]\\
+  \Rightarrow 1 & = \E_t\left[\exp\left(\theta_{i, t + 1} - \log(\Theta_{i, 1, t})\right)\right],\\
+  \Theta_{i, j, t} & = \E_t\left[\Theta_{i, j - 1, t + 1}\right] = \E_t\left[\exp(\log(\Theta_{i, j - 1, t + 1}))\right] = \E_t[\exp(\theta_{i, j - 1, t + 1})],\\
+  \Rightarrow 1 & = \E_t\left[\exp\left(\theta_{i, j - 1, t + 1} - \log(\Theta_{i, j, t})\right)\right].
+\end{align*}
+Re-arranging yields the required form
+\begin{align*}
+  0 & = \underbrace{-\log(\Theta_{i, 1, t})}_{\xi} + \underbrace{\theta_{i, t + 1}}_{\text{forward}},\\
+  0 & = \underbrace{-\log(\Theta_{i, j, t})}_{\xi} + \underbrace{\theta_{i, j - 1, t + 1}}_{\text{forward}}.
+\end{align*}
+
+Note that I cannot use $w_{i, t}$ or $w_{i, j, t}$.
+Given the work done previously, (\ref{eq:theta cond expectation 1 period defn eqm stat}) and (\ref{eq:theta cond expectation j period defn eqm stat}) can be written as
+\begin{align*}
+  1 & = \E_t[\exp(\theta_{i, t + 1} - \theta_{i, 1, t})],\\
+  1 & = \E_t[\exp(\theta_{i, j - 1, t + 1} - \theta_{i, j, t})].
+\end{align*}
+However, takings logs of  (\ref{eq:wealth share evolution eqm stat}) would yield
+\begin{align*}
+  w_{i, t + 1} & = \log(\lambda_i) + \theta_{i, t + 1} = \log(\lambda_i) + \E_t[\theta_{i, t + 1}] + (\theta_{i, t + 1} - \E_t[\theta_{i, t + 1}]).
+\end{align*}
+Observe that
+\begin{align*}
+  \Theta_{i, 1, t} = \E_t[\Theta_{i, t + 1}] \Rightarrow \theta_{i, 1, t} = \log(\Theta_{i, 1, t}) = \log(\E_t[\Theta_{i, t + 1}]) \neq \E_t[\log(\Theta_{i, t + 1})] = \E_t[\theta_{i, t + 1}].
+\end{align*}
+The same problem occurs for (\ref{eq:wealth share cond expectation j period defn eqm stat}).
+
+
+\subsection{Forward Difference Equations}
+
+This system has two forward difference equations (\ref{eq:epstein zin wealth recursion eqm stat}) and (\ref{eq:tree asset pricing eqm stat}). To ensure accuracy of the risk-adjusted linearization, I derive $N$-period ahead forward difference equations for both.
+For (\ref{eq:tree asset pricing eqm}), define
+\begin{align}
+  D_{i, Q, t}^{(n)} & = \E_t[M_{i, t, t + 1} D_{i, Q, t + 1}^{(n - 1)}],\\
+  P_{i, Q, t}^{(n)} & = \E_t[M_{i, t, t + 1} P_{i, Q, t + 1}^{(n - 1)}],
+\end{align}
+with boundary conditions $D_{i, Q, t}^{(0)} = Y_t$ and $P_{i, Q, t}^{(0)} = Q_t$. To get these equations in a stationary form, let $\tilde{D}_{i, Q, t}^{(n)} = D_{i, Q, t}^{(n)} / Y_t$ and $\tilde{P}_{i, Q, t}^{(n)} = P_{i, Q, t}^{(n)} / Y_t$, hence
+\begin{align}
+  \tilde{D}_{i, Q, t}^{(n)} & = \exp(\mu_y)\E_t[M_{i, t, t + 1} \tilde{Y}_{t + 1}\tilde{D}_{i, Q, t + 1}^{(n - 1)}],\\
+  \tilde{P}_{i, Q, t}^{(n)} & = \exp(\mu_y)\E_t[M_{i, t, t + 1} \tilde{Y}_{t + 1}\tilde{P}_{i, Q, t + 1}^{(n - 1)}],
+\end{align}
+with boundary conditions $\tilde{D}_{i, Q, t}^{(0)} = 1$ and $\tilde{P}_{i, Q, t}^{(0)} = \tilde{Q}_t$.
+Therefore, if $d_{i, q, n, t} = \log(\tilde{D}_{i, Q, t}^{(n)})$ and $p_{i, q, n, t} = \log(\tilde{P}_{i, Q, t}^{(n)})$, then the forward difference equations in (\ref{eq:tree asset pricing eqm stat}) can be represented as the $H \times (2N + 1)$ equations:
+\begin{align}
+  0 & = \log\E_t\left[\exp\left(\underbrace{q_t - \log\left(\sum_{n = 1}^{N}\exp(d_{i, q, n, t}) + \exp(p_{i, q, n, t})\right)}_{\xi}\right)\right]\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\exp(\mu_y) - d_{i, q, n, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1} +  d_{i, q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\exp(\mu_y) - d_{i, q, 1, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
+      \end{cases}\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\exp(\mu_y) - p_{i, q, n, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1} + p_{i, q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\exp(\mu_y) - p_{i, q, 1, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
+      \end{cases}
+\end{align}
+
+The forward difference equation (\ref{eq:epstein zin wealth recursion eqm stat}) yields the recursion
+\begin{align}
+  0 & = \log\E_t\left[\exp\left(\underbrace{\omega_{i, t} - \log\left(\sum_{n = 0}^{N - 1}\exp(d_{i, \omega, n, t}) + \exp(p_{i, \omega, N, t})\right)}_{\xi}\right)\right]\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\mu_y - c_{i, t} - d_{i, \omega, n, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{c_{i, t + 1} + y_{t + 1} + d_{i, \omega, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n \geq 1\\
+        \log\E_t\left[\exp\left(\underbrace{d_{i, \omega, 0, t}}_{\xi}\right)\right] & \text{if } n = 0.
+      \end{cases}\\
+  0 & =
+      \begin{cases}
+        \log\E_t\left[\exp\left(\underbrace{\mu_y - c_{i, t} - p_{i, \omega, n, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{c_{i, t + 1} + y_{t + 1} + p_{i, \omega, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\mu_y - c_{i, t} - p_{i, \omega, 1, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{c_{i, t + 1} + y_{t + 1} + \omega_{i, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n = 1,
+      \end{cases}
+\end{align}
+where terms and boundary conditions are analogously defined. For details of the derivation, see these \href{https://github.com/chenwilliam77/RiskAdjustedLinearizations.jl/blob/main/examples/nk\_ezdis/nk\_ezdis.pdf}{notes}.
+
+For the representative agent model, the jump variables are $q_t$, $c_t$, $v_t$, $ce_t$, and $\omega_t$.
+The state variables are the autoregressive processes.
+
+
+For the heterogenous agent model, the aggregate jump variables are $q_t$, and $r_t$. The jump variables for types $i\in \{1, \dots, H - 1\}$ are
+$c_{i, t}$, $B_{i, t}$, and $s_{i, t}$. The jump variables for types $i\in \{1, \dots, H\}$ are $v_{i, t}$, $ce_{i, t}$, $\omega_{i, t}$, $\theta_{i, t}$, $\theta_{i, j, t}$, $\Theta_{i, t}$, and $\Theta_{i, j, t}$.
+The state variables are $r_{t - 1}$, $B_{i, t - 1}$, $s_{i, t - 1}$, $W_{i, t}$, $W_{i, j, t}$, and the autoregressive processes.
+The equations defining the evolution of the lags $r_{t - 1}$, $B_{i, t - 1}$, and $s_{i, t - 1}$ are obtained by the formula $z_{(t - 1) + 1} = z_t$.
+
+\end{document}
