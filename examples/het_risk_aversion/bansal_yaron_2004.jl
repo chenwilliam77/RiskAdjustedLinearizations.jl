@@ -111,7 +111,8 @@ function bansal_yaron_2004(m::BansalYaron2004{T}; sparse_arrays::Bool = false,
 
     function ccgf(F, α, z)
         # F .= .5 * RiskAdjustedLinearizations.diag(α * α') # slower but this is the underlying math
-        F .= vec(.5 * sum(α.^2, dims = 2)) # faster implementation
+        sum!(F, α.^2) # faster implementation
+        F .*= .5
     end
 
     if sparse_arrays
