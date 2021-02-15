@@ -399,7 +399,7 @@ define $\delta_i$ as the fraction of the measure of households in type $i$ who p
                   & = -R_{t - 1}\sum_i \overline{\tau}_i\delta_i \lambda_i B_{i, t - 1} - (Y_t + Q_t)\sum_i \overline{\tau}_i\delta_i\lambda_iS_{i, t - 1}\\
                   & \quad -R_{t - 1}\tau_t\sum_i (1 - \delta_i)\lambda_i B_{i, t - 1} - (Y_t + Q_t)\tau_t\sum_i (1 - \delta_i)\lambda_i S_{i, t - 1}.
 \end{align*}
-Define $\delta_i \equiv \delta$. Then
+Let $\delta_i \equiv \delta$. Then
 \begin{align*}
  0 = \sum_i T_{i, t} & = -R_{t - 1}\delta\sum_i \overline{\tau}_i \lambda_i B_{i, t - 1} - (Y_t + Q_t)\delta\sum_i \overline{\tau}_i\lambda_iS_{i, t - 1}\\
 & \quad -R_{t - 1}(1 - \delta)\tau_t\sum_i \lambda_i B_{i, t - 1} - (Y_t + Q_t)(1 - \delta)\tau_t\sum_i \lambda_i S_{i, t - 1}\\
@@ -416,8 +416,15 @@ Notice that the quantity
 \end{align*}
 is type $i$'s wealth share in the absence of redistributive taxes. Thus, it is economically more meaningful to write the taxation rule as
 \begin{align}\label{eq:common tax rate}
-  \tau_t & = -\frac{\delta}{1 - \delta}\sum_i\tau_i\left(\frac{R_{t - 1}B_{i, t - 1} + (Y_t + Q_t)S_{i, t - 1}}{Y_t + Q_t}\right).
+  \tau_t & = -\frac{\delta}{1 - \delta}\sum_i\overline{\tau}_i\left(\frac{R_{t - 1}B_{i, t - 1} + (Y_t + Q_t)S_{i, t - 1}}{Y_t + Q_t}\right).
 \end{align}
+
+An alternative approach is the one taken by Kekre and Lenel (2020). In their paper, they set $\delta_i = 1$ for all groups except one, who pay the required amount to balance the budget. Let $i^*$ denote this group. Then the transfer rule is
+\begin{align}\label{eq:common tax rate one group clears}
+  \tau_t & = \frac{-\sum_{i \neq i^*} \overline{\tau}_i (R_{t - 1}B_{i, t - 1} + (Y_t + Q_t) S_{i, t - 1})}{R_{t - 1}B_{i^*, t - 1} + (Y_t + Q_t)S_{i^*, t - 1} }.
+\end{align}
+
+
 
 \subsubsection{Aggregate State Variables}
 Aside from the exogenous shocks, the wealth distribution is a state variable. By construction, agents can be aggregated within the household types, so I only need to track the wealth distribution across the $H$ types. Let $W_{i, t}$ denote the wealth share of type $i$ in time $t$ given agents' portfolio allocations at time $t - 1$. Then
@@ -576,13 +583,16 @@ I will also remove the fiscal policy from equilibrium conditions to reduce dimen
 \begin{align*}
   \Theta_{i, t} & = (1 - \tau_{i, t})\left(S_{i, t - 1} + \frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t}\right).
 \end{align*}
-Second, when coding the model, I will treat the common tax rate (\ref{eq:common tax rate eqm}) and type-specific tax rate (\ref{eq:tax rate on type i eqm}) as functions of the state and jump variables.
+Second, when coding the model, I will treat the common tax rate (\ref{eq:common tax rate eqm}) and type-specific tax rate (\ref{eq:tax rate on type i eqm}) as functions of the state and jump variables. Third, if I use the redistribution scheme adopted by Kekre and Lenel (2020), then
+for the group $i^*$ whose tax clears the budget,
+\begin{align*}
+  \Theta_{i^*, t} & = \left(1 - \frac{-\sum_{i \neq i^*} \overline{\tau}_i (R_{t - 1}\tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t) S_{i, t - 1})}{R_{t - 1}\tilde{B}_{i^*, t - 1} + (1 + \tilde{Q}_t)S_{i^*, t - 1}}\right)\left(\frac{S_{i^*, t - 1}(1 + \tilde{Q}_t) + R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t}\right)\\
+                  & = \frac{R_{t - 1}\tilde{B}_{i^*, t - 1} + S_{i^*, t - 1}(1 + \tilde{Q}_t) - \sum_{i\neq i^*}\overline{\tau}_i(R_{t - 1}\tilde{B}_{i, t - 1} + S_{i, t - 1}(1 + \tilde{Q}_t))}{1 + \tilde{Q}_t}\\
+                  & = \left(\frac{R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t} + S_{i^*, t - 1}\right) - \sum_{i\neq i^*}\overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t} + S_{i, t - 1}\right).
+\end{align*}
 
-Finally, I will further reduce the model's dimensionality by using the market-clearing conditions to remove the consumption and portfolio choice variables as well as the wealth share state for type $H$.
+Finally, I will further reduce the model's dimensionality by using the market-clearing condition for wealth to remove the wealth share state for type $H$:
 \begin{align}
-  \lambda_H \tilde{C}_{H, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i \tilde{C}_{i, t},\\
-  \lambda_H \tilde{B}_{i, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i \tilde{B}_{i, t},\\
-  \lambda_H S_{i, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i S_{i, t},\\
   W_{H, t} & = 1 - \sum_{i = 1}^{H - 1} W_{i, t}.
 \end{align}
 
@@ -607,19 +617,33 @@ In summary, the stationary equilibrium conditions (excluding the exogenous shock
   \label{eq:net transfer rule eqm stat}
   \tilde{T}_{i, t} & = -\tau_{i, t}(R_t \tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t)S_{i, t - 1}),\\
   \label{eq:common tax rate eqm stat}
-  \tau_t & = -\frac{\delta}{1 - \delta}\sum_i\overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t)S_{i, t - 1}}{1 + \tilde{Q}_t}\right),\\
+  \tau_t & =
+\begin{cases}
+  -\frac{\delta}{1 - \delta}\sum_i\overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t)S_{i, t - 1}}{1 + \tilde{Q}_t}\right) & \text{if fixing $\delta_i \equiv \delta$,}\\
+  -\frac{\sum_{i\neq i^*} \overline{\tau}_i(R_{t - 1} \tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t)S_{i, t - 1})}{R_{t - 1}\tilde{B}_{i^*, t - 1} + (1 + \tilde{Q}_t)S_{i^*, t - 1}} & \text{if using KL2020 tax rule,}
+\end{cases}\\
   \label{eq:tax rate on type i eqm stat}
-  \tau_{i, t} & = \delta\overline{\tau}_i + (1 - \delta)\tau_t\\
+  \tau_{i, t} & = \begin{cases}
+    \delta\overline{\tau}_i + (1 - \delta)\tau_t & \text{if fixing $\delta_i \equiv \delta$,}\\
+    \overline{\tau}_i & \text{if using KL2020 tax rule \& $i\neq i^*$,}\\
+    \tau_t & \text{if using KL2020 tax rule \& $i = i^*$,}
+    \end{cases}\\
   \label{eq:consumption market clearing eqm stat}
-  \lambda_H \tilde{C}_{H, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i \tilde{C}_{i, t},\\
+   1 & = \sum_{i = 1}^{H} \lambda_i \tilde{C}_{i, t},\\
   \label{eq:bond market clearing eqm stat}
-  \lambda_H \tilde{B}_{i, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i \tilde{B}_{i, t},\\
+  1 & = \sum_{i = 1}^{H} \lambda_i \tilde{B}_{i, t},\\
   \label{eq:share market clearing eqm stat}
-  \lambda_H S_{i, t} & = 1 - \sum_{i = 1}^{H - 1} \lambda_i S_{i, t},\\
+  1 & = \sum_{i = 1}^{H} \lambda_i S_{i, t},\\
   \label{eq:wealth share market clearing eqm stat}
   W_{H, t} & = 1 - \sum_{i = 1}^{H - 1} W_{i, t},\\
   \label{eq:theta defn eqm stat}
-  \Theta_{i, t} & = (1 - \tau_{i, t})\left(S_{i, t - 1} + \frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t}\right) = S_{i, t - 1} + \frac{R_{t - 1} \tilde{B}_{i, t - 1} + \tilde{T}_{i, t}}{1 + \tilde{Q}_t}\\
+  \begin{split}
+  \Theta_{i, t} & = S_{i, t - 1} + \frac{R_{t - 1} \tilde{B}_{i, t - 1} + \tilde{T}_{i, t}}{1 + \tilde{Q}_t}\\
+    & = \begin{cases}
+    (1 - \tau_{i, t})\left(S_{i, t - 1} + \frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t}\right), &  \\
+    \frac{R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t} + S_{i^*, t - 1} - \sum_{i\neq i^*} \overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t} + S_{i, t - 1}\right) & \text{if $i = i^*$,}
+    \end{cases}
+  \end{split}\\
   \label{eq:theta cond expectation 1 period defn eqm stat}
   \Theta_{i, 1, t} & = \E_t[\Theta_{i, t + 1}]\\
   \label{eq:theta cond expectation j period defn eqm stat}
@@ -667,7 +691,7 @@ Since there is a representative agent, $B_i = 0$, $S_i = 1$, and $W_i = 1$, henc
 \subsubsection{Initial Guess for Heterogeneous Agent Model}
 I need to specify how a representative-agent solution $(z_r, y_r, \Psi_r)$ is interpolated into $(z, y, \Psi)$ because the dimensionalities differ.
 
-The interpolation is relatively straightforward $z$ and $y$ since
+The interpolation is relatively straightforward for $z$ and $y$ since
 the individual-specific variables will be the same as in the representative agent version. Not all jump and state variables, however, can be
 based on $z_r$ and $y_r$.
 The initial portfolio allocation will be set to $\gamma_i^{-1} / \sum_i \gamma_i^{-1}$ so that lower risk aversion agents hold a larger share of the tree.
@@ -708,7 +732,7 @@ The martingale difference sequences are all standard normal random variables. Th
 
 \subsection{Endogenous Equilibrium Conditions}
 
-\subsubsection{Preferences and Asset Pricing}
+\subsubsection{Preferences, Asset Pricing, and Market Clearing}
 In this subsection, I list the risk-adjusted linearization of equations related to households' preferences and asset pricing.
 
 Equation (\ref{eq:epstein zin defn eqm stat}) becomes
@@ -717,7 +741,7 @@ Equation (\ref{eq:epstein zin defn eqm stat}) becomes
 \end{align*}
 Equation (\ref{eq:certainty equivalent eqm stat}) becomes
 \begin{align*}
-  0 & = \frac{1}{1 - \psi_i}(\log(1 - \beta_i) - \log(\beta) + \log(\exp(\omega_t) - 1)) - ce_t
+  0 & = \frac{1}{1 - \psi_i}(\log(1 - \beta_i) - \log(\beta) + \log(\exp(\omega_{i, t}) - 1)) - ce_{i, t}
 \end{align*}
 Equation (\ref{eq:epstein zin wealth recursion eqm stat}) will be handled later because it is a forward difference equation. Equation (\ref{eq:stochastic discount factor eqm stat}) will be directly substituted rather than used as an equilibrium condition. Using the transformations for a risk-adjusted linearization, the stochastic discount factor becomes
 \begin{align*}
@@ -729,6 +753,15 @@ Equation (\ref{eq:euler eqn eqm stat}) becomes
   0 & = \E_t\left[\underbrace{r_t}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}}\right]
 \end{align*}
 Equation (\ref{eq:tree asset pricing eqm}) will be handled below because it is a forward difference equation.
+
+The market-clearing conditions (\ref{eq:consumption market clearing eqm stat})-(\ref{eq:share market clearing eqm stat}) become
+\begin{align*}
+  0 & = \log\left(\sum_{i = 1}^H \lambda_i\tilde{C}_{i, t}\right),\\
+  0 & = \log\left(\frac{-\sum_{i = 1}^{H - 1}\lambda_i \tilde{B}_{i, t}}{\lambda_H \tilde{B}_{H, t}}\right),\\
+  0 & = \log\left(\sum_{i = 1}^H \lambda_iS_{i, t}\right).
+\end{align*}
+Notice that because bonds are in zero net supply, the bond market-clearing condition has to separate out at least one component of the sum. Without loss of generality,
+we separate out the bond position of type $H$, with the assumption that type $H$ households are either borrowers or savers in the stochastic steady state.
 
 \subsubsection{Portfolio Choice and the Wealth Distribution}
 Due to the required form of equilibrium conditions for a risk-adjusted linearization, I need to be careful with the handling of the portfolio choice and the wealth distribution.
@@ -745,10 +778,10 @@ The net transfer rule (\ref{eq:net transfer rule eqm stat}) has already been sub
 so I will skip this condition. The common tax rate (\ref{eq:common tax rate eqm stat}) and tax rate on type $i$ (\ref{eq:tax rate on type i eqm stat}) become
 \begin{align*}
   \tau_t & = -\frac{\delta}{1 - \delta}\sum_i \overline{\tau}_i\left(\frac{\exp(r_{t - 1})B_{i, t - 1} + (1 + \exp(q_t))\exp(s_{i, t - 1})}{1 + \exp(q_t)}\right),\\
-  \tau_{i, t} & = \delta \overline{\tau}_i + (1 - \delta)\tau_t\\
+  \tau_{i, t} & = \delta \overline{\tau}_i + (1 - \delta)\tau_t
 \end{align*}
-The market-clearing conditions (\ref{eq:consumption market clearing eqm stat}) - (\ref{eq:wealth share market clearing eqm stat}) are directly substituted into the relevant equilibrium conditions, or
-else the number of degrees of freedom will be too large, and the steady state will not be stable.
+if the first tax rule is implemented. Under the Kekre and Lenel (2020) rule, $\tau_{i, t} = \overline{\tau}_i$ except for some $i^*$.
+The wealth market-clearing condition (\ref{eq:wealth share market clearing eqm stat}) is directly substituted into the relevant equilibrium conditions, or else the degrees of freedom will be too large, and the steady state will not be stable.
 
 Equation (\ref{eq:theta defn eqm stat}) becomes
 \begin{align*}
@@ -780,6 +813,12 @@ Re-arranging yields the required form
 \begin{align*}
   0 & = \underbrace{-\log(\Theta_{i, 1, t})}_{\xi} + \underbrace{\theta_{i, t + 1}}_{\text{forward}},\\
   0 & = \underbrace{-\log(\Theta_{i, j, t})}_{\xi} + \underbrace{\theta_{i, j - 1, t + 1}}_{\text{forward}}.
+\end{align*}
+To add $\theta_{i, t}$ and $\theta_{i, j, t}$ as jump variables, I add the following equations to the system:
+which implies the equations
+\begin{align*}
+  1 & = \exp(\theta_{i, t} - \log(\Theta_{i, t})) \Rightarrow 0 = \theta_{i, t} - \log(\Theta_{i, t}),\\
+  1 & = \exp(\theta_{i, j, t} - \log(\Theta_{i, j, t})) \Rightarrow 0 = \theta_{i, j, t} - \log(\Theta_{i, j, t}).
 \end{align*}
 
 Note that I cannot use $w_{i, t}$ or $w_{i, j, t}$.
