@@ -120,5 +120,7 @@ function crw_endo_states(m, zₜ, zₜ₋₁, c_impl)
 end
 
 function crw_ccgf(F, α, z)
-    F .= .5 * diag(α * α')
+    # F .= .5 * diag(α * α') # slower but this is the underlying math
+    sum!(F, α.^2) # faster implementation
+    F .*= .5
 end

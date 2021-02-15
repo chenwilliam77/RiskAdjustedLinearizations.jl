@@ -55,7 +55,11 @@ function inplace_wachter_disaster_risk(m::WachterDisasterRisk{T}) where {T <: Re
     end
 
     function ccgf(F, α, z)
-        F .= .5 .* α[:, 1].^2 + .5 * α[:, 2].^2 + (exp.(α[:, 3] + α[:, 3].^2 .* δ^2 ./ 2.) .- 1. - α[:, 3]) * z[S[:p]]
+        # F .= .5 .* α[:, 1].^2 + .5 * α[:, 2].^2 + (exp.(α[:, 3] + α[:, 3].^2 .* δ^2 ./ 2.) .- 1. - α[:, 3]) * z[S[:p]]
+        # Following lines does the above calculation but in a faster way
+        sum!(F, view(α, :, 1:2).^2)
+        F .*= .5
+        F .+= (exp.(α[:, 3] + view(α, :, 3).^2 .* δ^2 ./ 2.) .- 1. - view(α, :, 3)) * z[S[:p]]
     end
 
     Γ₅ = zeros(T, Ny, Nz)

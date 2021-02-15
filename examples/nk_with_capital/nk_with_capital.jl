@@ -185,8 +185,9 @@ function nk_capital(m::NKCapital{T}; sparse_arrays::Bool = false,
     end
 
     function ccgf(F, α, z)
-        # F .= .5 * RiskAdjustedLinearizations.diag(α * α') # slower but this is the underlying math
-        F .= vec(.5 * sum(α.^2, dims = 2)) # faster implementation
+        # F .= .5 * diag(α * α') # slower but this is the underlying math
+        sum!(F, α.^2) # faster implementation
+        F .*= .5
     end
 
     ## Forward-looking variables
