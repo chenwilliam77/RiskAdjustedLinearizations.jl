@@ -587,8 +587,8 @@ Second, when coding the model, I will treat the common tax rate (\ref{eq:common 
 for the group $i^*$ whose tax clears the budget,
 \begin{align*}
   \Theta_{i^*, t} & = \left(1 - \frac{-\sum_{i \neq i^*} \overline{\tau}_i (R_{t - 1}\tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t) S_{i, t - 1})}{R_{t - 1}\tilde{B}_{i^*, t - 1} + (1 + \tilde{Q}_t)S_{i^*, t - 1}}\right)\left(\frac{S_{i^*, t - 1}(1 + \tilde{Q}_t) + R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t}\right)\\
-                  & = \frac{R_{t - 1}\tilde{B}_{i^*, t - 1} + S_{i^*, t - 1}(1 + \tilde{Q}_t) - \sum_{i\neq i^*}\overline{\tau}_i(R_{t - 1}\tilde{B}_{i, t - 1} + S_{i, t - 1}(1 + \tilde{Q}_t))}{1 + \tilde{Q}_t}\\
-                  & = \left(\frac{R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t} + S_{i^*, t - 1}\right) - \sum_{i\neq i^*}\overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t} + S_{i, t - 1}\right).
+                  & = \frac{R_{t - 1}\tilde{B}_{i^*, t - 1} + S_{i^*, t - 1}(1 + \tilde{Q}_t) + \sum_{i\neq i^*}\overline{\tau}_i(R_{t - 1}\tilde{B}_{i, t - 1} + S_{i, t - 1}(1 + \tilde{Q}_t))}{1 + \tilde{Q}_t}\\
+                  & = \left(\frac{R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t} + S_{i^*, t - 1}\right) + \sum_{i\neq i^*}\overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t} + S_{i, t - 1}\right).
 \end{align*}
 
 Finally, I will further reduce the model's dimensionality by using the market-clearing condition for wealth to remove the wealth share state for type $H$:
@@ -631,7 +631,7 @@ In summary, the stationary equilibrium conditions (excluding the exogenous shock
   \label{eq:consumption market clearing eqm stat}
    1 & = \sum_{i = 1}^{H} \lambda_i \tilde{C}_{i, t},\\
   \label{eq:bond market clearing eqm stat}
-  1 & = \sum_{i = 1}^{H} \lambda_i \tilde{B}_{i, t},\\
+  0 & = \sum_{i = 1}^{H} \lambda_i \tilde{B}_{i, t},\\
   \label{eq:share market clearing eqm stat}
   1 & = \sum_{i = 1}^{H} \lambda_i S_{i, t},\\
   \label{eq:wealth share market clearing eqm stat}
@@ -641,7 +641,7 @@ In summary, the stationary equilibrium conditions (excluding the exogenous shock
   \Theta_{i, t} & = S_{i, t - 1} + \frac{R_{t - 1} \tilde{B}_{i, t - 1} + \tilde{T}_{i, t}}{1 + \tilde{Q}_t}\\
     & = \begin{cases}
     (1 - \tau_{i, t})\left(S_{i, t - 1} + \frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t}\right), &  \\
-    \frac{R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t} + S_{i^*, t - 1} - \sum_{i\neq i^*} \overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t} + S_{i, t - 1}\right) & \text{if $i = i^*$,}
+    \frac{R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t} + S_{i^*, t - 1} + \sum_{i\neq i^*} \overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t} + S_{i, t - 1}\right) & \text{if $i = i^*$,}
     \end{cases}
   \end{split}\\
   \label{eq:theta cond expectation 1 period defn eqm stat}
@@ -694,20 +694,23 @@ I need to specify how a representative-agent solution $(z_r, y_r, \Psi_r)$ is in
 The interpolation is relatively straightforward for $z$ and $y$ since
 the individual-specific variables will be the same as in the representative agent version. Not all jump and state variables, however, can be
 based on $z_r$ and $y_r$.
-The initial portfolio allocation will be set to $\gamma_i^{-1} / \sum_i \gamma_i^{-1}$ so that lower risk aversion agents hold a larger share of the tree.
+The initial portfolio allocation will be set to $\gamma_i^{-1} / \sum_i \gamma_i^{-1}$ so that lower risk aversion agents hold a larger share of the tree. Additionally, I assume that consumption shares are equal to the portfolio allocation as well.
 I set the consumption choices all to the same value, as implied by the representative agent solution. Similarly, the price of the tree per dividend is the same as in $y_r$. The wealth distribution, by assumption, can be arbitrarily chosen. The budget constraint for type $i$ implies that bonds satisfy
 \begin{align*}
   B_i & = \frac{1}{\lambda_i}W_i(1 + Q) - C_i - Q S_i.
 \end{align*}
 In a steady state, the wealth shares are
 \begin{align*}
-  W_i & = \lambda_i(1 - \overline{\tau}_i)\left(S_i + \frac{R B_i}{1 + Q}\right).
+  W_i & = \lambda_i(1 - \tau_i)\left(S_i + \frac{R B_i}{1 + Q}\right).
 \end{align*}
-Combine these two equations.
+Combine these two equations to eliminate $W_i$. Since $S_i$, $R$, $Q$, and $C_i$ all have guesses and given tax rates $\overline{\tau}_i$, I have a system of $H - 1$ equations for the portfolio bond allocations, as the last bond position follows from bond market clearing.
+In the case where $H = 2$, I have
 \begin{align*}
-  B_i & = (1 + Q)\left(1 - \delta \overline{\tau}_i + \delta \sum_i\overline{\tau}_i\left(\frac{R B_i + (1 + Q) S_i}{1 + Q}\right)\right)\left(S_i + \frac{R B_i}{1 + Q}\right) - C_i - Q S_i.
+  B_1 & = (1 - \tau_1)(S_1 (1 + Q) + R B_1) - C_1 - Q S_1\\
+  (1 - (1 - \tau_1) R) B_1 & = S_1((1 - \tau_1) + Q(1 - \tau_1 - 1)) - C_1\\
+  B_1 & = \frac{S_1((1 - \tau_1) - \tau_1 Q) - C_1}{1 - (1 - \tau_1)R}.
 \end{align*}
-Given tax rates $\overline{\tau}_i$, I have a system of $H$ equations for the portfolio bond allocations. Note that I am allowing the bond market to fail to clear, which it generally will. After the portfolio choice is set, all remaining state and jump variables in the heterogeneous agent model can be populated.
+After the portfolio choice is set, all remaining state and jump variables in the heterogeneous agent model can be populated.
 
 The interpolation for $\Psi$ is more complicated. Rather than formalize the interpolation scheme, I briefly sketch it. The idea is that in the representative agent solution, the deviation of a jump variable from steady state is a linear combination of the deviations of the state variables from steady state. For initial guesses of $\Psi$ for the heterogeneous agent solution, I will use the same coefficients for each row corresponding to type $i$'s jump variable. With sufficiently small heterogeneity, the dependence on the new state variables like the wealth distribution should be small. If nonzero guesses are needed, then small perturbations in the economically sensible direction should work.
 
@@ -857,13 +860,13 @@ Therefore, if $d_{i, q, n, t} = \log(\tilde{D}_{i, Q, t}^{(n)})$ and $p_{i, q, n
   0 & = \log\E_t\left[\exp\left(\underbrace{q_t - \log\left(\sum_{n = 1}^{N}\exp(d_{i, q, n, t}) + \exp(p_{i, q, n, t})\right)}_{\xi}\right)\right]\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\exp(\mu_y) - d_{i, q, n, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1} +  d_{i, q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\exp(\mu_y) - d_{i, q, 1, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
+        \log\E_t\left[\exp\left(\underbrace{\mu_y - d_{i, q, n, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1} +  d_{i, q, n - 1, t + 1}}_{\text{forward-looking}}\right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\mu_y - d_{i, q, 1, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n = 1,
       \end{cases}\\
   0 & =
       \begin{cases}
-        \log\E_t\left[\exp\left(\underbrace{\exp(\mu_y) - p_{i, q, n, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1} + p_{i, q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
-        \log\E_t\left[\exp\left(\underbrace{\exp(\mu_y) - p_{i, q, 1, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
+        \log\E_t\left[\exp\left(\underbrace{\mu_y - p_{i, q, n, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1} + p_{i, q, n - 1, t + 1}}_{\text{forward-looking}} \right)\right] & \text{if } n > 1\\
+        \log\E_t\left[\exp\left(\underbrace{\mu_y - p_{i, q, 1, t}}_{\xi} + \underbrace{m_{i, t, t + 1}}_{\text{both}} + \underbrace{y_{t + 1} + q_{t + 1}}_{\text{forward-looking}}\right)\right] & \text{if }n = 1.
       \end{cases}
 \end{align}
 
