@@ -440,6 +440,8 @@ function create_deterministic_ss_guess(m::NKEZDisaster{T, SNK, NNK}) where {T <:
     y[J[:ds₂0]] = convert(T, log(Y0))
     y[J[:ps₂1]] = convert(T, log(exp(μ_a) * θ * M0 * A0 * Π0^(ϵ - 1.) * S₂0))
 
+    # NEED TO ADD GUESSES FOR omega
+
     for i in 2:N_approx
         y[J[Symbol("dq$(i)")]] = convert(T, log(M0) + η_k0 + log(Rq0) + y[J[Symbol("dq$(i-1)")]])
         y[J[Symbol("pq$(i)")]] = convert(T, log(M0) + η_k0 + log(Rq0) + y[J[Symbol("pq$(i-1)")]])
