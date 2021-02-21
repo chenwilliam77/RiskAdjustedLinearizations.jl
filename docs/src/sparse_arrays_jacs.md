@@ -29,18 +29,20 @@ for more details on the latter. Finally, the script
 ## Sparsity with ``\Gamma_5``, ``\Gamma_6``, ``\Lambda``, and ``\Sigma``
 The matrices ``\Gamma_5`` and ``\Gamma_6`` are constants and can be passed in directly as
 sparse matrices. The caches for ``\Lambda`` and ``\Sigma`` can be initialized as sparse matrices by using
-the `Λ_Σ_cache_init` keyword for `RiskAdjustedLinearization`. This keyword is
+the `Λ_cache_init` and `Σ_cache_init` keywords for `RiskAdjustedLinearization`. This keyword is
 a function which takes as input a `Tuple` of `Int` dimensions and allocates an array with
-those dimensions. By default, the keyword has the value
+those dimensions. By default, these keyword have the values
 
 ```
-Λ_Σ_cache_init = dims -> Matrix{Float64}(undef, dims...)
+Λ_cache_init = dims -> Matrix{Float64}(undef, dims...)
+Σ_cache_init = dims -> Matrix{Float64}(undef, dims...)
 ```
 
 To use `SparseMatrixCSC` arrays, the user would instead pass
 
 ```
-Λ_Σ_cache_init = dims -> spzeros(dims...)
+Λ_cache_init = dims -> spzeros(dims...)
+Σ_cache_init = dims -> spzeros(dims...)
 ```
 
 However, using sparse arrays for caches may not always be faster

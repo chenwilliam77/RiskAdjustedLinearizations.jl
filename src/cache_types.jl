@@ -7,6 +7,9 @@ mutable struct RALF1{LC} <: AbstractRALF
     cache::LC
 end
 
+get_cache_type(ral::RALF1{LC}) where {LC} = LC
+
+
 function RALF1(f::Function, x1::C1, cache::AbstractArray{<: Number};
                chunksize::Int = ForwardDiff.pickchunksize(length(x1))) where {C1 <: AbstractArray{<: Number}, N}
     if applicable(f, cache, x1)
@@ -46,6 +49,8 @@ mutable struct RALF2{LC} <: AbstractRALF
     f0::Function
     cache::LC
 end
+
+get_cache_type(ral::RALF2{LC}) where {LC} = LC
 
 function RALF2(f::Function, x1::C1, x2::C2, cache::AbstractArray{<: Number}, chunksizes::NTuple{Nc, Int} =
                (ForwardDiff.pickchunksize(min(length(x1), length(x2))), )) where {C1 <: AbstractArray{<: Number}, C2 <: AbstractArray{<: Number}, N, Nc}
@@ -151,6 +156,8 @@ mutable struct RALF3{LC} <: AbstractRALF
     f0::Function
     cache::LC
 end
+
+get_cache_type(ral::RALF3{LC}) where {LC} = LC
 
 function RALF3(f::Function, x1::C1, x2::C2, x3::C3, cache::AbstractArray{<: Number},
                chunksizes::NTuple{Nc, Int} =
@@ -273,6 +280,8 @@ mutable struct RALF4{LC} <: AbstractRALF
     f0::Function
     cache::LC
 end
+
+get_cache_type(ral::RALF4{LC}) where {LC} = LC
 
 function RALF4(f::Function, x1::C1, x2::C2, x3::C3, x4::C4, cache::AbstractArray{<: Number},
                chunksizes::NTuple{Nc, Int} =

@@ -126,7 +126,8 @@ The first method is the main constructor most users will want, while the second 
 
 ### Keywords for First Method
 - `sss_vector_cache_init::Function = dims -> Vector{T}(undef, dims)`: initializer for the cache of steady state vectors.
-- `Λ_Σ_cache_init::Function = dims -> Matrix{T}(undef, dims)`:  initializer for the cache of `Λ` and `Σ`
+- `Λ_cache_init::Function = dims -> Matrix{T}(undef, dims)`:  initializer for the cache of `Λ`
+- `Σ_cache_init::Function = dims -> Matrix{T}(undef, dims)`:  initializer for the cache of `Λ`
 - `jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims)`: initializer for the cache of the Jacobians of `μ`, `ξ`, and `𝒱 `.
 - `jump_dependent_shock_matrices::Bool = false`: if true, `Λ` and `Σ` are treated as `Λ(z, y)` and `Σ(z, y)`
     to allow dependence on jumps.
@@ -169,7 +170,9 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nε::Int; sss_vector_cache_init::Function = dims -> Vector{T}(undef, dims),
-                                   Λ_Σ_cache_init::Function = dims -> Matrix{T}(undef, dims), jump_dependent_shock_matrices::Bool = false,
+                                   Λ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   Σ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   jump_dependent_shock_matrices::Bool = false,
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
                                    sparsity::AbstractDict{Symbol, AbstractMatrix} = Dict{Symbol, AbstractMatrix}(),
@@ -195,7 +198,8 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
 
     # Apply dispatch on Λ and Σ to figure what they should be
     return RiskAdjustedLinearization(_μ, Λ, Σ, _ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_cache_init = sss_vector_cache_init,
-                                     Λ_Σ_cache_init = Λ_Σ_cache_init,
+                                     Λ_cache_init = Λ_cache_init,
+                                     Σ_cache_init = Σ_cache_init,
                                      jump_dependent_shock_matrices = jump_dependent_shock_matrices,
                                      jacobian_cache_init = jacobian_cache_init,
                                      sparse_jacobian = sparse_jacobian, sparsity = sparsity,
@@ -402,7 +406,9 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_cache_init::Function = dims -> Vector{T}(undef, dims),
-                                   Λ_Σ_cache_init::Function = dims -> Matrix{T}(undef, dims), jump_dependent_shock_matrices::Bool = false,
+                                   Λ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   Σ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   jump_dependent_shock_matrices::Bool = false,
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
                                    sparsity::AbstractDict = Dict{Symbol, Matrix}(),
@@ -417,11 +423,11 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
     if jump_dependent_shock_matrices
-        _Λ = RALF2(Λ, z, y, Λ_Σ_cache_init((Nz, Ny)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
-        _Σ = RALF2(Σ, z, y, Λ_Σ_cache_init((Nz, Nε)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Λ = RALF2(Λ, z, y, Λ_cache_init((Nz, Ny)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Σ = RALF2(Σ, z, y, Σ_cache_init((Nz, Nε)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
     else
-        _Λ = RALF1(Λ, z, Λ_Σ_cache_init((Nz, Ny)))
-        _Σ = RALF1(Σ, z, Λ_Σ_cache_init((Nz, Nε)))
+        _Λ = RALF1(Λ, z, Λ_cache_init((Nz, Ny)))
+        _Σ = RALF1(Σ, z, Σ_cache_init((Nz, Nε)))
     end
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_cache_init = sss_vector_cache_init,
@@ -432,7 +438,9 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_cache_init::Function = dims -> Vector{T}(undef, dims),
-                                   Λ_Σ_cache_init::Function = dims -> Matrix{T}(undef, dims), jump_dependent_shock_matrices::Bool = false,
+                                   Λ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   Σ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   jump_dependent_shock_matrices::Bool = false,
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
                                    sparsity::AbstractDict = Dict{Symbol, Matrix}(),
@@ -447,10 +455,10 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     # Create wrappers enabling caching for Λ and Σ
     if jump_dependent_shock_matrices
         _Λ = RALF2(Λ)
-        _Σ = RALF2(Σ, z, y, Λ_Σ_cache_init((Nz, Nε)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Σ = RALF2(Σ, z, y, Σ_cache_init((Nz, Nε)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
     else
         _Λ = RALF1(Λ)
-        _Σ = RALF1(Σ, z, Λ_Σ_cache_init((Nz, Nε)))
+        _Σ = RALF1(Σ, z, Σ_cache_init((Nz, Nε)))
     end
 
     return RiskAdjustedLinearization(μ, _Λ, _Σ, ξ, Γ₅, Γ₆, ccgf, z, y, Ψ, Nz, Ny, Nε, sss_vector_cache_init = sss_vector_cache_init,
@@ -461,7 +469,9 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_cache_init::Function = dims -> Vector{T}(undef, dims),
-                                   Λ_Σ_cache_init::Function = dims -> Matrix{T}(undef, dims), jump_dependent_shock_matrices::Bool = false,
+                                   Λ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   Σ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   jump_dependent_shock_matrices::Bool = false,
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
                                    sparsity::AbstractDict = Dict{Symbol, Matrix}(),
@@ -476,10 +486,10 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
     Nzchunk = ForwardDiff.pickchunksize(Nz)
     Nychunk = ForwardDiff.pickchunksize(Ny)
     if jump_dependent_shock_matrices
-        _Λ = RALF2(Λ, z, y, Λ_Σ_cache_init((Nz, Ny)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
+        _Λ = RALF2(Λ, z, y, Λ_cache_init((Nz, Ny)), (max(min(Nzchunk, Nychunk), 2), Nzchunk))
         _Σ = RALF2(Σ)
     else
-        _Λ = RALF1(Λ, z, Λ_Σ_cache_init((Nz, Ny)))
+        _Λ = RALF1(Λ, z, Λ_cache_init((Nz, Ny)))
         _Σ = RALF1(Σ)
     end
 
@@ -491,7 +501,9 @@ end
 function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆::JC6, ccgf::CF,
                                    z::AbstractVector{T}, y::AbstractVector{T}, Ψ::AbstractMatrix{T},
                                    Nz::Int, Ny::Int, Nε::Int; sss_vector_cache_init::Function = dims -> Vector{T}(undef, dims),
-                                   Λ_Σ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   Λ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   Σ_cache_init::Function = dims -> Matrix{T}(undef, dims),
+                                   jump_dependent_shock_matrices::Bool = false,
                                    jacobian_cache_init::Function = dims -> Matrix{T}(undef, dims),
                                    sparse_jacobian::Vector{Symbol} = Symbol[],
                                    sparsity::AbstractDict = Dict{Symbol, Matrix}(),
