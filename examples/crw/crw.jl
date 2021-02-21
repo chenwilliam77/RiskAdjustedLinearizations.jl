@@ -84,7 +84,7 @@ function crw(m::CoeurdacierReyWinant{T}; Ψ = nothing, sparse_jacobian::Vector{S
     if sparse_arrays
         return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, crw_ccgf, z, y, Ψ, Nε; sparse_jacobian = sparse_jacobian,
                                          Λ_cache_init = dims -> spzeros(dims...),
-                                         Σ_cache_init = dims -> Diagonal(Vector{eltype(z)}(undef, dims[1])),
+                                         Σ_cache_init = dims -> spzeros(dims...),
                                          jump_dependent_shock_matrices = true)
     else
         return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, crw_ccgf, z, y, Ψ, Nε; sparse_jacobian = sparse_jacobian,
