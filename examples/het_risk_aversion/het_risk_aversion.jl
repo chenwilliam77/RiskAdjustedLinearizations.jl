@@ -20,30 +20,34 @@ end
 function HetRiskAversion(; μ_y::T = 0.0016 * 3., ρ_x::T = 0.99^3, σ_x::T = sqrt((0.74 * sqrt(1. - ρ_x^2))^2 * 3.), ρ_σ::T = 0.99^3,
                          σ_y::T = sqrt(0.0021^2 * 3.), ς::T = sqrt(0.0014^2 * 3.), λ₁::T = .5,
                          β::T = 0.999^3, ψ::T = 2., γ₁::T = 8.9, γ₂::T = (9. - λ₁ * γ₁) / (1. - λ₁), # target 9 for average risk aversion
-                         δ::T = .9, τ̅₁::T = .035,
-                         N_approx::LArray{Int64, 1, Array{Int64, 1}, (:q1, :q1, :ω1, :ω2)} =
-                         (@LArray [1, 1, 1, 1] (:q1, :q1, :ω1, :ω2))) where {T <: Real}
+                         δ::T = .9, τ̅₁::T = 1e-8, N_approx::LArray{Int64, 1, Array{Int64, 1}, (:q1, :q2, :ω1, :ω2)} =
+                         LVector(q1 = 1, q2 = 1, ω1 = 1, ω2 = 1)
+                         ) where {T <: Real}
 
-    @assert all(N_approx[k] > 0 for k in keys(N_approx)) "N_approx must be at least 1 for all variables."
+    @assert all([N_approx[k] > 0 for k in keys(N_approx)]) "N_approx must be at least 1 for all variables."
 
     # Create indexing dictionaries
     S_init  = [:yy, :x, :σ²_y, :W1, :r₋₁, :b1₋₁, :s1₋₁]            # State variables
     J_init  = [:q, :v1, :v2, :ce1, :ce2, :ω1, :ω2, :r, :c1, :c2,   # Jump variables
+               :b1, :b2, :s1, :s2, :Θ1, :Θ2, :logΘ1, :Θ1_t1]
+#=    J_init  = [:q, :v1, :v2, :ce1, :ce2, :ω1, :ω2, :r, :c1, :c2,   # Jump variables
                :b1, :b2, :s1, :s2, :Θ1, :Θ2, :logΘ1, :logΘ2,
-               :Θ1_t1, :Θ2_t1]
+               :Θ1_t1, :Θ2_t1]=#
     SH_init = [:ε_y, :ε_x, :ε_σ²]                                  # Exogenous shocks
     E_init  = [:value_fnct1, :value_fnct2,                         # Equations
                :certainty_equiv1, :certainty_equiv2,
                :ez_fwd_diff1, :ez_fwd_diff2,
                :euler1, :euler2, :cap_ret1, :cap_ret2,
-               :budget_constraint1, :budget_constraint2,
+               :budget_constraint1, # :budget_constraint2,
                :wealth_per_agent1, :wealth_per_agent2,
-               :eq_logΘ1, :eq_logΘ2,
+               :eq_logΘ1, # :eq_logΘ2,
                :expected_wealth_per_agent1,
-               :expected_wealth_per_agent2,
-               :consumption_mc, :bond_mc, :share_mc]
+               # :expected_wealth_per_agent2,
+               # :consumption_mc, :bond_mc, :share_mc]
+               :consumption_mc, :bond_mc, :share_mc] # bond market clears by Walras' law
+
     for var in [:q1, :q2, :ω1, :ω2]
-        inds = (var == :q) ? (1:N_approx[var]) : (0:(N_approx[var] - 1))
+        inds = (var in [:q1, :q2]) ? (1:N_approx[var]) : (0:(N_approx[var] - 1))
         push!(J_init, [Symbol(:d, var, "_t$(i)") for i in inds]...)
         push!(J_init, [Symbol(:p, var, "_t$(i)") for i in 1:N_approx[var]]...)
         push!(E_init, [Symbol(:eq_d, var, "_t$(i)") for i in inds]...)
@@ -55,7 +59,7 @@ function HetRiskAversion(; μ_y::T = 0.0016 * 3., ρ_x::T = 0.99^3, σ_x::T = sq
     E  = OrderedDict{Symbol, Int}(k => i for (i, k) in enumerate(E_init))
     SH = OrderedDict{Symbol, Int}(k => i for (i, k) in enumerate(SH_init))
 
-    p = @LArray [μ_y, ρ_x, σ_x, ρ_σ, σ_y, ς, λ₁, β, ψ, γ₁, γ₂] (:μ_y, :ρ_x, :σ_x, :ρ_σ, :σ_y, :ς, :λ₁, :β, :ψ, :γ₁, :γ₂, :δ, :τ̅₁)
+    p = @LArray [μ_y, ρ_x, σ_x, ρ_σ, σ_y, ς, λ₁, β, ψ, γ₁, γ₂, δ, τ̅₁] (:μ_y, :ρ_x, :σ_x, :ρ_σ, :σ_y, :ς, :λ₁, :β, :ψ, :γ₁, :γ₂, :δ, :τ̅₁)
 
     return HetRiskAversion{T}(p, N_approx, S, J, E, SH)
 end
@@ -68,15 +72,20 @@ function het_risk_aversion(m::HetRiskAversion{T}; sparse_arrays::Bool = false,
     @unpack p, N_approx, S, J, E, SH = m
 
     @unpack yy, x, σ²_y, W1, r₋₁, b1₋₁, s1₋₁ = S
-    @unpack q, v1, v2, ce1, ce2, ω1, ω2, r, c1, b1, s1 = J
-    @unpack Θ1, Θ2, logΘ1, logΘ2, Θ1_t1, Θ2_t1, logΘ1, logΘ2 = J
+    @unpack q, v1, v2, ce1, ce2, ω1, ω2, r, c1, c2, b1, b2, s1, s2 = J
+    # @unpack Θ1, Θ2, logΘ1, logΘ2, Θ1_t1, Θ2_t1, logΘ1, logΘ2 = J
+    @unpack Θ1, Θ2, logΘ1, Θ1_t1, logΘ1 = J
     @unpack ε_y, ε_x, ε_σ² = SH
     @unpack value_fnct1, value_fnct2, certainty_equiv1, certainty_equiv2 = E
     @unpack ez_fwd_diff1, ez_fwd_diff2, cap_ret1, cap_ret2 = E
-    @unpack budget_constraint1, budget_constraint2 = E
-    @unpack wealth_per_agent1, wealth_per_agent2, eq_logΘ1, eq_logΘ2 = E
-    @unpack expected_wealth_per_agent1, expected_wealth_per_agent2 = E
+    # @unpack euler1, euler2, budget_constraint1, budget_constraint2 = E
+    @unpack euler1, euler2, budget_constraint1 = E
+    # @unpack wealth_per_agent1, wealth_per_agent2, eq_logΘ1, eq_logΘ2 = E
+    @unpack wealth_per_agent1, wealth_per_agent2, eq_logΘ1 = E
+    # @unpack expected_wealth_per_agent1, expected_wealth_per_agent2 = E
+    @unpack expected_wealth_per_agent1 = E
     @unpack consumption_mc, bond_mc, share_mc = E
+    # @unpack consumption_mc, share_mc = E
 
     Nz = length(S)
     Ny = length(J)
@@ -102,7 +111,7 @@ function het_risk_aversion(m::HetRiskAversion{T}; sparse_arrays::Bool = false,
         # Exogenous states
         F[yy]   = z[x]
         F[x]    = p.ρ_x * z[x]
-        F[σ²_y] = (1. - p.ρ_σ) * p.σ²_y + p.ρ_σ * z[σ²_y]
+        F[σ²_y] = (1. - p.ρ_σ) * p.σ_y^2 + p.ρ_σ * z[σ²_y]
 
         # Endogenous states
         F[W1]   = p.λ₁ * y[Θ1_t1]
@@ -129,17 +138,20 @@ function het_risk_aversion(m::HetRiskAversion{T}; sparse_arrays::Bool = false,
         Q = exp(y[q])
         C1 = exp(y[c1])
         C2 = exp(y[c2])
-        B1 = -exp(y[B1]) # note that y[b1] = log(-B1) since B1 < 0
-        B2 = exp(y[B2])
-        S1 = exp(y[S1])
-        S2 = exp(y[S2])
-        F[consumption_mc] = log(p.λ₁ * C1 + (1 - p.λ₁) * C2)
-        F[bond_mc]        = log(-p.λ₁ * B1) - log((1. - p.λ₁) * B2)
-        F[share_mc]       = log(p.λ₁ * S1 + (1 - p.λ₁) * S2)
-
+        B1 = -exp(y[b1]) # note that y[b1] = log(-B1) since B1 < 0
+        B2 = exp(y[b2])
+        S1 = exp(y[s1])
+        S2 = exp(y[s2])
         λ₂ = 1. - p.λ₁
-        F[budget_constraint1] = log(z[W1]) - log(p.λ₁) + log(1 + Q) - log(C1 + B1 + Q * S1)
-        F[budget_constraint2] = log(1. - z[W1]) - log(λ₂) + log(1 + Q) - log(C2 + B2 + Q * S2)
+        F[consumption_mc] = log(p.λ₁ * C1 + λ₂ * C2)
+        F[bond_mc]        = log(-p.λ₁ * B1) - log(λ₂ * B2)
+        F[share_mc]       = log(p.λ₁ * S1 + λ₂ * S2)
+
+        # W2 = 1. - z[W1]
+        F[budget_constraint1] = log(z[W1] / p.λ₁ * (1. + Q) / (C1 + B1 + Q * S1))
+        # F[budget_constraint1] = log(z[W1]) - log(p.λ₁) + log(1. + Q) - log(C1 + B1 + Q * S1)
+        # F[budget_constraint2] = log(W2 / λ₂ * (1. + Q) / (C2 + B2 + Q * S2))
+        # F[budget_constraint2] = log(W2) - log(λ₂) + log(1. + Q) - log(C2 + B2 + Q * S2)
 
         ## Wealth per agent (Θ) equations
         S1₋₁ = exp(z[s1₋₁])
@@ -147,34 +159,34 @@ function het_risk_aversion(m::HetRiskAversion{T}; sparse_arrays::Bool = false,
         B1₋₁ = -exp(z[b1₋₁]) # note that z[b1₋₁] = log(-B1₋₁) since B1₋₁ < 0
         B2₋₁ = -p.λ₁ * B1₋₁ / λ₂
         R₋₁  = exp(z[r₋₁])
-        τ₂   = -(p.τ̅₁ * (R₋₁ * B1₋₁ + (1 + Q) * S1₋₁) / (R₋₁ * B2₋₁ + (1. + Q) * S2₋₁))
+        τ₂   = -(p.τ̅₁ * p.λ₁ * (R₋₁ * B1₋₁ + (1. + Q) * S1₋₁)) / (λ₂ * (R₋₁ * B2₋₁ + (1. + Q) * S2₋₁))
         F[wealth_per_agent1] = log(1. - p.τ̅₁) + log(S1₋₁ + R₋₁ * B1₋₁ / (1. + Q)) - log(y[Θ1])
-        F[wealth_per_agent2] = log(R₋₁ * B2₋₁ / (1. + Q) + S2₋₁ - p.τ̅₁ * (R₋₁ * B1₋₁ / (1. + Q) + S1₋₁)) - log(y[Θ2])
-                             # log(1. - τ₂) + log(S2₋₁ + R₋₁ * B2₋₁ / (1. + Q)) - log(y[Θ2])
+        # F[wealth_per_agent2] = log(R₋₁ * B2₋₁ / (1. + Q) + S2₋₁ + p.τ̅₁ * (R₋₁ * B1₋₁ / (1. + Q) + S1₋₁)) - log(y[Θ2])
+        F[wealth_per_agent2] = log(1. - τ₂) + log(S2₋₁ + R₋₁ * B2₋₁ / (1. + Q)) - log(y[Θ2])
         F[eq_logΘ1]          = y[logΘ1] - log(y[Θ1])
-        F[eq_logΘ2]          = y[logΘ2] - log(y[Θ2])
+        # F[eq_logΘ2]          = y[logΘ2] - log(y[Θ2])
         F[expected_wealth_per_agent1] = -log(y[Θ1_t1])
-        F[expected_wealth_per_agent2] = -log(y[Θ2_t1])
+        # F[expected_wealth_per_agent2] = -log(y[Θ2_t1])
 
         ## Forward-difference equations separately handled b/c recursions
         F[cap_ret1]     = y[q] - log(sum([exp(y[J[Symbol("dq1_t$(i)")]]) for i in 1:N_approx[:q1]]) +
                                      exp(y[J[Symbol("pq1_t$(N_approx[:q1])")]]))
         F[cap_ret2]     = y[q] - log(sum([exp(y[J[Symbol("dq2_t$(i)")]]) for i in 1:N_approx[:q2]]) +
                                      exp(y[J[Symbol("pq2_t$(N_approx[:q2])")]]))
-        F[ez_fwd_diff1] = y[ω] - log(sum([exp(y[J[Symbol("dω1_t$(i)")]]) for i in 0:(N_approx[:ω1] - 1)]) +
+        F[ez_fwd_diff1] = y[ω1] - log(sum([exp(y[J[Symbol("dω1_t$(i)")]]) for i in 0:(N_approx[:ω1] - 1)]) +
                                      exp(y[J[Symbol("pω1_t$(N_approx[:ω1])")]]))
-        F[ez_fwd_diff2] = y[ω] - log(sum([exp(y[J[Symbol("dω2_t$(i)")]]) for i in 0:(N_approx[:ω2] - 1)]) +
+        F[ez_fwd_diff2] = y[ω2] - log(sum([exp(y[J[Symbol("dω2_t$(i)")]]) for i in 0:(N_approx[:ω2] - 1)]) +
                                      exp(y[J[Symbol("pω2_t$(N_approx[:ω2])")]]))
 
         # Set initial boundary conditions
-        F[E[:eq_dq1_t1]] = p.μ_y - y[J[:dq1]] + m1_ξv
-        F[E[:eq_pq1_t1]] = p.μ_y - y[J[:pq1]] + m1_ξv
-        F[E[:eq_dq2_t1]] = p.μ_y - y[J[:dq2]] + m2_ξv
-        F[E[:eq_pq2_t1]] = p.μ_y - y[J[:pq2]] + m2_ξv
+        F[E[:eq_dq1_t1]] = p.μ_y - y[J[:dq1_t1]] + m1_ξv
+        F[E[:eq_pq1_t1]] = p.μ_y - y[J[:pq1_t1]] + m1_ξv
+        F[E[:eq_dq2_t1]] = p.μ_y - y[J[:dq2_t1]] + m2_ξv
+        F[E[:eq_pq2_t1]] = p.μ_y - y[J[:pq2_t1]] + m2_ξv
         F[E[:eq_dω1_t0]] = y[J[:dω1_t0]]
         F[E[:eq_pω1_t1]] = p.μ_y - y[J[:pω1_t1]] + m1_ξv
-        F[E[:eq_dω1_t0]] = y[J[:dω2_t0]]
-        F[E[:eq_pω1_t1]] = p.μ_y - y[J[:pω2_t1]] + m2_ξv
+        F[E[:eq_dω2_t0]] = y[J[:dω2_t0]]
+        F[E[:eq_pω2_t1]] = p.μ_y - y[J[:pω2_t1]] + m2_ξv
 
         # Recursions for forward-difference equations
         for i in 2:N_approx[:q1]
@@ -189,7 +201,7 @@ function het_risk_aversion(m::HetRiskAversion{T}; sparse_arrays::Bool = false,
             F[E[Symbol("eq_dω1_t$(i-1)")]] = p.μ_y - y[J[Symbol("dω1_t$(i-1)")]] + m1_ξv
             F[E[Symbol("eq_pω1_t$(i)")]]   = p.μ_y - y[J[Symbol("pω1_t$(i)")]]   + m1_ξv
         end
-        for i in 2:N_approx[:ω1]
+        for i in 2:N_approx[:ω2]
             F[E[Symbol("eq_dω2_t$(i-1)")]] = p.μ_y - y[J[Symbol("dω2_t$(i-1)")]] + m2_ξv
             F[E[Symbol("eq_pω2_t$(i)")]]   = p.μ_y - y[J[Symbol("pω2_t$(i)")]]   + m2_ξv
         end
@@ -203,7 +215,7 @@ function het_risk_aversion(m::HetRiskAversion{T}; sparse_arrays::Bool = false,
 
     # The cache is initialized as zeros so we only need to fill non-zero elements
     function Σ(F, z)
-        F[yy,   ε_y]  = sqrt(z[σ²_y])         # Take square root b/c Σ is not variance-covariance matrix.
+        F[yy,   ε_y]  = sqrt(z[σ²_y])         # Take square root b/c Σ is not a variance-covariance matrix.
         F[x,    ε_x]  = sqrt(z[σ²_y]) * p.σ_x # It is instead the "volatility" loading on the martingale difference sequences.
         F[σ²_y, ε_σ²] = sqrt(z[σ²_y]) * p.ς
     end
@@ -222,6 +234,11 @@ function het_risk_aversion(m::HetRiskAversion{T}; sparse_arrays::Bool = false,
         Γ₆ = zeros(T, Ny, Ny)
     end
 
+    # Equations other than forward difference equations
+    m1_fwd!(euler1, Γ₅, Γ₆)
+    m2_fwd!(euler2, Γ₅, Γ₆)
+    Γ₆[expected_wealth_per_agent1, logΘ1] = one(T)
+
     # Forward difference equations: boundary conditions
     m1_fwd!(E[:eq_dq1_t1], Γ₅, Γ₆)
     Γ₅[E[:eq_dq1_t1], yy] = one(T)
@@ -235,7 +252,7 @@ function het_risk_aversion(m::HetRiskAversion{T}; sparse_arrays::Bool = false,
     Γ₆[E[:eq_pω1_t1], c1] = one(T)
     Γ₆[E[:eq_pω1_t1], ω1] = one(T)
 
-    m2_fwd!(E[:eq_dq1_t1], Γ₅, Γ₆)
+    m2_fwd!(E[:eq_dq2_t1], Γ₅, Γ₆)
     Γ₅[E[:eq_dq2_t1], yy] = one(T)
 
     m2_fwd!(E[:eq_pq2_t1], Γ₅, Γ₆)
@@ -269,21 +286,21 @@ function het_risk_aversion(m::HetRiskAversion{T}; sparse_arrays::Bool = false,
         Γ₆[E[Symbol("eq_pω1_t$(i)")], J[Symbol("pω1_t$(i-1)")]] = one(T)
     end
     for i in 2:N_approx[:q2]
-        m1_fwd!(E[Symbol("eq_dq2_t$(i)")], Γ₅, Γ₆)
+        m2_fwd!(E[Symbol("eq_dq2_t$(i)")], Γ₅, Γ₆)
         Γ₅[E[Symbol("eq_dq2_t$(i)")], yy] = one(T)
         Γ₆[E[Symbol("eq_dq2_t$(i)")], J[Symbol("dq2_t$(i-1)")]] = one(T)
 
-        m1_fwd!(E[Symbol("eq_pq2_t$(i)")], Γ₅, Γ₆)
+        m2_fwd!(E[Symbol("eq_pq2_t$(i)")], Γ₅, Γ₆)
         Γ₅[E[Symbol("eq_pq2_t$(i)")], yy] = one(T)
         Γ₆[E[Symbol("eq_pq2_t$(i)")], J[Symbol("pq2_t$(i-1)")]] = one(T)
     end
     for i in 2:N_approx[:ω2]
-        m1_fwd!(E[Symbol("eq_dω2_t$(i-1)")], Γ₅, Γ₆)
+        m2_fwd!(E[Symbol("eq_dω2_t$(i-1)")], Γ₅, Γ₆)
         Γ₅[E[Symbol("eq_dω2_t$(i-1)")], yy] = one(T)
         Γ₆[E[Symbol("eq_dω2_t$(i-1)")], c2] = one(T)
         Γ₆[E[Symbol("eq_dω2_t$(i-1)")], J[Symbol("dω2_t$(i-2)")]] = one(T)
 
-        m1_fwd!(E[Symbol("eq_pω2_t$(i)")], Γ₅, Γ₆)
+        m2_fwd!(E[Symbol("eq_pω2_t$(i)")], Γ₅, Γ₆)
         Γ₅[E[Symbol("eq_pω2_t$(i)")], yy] = one(T)
         Γ₆[E[Symbol("eq_pω2_t$(i)")], c2] = one(T)
         Γ₆[E[Symbol("eq_pω2_t$(i)")], J[Symbol("pω2_t$(i-1)")]] = one(T)
@@ -291,13 +308,14 @@ function het_risk_aversion(m::HetRiskAversion{T}; sparse_arrays::Bool = false,
 
     z, y, Ψ = create_guess(m, (isnothing(m_rep) ?
                                BansalYaron2004(μ_y = p.μ_y, ρ_x = p.ρ_x, σ_x = p.σ_x,
-                                               ρ_σ = p.ρ_sigma, σ_y = p.σ_y, ς = p.ς,
+                                               ρ_σ = p.ρ_σ, σ_y = p.σ_y, ς = p.ς,
                                                β = p.β, ψ = p.ψ, γ = p.λ₁ * p.γ₁ + (1. - p.λ₁) * p.γ₂,
-                                               N_approx = (@LArray N_approx[[:q1, :ω1]] (:q, :ω))) : m_rep); algorithm = algorithm)
+                                               N_approx = LVector(q = N_approx[:q1], ω = N_approx[:ω1])) : m_rep); algorithm = algorithm)
 
     if sparse_arrays
         return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε; sparse_jacobian = sparse_jacobian,
-                                         Λ_Σ_cache_init = dims -> spzeros(dims...))
+                                         Λ_cache_init = dims -> spzeros(dims...),
+                                         Σ_cache_init = dims -> Diagonal(Vector{eltype(z)}(undef, dims[1])))
     else
         return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε; sparse_jacobian = sparse_jacobian)
     end
@@ -313,45 +331,52 @@ function create_guess(m::HetRiskAversion{T}, m_rep::BansalYaron2004; algorithm::
     yrep = ral_rep.y
     zrep = ral_rep.z
     Ψrep = ral_rep.Ψ
+    Jr   = m_rep.J
+    Sr   = m_rep.S
 
     # Unpack parameters and indexing dictionaries
     @unpack p, N_approx, S, J, E, SH = m
     @unpack yy, x, σ²_y, W1, r₋₁, b1₋₁, s1₋₁ = S
-    @unpack q, v1, v2, ce1, ce2, ω1, ω2, r, c1, b1, s1 = J
-    @unpack Θ1, Θ2, logΘ1, logΘ2, Θ1_t1, Θ2_t1, logΘ1, logΘ2 = J
+    @unpack q, v1, v2, ce1, ce2, ω1, ω2, r = J
+    @unpack c1, c2, b1, b2, s1, s2 = J
+    # @unpack Θ1, Θ2, logΘ1, logΘ2, Θ1_t1, Θ2_t1, logΘ1, logΘ2 = J
+    @unpack Θ1, Θ2, logΘ1, Θ1_t1, logΘ1 = J
 
-    # Initialize deterministic steady state guess vectors
+    # Initialize deterministic steady state guesses
+    Nz = length(S)
+    Ny = length(J)
     z = Vector{T}(undef, Nz)
     y = Vector{T}(undef, Ny)
+    Ψ = zeros(T, Ny, Nz)
 
-    ## Compute guesses
+    ## Compute guesses for z, y
 
     # Steady state values of state variables known ex-ante
     z[yy]   = 0.
     z[x]    = 0.
-    z[σ²_y] = p.σ²_y
+    z[σ²_y] = p.σ_y^2
 
     # Guesses based on representative agent model's solution
-    y[ω1]  = yrep[m_rep.J[:ω]]
-    y[ω2]  = yrep[m_rep.J[:ω]]
-    y[q]   = yrep[m_rep.J[:q]]
-    y[v1]  = yrep[m_rep.J[:v]]
-    y[ce1] = yrep[m_rep.J[:ce]]
-    y[v2]  = yrep[m_rep.J[:v]]
-    y[ce2] = yrep[m_rep.J[:ce]]
+    y[ω1]  = yrep[Jr[:ω]]
+    y[ω2]  = yrep[Jr[:ω]]
+    y[q]   = yrep[Jr[:q]]
+    y[v1]  = yrep[Jr[:v]]
+    y[ce1] = yrep[Jr[:ce]]
+    y[v2]  = yrep[Jr[:v]]
+    y[ce2] = yrep[Jr[:ce]]
 
     # Guesses for consumption and portfolio choice
-    S1 = (1. / p.γ₁) / (1. / p.γ₁ + 1. / p.γ₂)
+    S1 = (1. / p.γ₁) / (1. / p.γ₁ + 1. / p.γ₂) / p.λ₁
     S2 = (1. - p.λ₁ * S1) / (1. - p.λ₁)
-    C1 = S1
+    C1 = .99 * S1 # .99 just for now b/c heterogeneity is small
     C2 = (1. - p.λ₁ * C1) / (1. - p.λ₁)
-    M0 = m_rep.p.β * (yrep[m_rep.J[:v]] / yrep[m_rep.J[:ce]])^(m_rep.p.ψ - m_rep.p.γ) *
+    M0 = m_rep.p.β * (yrep[Jr[:v]] / yrep[Jr[:ce]])^(m_rep.p.ψ - m_rep.p.γ) *
         exp(-m_rep.p.γ * m_rep.p.μ_y) # make a guess for SDF
-    R = 1. / M0 # guess that the interest rate is just 1 / M0
-    Q = exp(y_rep[m_rep.J[:q]])
-    τ₂ = -(p.τ₁ * (R * B1 + (1 + Q) * S1)) / (R * B2 + (1 + Q) * S2)
+    R = 1. / M0 # just guess it's 1 / SDF
+    Q = exp(yrep[Jr[:q]])
     B1 = (S1 * ((1. - p.τ̅₁) - p.τ̅₁ * Q) - C1) / (1. - (1. - p.τ̅₁) * R)
     B2 = -p.λ₁ * B1 / (1. - p.λ₁)
+    τ₂ = -(p.τ̅₁ * (R * B1 + (1 + Q) * S1)) / (R * B2 + (1 + Q) * S2)
     Θ10 = (1. - p.τ̅₁) * (S1 + R * B1 / (1. + Q))
     Θ20 = (1. - τ₂) * (S2 + R * B2 / (1. + Q))
 
@@ -364,18 +389,18 @@ function create_guess(m::HetRiskAversion{T}, m_rep::BansalYaron2004; algorithm::
     y[Θ1] = Θ10
     y[Θ2] = Θ20
     y[logΘ1] = log(Θ10)
-    y[logΘ2] = log(Θ20)
+    # y[logΘ2] = log(Θ20)
     y[Θ1_t1] = Θ10 # in a steady state, the one-period ahead expectation agrees with the current day value.
-    y[Θ2_t1] = Θ20
+    # y[Θ2_t1] = Θ20
     y[r] = log(R)
     z[W1] = p.λ₁ * Θ10
     z[r₋₁] = y[r]
     z[b1₋₁] = y[b1]
     z[s1₋₁] = y[s1]
 
-    M10 = m_rep.p.β * (yrep[m_rep.J[:v]] / yrep[m_rep.J[:ce]])^(m_rep.p.ψ - p.γ₁) * # use agent 1's risk aversion here
+    M10 = m_rep.p.β * (yrep[Jr[:v]] / yrep[Jr[:ce]])^(m_rep.p.ψ - p.γ₁) * # use agent 1's risk aversion here
         exp(-m_rep.p.γ * m_rep.p.μ_y) # make a guess for SDF
-    M20 = m_rep.p.β * (yrep[m_rep.J[:v]] / yrep[m_rep.J[:ce]])^(m_rep.p.ψ - p.γ₂) * # use agent 1's risk aversion here
+    M20 = m_rep.p.β * (yrep[Jr[:v]] / yrep[Jr[:ce]])^(m_rep.p.ψ - p.γ₂) * # use agent 1's risk aversion here
         exp(-m_rep.p.γ * m_rep.p.μ_y) # make a guess for SDF
     Y0 = 1. # steady state growth rate in endowment
     y[J[:dq1_t1]] = convert(T, log(exp(p.μ_y) * M10 * Y0))
@@ -403,6 +428,36 @@ function create_guess(m::HetRiskAversion{T}, m_rep::BansalYaron2004; algorithm::
         y[J[Symbol("dω2_t$(i-1)")]] = convert(T, μ_y + log(M20) + log(Y0) + y[J[Symbol("dω2_t$(i-2)")]])
         y[J[Symbol("pω2_t$(i)")]] = convert(T, μ_y + log(M20) + log(Y0) + y[J[Symbol("pω2_t$(i-1)")]])
     end
+
+    ## Populate Ψ
+
+    # Parts inferred from representative agent model
+    Ψ[q, 1:3] = Ψrep[Jr[:q], 1:3] # indexes 1-3 are the common states for yy, x, and σ²_y
+    Ψ[v1, 1:3] = Ψrep[Jr[:v], 1:3]
+    Ψ[v2, 1:3] = Ψrep[Jr[:v], 1:3]
+    Ψ[ce1, 1:3] = Ψrep[Jr[:ce], 1:3]
+    Ψ[ce2, 1:3] = Ψrep[Jr[:ce], 1:3]
+    Ψ[ω1, 1:3] = Ψrep[Jr[:ω], 1:3]
+    Ψ[ω2, 1:3] = Ψrep[Jr[:ω], 1:3]
+
+    for i in 2:N_approx[:q1]
+        Ψ[J[Symbol("dq1_t$(i)")], 1:3] = Ψrep[Jr[Symbol("dq$(i)")], 1:3]
+        Ψ[J[Symbol("pq1_t$(i)")], 1:3] = Ψrep[Jr[Symbol("pq$(i)")], 1:3]
+    end
+    for i in 2:N_approx[:q2]
+        Ψ[J[Symbol("dq2_t$(i)")], 1:3] = Ψrep[Jr[Symbol("dq$(i)")], 1:3]
+        Ψ[J[Symbol("pq2_t$(i)")], 1:3] = Ψrep[Jr[Symbol("pq$(i)")], 1:3]
+    end
+    for i in 2:N_approx[:ω1]
+        Ψ[J[Symbol("dω1_t$(i-1)")], 1:3] = Ψrep[Jr[Symbol("dω$(i-1)")], 1:3]
+        Ψ[J[Symbol("pω1_t$(i)")], 1:3] = Ψrep[Jr[Symbol("pω$(i)")], 1:3]
+    end
+    for i in 2:N_approx[:ω2]
+        Ψ[J[Symbol("dω2_t$(i-1)")], 1:3] = Ψrep[Jr[Symbol("dω$(i-1)")], 1:3]
+        Ψ[J[Symbol("pω2_t$(i)")], 1:3] = Ψrep[Jr[Symbol("pω$(i)")], 1:3]
+    end
+
+    # Guess dependence on the wealth share
 
     return z, y, Ψ
 end

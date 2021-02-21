@@ -32,13 +32,13 @@ end
 
 if solve_het_agent
     m_het = HetRiskAversion()
-    m = het_risk_aversion(m_het; sparse_arrays = true) # , sparse_jacobian = [:μ, :ξ])
+    m = het_risk_aversion(m_het; sparse_arrays = false) # , sparse_jacobian = [:μ, :ξ])
     z0 = copy(m.z)
     y0 = copy(m.y)
     Ψ0 = copy(m.Ψ)
 
     # Solve!
-#    solve!(m; algorithm = :homotopy)
+    # solve!(m; algorithm = :homotopy, step = .1)
 
 #=    # Now solve with a higher risk aversion, using previous steady state as a guess
     # Note the parameters used in the equations for the RiskAdjustedLinearization

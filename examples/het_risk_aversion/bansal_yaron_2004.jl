@@ -160,7 +160,7 @@ function bansal_yaron_2004(m::BansalYaron2004{T}; sparse_arrays::Bool = false,
 
     if sparse_arrays
         return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε; sparse_jacobian = sparse_jacobian,
-                                         Λ_Σ_cache_init = dims -> spzeros(dims...))
+                                         Λ_cache_init = dims -> spzeros(dims...), Σ_cache_init = dims -> spzeros(dims...))
     else
         return RiskAdjustedLinearization(μ, Λ, Σ, ξ, Γ₅, Γ₆, ccgf, vec(z), vec(y), Ψ, Nε; sparse_jacobian = sparse_jacobian)
     end

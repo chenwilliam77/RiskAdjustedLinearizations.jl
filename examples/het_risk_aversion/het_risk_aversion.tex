@@ -421,7 +421,7 @@ is type $i$'s wealth share in the absence of redistributive taxes. Thus, it is e
 
 An alternative approach is the one taken by Kekre and Lenel (2020). In their paper, they set $\delta_i = 1$ for all groups except one, who pay the required amount to balance the budget. Let $i^*$ denote this group. Then the transfer rule is
 \begin{align}\label{eq:common tax rate one group clears}
-  \tau_t & = \frac{-\sum_{i \neq i^*} \overline{\tau}_i (R_{t - 1}B_{i, t - 1} + (Y_t + Q_t) S_{i, t - 1})}{R_{t - 1}B_{i^*, t - 1} + (Y_t + Q_t)S_{i^*, t - 1} }.
+  \tau_t & = \frac{-\sum_{i \neq i^*} \overline{\tau}_i \lambda_i(R_{t - 1}B_{i, t - 1} + (Y_t + Q_t) S_{i, t - 1})}{\lambda_{i^*}(R_{t - 1}B_{i^*, t - 1} + (Y_t + Q_t)S_{i^*, t - 1} )}.
 \end{align}
 
 
@@ -586,9 +586,9 @@ I will also remove the fiscal policy from equilibrium conditions to reduce dimen
 Second, when coding the model, I will treat the common tax rate (\ref{eq:common tax rate eqm}) and type-specific tax rate (\ref{eq:tax rate on type i eqm}) as functions of the state and jump variables. Third, if I use the redistribution scheme adopted by Kekre and Lenel (2020), then
 for the group $i^*$ whose tax clears the budget,
 \begin{align*}
-  \Theta_{i^*, t} & = \left(1 - \frac{-\sum_{i \neq i^*} \overline{\tau}_i (R_{t - 1}\tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t) S_{i, t - 1})}{R_{t - 1}\tilde{B}_{i^*, t - 1} + (1 + \tilde{Q}_t)S_{i^*, t - 1}}\right)\left(\frac{S_{i^*, t - 1}(1 + \tilde{Q}_t) + R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t}\right)\\
-                  & = \frac{R_{t - 1}\tilde{B}_{i^*, t - 1} + S_{i^*, t - 1}(1 + \tilde{Q}_t) + \sum_{i\neq i^*}\overline{\tau}_i(R_{t - 1}\tilde{B}_{i, t - 1} + S_{i, t - 1}(1 + \tilde{Q}_t))}{1 + \tilde{Q}_t}\\
-                  & = \left(\frac{R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t} + S_{i^*, t - 1}\right) + \sum_{i\neq i^*}\overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t} + S_{i, t - 1}\right).
+  \Theta_{i^*, t} & = \left(1 - \frac{-\sum_{i \neq i^*} \overline{\tau}_i\lambda_i (R_{t - 1}\tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t) S_{i, t - 1})}{\lambda_{i^*}(R_{t - 1}\tilde{B}_{i^*, t - 1} + (1 + \tilde{Q}_t)S_{i^*, t - 1})}\right)\left(\frac{S_{i^*, t - 1}(1 + \tilde{Q}_t) + R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t}\right)\\
+                  & = \frac{\lambda_{i^*}(R_{t - 1}\tilde{B}_{i^*, t - 1} + S_{i^*, t - 1}(1 + \tilde{Q}_t)) + \sum_{i\neq i^*}\overline{\tau}_i\lambda_i(R_{t - 1}\tilde{B}_{i, t - 1} + S_{i, t - 1}(1 + \tilde{Q}_t))}{1 + \tilde{Q}_t}\\
+                  & = \lambda_{i^*}\left(\frac{R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t} + S_{i^*, t - 1}\right) + \sum_{i\neq i^*}\overline{\tau}_i\lambda_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t} + S_{i, t - 1}\right).
 \end{align*}
 
 Finally, I will further reduce the model's dimensionality by using the market-clearing condition for wealth to remove the wealth share state for type $H$:
@@ -620,7 +620,7 @@ In summary, the stationary equilibrium conditions (excluding the exogenous shock
   \tau_t & =
 \begin{cases}
   -\frac{\delta}{1 - \delta}\sum_i\overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t)S_{i, t - 1}}{1 + \tilde{Q}_t}\right) & \text{if fixing $\delta_i \equiv \delta$,}\\
-  -\frac{\sum_{i\neq i^*} \overline{\tau}_i(R_{t - 1} \tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t)S_{i, t - 1})}{R_{t - 1}\tilde{B}_{i^*, t - 1} + (1 + \tilde{Q}_t)S_{i^*, t - 1}} & \text{if using KL2020 tax rule,}
+  -\frac{\sum_{i\neq i^*} \overline{\tau}_i\lambda_i(R_{t - 1} \tilde{B}_{i, t - 1} + (1 + \tilde{Q}_t)S_{i, t - 1})}{\lambda_{i^*}(R_{t - 1}\tilde{B}_{i^*, t - 1} + (1 + \tilde{Q}_t)S_{i^*, t - 1})} & \text{if using KL2020 tax rule,}
 \end{cases}\\
   \label{eq:tax rate on type i eqm stat}
   \tau_{i, t} & = \begin{cases}
@@ -641,7 +641,7 @@ In summary, the stationary equilibrium conditions (excluding the exogenous shock
   \Theta_{i, t} & = S_{i, t - 1} + \frac{R_{t - 1} \tilde{B}_{i, t - 1} + \tilde{T}_{i, t}}{1 + \tilde{Q}_t}\\
     & = \begin{cases}
     (1 - \tau_{i, t})\left(S_{i, t - 1} + \frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t}\right), &  \\
-    \frac{R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t} + S_{i^*, t - 1} + \sum_{i\neq i^*} \overline{\tau}_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t} + S_{i, t - 1}\right) & \text{if $i = i^*$,}
+    \lambda_{i^*}\frac{R_{t - 1}\tilde{B}_{i^*, t - 1}}{1 + \tilde{Q}_t} + S_{i^*, t - 1} + \sum_{i\neq i^*} \overline{\tau}_i\lambda_i\left(\frac{R_{t - 1}\tilde{B}_{i, t - 1}}{1 + \tilde{Q}_t} + S_{i, t - 1}\right) & \text{if $i = i^*$,}
     \end{cases}
   \end{split}\\
   \label{eq:theta cond expectation 1 period defn eqm stat}
