@@ -20,10 +20,11 @@ m_nk = NKCapital(; N_approx = N_approx) # create parameters
 m = nk_capital(m_nk; sparse_arrays = true)
 
 ## The keyword sparse_arrays tells the nk_capital function
-## to make Γ₅, Γ₆ sparse arrays and to add the keyword argument
-## `Λ_Σ_cache_init = dims -> spzeros(dims...)`
+## to make Γ₅, Γ₆ sparse arrays and to add the keyword arguments
+## `Λ_cache_init = dims -> spzeros(dims...)`
+## `Σ_cache_init = dims -> spzeros(dims...)`
 ## when calling the constructor, i.e.
-## RiskAdjustedLinearization(...; Λ_Σ_cache_init = ...)
+## RiskAdjustedLinearization(...; Λ_cache_init = ...)
 solve!(m; algorithm = algorithm, verbose = :none)
 
 # Risk-adjusted linearization with sparse differentiation
