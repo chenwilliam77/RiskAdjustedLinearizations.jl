@@ -45,10 +45,19 @@ To use `SparseMatrixCSC` arrays, the user would instead pass
 Σ_cache_init = dims -> spzeros(dims...)
 ```
 
-However, using sparse arrays for caches may not always be faster
+However, the user should be aware of two caveats.
+
+1. Using sparse arrays for caches may not always be faster
 for calculating the steady state. To obtain ``\Psi``,
 we need to apply the Schur decomposition, which requires dense matrices.
 Thus, we still have to allocate dense versions of the sparse caches.
+
+2. If ``\Lambda`` is nonzero, then the cache for ``\Sigma`` cannot be sparse.
+The reason is that we need to compute `(I - Λ * Ψ) \ Σ`, but this calculation
+will fail when the `Σ` is sparse. The cache, however, can be other special
+matrix types as long as the left division works. For example,
+the matrix could be a `Diagonal` or `BandedMatrix`.
+
 
 ## Sparse Jacobians and Automatic Differentiation
 To calculate a risk-adjusted linearization, we need to compute the Jacobians of ``\mu`` and ``\xi``

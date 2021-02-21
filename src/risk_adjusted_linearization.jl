@@ -257,30 +257,46 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                    jacobian_cache_init((Ny, Ny)))
     end
 
+    # Check if we need to compute the left divide or not
+    avoid_Λ = isa(get_cache_type(Λ), AbstractMatrix) && all(Λ.cache .== 0.)
+
+    # Check if Σ's cache is sparse, which matters only if Λ is relevant b/c
+    # a left-divide of two sparse matrices A and B (i.e. A \ B) will not work
+    # b/c the LU factorization algoritm employed needs more structure on A or B.
+    sparse_cache_Σ = !avoid_Λ && isa(Σ.cache, AbstractMatrix) ? issparse(Σ.cache) : issparse(Σ.cache.du)
+
     # Create RALF2 wrappers for 𝒱 and its Jacobian J𝒱
     if applicable(ccgf, Γ₅, z) # Check if ccgf is in place or not
         _𝒱 = function _𝒱_oop(F, z, Ψ)
-            Λ0 = Λ(z)
             Σ0 = Σ(z)
-            if size(Λ0) != (Nz, Ny)
-                Λ0 = reshape(Λ0, Nz, Ny)
-            end
             if size(Σ0) != (Nz, Nε)
-                Σ0 = reshape(Σ0, Nz, Nε)
+                Σ0 = sparse_cache_Σ ? Matrix(reshape(Σ0, Nz, Nε)) : reshape(Σ0, Nz, Nε)
             end
-            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), z)
+            if avoid_Λ
+                F .= ccgf((Γ₅ + Γ₆ * Ψ) * Σ0, z)
+            else
+                Λ0 = Λ(z)
+                if size(Λ0) != (Nz, Ny)
+                    Λ0 = reshape(Λ0, Nz, Ny)
+                end
+                F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), z)
+            end
         end
     else # in place
         _𝒱 = function _𝒱_ip(F, z, Ψ)
-            Λ0 = Λ(z)
             Σ0 = Σ(z)
-            if size(Λ0) != (Nz, Ny)
-                Λ0 = reshape(Λ0, Nz, Ny)
-            end
             if size(Σ0) != (Nz, Nε)
                 Σ0 = reshape(Σ0, Nz, Nε)
             end
-            ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), z)
+            if avoid_Λ
+                ccgf(F, (Γ₅ + Γ₆ * Ψ) * Σ0, z)
+            else
+                Λ0 = Λ(z)
+                if size(Λ0) != (Nz, Ny)
+                    Λ0 = reshape(Λ0, Nz, Ny)
+                end
+                ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), z)
+            end
         end
     end
     Nzchunk = ForwardDiff.pickchunksize(Nz)
@@ -352,32 +368,48 @@ function RiskAdjustedLinearization(μ::M, Λ::L, Σ::S, ξ::X, Γ₅::JC5, Γ₆
                    jacobian_cache_init((Ny, Ny)))
     end
 
+    # Check if we need to compute the left divide or not
+    avoid_Λ = isa(get_cache_type(Λ), AbstractMatrix) && all(Λ.cache .== 0.)
+
+    # Check if Σ's cache is sparse, which matters only if Λ is relevant b/c
+    # a left-divide of two sparse matrices A and B (i.e. A \ B) will not work
+    # b/c the LU factorization algoritm employed needs more structure on A or B.
+    sparse_cache_Σ = !avoid_Λ && isa(Σ.cache, AbstractMatrix) ? issparse(Σ.cache) : issparse(Σ.cache.du)
+
     # Create RALF2 wrappers for 𝒱 and its Jacobian J𝒱
     if applicable(ccgf, Γ₅, z) # Check if ccgf is in place or not
         _𝒱 = function _𝒱_oop(F, z, y, Ψ, zₜ)
             yₜ = y + Ψ * (zₜ - z)
-            Λ0 = Λ(zₜ, yₜ)
             Σ0 = Σ(zₜ, yₜ)
-            if size(Λ0) != (Nz, Ny)
-                Λ0 = reshape(Λ0, Nz, Ny)
-            end
             if size(Σ0) != (Nz, Nε)
                 Σ0 = reshape(Σ0, Nz, Nε)
             end
-            F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), zₜ)
+            if avoid_Λ
+                F .= ccgf((Γ₅ + Γ₆ * Ψ) * Σ0, zₜ)
+            else
+                Λ0 = Λ(zₜ, yₜ)
+                if size(Λ0) != (Nz, Ny)
+                    Λ0 = reshape(Λ0, Nz, Ny)
+                end
+                F .= ccgf((Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), zₜ)
+            end
         end
     else # in place
         _𝒱 = function _𝒱_ip(F, z, y, Ψ, zₜ)
             yₜ = y + Ψ * (zₜ - z)
-            Λ0 = Λ(zₜ, yₜ)
             Σ0 = Σ(zₜ, yₜ)
-            if size(Λ0) != (Nz, Ny)
-                Λ0 = reshape(Λ0, Nz, Ny)
-            end
             if size(Σ0) != (Nz, Nε)
                 Σ0 = reshape(Σ0, Nz, Nε)
             end
-            ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), zₜ)
+            if avoid_Λ
+                ccgf(F, (Γ₅ + Γ₆ * Ψ) * Σ0, zₜ)
+            else
+                Λ0 = Λ(zₜ, yₜ)
+                if size(Λ0) != (Nz, Ny)
+                    Λ0 = reshape(Λ0, Nz, Ny)
+                end
+                ccgf(F, (Γ₅ + Γ₆ * Ψ) * ((I - (Λ0 * Ψ)) \ Σ0), zₜ)
+            end
         end
     end
     Nzchunk = ForwardDiff.pickchunksize(Nz)
