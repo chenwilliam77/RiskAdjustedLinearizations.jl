@@ -2,11 +2,12 @@
 # and times the methods, if desired
 using BenchmarkTools, RiskAdjustedLinearizations, Test, JLD2
 include("bansal_yaron_2004.jl")
-# include("het_risk_aversion.jl")
+include("het_risk_aversion.jl")
 
 # What to do?
-solve_rep_agent = true
-check_mat       = true
+solve_rep_agent = false
+solve_het_agent = true
+check_mat       = false
 
 # Set up
 if solve_rep_agent
@@ -27,6 +28,25 @@ if solve_rep_agent
     m_rep.p[:γ] = 9.5
     solve!(m; algorithm = :relaxation)
     m_rep.p[:γ] = 9. # restore the original parameter so, for example, the check_mat test passes
+end
+
+if solve_het_agent
+    m_het = HetRiskAversion()
+    m = het_risk_aversion(m_het; sparse_arrays = true) # , sparse_jacobian = [:μ, :ξ])
+    z0 = copy(m.z)
+    y0 = copy(m.y)
+    Ψ0 = copy(m.Ψ)
+
+    # Solve!
+#    solve!(m; algorithm = :homotopy)
+
+#=    # Now solve with a higher risk aversion, using previous steady state as a guess
+    # Note the parameters used in the equations for the RiskAdjustedLinearization
+    # are from the field `m_rep.p`, which is a LabelledArray and thus allows us to
+    # mutate the parameters without re-compiling the functions contained in `m`.
+    m_het.p[:γ] = 9.5
+    solve!(m; algorithm = :relaxation)
+    m_het.p[:γ] = 9. # restore the original parameter so, for example, the check_mat test passes=#
 end
 
 if check_mat
