@@ -3,11 +3,9 @@ isdefined(Base, :__precompile__) && __precompile__(false)
 module RiskAdjustedLinearizations
 
 import Base: show, getindex
-import DiffEqBase: get_tmp
 using ArrayInterface, FastGaussQuadrature, FiniteDiff, ForwardDiff, LinearAlgebra, Printf
 using SparseArrays, SparseDiffTools, SparsityDetection, UnPack
 using BandedMatrices: Zeros
-using DiffEqBase: DiffCache, dualcache
 using NLsolve: nlsolve, OnceDifferentiable
 
 # Utilities

@@ -6,7 +6,6 @@ version = "1.0.0"
 [deps]
 ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
 BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
-DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
 FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
 FiniteDiff = "6a86dc24-6348-571c-b903-95158fe2bd41"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
