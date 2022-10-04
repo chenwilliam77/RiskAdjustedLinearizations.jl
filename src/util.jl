@@ -86,7 +86,21 @@ function get_tmp(dc::DiffCache, u::AbstractArray{T}) where T<:ForwardDiff.Dual
     x = reinterpret(T, dc.dual_du)
 end
 
-function DiffEqBase.get_tmp(dc::DiffEqBase.DiffCache, u::LabelledArrays.LArray{T,N,D,Syms}) where {T,N,D,Syms}
+function get_tmp(dc::DiffCache{A, B}, u::AbstractArray{T}) where {T <: ForwardDiff.Dual,
+                                                                  A <: AbstractArray, B <: SparseMatrixCSC}
+    if VERSION <= v"1.5"
+        x = reinterpret(T, dc.dual_du)
+
+        return x
+    else
+        error("It is not possible to reinterpret sparse matrices in your current version of Julia. " *
+        "In order to cache sparse Jacobians in the current implementation of this package, " *
+        "you need to be able to reinterpret sparse matrices. Please use an earlier version " *
+        "of Julia (e.g. 1.3 or 1.5), or do not use the sparse Jacobian functionality.")
+    end
+end
+
+function get_tmp(dc::DiffCache, u::LabelledArrays.LArray{T,N,D,Syms}) where {T,N,D,Syms}
     x = reinterpret(T, dc.dual_du.__x)
     LabelledArrays.LArray{T,N,D,Syms}(x)
 end

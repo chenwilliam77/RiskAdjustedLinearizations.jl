@@ -3,7 +3,7 @@ isdefined(Base, :__precompile__) && __precompile__(false)
 module RiskAdjustedLinearizations
 
 import Base: show, getindex
-using ArrayInterface, FastGaussQuadrature, FiniteDiff, ForwardDiff, LinearAlgebra, Printf
+using ArrayInterface, FastGaussQuadrature, FiniteDiff, ForwardDiff, LabelledArrays, LinearAlgebra, Printf
 using SparseArrays, SparseDiffTools, SparsityDetection, UnPack
 using BandedMatrices: Zeros
 using NLsolve: nlsolve, OnceDifferentiable

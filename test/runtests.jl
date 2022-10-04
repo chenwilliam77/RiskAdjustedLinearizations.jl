@@ -29,9 +29,11 @@ using SafeTestsets
         include("examples_to_test/rbc_cc.jl")
     end
 
-    @time @safetestset "Sparse Arrays and Jacobians for Objects of Risk-Adjusted Linearizations" begin
-        include("sparse_ral_objects/sparse_mu_xi_V_jacobians.jl")
-        include("sparse_ral_objects/sparse_array_caches.jl")
+    if VERSION <= v"1.5"
+        @time @safetestset "Sparse Arrays and Jacobians for Objects of Risk-Adjusted Linearizations" begin
+            include("sparse_ral_objects/sparse_mu_xi_V_jacobians.jl")
+            include("sparse_ral_objects/sparse_array_caches.jl")
+        end
     end
 
     @time @safetestset "Simulations, Impulse Responses, and Simulation-Based Diagnostics" begin
